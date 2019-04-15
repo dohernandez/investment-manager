@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+    db:
+        image: mysql:5.7
+        ports:
+            - ${MYSQL_PORT}:3306
+        volumes:
+            - "./var/data/db:/var/lib/mysql"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    php:
+        build:
+            context: ./docker/php7-fpm
+            args:
+                SERVER_NAME: ${SERVER_NAME}
+                TIMEZONE: ${TIMEZONE}
+        volumes:
+            - .:/var/www/${SERVER_NAME}
+            - ./logs/symfony:/var/www/symfony/app/logs
+        environment:
+            MYSQL_HOST: db
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        depends_on:
+          - db
+
+    nginx:
+        build:
+            context: ./docker/nginx
+            args:
+                SERVER_NAME: ${SERVER_NAME}
+        ports:
+            - ${NGINX_PORT}:80
+        volumes:
+            - .:/var/www/${SERVER_NAME}
+            - ./logs/nginx/:/var/log/nginx
+        depends_on:
+            - php
