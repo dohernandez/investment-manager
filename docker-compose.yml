@@ -22,11 +22,6 @@ services:
         volumes:
             - .:/var/www/${SERVER_NAME}
             - ./logs/symfony:/var/www/symfony/app/logs
-        environment:
-            MYSQL_HOST: db
-            MYSQL_DATABASE: ${MYSQL_DATABASE}
-            MYSQL_USER: ${MYSQL_USER}
-            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
         depends_on:
           - db
 
