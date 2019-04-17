@@ -16,10 +16,7 @@
         "psr-4": {
             "Tests\\AppBundle\\": "tests/AppBundle",
             "App\\Tests\\": "tests/"
-        },
-        "files": [
-            "vendor/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php"
-        ]
+        }
     },
     "require": {
         "php": "^7.1.3",
@@ -40,7 +37,8 @@
         "twig/twig": "^1.0||^2.0"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^4.0"
+        "symfony/phpunit-bridge": "^4.0",
+        "symfony/var-dumper": "4.2.*"
     },
     "config": {
         "preferred-install": {
