@@ -1,4 +1,10 @@
 {
+    "almasaeed2010/adminlte": {
+        "version": "v2.3.11"
+    },
+    "avanzu/admin-theme-bundle": {
+        "version": "dev-master"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -243,6 +249,9 @@
     },
     "symfony/polyfill-php72": {
         "version": "v1.11.0"
+    },
+    "symfony/process": {
+        "version": "v4.2.7"
     },
     "symfony/profiler-pack": {
         "version": "v1.0.4"
