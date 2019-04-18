@@ -1,10 +1,4 @@
 {
-    "almasaeed2010/adminlte": {
-        "version": "v2.3.11"
-    },
-    "avanzu/admin-theme-bundle": {
-        "version": "dev-master"
-    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -26,6 +20,9 @@
     "doctrine/common": {
         "version": "v2.10.0"
     },
+    "doctrine/data-fixtures": {
+        "version": "v1.3.1"
+    },
     "doctrine/dbal": {
         "version": "v2.9.2"
     },
@@ -46,6 +43,18 @@
     },
     "doctrine/doctrine-cache-bundle": {
         "version": "1.3.5"
+    },
+    "doctrine/doctrine-fixtures-bundle": {
+        "version": "3.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "fc52d86631a6dfd9fdf3381d0b7e3df2069e51b3"
+        },
+        "files": [
+            "src/DataFixtures/AppFixtures.php"
+        ]
     },
     "doctrine/event-manager": {
         "version": "v1.0.0"
@@ -71,14 +80,32 @@
     "egulias/email-validator": {
         "version": "2.1.7"
     },
+    "fzaninotto/faker": {
+        "version": "v1.8.0"
+    },
     "incenteev/composer-parameter-handler": {
         "version": "v2.1.3"
     },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
+    "kevinpapst/adminlte-bundle": {
+        "version": "0.9",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "0.9",
+            "ref": "dca6a91efc23d844326d2e90b47bdf48a5038fcf"
+        },
+        "files": [
+            "config/packages/admin_lte.yaml"
+        ]
+    },
     "monolog/monolog": {
         "version": "1.24.0"
+    },
+    "nikic/php-parser": {
+        "version": "v4.2.1"
     },
     "psr/cache": {
         "version": "1.0.1"
@@ -199,6 +226,15 @@
     "symfony/intl": {
         "version": "v4.2.7"
     },
+    "symfony/maker-bundle": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
+        }
+    },
     "symfony/monolog-bridge": {
         "version": "v4.2.7"
     },
@@ -250,9 +286,6 @@
     "symfony/polyfill-php72": {
         "version": "v1.11.0"
     },
-    "symfony/process": {
-        "version": "v4.2.7"
-    },
     "symfony/profiler-pack": {
         "version": "v1.0.4"
     },
@@ -274,10 +307,28 @@
             "config/routes.yaml"
         ]
     },
+    "symfony/security-bundle": {
+        "version": "3.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "3.3",
+            "ref": "f8a63faa0d9521526499c0a8f403c9964ecb0527"
+        },
+        "files": [
+            "config/packages/security.yaml"
+        ]
+    },
     "symfony/security-core": {
         "version": "v4.2.7"
     },
     "symfony/security-csrf": {
+        "version": "v4.2.7"
+    },
+    "symfony/security-guard": {
+        "version": "v4.2.7"
+    },
+    "symfony/security-http": {
         "version": "v4.2.7"
     },
     "symfony/stopwatch": {
