@@ -101,6 +101,12 @@
             "config/packages/admin_lte.yaml"
         ]
     },
+    "knplabs/knp-menu": {
+        "version": "2.3.0"
+    },
+    "knplabs/knp-menu-bundle": {
+        "version": "v2.2.1"
+    },
     "monolog/monolog": {
         "version": "1.24.0"
     },

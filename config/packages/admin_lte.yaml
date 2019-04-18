@@ -15,7 +15,7 @@ admin_lte:
         mini_sidebar: false
 
     knp_menu:
-        enable: false
+        enable: true
 
     routes:
         adminlte_welcome: homepage
