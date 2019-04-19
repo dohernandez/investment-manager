@@ -24,6 +24,10 @@ services:
             - ./logs/symfony:/var/www/symfony/app/logs
         depends_on:
           - db
+        environment:
+            APP_ENV: ${APP_ENV}
+            APP_SECRET: ${APP_SECRET}
+            DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
 
     nginx:
         build:

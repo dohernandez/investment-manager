@@ -7,6 +7,7 @@ Symfony application to manage investment.
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
     - [Development](#development)
+        - [Environment](#environment)
 - [Troubleshooting](#troubleshooting)
     - [Known issues](#known-issues)
 - [Resources](resources)
@@ -36,4 +37,54 @@ cp .env.dist .env
 ```bash
 docker-compose build
 docker-compose up -d
+```
+
+## Development
+
+### Environment
+
+Environment variables performs better than using `symfony/dotenv` component. For that reason we will pass the variable read from the file `.env` to the environment container.
+
+#### How to add an environment variable to the container
+
+Define the variable in the file `.env`, don't forget to define it in the file `.env.dist` too
+
+```.dotenv
+...
+# In all environments, the following files are loaded if they exist,
+# the later taking precedence over the former:
+#
+#  * .env                contains default values for the environment variables needed by the app
+#  * .env.local          uncommitted file with local overrides
+#  * .env.$APP_ENV       committed environment-specific defaults
+#  * .env.$APP_ENV.local uncommitted environment-specific overrides
+#
+# Real environment variables win over .env files.
+#
+# DO NOT DEFINE PRODUCTION SECRETS IN THIS FILE NOR IN ANY OTHER COMMITTED FILES.
+#
+# Run "composer dump-env prod" to compile .env files for production use (requires symfony/flex >=1.2).
+# https://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
+
+###> symfony/framework-bundle ###
+APP_ENV=dev
+...
+```
+
+and add it to the environment container
+
+```docker-compose
+php:
+        build:
+            context: ./docker/php7-fpm
+            args:
+                SERVER_NAME: ${SERVER_NAME}
+                TIMEZONE: ${TIMEZONE}
+        volumes:
+            - .:/var/www/${SERVER_NAME}
+            - ./logs/symfony:/var/www/symfony/app/logs
+        depends_on:
+          - db
+        environment:
+            APP_ENV: ${APP_ENV}
 ```
