@@ -1,0 +1,12 @@
+menu:
+  FinanceTransferMenuItem:
+    label: 'Finance'
+    icon: 'fa fa-bars'
+    items:
+      FinanceTransferMenuItem:
+        label: 'Transfers'
+        icon: 'fa fa-exchange'
+      FinanceAccountsMenuItem:
+        label: 'Accounts'
+        icon: 'fa fa-credit-card'
+
