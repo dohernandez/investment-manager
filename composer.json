@@ -47,6 +47,7 @@
     "require-dev": {
         "fzaninotto/faker": "^1.8",
         "sensiolabs/security-checker": "^5.0",
+        "symfony/debug-pack": "^1.0",
         "symfony/maker-bundle": "^1.11",
         "symfony/phpunit-bridge": "^4.0",
         "symfony/var-dumper": "4.2.*"
