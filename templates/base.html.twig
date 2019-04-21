@@ -2,13 +2,13 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    {#<!-- Font Awesome -->#}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/all.min.css">
     <!-- Ionicons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/4.5.6/css/ionicons.min.css">
 {% endblock %}
 
 {% block logo_mini %}<b>I</b>M{% endblock %}
 {% block logo_large %}<b>Investment</b> Manager{% endblock %}
 
-{% block page_title %}{% endblock %}
+{% block page_title %}{{ entity_name|trans|title }}s{% endblock %}
