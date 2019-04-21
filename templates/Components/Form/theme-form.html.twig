@@ -1,0 +1,33 @@
+{% extends '@AdminLTE/layout/form-theme.html.twig' %}
+
+{# Errors #}
+{% block form_errors -%}
+    {% if errors|length > 0 -%}
+        {% if form.parent %}<span class="help-block">{% else %}<div class="alert alert-danger">{% endif %}
+        <ul class="list-unstyled">
+        {%- for error in errors -%}
+            <li><span class="glyphicon glyphicon-exclamation-sign"></span> {{ error.message }}</li>
+        {%- endfor -%}
+    </ul>
+        {% if form.parent %}</span>{% else %}</div>{% endif %}
+    {%- endif %}
+{%- endblock form_errors %}
+
+{%- block date_widget -%}
+    <div class="input-group date">
+        {% if attr.class is defined %}
+            {% set class = attr.class ~ ' timepicker' %}
+        {% else %}
+            {% set class = ' timepicker' %}
+        {% endif %}
+        {% set attr = attr|merge({'class' : class, 'data-datepickerenable':'on'}) %}
+
+        {% filter spaceless %}
+            {% set type = type|default('text') %}
+            <input type="{{ type }}" {{ block('widget_attributes') }} value="{{ value }}" rel="theme" />
+        {% endfilter %}
+        <div class="input-group-addon">
+            <i class="fa fa-calendar"></i>
+        </div>
+    </div>
+{%- endblock date_widget -%}

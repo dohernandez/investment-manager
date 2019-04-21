@@ -1,0 +1,19 @@
+{% block avanzu_head %}
+    <style>
+        #{{ modal_id }} > i {
+            position:relative;
+            top: calc(50% - 10px); /* 50% - 3/4 of icon height */
+        }
+    </style>
+{% endblock %}
+
+<!-- Modal delete dialog start -->
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog">
+    {% if dialog is defined %}
+    {% include 'Components/Dialog/' ~ dialog ~ '.html.twig'%}
+    {% endif %}
+    {% if request is defined %}
+    <i class="fa fa-floppy-o fa-4x" aria-hidden="true"></i>
+    {% endif %}
+</div><!-- /.modal -->
+<!-- Modal to block window after submit -->

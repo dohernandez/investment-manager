@@ -1,0 +1,9 @@
+{% set _form_theme = form_theme|default('Components/Form/horizontal-theme-form.html.twig') %}
+{% form_theme form _form_theme %}
+
+{% embed 'Components/Layout/box.html.twig'%}
+    {% block box_title %}{{ box_title }}{% endblock %}
+    {% block _box %}
+        {% include 'Components/Form/_form.html.twig' %}
+    {% endblock %}
+{% endembed %}

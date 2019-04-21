@@ -1,0 +1,124 @@
+{#
+    new_url => url to create a new entity
+    entity_name => entity name
+#}
+
+{% extends 'base.html.twig' %}
+
+{% block page_content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <a href="{{ new_url|default('#') }}" class="entity-create btn btn-success pull-right" data-target="#modal-create"
+                       data-toggle="modal">
+                        <i class="fa-plus-circle fa" aria-hidden="true"></i> Create new {{ entity_name|trans|lower }}</a>
+                </div>
+                <div class="box-body table-responsive no-padding">
+                    {% embed 'Components/Table/crud-manage-table.html.twig' %}
+                    {% endembed %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% set modal_title %}
+        <h4 class="modal-title">Create new {{ entity_name|trans|lower }}</h4>
+    {% endset %}
+
+    {% set modal_body %}
+        {# Printing success message. This section makes sense when creating/updating/deleteing entity. #}
+        {% for message in app.flashes('success') %}
+        {%  include 'Components/Alerts/alert-message.html.twig' with {
+            'message_type': 'success',
+            'message': message
+        }%}
+        {% endfor %}
+
+        {# Printing error message. This section makes sense when creating/updating/deleteing entity. #}
+        {% for message in app.flashes('error') %}
+        {%  include 'Components/Alerts/alert-message.html.twig' with {
+            'message_type': 'danger',
+            'message': message
+        }%}
+        {% endfor %}
+
+        {% embed 'Components/Layout/_box.html.twig'%}
+            {% block _box %}
+                {% include 'Components/Form/_form-horizontal.html.twig' with {
+                    'form': new_form,
+                    'box_type': 'success',
+                    'submit_icon': 'save',
+                    'submit_type': 'Create',
+                    'data_model': 'data-dismiss=modal'
+                } %}
+            {% endblock %}
+        {% endembed %}
+    {% endset %}
+
+    {% embed 'Components/Modal/modal.html.twig' with {
+        'dialog' : 'dialog',
+        'modal_id' : 'modal-create',
+        'modal_title': modal_title,
+        'modal_body': modal_body
+    } %}
+    {% endembed %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        // Implementation delete button on modal
+        $(document).on("click", ".entity-new", function () {
+
+        });
+
+        // Implementation delete button on modal
+        $(document).on("click", ".entity-delete", function () {
+            var $form = $(this);
+
+            var itemId = $form.data('id');
+            var itemTitle = $form.data('title');
+
+            $(".modal-footer #itemId").val( itemId );
+            $(".modal-body p span").text(itemTitle);
+
+
+            $('#modal-delete i').hide();
+            // As pointed out in comments,
+            // it is superfluous to have to manually call the modal.
+            var modal = $('#modal-delete');
+            modal.modal('show');
+
+            // On delete confirm
+            modal.modal({ backdrop: 'static', keyboard: false })
+                .on('click', '#confirm-delete', function(){
+                    console.log('yes');
+                    $('#entity_' + itemId).submit();
+
+                    // Block the panel
+                    modal.modal({backdrop: 'static', keyboard: false});
+                    $('#modal-delete .modal-dialog').hide();
+                    modal.css('text-align','center');
+
+                    $('#modal-delete i').show();
+                });
+        });
+
+        {% if extra_buttons is defined %}
+        $(document).ready(function(){
+            $("#modal-show").on("show.bs.modal", function(e) {
+                $("#modal-show .modal-content")
+                    .html('{% filter spaceless %}{% include 'Components/Modal/spinner.html.twig' %}{% endfilter %}');
+                var href = $(e.relatedTarget).data('href');
+                $.get(href, function(data) {
+                    $("#modal-show .modal-content").html(data);
+                });
+
+            });
+        });
+        {% endif %}
+    </script>
+{% endblock %}
+

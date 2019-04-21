@@ -1,0 +1,13 @@
+<!-- /.box-header -->
+{% if block('_box') is defined %}
+    {{ block('_box') }}
+{% else %}
+    <div class="box-body">
+        {{ block('box_body') }}
+    </div>
+    <!-- /.box-body -->
+    <div class="box-footer">
+        {{ block('box_footer') }}
+    </div>
+    <!-- /.box-footer -->
+{% endif %}

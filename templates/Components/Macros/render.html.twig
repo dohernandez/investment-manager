@@ -1,0 +1,43 @@
+{% macro render_text(value) %}
+    {{ value }}
+{% endmacro render_text %}
+
+{% macro render_currency(value, currency) %}
+    {% set _currency = currency |default('euro') %}
+
+    {% if _currency == 'euro' %}
+        &euro; {{ value|number_format(2, ',', ' ') }}
+    {% elseif _currency == '$' %}
+        {{ value|number_format(2, ',', ' ') }} $
+    {% endif %}
+{% endmacro render_currency %}
+
+{% macro render_date(value, format) %}
+    {{ value|date(format) }}
+{% endmacro render_date %}
+
+{% macro render_slice(value, truncate) %}
+    {% if value|length > truncate %}
+        {{ value|slice(0, truncate) ~ '...' }}
+    {% else %}
+        {{ value }}
+    {% endif %}
+{% endmacro render_slice %}
+
+{% macro field(value, field) %}
+    {% import _self as render %}
+
+    {% if field is defined %}
+        {% if field.render is not defined %}
+            {{ render.render_text(value) }}
+        {% elseif field.render == 'date' %}
+            {{ render.render_date(value, field.date_format) }}
+        {% elseif field.render == 'slice' %}
+            {{ render.render_slice(value, field.truncate) }}
+        {% elseif field.render == 'currency' %}
+            {{ render.render_currency(value) }}
+        {% endif %}
+    {% else %}
+        {{ render.render_text(value) }}
+    {% endif %}
+{% endmacro field %}

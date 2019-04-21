@@ -1,0 +1,62 @@
+{% extends 'Components/Form/theme-form.html.twig' %}
+
+{# Label #}
+{% block form_label %}
+    {% if label is not same as(false) -%}
+        <div class="col-sm-3">
+            {{ parent() }}
+        </div>
+    {%- endif -%}
+{% endblock form_label %}
+
+{# Input #}
+{% block form_widget_simple %}
+    {% if wrapper is not defined or wrapper is not same as(false) %}
+        <div class="{% if label is not same as(false) %}col-sm-9{% else -%}col-sm-12{%- endif %}">
+    {% endif %}
+        {{ parent() }}
+
+        {% if help is defined %}
+            <p class="help-block">{{ help }}</p>
+        {% endif %}
+
+    {% if wrapper is not defined or wrapper is not same as(false) %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{%- block textarea_widget -%}
+    {% if wrapper is not defined or wrapper is not same as(false) %}
+        <div class="{% if label is not same as(false) %}col-sm-9{% else -%}col-sm-12{%- endif %}">
+    {% endif %}
+
+        {{ parent() }}
+
+    {% if wrapper is not defined or wrapper is not same as(false) %}
+        </div>
+    {% endif %}
+{%- endblock textarea_widget -%}
+
+{%- block choice_widget -%}
+    {% if wrapper is not defined or wrapper is not same as(false) %}
+        <div class="{% if label is not same as(false) %}col-sm-9{% else -%}col-sm-12{%- endif %}">
+    {% endif %}
+
+        {{ parent() }}
+
+    {% if wrapper is not defined or wrapper is not same as(false) %}
+        </div>
+    {% endif %}
+{%- endblock choice_widget -%}
+
+{%- block date_widget -%}
+    {% if wrapper is not defined or wrapper is not same as(false) %}
+        <div class="{% if label is not same as(false) %}col-sm-9{% else -%}col-sm-12{%- endif %}">
+    {% endif %}
+
+    {{ parent() }}
+
+    {% if wrapper is not defined or wrapper is not same as(false) %}
+        </div>
+    {% endif %}
+{%- endblock date_widget -%}

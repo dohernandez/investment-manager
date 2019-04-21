@@ -1,0 +1,20 @@
+{% set _form_theme = form_theme|default('Components/Form/horizontal-theme-form.html.twig') %}
+{% form_theme form _form_theme %}
+
+{{ form_start(form, {'attr': {'id': 'entity-form', 'class': 'form-horizontal'}}) }}
+<div class="box-body">
+    {{ form_widget(form) }}
+</div>
+<!-- /.box-body -->
+<div class="box-footer">
+    {% if box_button is defined %}
+        {{ box_button }}
+    {% else %}
+        <a href="{{ cancel_url|default('#') }}" class="btn btn-default" {{ data_model }}>{{ 'Cancel'|trans }}</a>
+        <button id="submit-btn" type="submit" class="btn btn-{{ box_type|default('info') }} pull-right">
+            <i class="fa fa-{{ submit_icon|default('check-square') }}" aria-hidden="true"></i> {{ submit_type|default('Submit')|trans }}
+        </button>
+    {% endif %}
+</div>
+<!-- /.box-footer -->
+{{ form_end(form) }}

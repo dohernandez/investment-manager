@@ -1,0 +1,6 @@
+<div class="box {% if box_type %}box-{{ box_type|default('info') }}{% endif %}">
+    <div class="box-header with-border">
+        <h3 class="box-title">{{ block('box_title') }}</h3>
+    </div>
+    {% include 'Components/Layout/_box.html.twig' %}
+</div>
