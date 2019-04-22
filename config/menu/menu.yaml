@@ -6,6 +6,7 @@ menu:
       FinanceTransferMenuItem:
         label: 'Transfers'
         icon: 'fa fa-cash-register'
+        route: 'transfer_index'
       FinanceAccountsMenuItem:
         label: 'Accounts'
         icon: 'fa fa-credit-card'

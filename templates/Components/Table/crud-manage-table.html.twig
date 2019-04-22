@@ -49,7 +49,7 @@
     <tbody>
     {% for item in entities %}
         <tr>
-            <th style="vertical-align: middle;" scope="row" class="text-center">{{ item.id }}</th>
+            <th style="vertical-align: middle;" scope="row" class="text-center">{{ loop.index }}</th>
             {% for field in fields %}
                 <td style="vertical-align: middle;">
                     {{ render.field(attribute(item, field.name), field) }}
@@ -80,7 +80,9 @@
                 </a>
                 <form id="entity_{{ item.id }}" action="{{ path(delete_route, { 'id': item.id }) }}" method="post"
                       class="pull-left" style="margin-left: 3px">
-                    {{ form_widget(delete_forms[item.id]) }}
+                    <input type="hidden" name="_method" value="DELETE">
+                    {# Generating CSRF Tokens to protect agains CSRF attack #}
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
                     <button type="button" data-backdrop="static" data-keyboard="false" class="entity-delete btn btn-danger btn-sm" data-target="#modal-delete"
                             data-toggle="modal" data-id="{{ item.id }}" data-title="{{ attribute(item, '__toString') }}">
                         <i class="fa-trash-alt fa" aria-hidden="true"></i>

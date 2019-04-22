@@ -70,9 +70,11 @@ class Account implements Entity
         return $this->alias;
     }
 
-    public function setAlias(string $alias): void
+    public function setAlias(string $alias): self
     {
         $this->alias = $alias;
+
+        return $this;
     }
 
     public function getType(): ?string
@@ -92,6 +94,6 @@ class Account implements Entity
      */
     public function __toString(): string
     {
-        return $this->getName();
+        return sprintf('%s (%s)', $this->getName(), $this->getAccountNo());
     }
 }

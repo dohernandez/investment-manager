@@ -8,9 +8,14 @@ use App\Repository\AccountRepository;
 use App\Twig\Parameters\AccountViewParameters;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/accounts")
+ */
 class AccountsController extends AbstractController
 {
     /**
@@ -24,13 +29,13 @@ class AccountsController extends AbstractController
     }
 
     /**
-     * @Route("/accounts", name="account_index", methods={"GET"})
+     * @Route("/", name="account_index", methods={"GET"})
      *
      * @param AccountRepository $repo
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function index(AccountRepository $repo)
+    public function index(AccountRepository $repo): Response
     {
         $accounts = $repo->findAll();
 
@@ -38,14 +43,14 @@ class AccountsController extends AbstractController
     }
 
     /**
-     * @Route("/accounts", name="account_save", methods={"POST"})
+     * @Route("/", name="account_save", methods={"POST"})
      *
      * @param EntityManagerInterface $em
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function save(EntityManagerInterface $em, Request $request)
+    public function save(EntityManagerInterface $em, Request $request): Response
     {
         $form = $this->createForm(AccountType::class);
 
@@ -68,21 +73,24 @@ class AccountsController extends AbstractController
     }
 
     /**
-     * @Route("/accounts/{id}", name="account_delete", methods={"DELETE"})
+     * @Route("/{id}", name="account_delete", methods={"DELETE"})
      *
      * @param EntityManagerInterface $em
+     * @param Request $request
      * @param Account $account
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return RedirectResponse
      */
-    public function delete(EntityManagerInterface $em, Account $account)
+    public function delete(EntityManagerInterface $em, Request $request, Account $account): RedirectResponse
     {
         if (!$account) {
             throw $this->createNotFoundException('Account not found');
         }
 
-        $em->remove($account);
-        $em->flush();
+        if ($this->isCsrfTokenValid('delete' . $account->getId(), $request->request->get('_token'))) {
+            $em->remove($account);
+            $em->flush();
+        }
 
         return $this->redirectToRoute('account_index');
     }

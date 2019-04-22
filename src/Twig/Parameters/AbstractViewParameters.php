@@ -67,14 +67,7 @@ abstract class AbstractViewParameters
      */
     public function index(array $entities = []): array
     {
-        $deleteForms = [];
-
-        /* @var Entity $entity */
-        foreach ($entities as $entity) {
-            $deleteForms[$entity->getId()] = $this->createDeleteFormView($entity);
-        }
-
-        $newForm = $this->form->create($this->newFormTypeClass)->createView();
+        $form = $this->form->create($this->newFormTypeClass)->createView();
 
         return [
                 'entities' => $entities,
@@ -82,28 +75,8 @@ abstract class AbstractViewParameters
                 'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
                 'edit_route' => $this->getEntityPrefixRoute() . '_index',
                 'delete_route' => $this->getEntityPrefixRoute() . '_delete',
-                'delete_forms' => $deleteForms,
-                'new_form' => $newForm,
+                'form' => $form,
             ];
-    }
-
-    /**
-     * Creates a form to delete an entity.
-     *
-     * @param Entity $entity
-     *
-     * @return FormView
-     */
-    protected function createDeleteFormView(Entity $entity): FormView
-    {
-        $routeName = $this->getEntityPrefixRoute() . '_delete';
-
-        return $this->form->createBuilder(FormType::class)
-            ->setAction($this->router->generate($routeName, ['id' => $entity->getId()]))
-            ->setMethod('DELETE')
-            ->getForm()
-            ->createView()
-        ;
     }
 
     abstract protected function getFields(): array;

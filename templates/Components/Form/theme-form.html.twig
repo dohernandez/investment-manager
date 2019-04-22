@@ -14,20 +14,20 @@
 {%- endblock form_errors %}
 
 {%- block date_widget -%}
-    <div class="input-group date">
+    <div class="input-group date" data-datepickerenable="on">
         {% if attr.class is defined %}
             {% set class = attr.class ~ ' timepicker' %}
         {% else %}
             {% set class = ' timepicker' %}
         {% endif %}
-        {% set attr = attr|merge({'class' : class, 'data-datepickerenable':'on'}) %}
+        {% set attr = attr|merge({'class' : class}) %}
 
         {% filter spaceless %}
             {% set type = type|default('text') %}
             <input type="{{ type }}" {{ block('widget_attributes') }} value="{{ value }}" rel="theme" />
         {% endfilter %}
         <div class="input-group-addon">
-            <i class="fa fa-calendar"></i>
+            <i class="fas fa-calendar-alt"></i>
         </div>
     </div>
 {%- endblock date_widget -%}

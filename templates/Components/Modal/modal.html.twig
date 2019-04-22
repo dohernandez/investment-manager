@@ -13,7 +13,7 @@
     {% include 'Components/Dialog/' ~ dialog ~ '.html.twig'%}
     {% endif %}
     {% if request is defined %}
-    <i class="fa fa-floppy-o fa-4x" aria-hidden="true"></i>
+    <i id="background-{{ modal_id }}" class="fa fa-hdd fa-4x" aria-hidden="true"></i>
     {% endif %}
 </div><!-- /.modal -->
 <!-- Modal to block window after submit -->

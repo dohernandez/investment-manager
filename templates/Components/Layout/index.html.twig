@@ -46,7 +46,7 @@
         {% embed 'Components/Layout/_box.html.twig'%}
             {% block _box %}
                 {% include 'Components/Form/_form-horizontal.html.twig' with {
-                    'form': new_form,
+                    'form': form,
                     'box_type': 'success',
                     'submit_icon': 'save',
                     'submit_type': 'Create',
@@ -59,6 +59,7 @@
     {% embed 'Components/Modal/modal.html.twig' with {
         'dialog' : 'dialog',
         'modal_id' : 'modal-create',
+        'request' : 'true',
         'modal_title': modal_title,
         'modal_body': modal_body
     } %}
@@ -70,8 +71,25 @@
 
     <script>
         // Implementation delete button on modal
-        $(document).on("click", ".entity-new", function () {
+        $(document).on("click", ".entity-create", function () {
+            $('#background-modal-create').hide();
 
+            // As pointed out in comments,
+            // it is superfluous to have to manually call the modal.
+            var modal = $('#modal-create');
+            modal.modal('show');
+
+            modal.modal({ backdrop: 'static', keyboard: false })
+                .on('click', '#submit-btn', function(){
+                    $('#entity-form').submit();
+
+                    // Block the panel
+                    modal.modal({backdrop: 'static', keyboard: false});
+                    $('#modal-create .modal-dialog').hide();
+                    modal.css('text-align','center');
+
+                    $('#background-modal-create').show();
+                });
         });
 
         // Implementation delete button on modal
@@ -85,7 +103,7 @@
             $(".modal-body p span").text(itemTitle);
 
 
-            $('#modal-delete i').hide();
+            $('#background-modal-delete').hide();
             // As pointed out in comments,
             // it is superfluous to have to manually call the modal.
             var modal = $('#modal-delete');
@@ -102,7 +120,7 @@
                     $('#modal-delete .modal-dialog').hide();
                     modal.css('text-align','center');
 
-                    $('#modal-delete i').show();
+                    $('#background-modal-delete').show();
                 });
         });
 
