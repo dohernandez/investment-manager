@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\TransferRepository")
@@ -24,12 +25,15 @@ class Transfer implements Entity
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Account")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="Please choose a beneficiary party")
+     *
      */
     private $beneficiaryParty;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Account")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="Please choose a debtor party")
      */
     private $debtorParty;
 
@@ -37,6 +41,7 @@ class Transfer implements Entity
      * @var float
      *
      * @ORM\Column(type="decimal", scale=2, precision=5)
+     * @Assert\NotBlank(message="Please enter the amount")
      */
     private $amount;
 
@@ -44,6 +49,7 @@ class Transfer implements Entity
      * @var \DateTime
      *
      * @ORM\Column(type="datetime")
+     * @Assert\NotNull(message="Please enter the date")
      */
     private $date;
 

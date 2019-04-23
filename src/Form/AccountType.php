@@ -17,17 +17,20 @@ class AccountType extends AbstractType
             ->add('name', TextType::class, [
                 'attr' => [
                     'placeholder' => 'Enter name',
+                    'autocomplete' => "off",
                 ],
             ])
             ->add('accountNo', TextType::class, [
                 'label' => 'IBAN',
                 'attr' => [
                     'placeholder' => 'Enter IBAN',
+                    'autocomplete' => "off",
                 ],
             ])
             ->add('alias', TextType::class, [
                 'attr' => [
                     'placeholder' => 'Enter alias',
+                    'autocomplete' => "off",
                 ],
             ])
             ->add('type', HiddenType::class, [

@@ -67,7 +67,7 @@ abstract class AbstractViewParameters
      */
     public function index(array $entities = []): array
     {
-        $form = $this->form->create($this->newFormTypeClass)->createView();
+        $form = $this->form->create($this->newFormTypeClass);
 
         return [
                 'entities' => $entities,
@@ -75,7 +75,7 @@ abstract class AbstractViewParameters
                 'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
                 'edit_route' => $this->getEntityPrefixRoute() . '_index',
                 'delete_route' => $this->getEntityPrefixRoute() . '_delete',
-                'form' => $form,
+                'form' => $form->createView(),
             ];
     }
 

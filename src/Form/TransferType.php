@@ -16,25 +16,25 @@ class TransferType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('beneficiaryParty', EntityType::class, [
+            ->add('beneficiaryParty', AccountChoiceType::class, [
                 'label' => 'Beneficiary',
                 'placeholder' => 'Choose a beneficiary',
-                'class' => Account::class,
             ])
-            ->add('debtorParty', EntityType::class, [
+            ->add('debtorParty', AccountChoiceType::class, [
                 'label' => 'Debtor',
-                'placeholder' => 'Choose a beneficiary',
-                'class' => Account::class,
+                'placeholder' => 'Choose a debtor',
             ])
             ->add('amount', TextType::class, [
                 'attr' => [
                     'placeholder' => 'Enter amount',
+                    'autocomplete' => "off",
                 ],
             ])
             ->add('date', DateType::class, [
                 'attr' => [
                     'placeholder' => 'Enter date',
-                    'data-date-format' => 'DD/MM/YYYY'
+                    'data-date-format' => 'DD/MM/YYYY',
+                    'autocomplete' => "off",
                 ],
                 'input'  => 'datetime',
                 'format' => 'dd/MM/yyyy',

@@ -4,6 +4,19 @@
     {{ parent() }}
     <!-- bootstrap datepicker -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+
+    <!-- select2 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        .select2-container .select2-selection--single {
+            height: 34px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 30px;
+        }
+    </style>
 {% endblock %}
 
 {% block page_content %}
@@ -16,9 +29,76 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js  "></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 
+    <!-- select2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
     <script>
         $(document).ready(function () {
             $('[data-datepickerenable="on"]').datetimepicker();
+
+            $('.js-account-autocomplete').each(function () {
+                var jsDataAccountUrl = $(this).data('autocomplete-url');
+
+                $(this).select2({
+                    dropdownParent: $('#modal-create'),
+                    ajax: {
+                        url: jsDataAccountUrl,
+                        dataType: 'json',
+                        delay: 10,
+                        data: function (params) {
+                            return {
+                                group: 'options_name_account_no',
+                                q: params.term, // search term
+                                page: params.page
+                            };
+                        },
+                        processResults: function (data, params) {
+                            // parse the results into the format expected by Select2
+                            // since we are using custom formatting functions we do not need to
+                            // alter the remote JSON data, except to indicate that infinite
+                            // scrolling can be used
+                            params.page = params.page || 1;
+
+                            return {
+                                results: data.items,
+                                pagination: {
+                                    more: (params.page * 30) < data.total_count
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: 'Search for an account',
+                    escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+                    minimumInputLength: 1,
+                    templateResult: formatRepo,
+                    templateSelection: formatRepoSelection
+                });
+            });
         });
+
+        function formatRepo (repo) {
+            if (repo.loading) {
+                return repo.text;
+            }
+
+            var markup = "<div class='select2-result-account clearfix'>" +
+                "<strong>" + repo.name + "</strong>" +
+                "<br />" +
+                "<small>" + repo.accountNo + "</small>" +
+                "</div>";
+
+            return markup;
+        }
+
+        function formatRepoSelection (repo) {
+            if (!repo.name) {
+                return repo.text;
+            }
+
+            return repo.name + " - " + repo.accountNo;
+        }
     </script>
+
+
 {% endblock %}

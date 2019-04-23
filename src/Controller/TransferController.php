@@ -56,17 +56,21 @@ class TransferController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var Transfer $transfer */
-            $transfer = $form->getData();
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                /** @var Transfer $transfer */
+                $transfer = $form->getData();
 
-            $em->persist($transfer);
-            $em->flush();
+                $em->persist($transfer);
+                $em->flush();
 
-            $this->addFlash('success', sprintf(
-               'Transfer %s created!',
-               $transfer
-            ));
+                $this->addFlash('success', sprintf(
+                    'Transfer %s created!',
+                    $transfer
+                ));
+            } else {
+                dd($form);
+            }
         }
 
         return $this->redirectToRoute('transfer_index');

@@ -3,36 +3,49 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AccountRepository")
  */
 class Account implements Entity
 {
+    const TYPES = ['iban'];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups("options_name_account_no")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\NotBlank(message="Please enter the name")
+     * @Groups("options_name_account_no")
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\NotBlank(message="Iban is not defined")
+     * @Assert\Iban(message="Iban is not correct. Please enter a valid Iban")
+     * @Groups("options_name_account_no")
      */
     private $accountNo;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\NotBlank(message="Please enter an alias")
      */
     private $alias;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotBlank(message="Please choose a type")
+     * @Assert\Choice(choices=Account::TYPES, message="Please choose a valid type")
      */
     private $type;
 
@@ -94,6 +107,6 @@ class Account implements Entity
      */
     public function __toString(): string
     {
-        return sprintf('%s (%s)', $this->getName(), $this->getAccountNo());
+        return sprintf('%s - %s', $this->getName(), $this->getAccountNo());
     }
 }

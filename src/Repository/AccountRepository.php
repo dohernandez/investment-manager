@@ -19,6 +19,25 @@ class AccountRepository extends ServiceEntityRepository
         parent::__construct($registry, Account::class);
     }
 
+    /**
+     * @param string $query
+     * @param int $limit
+     *
+     * @return Account[]
+     */
+    public function findAllMatching(string $query, int $limit = 5)
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.accountNo LIKE :accountNo OR a.name LIKE :name')
+            ->setParameter('accountNo', '%'.$query.'%')
+            ->setParameter('name', '%'.$query.'%')
+            ->orderBy('a.name', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     // /**
     //  * @return Account[] Returns an array of Account objects
     //  */
