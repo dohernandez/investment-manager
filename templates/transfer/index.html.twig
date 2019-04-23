@@ -45,6 +45,7 @@
                         url: jsDataAccountUrl,
                         dataType: 'json',
                         delay: 10,
+                        allowClear: true,
                         data: function (params) {
                             return {
                                 group: 'options_name_account_no',
@@ -71,13 +72,15 @@
                     placeholder: 'Search for an account',
                     escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
                     minimumInputLength: 1,
-                    templateResult: formatRepo,
-                    templateSelection: formatRepoSelection
+                    templateResult: templateResult,
+                    templateSelection: templateSelection
                 });
             });
         });
 
-        function formatRepo (repo) {
+        // Define how will be render the list of items
+        // repo represents an account object with text property
+        function templateResult (repo) {
             if (repo.loading) {
                 return repo.text;
             }
@@ -91,14 +94,23 @@
             return markup;
         }
 
-        function formatRepoSelection (repo) {
+        // Define how will be render the item selected
+        // repo represents an account object with text property
+        function templateSelection (repo) {
             if (!repo.name) {
                 return repo.text;
             }
 
             return repo.name + " - " + repo.accountNo;
         }
+
+        // Listener on create transfer modal form to clean up select2 selections
+        $(document).ready(function(){
+            $("#modal-create").on("show.bs.modal", function(e) {
+                $('.js-account-autocomplete').each(function () {
+                    $(this).val(null).trigger('change');
+                });
+            });
+        });
     </script>
-
-
 {% endblock %}

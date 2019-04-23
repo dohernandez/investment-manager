@@ -74,6 +74,9 @@
         $(document).on("click", ".entity-create", function () {
             $('#background-modal-create').hide();
 
+            var form = $('#entity-form');
+            form.trigger("reset");
+
             // As pointed out in comments,
             // it is superfluous to have to manually call the modal.
             var modal = $('#modal-create');
@@ -81,7 +84,7 @@
 
             modal.modal({ backdrop: 'static', keyboard: false })
                 .on('click', '#submit-btn', function(){
-                    $('#entity-form').submit();
+                    form.submit();
 
                     // Block the panel
                     modal.modal({backdrop: 'static', keyboard: false});
