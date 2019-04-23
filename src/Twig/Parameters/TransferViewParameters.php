@@ -32,8 +32,27 @@ class TransferViewParameters extends AbstractViewParameters
     {
         return [
             [
-                'name' => '__toString',
-                'label' => 'Transaction',
+                'name' => 'date',
+                // To force render the attribute as a date with format
+                // @see templates/Components/Macros/render.html.twig
+                'render' => 'date',
+                'date_format' => 'm/d/Y',
+                'col_with' => '120',
+            ],
+            [
+                'name' => 'beneficiaryParty',
+                'label' => 'Beneficiary',
+                'render' => 'account',
+            ],
+            [
+                'name' => 'debtorParty',
+                'label' => 'Debtor',
+                'render' => 'account',
+            ],
+            [
+                'name' => 'amount',
+                'col_with' => '84',
+                'render' => 'currency',
             ],
         ];
     }
