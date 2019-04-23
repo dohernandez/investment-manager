@@ -24,6 +24,12 @@
     {% endif %}
 {% endmacro render_slice %}
 
+{% macro render_account(value) %}
+        <strong>{{ value.name }}</strong>
+        <br>
+        <small>{{ value.accountNo }}</small>
+{% endmacro render_account %}
+
 {% macro field(value, field) %}
     {% import _self as render %}
 
@@ -36,6 +42,8 @@
             {{ render.render_slice(value, field.truncate) }}
         {% elseif field.render == 'currency' %}
             {{ render.render_currency(value) }}
+        {% elseif field.render == 'account' %}
+            {{ render.render_account(value) }}
         {% endif %}
     {% else %}
         {{ render.render_text(value) }}
