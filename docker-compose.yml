@@ -12,32 +12,3 @@ services:
             MYSQL_DATABASE: ${MYSQL_DATABASE}
             MYSQL_USER: ${MYSQL_USER}
             MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-
-    php:
-        build:
-            context: ./docker/php7-fpm
-            args:
-                SERVER_NAME: ${SERVER_NAME}
-                TIMEZONE: ${TIMEZONE}
-        volumes:
-            - .:/var/www/${SERVER_NAME}
-            - ./logs/symfony:/var/www/symfony/app/logs
-        depends_on:
-          - db
-        environment:
-            APP_ENV: ${APP_ENV}
-            APP_SECRET: ${APP_SECRET}
-            DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
-
-    nginx:
-        build:
-            context: ./docker/nginx
-            args:
-                SERVER_NAME: ${SERVER_NAME}
-        ports:
-            - ${NGINX_PORT}:80
-        volumes:
-            - .:/var/www/${SERVER_NAME}
-            - ./logs/nginx/:/var/log/nginx
-        depends_on:
-            - php
