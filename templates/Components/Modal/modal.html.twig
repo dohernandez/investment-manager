@@ -7,13 +7,13 @@
     </style>
 {% endblock %}
 
-<!-- Modal delete dialog start -->
-<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog">
+<!-- Modal dialog start -->
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog" {% if modal_title_id is defined %} aria-labelledby="{{ modal_title_id }}" {% endif %}>
     {% if dialog is defined %}
     {% include 'Components/Dialog/' ~ dialog ~ '.html.twig'%}
     {% endif %}
     {% if request is defined %}
-    <i id="background-{{ modal_id }}" class="fa fa-hdd fa-4x" aria-hidden="true"></i>
+    <i id="background-{{ modal_id }}" class="fa fa-hdd fa-4x" aria-hidden="true" style="display: none"></i>
     {% endif %}
 </div><!-- /.modal -->
 <!-- Modal to block window after submit -->

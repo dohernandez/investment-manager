@@ -34,7 +34,7 @@
 {% import 'Components/Macros/render.html.twig' as render %}
 
 {% set modal = null %}
-<table id="{{ entity_name|trans|lower|trim(' ') }}s" class="table table-bordered table-striped">
+<table id="{{ entity_name|trans|lower|trim(' ') }}s" class="table table-bordered table-striped js-manager-table">
     <thead>
     <tr>
         <th width="60" class="text-center" scope="col">#</th>
@@ -78,16 +78,11 @@
                    class="btn btn-primary btn-sm pull-left">
                     <i class="fa fa-pencil-alt" aria-hidden="true"></i>
                 </a>
-                <form id="entity_{{ item.id }}" action="{{ path(delete_route, { 'id': item.id }) }}" method="post"
-                      class="pull-left" style="margin-left: 3px">
-                    <input type="hidden" name="_method" value="DELETE">
-                    {# Generating CSRF Tokens to protect agains CSRF attack #}
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
-                    <button type="button" data-backdrop="static" data-keyboard="false" class="entity-delete btn btn-danger btn-sm" data-target="#modal-delete"
-                            data-toggle="modal" data-id="{{ item.id }}" data-title="{{ attribute(item, '__toString') }}">
-                        <i class="fa-trash-alt fa" aria-hidden="true"></i>
-                    </button>
-                </form>
+                <button type="button" data-backdrop="static" data-keyboard="false" class="entity-delete btn btn-danger btn-sm" data-target="#modal-delete"
+                        data-keyboard="true" data-toggle="modal" data-id="{{ item.id }}" data-title="{{ attribute(item, '__toString') }}"
+                        data-url="{{ path(delete_route, { 'id': item.id }) }}"   style="margin-left: 3px">
+                    <i class="fa-trash-alt fa" aria-hidden="true"></i>
+                </button>
             </td>
         </tr>
     {% endfor %}
@@ -95,16 +90,18 @@
 </table>
 
 {% embed 'Components/Modal/modal.html.twig' with {
-'dialog' : 'confirm-delete-dialog',
-'request' : 'true',
-'modal_id' : 'modal-delete'
+    'dialog' : 'confirm-delete-dialog',
+    'request' : 'true',
+    'modal_id' : 'modal-delete',
+    'modal_title_id': 'modalTitleDelete'
 } %}
 {% endembed %}
 
 {% if modal %}
     {% embed 'Components/Modal/modal.html.twig' with {
-    'dialog' : 'loading-dialog',
-    'modal_id' : 'modal-show'
+        'dialog' : 'loading-dialog',
+        'modal_id' : 'modal-show',
+        'modal_title_id': 'modalTitleDelete'
     } %}
     {% endembed %}
 {% endif %}

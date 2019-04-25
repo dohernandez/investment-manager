@@ -26,7 +26,7 @@
 {% block javascripts %}
     {{ parent() }}
     <!-- bootstrap datepicker -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js  "></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 
     <!-- select2 -->
@@ -34,13 +34,16 @@
 
     <script>
         $(document).ready(function () {
+            let $modal = $("#modal-create");
+            let $autocomplete = $('.js-account-autocomplete');
+
             $('[data-datepickerenable="on"]').datetimepicker();
 
-            $('.js-account-autocomplete').each(function () {
-                var jsDataAccountUrl = $(this).data('autocomplete-url');
+            $autocomplete.each(function () {
+                let jsDataAccountUrl = $(this).data('autocomplete-url');
 
                 $(this).select2({
-                    dropdownParent: $('#modal-create'),
+                    dropdownParent: $modal,
                     ajax: {
                         url: jsDataAccountUrl,
                         dataType: 'json',
@@ -76,6 +79,13 @@
                     templateSelection: templateSelection
                 });
             });
+
+            // Listener on create transfer modal form to clean up select2 selections
+            $modal.on("show.bs.modal", function() {
+                $autocomplete.each(function () {
+                    $(this).val(null).trigger('change');
+                });
+            });
         });
 
         // Define how will be render the list of items
@@ -85,7 +95,7 @@
                 return repo.text;
             }
 
-            var markup = "<div class='select2-result-account clearfix'>" +
+            let markup = "<div class='select2-result-account clearfix'>" +
                 "<strong>" + repo.name + "</strong>" +
                 "<br />" +
                 "<small>" + repo.accountNo + "</small>" +
@@ -103,14 +113,5 @@
 
             return repo.name + " - " + repo.accountNo;
         }
-
-        // Listener on create transfer modal form to clean up select2 selections
-        $(document).ready(function(){
-            $("#modal-create").on("show.bs.modal", function(e) {
-                $('.js-account-autocomplete').each(function () {
-                    $(this).val(null).trigger('change');
-                });
-            });
-        });
     </script>
 {% endblock %}

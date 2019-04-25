@@ -7,8 +7,6 @@ use App\Form\TransferType;
 use App\Repository\TransferRepository;
 use App\Twig\Parameters\TransferViewParameters;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/transfer")
  */
-class TransferController extends AbstractController
+class TransferController extends BaseController
 {
     /**
      * @var TransferViewParameters
@@ -54,7 +52,16 @@ class TransferController extends AbstractController
     {
         $form = $this->createForm(TransferType::class);
 
-        $form->handleRequest($request);
+        try {
+            $form->handleRequest($request);
+        } catch (\Exception $e) {
+            return $this->json(
+                [
+                    'message' => $e->getMessage(),
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
 
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
@@ -63,13 +70,17 @@ class TransferController extends AbstractController
 
                 $em->persist($transfer);
                 $em->flush();
-
-                $this->addFlash('success', sprintf(
-                    'Transfer %s created!',
-                    $transfer
-                ));
             } else {
-                dd($form);
+//                $iterator = $child->getErrors(true, true);
+//
+                $errors = [];
+                foreach ($form->getErrors(true, true) as $error) {
+                    dump($error->getCause()->getRoot());
+                    $errors[$error->getCause()->getPropertyPath()][] = $error->getMessage();
+                }
+                dump($errors);
+
+                dd($form->getErrors(true, true), $form);
             }
         }
 
@@ -83,30 +94,26 @@ class TransferController extends AbstractController
      * @param Request $request
      * @param Transfer $transfer
      *
-     * @return RedirectResponse
+     * @return Response
      */
-    public function delete(EntityManagerInterface $em, Request $request, Transfer $transfer): RedirectResponse
+    public function delete(EntityManagerInterface $em, Request $request, Transfer $transfer): Response
     {
         if (!$transfer) {
-            return $this->createNotFoundException('Transfer not found');
+            return $this->createApiErrorResponse('Transfer not found', Response::HTTP_NOT_FOUND);
         }
 
-        if ($this->isCsrfTokenValid('delete' . $transfer->getId(), $request->request->get('_token'))) {
+//        if ($this->isCsrfTokenValid('delete' . $transfer->getId(), $request->request->get('_token'))) {
             $em->remove($transfer);
             $em->flush();
+//        } else {
+//            return $this->json(
+//                [
+//                    'message' => 'Csrf token is not valid.',
+//                ],
+//                Response::HTTP_FORBIDDEN
+//            );
+//        }
 
-
-            $this->addFlash('success', sprintf(
-                'Transfer %s removed!',
-                $transfer
-            ));
-        } else {
-            $this->addFlash('error', sprintf(
-                'Transfer %s can not remove! Csrf token is not valid.',
-                $transfer
-            ));
-        }
-
-        return $this->redirectToRoute('transfer_index');
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 }
