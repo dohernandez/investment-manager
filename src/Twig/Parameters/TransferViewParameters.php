@@ -36,7 +36,7 @@ class TransferViewParameters extends AbstractViewParameters
                 // To force render the attribute as a date with format
                 // @see templates/Components/Macros/render.html.twig
                 'render' => 'date',
-                'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/customization/long-date-formats/
+                'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
                 'col_with' => '120',
             ],
             [

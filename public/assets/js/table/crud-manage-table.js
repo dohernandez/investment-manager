@@ -8,14 +8,13 @@
      * @constructor
      *
      * @param $wrapper
-     * @param $modal
+     * @param $deleteModal
      * @constructor
      */
-    window.CRUDManageTable = function ($wrapper, $modal) {
+    window.CRUDManageTable = function ($wrapper, $deleteModal) {
         this.$wrapper = $wrapper;
-        this.$modal = $modal;
+        this.$deleteModal = $deleteModal;
 
-        console.log('attaching onclick event to .entity-delete');
         // Delegate selector
         //
         // Define a second argument, which is the selector for the element that you truly want to react to.
@@ -30,7 +29,7 @@
 
     $.extend(window.CRUDManageTable.prototype, {
         /**
-         * Handler on click event for delete buttons
+         * Handle on click event for delete buttons
          *
          * @param e The event
          */
@@ -43,11 +42,11 @@
             let itemId = $form.data('id');
             let itemTitle = $form.data('title');
 
-            this.$modal.find('#itemId').val(itemId);
-            this.$modal.find('.modal-body p span').text(itemTitle);
+            this.$deleteModal.find('#itemId').val(itemId);
+            this.$deleteModal.find('.modal-body p span').text(itemTitle);
 
 
-            let $confirmDelete = this.$modal.find('#confirm-delete');
+            let $confirmDelete = this.$deleteModal.find('#confirm-delete');
 
             // To remove any previous click handler added due to reusability issue.
             // Without this line of code every time the delete dialog is evoke, a new click event is added,
@@ -60,11 +59,11 @@
 
             // Attach on click listener to the form the modal button when confirm delete is clicked.
             $confirmDelete.on('click', function () {
-                let $modalDialog = _self.$modal.find('.modal-dialog');
+                let $modalDialog = _self.$deleteModal.find('.modal-dialog');
 
                 // Activating processing panel
                 $modalDialog.hide();
-                _self.$modal.css('text-align', 'center');
+                _self.$deleteModal.css('text-align', 'center');
 
                 let $processingBackground = $('#background-modal-delete');
                 $processingBackground.show();
@@ -72,7 +71,6 @@
                 let deleteUrl = $form.data('url');
                 let $row = $form.closest('tr');
 
-                console.log('yes', deleteUrl);
                 $.ajax({
                     url: deleteUrl,
                     method: 'DELETE',
@@ -84,13 +82,13 @@
                         // same function many times.
                         $confirmDelete.unbind('hidden.bs.modal');
 
-                        _self.$modal.on('hidden.bs.modal', function () {
+                        _self.$deleteModal.on('hidden.bs.modal', function () {
                             // Deactivating processing panel
-                            _self.$modal.css('text-align', 'left');
+                            _self.$deleteModal.css('text-align', 'left');
                             $modalDialog.show();
                         });
 
-                        _self.$modal.modal('hide');
+                        _self.$deleteModal.modal('hide');
 
                         $row.fadeOut('normal', function () {
                             $(this).remove();
@@ -99,6 +97,7 @@
                         });
                     },
                     error: function (jqXHR) {
+                        // TODO implement error form handling
                         console.log(jqXHR.responseText);
                     }
                 });

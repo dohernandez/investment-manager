@@ -1,6 +1,8 @@
 {#
     new_url => url to create a new entity
     entity_name => entity name
+    form => form object
+    form_selector => (optional) defines the selector can be use in javascript
 #}
 
 {% extends 'base.html.twig' %}
@@ -10,30 +12,13 @@
 {% block page_content %}
     <div class="row">
         <div class="col-md-12">
-            <div class="box">
+            <div class="box js-index-box">
                 <div class="box-header with-border">
                     <a href="{{ new_url|default('#') }}" class="entity-create btn btn-success pull-right" data-target="#modal-create"
                        data-toggle="modal">
                         <i class="fa-plus-circle fa" aria-hidden="true"></i> Create new {{ entity_name|trans|lower }}</a>
                 </div>
                 <div class="box-body table-responsive no-padding">
-                    {# Printing success message. This section makes sense when creating/updating/deleteing entity. #}
-                    {% for message in app.flashes('success') %}
-                        {%  include 'Components/Alerts/alert-message.html.twig' with {
-                            'message_type': 'success',
-                            'message': message
-                        }%}
-                    {% endfor %}
-
-                    {# Printing error message. This section makes sense when creating/updating/deleteing entity. #}
-                    {% for message in app.flashes('error') %}
-                        {%  include 'Components/Alerts/alert-message.html.twig' with {
-                            'message_type': 'danger',
-                            'message': message
-                        }%}
-                    {% endfor %}
-
-                    {% set modal = null %}
                     <table id="{{ entity_name|trans|lower|trim(' ') }}s" class="table table-bordered table-striped js-manager-table">
                         <thead>
                         <tr>
@@ -57,15 +42,6 @@
                         'modal_title_id': 'modalTitleDelete'
                     } %}
                     {% endembed %}
-
-                    {% if modal %}
-                        {% embed 'Components/Modal/modal.html.twig' with {
-                            'dialog' : 'loading-dialog',
-                            'modal_id' : 'modal-show',
-                            'modal_title_id': 'modalTitleDelete'
-                        } %}
-                        {% endembed %}
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -80,6 +56,7 @@
             {% block _box %}
                 {% include 'Components/Form/_form-horizontal.html.twig' with {
                     'form': form,
+                    'form_selector': 'js-' ~ entity_name|lower ~ '-create-from',
                     'box_type': 'success',
                     'submit_icon': 'save',
                     'submit_type': 'Create',
@@ -127,36 +104,43 @@
 
     <script>
         $(document).ready(function(){
+
+            // Create page instance
+            let contentWrapper = $('.js-index-box').closest('section');
+            let $createModal = $('#modal-create');
+            let indexPage = new IndexPage(contentWrapper, $createModal);
+
             // Create crud manager instance.
             // The instance will take care of add, update and remove entities and keep the table updated.
-            let $wrapper = $('.js-manager-table');
-            let $modal = $('#modal-delete');
-            let crudManagertable = new CRUDManageTable($wrapper, $modal);
+            let $tableWrapper = $('.js-manager-table');
+            let $deleteModal = $('#modal-delete');
+            let crudManagertable = new CRUDManageTable($tableWrapper, $deleteModal);
 
-            // Implementation create button on modal
-            $(document).on("click", ".entity-create", function () {
-                $('#background-modal-create').hide();
 
-                var form = $('#entity-form');
-                form.trigger("reset");
-
-                // As pointed out in comments,
-                // it is superfluous to have to manually call the modal.
-                var modal = $('#modal-create');
-                modal.modal('show');
-
-                modal.modal({ backdrop: 'static', keyboard: false })
-                    .on('click', '#submit-btn', function(){
-                        form.submit();
-
-                        // Block the panel
-                        modal.modal({backdrop: 'static', keyboard: false});
-                        $('#modal-create .modal-dialog').hide();
-                        modal.css('text-align','center');
-
-                        $('#background-modal-create').show();
-                    });
-            });
+            // // Implementation create button on modal
+            // $(document).on("click", ".entity-create", function () {
+            //     $('#background-modal-create').hide();
+            //
+            //     var form = $('#entity-form');
+            //     form.trigger("reset");
+            //
+            //     // As pointed out in comments,
+            //     // it is superfluous to have to manually call the modal.
+            //     var modal = $('#modal-create');
+            //     modal.modal('show');
+            //
+            //     modal.modal({ backdrop: 'static', keyboard: false })
+            //         .on('click', '#submit-btn', function(){
+            //             form.submit();
+            //
+            //             // Block the panel
+            //             modal.modal({backdrop: 'static', keyboard: false});
+            //             $('#modal-create .modal-dialog').hide();
+            //             modal.css('text-align','center');
+            //
+            //             $('#background-modal-create').show();
+            //         });
+            // });
         });
     </script>
 
@@ -166,5 +150,6 @@
     <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
 
     <script src="{{ asset('assets/js/table/crud-manage-table.js') }}"></script>
+    <script src="{{ asset('assets/js/page/index.js') }}"></script>
 {% endblock %}
 

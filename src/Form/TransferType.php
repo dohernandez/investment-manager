@@ -2,9 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Account;
 use App\Entity\Transfer;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -44,10 +42,23 @@ class TransferType extends AbstractType
         ;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Transfer::class,
         ]);
+    }
+
+    /**
+     * This method is overwritten in this class to allow map the json request data with the form
+     *
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return '';
     }
 }

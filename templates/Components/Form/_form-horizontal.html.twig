@@ -1,7 +1,7 @@
 {% set _form_theme = form_theme|default('Components/Form/horizontal-theme-form.html.twig') %}
 {% form_theme form _form_theme %}
 
-{{ form_start(form, {'attr': {'id': 'entity-form', 'class': 'form-horizontal'}}) }}
+{{ form_start(form, {'attr': {'id': 'entity-form', 'class': 'form-horizontal ' ~ form_selector|default('') }}) }}
 <div class="box-body">
     {{ form_widget(form) }}
 </div>

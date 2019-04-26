@@ -43,7 +43,7 @@ class TransferController extends BaseController
     }
 
     /**
-     * @Route("/", name="transfer_save", methods={"POST"})
+     * @Route("/", name="transfer_save", methods={"POST"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request
@@ -54,16 +54,18 @@ class TransferController extends BaseController
     {
         $form = $this->createForm(TransferType::class);
 
-        try {
-            $form->handleRequest($request);
-        } catch (\Exception $e) {
+        $data = json_decode($request->getContent(), true);
+        if ($data === null) {
             return $this->json(
                 [
-                    'message' => $e->getMessage(),
+                    'message' => 'Invalid JSON',
                 ],
-                Response::HTTP_INTERNAL_SERVER_ERROR
+                Response::HTTP_BAD_REQUEST
             );
         }
+
+        dump('data', $data);
+        $form->submit($data);
 
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
@@ -72,6 +74,12 @@ class TransferController extends BaseController
 
                 $em->persist($transfer);
                 $em->flush();
+
+                return $this->createApiResponse(
+                    [
+                        'item' => Api\Transfer::fromEntity($transfer),
+                    ]
+                );
             } else {
 //                $iterator = $child->getErrors(true, true);
 //
@@ -80,13 +88,26 @@ class TransferController extends BaseController
                     dump($error->getCause()->getRoot());
                     $errors[$error->getCause()->getPropertyPath()][] = $error->getMessage();
                 }
-                dump($errors);
 
-                dd($form->getErrors(true, true), $form);
+                dump($form->getErrors(true, true), $form, $errors);
+
+                return $this->json(
+                    [
+                        'message' => 'fails $form->isValid()',
+                    ],
+                    Response::HTTP_INTERNAL_SERVER_ERROR
+                );
             }
         }
 
-        return $this->redirectToRoute('transfer_index');
+        dump($form->getErrors(true, true), $form);
+
+        return $this->json(
+            [
+                'message' => 'fails $form->isSubmitted()',
+            ],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
     }
 
     /**

@@ -62,10 +62,11 @@ abstract class AbstractViewParameters
      * Generate the parameters to use when render index view.
      *
      * @param Entity[] $entities
+     * @param array $context
      *
      * @return array
      */
-    public function index(array $entities = []): array
+    public function index(array $entities = [], array $context = []): array
     {
         $form = $this->form->create($this->newFormTypeClass);
 
@@ -76,7 +77,7 @@ abstract class AbstractViewParameters
                 'edit_route' => $this->getEntityPrefixRoute() . '_index',
                 'delete_route' => $this->getEntityPrefixRoute() . '_delete',
                 'form' => $form->createView(),
-            ];
+            ] + $context;
     }
 
     abstract protected function getFields(): array;
