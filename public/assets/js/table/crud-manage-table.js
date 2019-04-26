@@ -1,6 +1,6 @@
 'use strict';
 
-(function (window, $) {
+(function (window, $, Routing) {
     /**
      * Create a CRUD Manage Table instance to add, remove row in the table defined in
      * @see templates/Components/Table/crud-manage-table.html.twig
@@ -24,9 +24,16 @@
             '.entity-delete',
             this.handlerEntityDelete.bind(this)
         );
+        
+        this.loadEntities();
     };
 
     $.extend(window.CRUDManageTable.prototype, {
+        /**
+         * Handler on click event for delete buttons
+         *
+         * @param e The event
+         */
         handlerEntityDelete: function (e) {
             e.preventDefault();
 
@@ -48,8 +55,10 @@
             // requests to the server.
             $confirmDelete.unbind('click');
 
+            // Assign this to be able to pass it to the anonymous function.
             let _self = this;
 
+            // Attach on click listener to the form the modal button when confirm delete is clicked.
             $confirmDelete.on('click', function () {
                 let $modalDialog = _self.$modal.find('.modal-dialog');
 
@@ -85,6 +94,8 @@
 
                         $row.fadeOut('normal', function () {
                             $(this).remove();
+
+                            _self._recalculateRowIndex();
                         });
                     },
                     error: function (jqXHR) {
@@ -92,6 +103,61 @@
                     }
                 });
             });
+        },
+
+        /**
+         * Loads all entities into the table
+         */
+        loadEntities: function () {
+            let _self = this;
+
+            $.ajax({
+                url: Routing.generate('transfer_list'),
+                success: function(data) {
+                    $.each(data.items, function (key, entity) {
+                        entity.index = key + 1;
+
+                        _self._addRow(entity);
+                    });
+                }
+            });
+        },
+
+        /**
+         * Create a row table with the entity value.
+         *
+         * @param {Object} entity
+         * @param {int} entity.id
+         * @param {string} entity.date
+         * @param {string} entity.beneficiaryParty.name
+         * @param {string} entity.beneficiaryParty.iban
+         * @param {string} entity.debtorParty.name
+         * @param {string} entity.debtorParty.iban
+         * @param {float} entity.amount
+         *
+         * @private
+         */
+        _addRow: function(entity) {
+            var tplText = $('#js-manager-row-template').html();
+            var tpl = _.template(tplText);
+
+            var html = tpl(entity);
+            this.$wrapper.find('tbody').append($.parseHTML(html));
+        },
+
+        /**
+         * Recalculate the index fo the row table base on the new list.
+         *
+         * When adding or removing a new row, indexes get messy, so this functions helps to reorder them again.
+         *
+         * @private
+         */
+        _recalculateRowIndex: function () {
+            let $rowIndexThs = this.$wrapper.find('.js-manager-row-index');
+
+            $.each($rowIndexThs, function (key, th) {
+                $(th).html(key + 1);
+            })
         }
     });
-})(window, jQuery);
+})(window, jQuery, Routing);

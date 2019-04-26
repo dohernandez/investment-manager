@@ -5,6 +5,8 @@
 
 {% extends 'base.html.twig' %}
 
+{% import 'Components/Macros/ajax-render.html.twig' as render %}
+
 {% block page_content %}
     <div class="row">
         <div class="col-md-12">
@@ -31,8 +33,39 @@
                         }%}
                     {% endfor %}
 
-                    {% embed 'Components/Table/ajax-crud-manage-table.html.twig' %}
+                    {% set modal = null %}
+                    <table id="{{ entity_name|trans|lower|trim(' ') }}s" class="table table-bordered table-striped js-manager-table">
+                        <thead>
+                        <tr>
+                            <th width="60" class="text-center" scope="col">#</th>
+                            {% for field in fields %}
+                                <th {% if field.col_with is defined %} width="{{ field.col_with }}" {% endif %} scope="col">
+                                    {% if field.label is not defined %}{{ field.name|trans|upper }}{% else %}{{ field.label|trans|upper }}{% endif %}
+                                </th>
+                            {% endfor %}
+                            <th width="{% if buttons is defined %}{{ buttons|length * 22 + 100 }}{% else %}100{% endif %}" scope="col">MANAGE</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                    {% embed 'Components/Modal/modal.html.twig' with {
+                        'dialog' : 'confirm-delete-dialog',
+                        'request' : 'true',
+                        'modal_id' : 'modal-delete',
+                        'modal_title_id': 'modalTitleDelete'
+                    } %}
                     {% endembed %}
+
+                    {% if modal %}
+                        {% embed 'Components/Modal/modal.html.twig' with {
+                            'dialog' : 'loading-dialog',
+                            'modal_id' : 'modal-show',
+                            'modal_title_id': 'modalTitleDelete'
+                        } %}
+                        {% endembed %}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -69,6 +102,29 @@
 {% block javascripts %}
     {{ parent() }}
 
+    <!-- row table template -->
+    <script type="text/template" id="js-manager-row-template">
+        <tr>
+            <th style="vertical-align: middle;" scope="row" class="text-center js-manager-row-index"><%= index %></th>
+            {% for field in fields %}
+                <td style="vertical-align: middle;">
+                    {{ render.field(field.name, field) }}
+                </td>
+            {% endfor %}
+            <td>
+                <a href=""  style="margin-left: 3px"
+                   class="btn btn-primary btn-sm pull-left">
+                    <i class="fa fa-pencil-alt" aria-hidden="true"></i>
+                </a>
+                <button type="button" data-backdrop="static" data-keyboard="false" class="entity-delete btn btn-danger btn-sm" data-target="#modal-delete"
+                        data-keyboard="true" data-toggle="modal" data-id="<%= id %>" data-title="<%= title %>"
+                        data-url="<%= Routing.generate('transfer_delete', {'id': id}) %>"   style="margin-left: 3px">
+                    <i class="fa-trash-alt fa" aria-hidden="true"></i>
+                </button>
+            </td>
+        </tr>
+    </script>
+
     <script>
         $(document).ready(function(){
             // Create crud manager instance.
@@ -101,54 +157,14 @@
                         $('#background-modal-create').show();
                     });
             });
-
-        {#// Implementation delete button on modal#}
-        {#$(document).on("click", ".entity-delete", function () {#}
-            {#var $form = $(this);#}
-
-            {#var itemId = $form.data('id');#}
-            {#var itemTitle = $form.data('title');#}
-
-            {#$(".modal-footer #itemId").val( itemId );#}
-            {#$(".modal-body p span").text(itemTitle);#}
-
-
-            {#$('#background-modal-delete').hide();#}
-            {#// As pointed out in comments,#}
-            {#// it is superfluous to have to manually call the modal.#}
-            {#var modal = $('#modal-delete');#}
-            {#modal.modal('show');#}
-
-            {#// On delete confirm#}
-            {#modal.modal({ backdrop: 'static', keyboard: false })#}
-                {#.on('click', '#confirm-delete', function(){#}
-                    {#console.log('yes');#}
-                    {#$('#entity_' + itemId).submit();#}
-
-                    {#// Block the panel#}
-                    {#modal.modal({backdrop: 'static', keyboard: false});#}
-                    {#$('#modal-delete .modal-dialog').hide();#}
-                    {#modal.css('text-align','center');#}
-
-                    {#$('#background-modal-delete').show();#}
-                {#});#}
-        {#});#}
-
-        {#{% if extra_buttons is defined %}#}
-            {#$("#modal-show").on("show.bs.modal", function(e) {#}
-                {#$("#modal-show .modal-content")#}
-                    {#.html('{% filter spaceless %}{% include 'Components/Modal/spinner.html.twig' %}{% endfilter %}');#}
-                {#var href = $(e.relatedTarget).data('href');#}
-                {#$.get(href, function(data) {#}
-                    {#$("#modal-show .modal-content").html(data);#}
-                {#});#}
-
-            {#});#}
-        {#{% endif %}#}
         });
     </script>
 
-    <script src="{{ asset('assets/js/table/crud-manage-table.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+
+    <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+
+    <script src="{{ asset('assets/js/table/crud-manage-table.js') }}"></script>
 {% endblock %}
 

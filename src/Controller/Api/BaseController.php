@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
@@ -11,18 +11,12 @@ class BaseController  extends AbstractController
     /**
      * @param mixed $data Usually an object you want to serialize
      * @param int $statusCode
-     * @param string|null $group Define how to serialize the object using Serializer\Annotation
+     * @param array $context
      *
      * @return JsonResponse
      */
-    protected function createApiResponse($data, $statusCode = 200, $group = null)
+    protected function createApiResponse($data, $statusCode = 200, $context = [])
     {
-        $context = [];
-
-        if ( isset($group) ) {
-            $context = ['group' => [$group]];
-        }
-
         return $this->json($data, $statusCode, [], $context);
     }
 

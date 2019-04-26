@@ -1,0 +1,51 @@
+{% macro render_field(value) %}
+    <%= {{ value }} %>
+{% endmacro render_field %}
+
+{% macro render_currency(value, currency) %}
+    {% set _currency = currency |default('euro') %}
+
+    {% if _currency == 'euro' %}
+        &euro; <%= {{ value }}.toFixed(2).toString().replace(/\./g, ",") %>
+    {% elseif _currency == '$' %}
+        <%= {{ value }}.toFixed(2).toString().replace(/\./g, ",") %> $
+    {% endif %}
+{% endmacro render_currency %}
+
+{% macro render_date(value, format) %}
+    <%= moment(new Date({{ value }})).format('{{ format }}') %>
+{% endmacro render_date %}
+
+{% macro render_slice(value, truncate) %}
+    {% if value|length > truncate %}
+        {{ value|slice(0, truncate) ~ '...' }}
+    {% else %}
+        {{ value }}
+    {% endif %}
+{% endmacro render_slice %}
+
+{% macro render_account(value) %}
+        <strong><%= {{ value }}.name %></strong>
+        <br>
+        <small><%= {{ value }}.iban %></small>
+{% endmacro render_account %}
+
+{% macro field(value, field) %}
+    {% import _self as render %}
+
+    {% if field is defined %}
+        {% if field.render is not defined %}
+            {{ render.render_field(value) }}
+        {% elseif field.render == 'account' %}
+            {{ render.render_account(value) }}
+        {% elseif field.render == 'currency' %}
+            {{ render.render_currency(value) }}
+        {% elseif field.render == 'date' %}
+            {{ render.render_date(value, field.date_format) }}
+        {% else %}
+            {{ render.render_field(value) }}
+        {% endif %}
+    {% else %}
+        {{ render.render_field(value) }}
+    {% endif %}
+{% endmacro field %}
