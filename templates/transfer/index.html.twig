@@ -11,10 +11,17 @@
     <style>
         .select2-container .select2-selection--single {
             height: 34px;
+            text-align: left;
+            font-size: 14px;
+            padding-left: 4px;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__arrow {
             height: 30px;
+        }
+
+        .select2-results__option {
+            font-size: 14px;
         }
     </style>
 {% endblock %}
@@ -33,86 +40,4 @@
     <!-- select2 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
 
-    <script>
-        $(document).ready(function () {
-            let $modal = $("#modal-create");
-            let $autocomplete = $('.js-account-autocomplete');
-
-            $('[data-datepickerenable="on"]').datetimepicker();
-
-            $autocomplete.each(function () {
-                let jsDataAccountUrl = $(this).data('autocomplete-url');
-
-                $(this).select2({
-                    dropdownParent: $modal,
-                    ajax: {
-                        url: jsDataAccountUrl,
-                        dataType: 'json',
-                        delay: 10,
-                        allowClear: true,
-                        data: function (params) {
-                            return {
-                                group: 'options_name_account_no',
-                                q: params.term, // search term
-                                page: params.page
-                            };
-                        },
-                        processResults: function (data, params) {
-                            // parse the results into the format expected by Select2
-                            // since we are using custom formatting functions we do not need to
-                            // alter the remote JSON data, except to indicate that infinite
-                            // scrolling can be used
-                            params.page = params.page || 1;
-
-                            return {
-                                results: data.items,
-                                pagination: {
-                                    more: (params.page * 30) < data.total_count
-                                }
-                            };
-                        },
-                        cache: true
-                    },
-                    placeholder: 'Search for an account',
-                    escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-                    minimumInputLength: 1,
-                    templateResult: templateResult,
-                    templateSelection: templateSelection
-                });
-            });
-
-            // Listener on create transfer modal form to clean up select2 selections
-            $modal.on("show.bs.modal", function() {
-                $autocomplete.each(function () {
-                    $(this).val(null).trigger('change');
-                });
-            });
-        });
-
-        // Define how will be render the list of items
-        // repo represents an account object with text property
-        function templateResult (repo) {
-            if (repo.loading) {
-                return repo.text;
-            }
-
-            let markup = "<div class='select2-result-account clearfix'>" +
-                "<strong>" + repo.name + "</strong>" +
-                "<br />" +
-                "<small>" + repo.accountNo + "</small>" +
-                "</div>";
-
-            return markup;
-        }
-
-        // Define how will be render the item selected
-        // repo represents an account object with text property
-        function templateSelection (repo) {
-            if (!repo.name) {
-                return repo.text;
-            }
-
-            return repo.name + " - " + repo.accountNo;
-        }
-    </script>
 {% endblock %}

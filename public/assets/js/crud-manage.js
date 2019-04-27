@@ -9,13 +9,15 @@
      *
      * @param $wrapper
      * @param $createModal
-     * @param swalConfirmOptions
+     * @param swalFormOptions
      * @param toastOptions
      * @constructor
      */
-    window.CRUDManage = function ($wrapper, $createModal, swalConfirmOptions, toastOptions) {
+    window.CRUDManage = function ($wrapper, swalFormOptions, swalConfirmOptions, toastOptions) {
         // Start binding functions for $wrapper
         this.$wrapper = $wrapper;
+
+        this.swalFormOptions = swalFormOptions;
         this.swalConfirmOptions = swalConfirmOptions;
         this.toastOptions = toastOptions;
 
@@ -28,7 +30,7 @@
         this.$wrapper.on(
             'click',
             '.js-entity-create',
-            this.handleDisplayModalCreate.bind(this)
+            this.handleCreate.bind(this)
         );
 
         this.$wrapper.on(
@@ -44,22 +46,6 @@
         );
         // End binding functions to $wrapper
 
-
-        // Start binding functions for $modal ($createModal)
-        this.$createModal = $createModal;
-
-        // Delegate selector
-        this.$createModal.on(
-            'click',
-            '.js-submit-btn',
-            this.handleModalCreateSubmit.bind(this)
-        );
-
-        this.$createModal.on(
-            'hidden.bs.modal',
-            this.handleModalCreateHidden.bind(this)
-        );
-
         this.loadEntities();
     };
 
@@ -74,29 +60,111 @@
          *
          * @param e
          */
-        handleDisplayModalCreate: function (e) {
+        handleCreate: function (e) {
             e.preventDefault();
 
-            let $form = this.$createModal.find(this._selectors.createForm);
+            // let $form = this.$createModal.find(this._selectors.createForm);
+            //
+            // this._clearForm($form);
 
-            this._clearForm($form);
-        },
+            let tplText = $('#js-manager-form-template').html();
+            let tpl = _.template(tplText);
+            let html = tpl();
 
-        /**
-         * Clean up the form
-         *
-         * @param {Object} $form
-         * @private
-         */
-        _clearForm: function($form) {
-            this._removeFormErrors($form);
+            let _self = this;
 
-            $form[0].reset();
-        },
+            const swalForm = Swal.mixin(this.swalFormOptions);
 
-        _removeFormErrors: function($form) {
-            $form.find('.js-field-error').remove();
-            $form.find('.form-group').removeClass('has-error');
+            swalForm.fire({
+                html: html,
+                onBeforeOpen: () => {
+                    $('[data-datepickerenable="on"]').datetimepicker();
+
+                    let $autocomplete = $('.js-account-autocomplete');
+                    let modal = $(swalForm.getContainer()).find('.swal2-modal');
+
+                    $autocomplete.each(function () {
+                        let jsDataAccountUrl = $(this).data('autocomplete-url');
+
+                        $(this).select2({
+                            dropdownParent: modal,
+                            ajax: {
+                                url: jsDataAccountUrl,
+                                dataType: 'json',
+                                delay: 10,
+                                allowClear: true,
+                                data: function (params) {
+                                    return {
+                                        group: 'options_name_account_no',
+                                        q: params.term, // search term
+                                        page: params.page
+                                    };
+                                },
+                                processResults: function (data, params) {
+                                    // parse the results into the format expected by Select2
+                                    // since we are using custom formatting functions we do not need to
+                                    // alter the remote JSON data, except to indicate that infinite
+                                    // scrolling can be used
+                                    params.page = params.page || 1;
+
+                                    return {
+                                        results: data.items,
+                                        pagination: {
+                                            more: (params.page * 30) < data.total_count
+                                        }
+                                    };
+                                },
+                                cache: true
+                            },
+                            placeholder: 'Search for an account',
+                            escapeMarkup: (markup) => { // let our custom formatter work
+                                return markup;
+                            },
+                            minimumInputLength: 1,
+                            templateResult: (repo) => {
+                                if (repo.loading) {
+                                    return repo.text;
+                                }
+
+                                let markup = "<div class='select2-result-account clearfix'>" +
+                                    "<strong>" + repo.name + "</strong>" +
+                                    "<br />" +
+                                    "<small>" + repo.accountNo + "</small>" +
+                                    "</div>";
+
+                                return markup;
+                            },
+                            templateSelection: (repo) => {
+                                if (!repo.name) {
+                                    return repo.text;
+                                }
+
+                                return repo.name + " - " + repo.accountNo;
+                            }
+                        });
+                    });
+                },
+                preConfirm: () => {
+                    let $form = $(swalForm.getContainer()).find(_self._selectors.createForm);
+
+                    return _self._saveForm($form);
+                }
+            }).then((result) => {
+                if (result.value) {
+                    _self._addRow(result.value.item);
+
+                    let titleText = this.toastOptions.titleText.replace(/\{0\}/g, 'created');
+                    const toast = Swal.mixin(_self.toastOptions);
+
+                    toast.fire({
+                        type: 'success',
+                        titleText: titleText
+                    });
+                }
+            }).catch(function(arg) {
+                // canceling is cool!
+                console.log(arg);
+            });
         },
 
         /**
@@ -116,12 +184,7 @@
                     console.log('successfully save');
 
                     _self._addRow(data.item);
-
-                    // Hide modal to trigger event `hidden.bs.modal` to _toggleProcessingPanel
-                    _self.$createModal.modal('hide')
                 }).catch(function (errorData) {
-                    _self._toggleProcessingPanel(_self.$createModal, false);
-
                     /**
                      *  @var {Object} errorData
                      *  @var {Object} errorData.errors
@@ -134,14 +197,11 @@
         /**
          * Save the data thro an ajax request. Add the new row to the table
          *
-         * @param $modal
          * @param $form
          * @return {Promise<any>}
          * @private
          */
-        _saveForm: function($modal, $form) {
-            this._toggleProcessingPanel($modal, true);
-
+        _saveForm: function($form) {
             let formData = this._getDataFromForm($form);
 
             return this._sendRPC(Routing.generate('transfer_save'), 'POST', formData);
@@ -219,35 +279,6 @@
             $table.data('length', entity.index)
         },
 
-        /**
-         * Use to show processing panel when the request is being sent to the server.
-         *
-         * @param {Object} $modal A modal instance
-         * @param {boolean} activate
-         * @private
-         */
-        _toggleProcessingPanel: function($modal, activate) {
-            let $modalDialog = $modal.find('.modal-dialog');
-            let modalId = $modal.attr('id');
-            let $processingBackground = $('.js-' + modalId + '-processing');
-
-            if (activate) {
-                // Activating processing panel
-                $modalDialog.hide();
-                $modal.css('text-align', 'center');
-
-                $processingBackground.show();
-
-                return
-            }
-
-            // Activating processing panel
-            $modal.css('text-align', 'left');
-            $modalDialog.show();
-
-            $processingBackground.hide();
-        },
-
         _mapErrorsToForm: function($form, errorData) {
             this._removeFormErrors($form);
 
@@ -266,16 +297,6 @@
                 $wrapper.append($error);
                 $wrapper.addClass('has-error');
             });
-        },
-
-        /**
-         * Use to hide gracefully the create modal
-         * @param e
-         */
-        handleModalCreateHidden: function(e) {
-            e.preventDefault();
-
-            this._toggleProcessingPanel(this.$createModal, false);
         },
 
         /**
@@ -327,9 +348,6 @@
             }).catch(function(arg) {
                 // canceling is cool!
             });
-
-            // this.$deleteModal.find('#itemId').val(itemId);
-            // this.$deleteModal.find('.modal-body p span').text(itemTitle);
         },
 
         /**

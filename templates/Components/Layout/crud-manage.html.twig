@@ -30,7 +30,6 @@
            },
        ]
     form => form object
-    form_selector => (optional) defines the selector can be use in javascript
 #}
 
 {% extends 'base.html.twig' %}
@@ -44,16 +43,24 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@8.8.7/dist/sweetalert2.min.css">
 
     <style>
-        .swal2-confirm-title {
+        <!-- swal -->
+        .swal2-confirm-title, .swal2-form-title {
             font-size: 2.875em !important;
         }
-        .swal2-confirm-content {
+
+        .swal2-confirm-content, .swal2-form-content {
             font-size: 1.625em !important;
         }
-        .swal2-confirm-actions .btn {
+
+        .swal2-confirm-actions .btn, .swal2-form-actions .btn {
             margin-bottom: 0;
             margin-left: 8px;
         }
+
+        .swal2-form-actions {
+            z-index: 0 !important;
+        }
+
         .swal2-toast-title {
             font-size: 1.625em !important;
         }
@@ -65,8 +72,7 @@
         <div class="col-md-12">
             <div class="box">
                 <div class="box-header with-border">
-                    <button class="js-entity-create btn btn-success pull-right" data-target="#modal-create"
-                       data-toggle="modal" data-backdrop="static" data-keyboard="false">
+                    <button class="js-entity-create btn btn-success pull-right">
                         <i class="fa-plus-circle fa" aria-hidden="true"></i> Create new {{ entity_name|trans|lower }}</button>
                 </div>
                 <div class="box-body table-responsive no-padding">
@@ -90,40 +96,12 @@
             </div>
         </div>
     </div>
-
-    {% set modal_title %}
-        <h4 class="modal-title">Create new {{ entity_name|trans|lower }}</h4>
-    {% endset %}
-
-    {% set modal_body %}
-        {% embed 'Components/Layout/_box.html.twig'%}
-            {% block _box %}
-                {% include 'Components/Form/_form-horizontal.html.twig' with {
-                    'form': form,
-                    'form_selector': 'js-entity-create-from',
-                    'box_type': 'success',
-                    'submit_icon': 'save',
-                    'submit_type': 'Create',
-                    'data_model': 'data-dismiss=modal'
-                } %}
-            {% endblock %}
-        {% endembed %}
-    {% endset %}
-
-    {% embed 'Components/Modal/modal.html.twig' with {
-        'dialog' : 'dialog',
-        'modal_id' : 'modal-create',
-        'request' : 'true',
-        'modal_title': modal_title,
-        'modal_body': modal_body
-    } %}
-    {% endembed %}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
 
-    <!-- row table template -->
+    <!-- row table manager template -->
     <script type="text/template" id="js-manager-row-template">
         <tr>
             <th style="vertical-align: middle;" scope="row" class="text-center js-manager-row-index"><%= index %></th>
@@ -157,12 +135,24 @@
     <script src="{{ asset('assets/js/crud-manage.js') }}"></script>
 
 
+
+    <!-- form table manager template -->
+    <script type="text/template" id="js-manager-form-template">
+        {% set _form_theme = form_theme|default('Components/Form/horizontal-theme-form.html.twig') %}
+        {% form_theme form _form_theme %}
+
+        {{ form_start(form, {'attr': {'id': 'entity-form', 'class': 'form-horizontal js-entity-create-from' }}) }}
+        <div class="box-body">
+            {{ form_widget(form) }}
+        </div>
+        {{ form_end(form) }}
+    </script>
+
     <script>
         $(document).ready(function(){
 
             // Create page instance
             let contentWrapper = $('.js-crud-manage-row-box').closest('section');
-            let $createModal = $('#modal-create');
 
             // Set up swal confirm options
             let swalConfirmOptions = {
@@ -186,6 +176,28 @@
                 text: '{{ 'Do you want to delete the'|trans }} {{ entity_name|trans|title|lower }} {0}?',
             };
 
+            // Set up swal confirm options
+            let swalFormOptions = {
+                customClass: {
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-default',
+                    title: 'swal2-form-title',
+                    content: 'swal2-form-content',
+                    actions: 'swal2-form-actions',
+                },
+                buttonsStyling: false,
+                width: 600,
+                showCancelButton: true,
+                showLoaderOnConfirm: true,
+                reverseButtons: true,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showCloseButton: true,
+                position: 'top',
+                confirmButtonText: '{{ 'Create'|trans }}',
+                titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}'
+            };
+
             // Set up toast options, for showing the operation final status at the end.
             let toastOptions = {
                 toast: true,
@@ -199,7 +211,7 @@
             };
 
             // Create CRUDManage instance @see public/assets/js/crud-manage.js
-            new CRUDManage(contentWrapper, $createModal, swalConfirmOptions, toastOptions);
+            new CRUDManage(contentWrapper, swalFormOptions, swalConfirmOptions, toastOptions);
         });
     </script>
 {% endblock %}

@@ -40,7 +40,7 @@ class Transfer implements Entity
     /**
      * @var float
      *
-     * @ORM\Column(type="decimal", scale=2, precision=5)
+     * @ORM\Column(type="decimal", scale=2, precision=7)
      * @Assert\NotBlank(message="Please enter the amount")
      */
     private $amount;
