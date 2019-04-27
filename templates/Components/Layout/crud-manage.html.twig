@@ -1,25 +1,54 @@
 {#
+    entities => Entity[] -> Entity list. Entity should implement getId() and __toString() functions
     new_url => url to create a new entity
     entity_name => entity name
+    fields => {
+                'render': {
+                    base: <value>, default(text) -> How to render the field. Render type [text, currency, date, slice]
+                    option: <value>
+
+                        1. base 'text' option should not be defined.
+                        2. base 'truncate' option value is the slice until the truncate value.
+                        3. base 'date' option value is the format date.
+                        4. base 'currency' option value is the format currency.
+                },
+                'name': <value>, # required -> Column name
+                'label': <value>, -> Column name label. When label is not defined then name is used instead.
+                'col_with': <value> -> Collumn with
+            }
+
+     'edit_route' => edit route
+     'delete_route' => delete route
+
+     'buttons': [
+           {
+               'route': '<value>', -> should depends on the id.
+               'action': '<value>', default(view) -> action to performance.
+               'type': '<value>', default(info) -> buton type.
+               'icon': '<value>', default(eye) -> buton icon.
+               'modal': '<value>', default(1) -> open a modal window.
+           },
+       ]
     form => form object
     form_selector => (optional) defines the selector can be use in javascript
 #}
 
 {% extends 'base.html.twig' %}
 
-{% import 'Components/Macros/ajax-render.html.twig' as render %}
+{% import 'Components/Macros/crud-manage-render.html.twig' as render %}
 
 {% block page_content %}
-    <div class="row">
+    <div class="row js-crud-manage-row-box">
         <div class="col-md-12">
-            <div class="box js-index-box">
+            <div class="box">
                 <div class="box-header with-border">
-                    <a href="{{ new_url|default('#') }}" class="entity-create btn btn-success pull-right" data-target="#modal-create"
-                       data-toggle="modal">
-                        <i class="fa-plus-circle fa" aria-hidden="true"></i> Create new {{ entity_name|trans|lower }}</a>
+                    <button class="js-entity-create btn btn-success pull-right" data-target="#modal-create"
+                       data-toggle="modal" data-backdrop="static" data-keyboard="false">
+                        <i class="fa-plus-circle fa" aria-hidden="true"></i> Create new {{ entity_name|trans|lower }}</button>
                 </div>
                 <div class="box-body table-responsive no-padding">
-                    <table id="{{ entity_name|trans|lower|trim(' ') }}s" class="table table-bordered table-striped js-manager-table">
+                    <table id="{{ entity_name|trans|lower|trim(' ') }}s" class="table table-bordered table-striped js-manager-table"
+                    data-length="0">
                         <thead>
                         <tr>
                             <th width="60" class="text-center" scope="col">#</th>
@@ -56,7 +85,7 @@
             {% block _box %}
                 {% include 'Components/Form/_form-horizontal.html.twig' with {
                     'form': form,
-                    'form_selector': 'js-' ~ entity_name|lower ~ '-create-from',
+                    'form_selector': 'js-entity-create-from',
                     'box_type': 'success',
                     'submit_icon': 'save',
                     'submit_type': 'Create',
@@ -89,11 +118,11 @@
                 </td>
             {% endfor %}
             <td>
-                <a href=""  style="margin-left: 3px"
-                   class="btn btn-primary btn-sm pull-left">
+                <button type="button" data-backdrop="static" data-keyboard="false" class="js-entity-edit btn btn-primary btn-sm pull-left"
+                        data-target="#modal-create" data-keyboard="true" style="margin-left: 3px">
                     <i class="fa fa-pencil-alt" aria-hidden="true"></i>
-                </a>
-                <button type="button" data-backdrop="static" data-keyboard="false" class="entity-delete btn btn-danger btn-sm" data-target="#modal-delete"
+                </button>
+                <button type="button" data-backdrop="static" data-keyboard="false" class="js-entity-delete btn btn-danger btn-sm" data-target="#modal-delete"
                         data-keyboard="true" data-toggle="modal" data-id="<%= id %>" data-title="<%= title %>"
                         data-url="<%= Routing.generate('transfer_delete', {'id': id}) %>"   style="margin-left: 3px">
                     <i class="fa-trash-alt fa" aria-hidden="true"></i>
@@ -102,19 +131,31 @@
         </tr>
     </script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+
+    <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+
+    <script src="{{ asset('assets/js/crud-manage.js') }}"></script>
+
+
     <script>
         $(document).ready(function(){
 
             // Create page instance
-            let contentWrapper = $('.js-index-box').closest('section');
+            let contentWrapper = $('.js-crud-manage-row-box').closest('section');
             let $createModal = $('#modal-create');
-            let indexPage = new IndexPage(contentWrapper, $createModal);
-
-            // Create crud manager instance.
-            // The instance will take care of add, update and remove entities and keep the table updated.
-            let $tableWrapper = $('.js-manager-table');
             let $deleteModal = $('#modal-delete');
-            let crudManagertable = new CRUDManageTable($tableWrapper, $deleteModal);
+
+            let crudManager = new CRUDManage(contentWrapper, $createModal, $deleteModal);
+
+            // let $createModal = $('#modal-create');
+            // let indexPage = new IndexPage(contentWrapper, $createModal);
+            //
+            // // Create crud manager instance.
+            // // The instance will take care of add, update and remove entities and keep the table updated.
+            // let $tableWrapper = $('.js-manager-table');
+            // let $deleteModal = $('#modal-delete');
 
 
             // // Implementation create button on modal
@@ -143,13 +184,5 @@
             // });
         });
     </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
-
-    <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
-    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
-
-    <script src="{{ asset('assets/js/table/crud-manage-table.js') }}"></script>
-    <script src="{{ asset('assets/js/page/index.js') }}"></script>
 {% endblock %}
 

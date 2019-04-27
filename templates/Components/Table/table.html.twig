@@ -1,0 +1,107 @@
+{#
+    entities => Entity[] -> Entity list. Entity should implement getId() and __toString() functions
+    new_url => url to create a new entity
+    entity_name => entity name
+    fields => {
+                'render': {
+                    base: <value>, default(text) -> How to render the field. Render type [text, currency, date, slice]
+                    option: <value>
+
+                        1. base 'text' option should not be defined.
+                        2. base 'truncate' option value is the slice until the truncate value.
+                        3. base 'date' option value is the format date.
+                        4. base 'currency' option value is the format currency.
+                },
+                'name': <value>, # required -> Column name
+                'label': <value>, -> Column name label. When label is not defined then name is used instead.
+                'col_with': <value> -> Collumn with
+            }
+
+     'edit_route' => edit route
+     'delete_route' => delete route
+
+     'buttons': [
+           {
+               'route': '<value>', -> should depends on the id.
+               'action': '<value>', default(view) -> action to performance.
+               'type': '<value>', default(info) -> buton type.
+               'icon': '<value>', default(eye) -> buton icon.
+               'modal': '<value>', default(1) -> open a modal window.
+           },
+       ]
+#}
+
+{% import 'Components/Macros/render.html.twig' as render %}
+
+{% set modal = null %}
+<table id="{{ entity_name|trans|lower|trim(' ') }}s" class="table table-bordered table-striped js-manager-table">
+    <thead>
+    <tr>
+        <th width="60" class="text-center" scope="col">#</th>
+        {% for field in fields %}
+            <th {% if field.col_with is defined %} width="{{ field.col_with }}" {% endif %} scope="col">
+                {% if field.label is not defined %}{{ field.name|trans|upper }}{% else %}{{ field.label|trans|upper }}{% endif %}
+            </th>
+        {% endfor %}
+        <th width="{% if buttons is defined %}{{ buttons|length * 22 + 100 }}{% else %}100{% endif %}" scope="col">MANAGE</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in entities %}
+        <tr>
+            <th style="vertical-align: middle;" scope="row" class="text-center">{{ loop.index }}</th>
+            {% for field in fields %}
+                <td style="vertical-align: middle;">
+                    {{ render.field(attribute(item, field.name), field) }}
+                </td>
+            {% endfor %}
+            <td>
+                {% if buttons is defined %}
+                    {% for button in buttons %}
+                        {% if not modal %}{% set modal = button.modal|default(1) %}{% endif %}
+
+                        {% if button.modal is not defined or button.modal %}
+                            <button type="button"  data-href="{{ path(button.route, { 'id': item.id }) }}"
+                                    class="entity-{{ button.action|default('view') }} btn btn-{{ button.type|default('info') }} btn-sm pull-left"
+                                    data-toggle="modal" data-target="#modal-show">
+                                <i class="fa-{{ button.icon|default('eye') }} fa" aria-hidden="true"></i>
+                            </button>
+                        {% else %}
+                            <a href="{{ path(button.route, { 'id': item.id }) }}"
+                               class="entity-{{ button.action|default('view') }} btn btn-{{ button.type|default('info') }} btn-sm pull-left">
+                                <i class="fa-{{ button.icon|default('eye') }} fa" aria-hidden="true"></i>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                <a href="{{ path(edit_route, { 'id': item.id }) }}"  style="margin-left: 3px"
+                   class="btn btn-primary btn-sm pull-left">
+                    <i class="fa fa-pencil-alt" aria-hidden="true"></i>
+                </a>
+                <button type="button" data-backdrop="static" data-keyboard="false" class="entity-delete btn btn-danger btn-sm" data-target="#modal-delete"
+                        data-keyboard="true" data-toggle="modal" data-id="{{ item.id }}" data-title="{{ attribute(item, '__toString') }}"
+                        data-url="{{ path(delete_route, { 'id': item.id }) }}"   style="margin-left: 3px">
+                    <i class="fa-trash-alt fa" aria-hidden="true"></i>
+                </button>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% embed 'Components/Modal/modal.html.twig' with {
+    'dialog' : 'confirm-delete-dialog',
+    'request' : 'true',
+    'modal_id' : 'modal-delete',
+    'modal_title_id': 'modalTitleDelete'
+} %}
+{% endembed %}
+
+{% if modal %}
+    {% embed 'Components/Modal/modal.html.twig' with {
+        'dialog' : 'loading-dialog',
+        'modal_id' : 'modal-show',
+        'modal_title_id': 'modalTitleDelete'
+    } %}
+    {% endembed %}
+{% endif %}

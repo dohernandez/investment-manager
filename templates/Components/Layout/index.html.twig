@@ -75,7 +75,7 @@
             // The instance will take care of add, update and remove entities and keep the table updated.
             let $wrapper = $('.js-manager-table');
             let $modal = $('#modal-delete');
-            let crudManagertable = new CRUDManageTable($wrapper, $modal);
+            let crudManagertable = new CRUDManage($wrapper, $modal);
 
             // Implementation create button on modal
             $(document).on("click", ".entity-create", function () {
@@ -148,7 +148,7 @@
         });
     </script>
 
-    <script src="{{ asset('assets/js/table/crud-manage-table.js') }}"></script>
+    <script src="{{ asset('assets/js/crud-manage.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
 {% endblock %}
 

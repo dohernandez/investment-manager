@@ -11,7 +11,7 @@
         {{ box_button }}
     {% else %}
         <a href="{{ cancel_url|default('#') }}" class="btn btn-default" {{ data_model }}>{{ 'Cancel'|trans }}</a>
-        <button id="submit-btn" type="submit" class="btn btn-{{ box_type|default('info') }} pull-right">
+        <button type="submit" class="btn btn-{{ box_type|default('info') }} pull-right js-submit-btn">
             <i class="fa fa-{{ submit_icon|default('check-square') }}" aria-hidden="true"></i> {{ submit_type|default('Submit')|trans }}
         </button>
     {% endif %}
