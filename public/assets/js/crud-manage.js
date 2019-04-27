@@ -1,6 +1,6 @@
 'use strict';
 
-(function (window, $, Routing) {
+(function (window, $, Routing, Swal) {
     /**
      * Create a CRUD Manage Table instance to add, remove row in the table defined in
      * @see templates/Components/Table/crud-manage-table.html.twig
@@ -9,12 +9,15 @@
      *
      * @param $wrapper
      * @param $createModal
-     * @param $deleteModal
+     * @param swalConfirmOptions
+     * @param toastOptions
      * @constructor
      */
-    window.CRUDManage = function ($wrapper, $createModal, $deleteModal) {
+    window.CRUDManage = function ($wrapper, $createModal, swalConfirmOptions, toastOptions) {
         // Start binding functions for $wrapper
         this.$wrapper = $wrapper;
+        this.swalConfirmOptions = swalConfirmOptions;
+        this.toastOptions = toastOptions;
 
         /**
          * Delegate selector
@@ -37,7 +40,7 @@
         this.$wrapper.on(
             'click',
             '.js-entity-delete',
-            this.handlerDisplayModalConfirmDelete.bind(this)
+            this.handlerDelete.bind(this)
         );
         // End binding functions to $wrapper
 
@@ -55,21 +58,6 @@
         this.$createModal.on(
             'hidden.bs.modal',
             this.handleModalCreateHidden.bind(this)
-        );
-
-        // Start binding functions for $modal ($deleteModal)
-        this.$deleteModal = $deleteModal;
-
-        // Delegate selector
-        this.$deleteModal.on(
-            'click',
-            '.js-confirm-delete',
-            this.handleModalDeleteConfirm.bind(this)
-        );
-
-        this.$deleteModal.on(
-            'hidden.bs.modal',
-            this.handleModalDeleteConfirmHidden.bind(this)
         );
 
         this.loadEntities();
@@ -306,39 +294,53 @@
          *
          * @param e The event
          */
-        handlerDisplayModalConfirmDelete: function (e) {
+        handlerDelete: function (e) {
             e.preventDefault();
 
             // Setting form data
             let $form = $(e.currentTarget);
-            // This variable is set in this function, but will be access in this.handleModalDeleteConfirm
-            this.$selected = $form;
+            let $row = $form.closest('tr');
 
-            let itemId = $form.data('id');
             let itemTitle = $form.data('title');
-
-            this.$deleteModal.find('#itemId').val(itemId);
-            this.$deleteModal.find('.modal-body p span').text(itemTitle);
-        },
-
-        /**
-         * Handle on click event for confirm delete button.
-         *
-         * @param e
-         */
-        handleModalDeleteConfirm: function (e) {
-            e.preventDefault();
-
-            console.log(this.$deleteModal);
-
-            let deleteUrl = this.$selected.data('url');
-            let $row = this.$selected.closest('tr');
-
-            this._toggleProcessingPanel(this.$deleteModal, true);
+            let deleteUrl = $form.data('url');
 
             let _self = this;
 
-            this._sendRPC(deleteUrl, 'DELETE')
+            let text = this.swalConfirmOptions.text.replace(/\{0\}/g, '"' + itemTitle + '"');
+            const swalConfirm = Swal.mixin(this.swalConfirmOptions);
+
+            swalConfirm.fire({
+                text: text,
+                preConfirm: () => {
+                    return _self._deleteForm($row, deleteUrl);
+                }
+            }).then((result) => {
+                if (result.value) {
+                    let titleText = this.toastOptions.titleText.replace(/\{0\}/g, 'deleted');
+                    const toast = Swal.mixin(_self.toastOptions);
+
+                    toast.fire({
+                        type: 'success',
+                        titleText: titleText
+                    });
+                }
+            }).catch(function(arg) {
+                // canceling is cool!
+            });
+
+            // this.$deleteModal.find('#itemId').val(itemId);
+            // this.$deleteModal.find('.modal-body p span').text(itemTitle);
+        },
+
+        /**
+         * Delete the entity thro an ajax request. Add the row is removed from the table
+         *
+         * @param e
+         */
+        _deleteForm: function ($row, deleteUrl) {
+            let _self = this;
+
+            return this._sendRPC(deleteUrl, 'DELETE')
                 .then(function () {
                     $row.fadeOut('normal', function () {
                         $(this).remove();
@@ -348,8 +350,6 @@
                         let $table = _self.$wrapper.find(_self._selectors.table);
                         let length = parseInt($table.data('length'));
                         $table.data('length', length - 1);
-
-                        _self.$deleteModal.modal('hide');
                     });
                 })
                 .catch(function (jqXHR) {
@@ -375,16 +375,6 @@
         },
 
         /**
-         * Use to hide gracefully the delete confirmation modal
-         * @param e
-         */
-        handleModalDeleteConfirmHidden: function(e) {
-            e.preventDefault();
-
-            this._toggleProcessingPanel(this.$deleteModal, false);
-        },
-
-        /**
          * Loads all entities into the table.
          */
         loadEntities: function () {
@@ -400,4 +390,4 @@
             });
         }
     });
-})(window, jQuery, Routing);
+})(window, jQuery, Routing, Swal);

@@ -37,6 +37,29 @@
 
 {% import 'Components/Macros/crud-manage-render.html.twig' as render %}
 
+{% block stylesheets %}
+    {{ parent() }}
+
+    <!-- sweetalert2 - for nice alert box -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@8.8.7/dist/sweetalert2.min.css">
+
+    <style>
+        .swal2-confirm-title {
+            font-size: 2.875em !important;
+        }
+        .swal2-confirm-content {
+            font-size: 1.625em !important;
+        }
+        .swal2-confirm-actions .btn {
+            margin-bottom: 0;
+            margin-left: 8px;
+        }
+        .swal2-toast-title {
+            font-size: 1.625em !important;
+        }
+    </style>
+{% endblock %}
+
 {% block page_content %}
     <div class="row js-crud-manage-row-box">
         <div class="col-md-12">
@@ -63,14 +86,6 @@
                         <tbody>
                         </tbody>
                     </table>
-
-                    {% embed 'Components/Modal/modal.html.twig' with {
-                        'dialog' : 'confirm-delete-dialog',
-                        'request' : 'true',
-                        'modal_id' : 'modal-delete',
-                        'modal_title_id': 'modalTitleDelete'
-                    } %}
-                    {% endembed %}
                 </div>
             </div>
         </div>
@@ -122,9 +137,9 @@
                         data-target="#modal-create" data-keyboard="true" style="margin-left: 3px">
                     <i class="fa fa-pencil-alt" aria-hidden="true"></i>
                 </button>
-                <button type="button" data-backdrop="static" data-keyboard="false" class="js-entity-delete btn btn-danger btn-sm" data-target="#modal-delete"
-                        data-keyboard="true" data-toggle="modal" data-id="<%= id %>" data-title="<%= title %>"
-                        data-url="<%= Routing.generate('transfer_delete', {'id': id}) %>"   style="margin-left: 3px">
+                <button type="button" data-backdrop="static" data-keyboard="false" class="js-entity-delete btn btn-danger btn-sm"
+                        data-id="<%= id %>" data-title="<%= title %>" data-url="<%= Routing.generate('transfer_delete', {'id': id}) %>"
+                        style="margin-left: 3px">
                     <i class="fa-trash-alt fa" aria-hidden="true"></i>
                 </button>
             </td>
@@ -132,6 +147,9 @@
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+
+    <!-- sweetalert2 - for nice alert box -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8.8.7/dist/sweetalert2.all.min.js"></script>
 
     <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
     <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
@@ -145,43 +163,43 @@
             // Create page instance
             let contentWrapper = $('.js-crud-manage-row-box').closest('section');
             let $createModal = $('#modal-create');
-            let $deleteModal = $('#modal-delete');
 
-            let crudManager = new CRUDManage(contentWrapper, $createModal, $deleteModal);
+            // Set up swal confirm options
+            let swalConfirmOptions = {
+                customClass: {
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-default',
+                    title: 'swal2-confirm-title',
+                    content: 'swal2-confirm-content',
+                    actions: 'swal2-confirm-actions',
+                },
+                buttonsStyling: false,
+                type: 'warning',
+                width: 500,
+                showCancelButton: true,
+                showLoaderOnConfirm: true,
+                allowOutsideClick: false,
+                showCloseButton: true,
+                position: 'top',
+                confirmButtonText: '{{ 'Delete'|trans }}',
+                titleText: '{{ 'Delete'|trans }} {{ entity_name|trans|title }}',
+                text: '{{ 'Do you want to delete the'|trans }} {{ entity_name|trans|title|lower }} {0}?',
+            };
 
-            // let $createModal = $('#modal-create');
-            // let indexPage = new IndexPage(contentWrapper, $createModal);
-            //
-            // // Create crud manager instance.
-            // // The instance will take care of add, update and remove entities and keep the table updated.
-            // let $tableWrapper = $('.js-manager-table');
-            // let $deleteModal = $('#modal-delete');
+            // Set up toast options, for showing the operation final status at the end.
+            let toastOptions = {
+                toast: true,
+                position: 'top',
+                showConfirmButton: false,
+                timer: 3000,
+                customClass: {
+                    title: 'swal2-toast-title',
+                },
+                titleText: '{{ entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}'
+            };
 
-
-            // // Implementation create button on modal
-            // $(document).on("click", ".entity-create", function () {
-            //     $('#background-modal-create').hide();
-            //
-            //     var form = $('#entity-form');
-            //     form.trigger("reset");
-            //
-            //     // As pointed out in comments,
-            //     // it is superfluous to have to manually call the modal.
-            //     var modal = $('#modal-create');
-            //     modal.modal('show');
-            //
-            //     modal.modal({ backdrop: 'static', keyboard: false })
-            //         .on('click', '#submit-btn', function(){
-            //             form.submit();
-            //
-            //             // Block the panel
-            //             modal.modal({backdrop: 'static', keyboard: false});
-            //             $('#modal-create .modal-dialog').hide();
-            //             modal.css('text-align','center');
-            //
-            //             $('#background-modal-create').show();
-            //         });
-            // });
+            // Create CRUDManage instance @see public/assets/js/crud-manage.js
+            new CRUDManage(contentWrapper, $createModal, swalConfirmOptions, toastOptions);
         });
     </script>
 {% endblock %}

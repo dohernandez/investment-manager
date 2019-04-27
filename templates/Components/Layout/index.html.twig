@@ -101,54 +101,11 @@
                         $('#background-modal-create').show();
                     });
             });
-
-        {#// Implementation delete button on modal#}
-        {#$(document).on("click", ".entity-delete", function () {#}
-            {#var $form = $(this);#}
-
-            {#var itemId = $form.data('id');#}
-            {#var itemTitle = $form.data('title');#}
-
-            {#$(".modal-footer #itemId").val( itemId );#}
-            {#$(".modal-body p span").text(itemTitle);#}
-
-
-            {#$('#background-modal-delete').hide();#}
-            {#// As pointed out in comments,#}
-            {#// it is superfluous to have to manually call the modal.#}
-            {#var modal = $('#modal-delete');#}
-            {#modal.modal('show');#}
-
-            {#// On delete confirm#}
-            {#modal.modal({ backdrop: 'static', keyboard: false })#}
-                {#.on('click', '#confirm-delete', function(){#}
-                    {#console.log('yes');#}
-                    {#$('#entity_' + itemId).submit();#}
-
-                    {#// Block the panel#}
-                    {#modal.modal({backdrop: 'static', keyboard: false});#}
-                    {#$('#modal-delete .modal-dialog').hide();#}
-                    {#modal.css('text-align','center');#}
-
-                    {#$('#background-modal-delete').show();#}
-                {#});#}
-        {#});#}
-
-        {#{% if extra_buttons is defined %}#}
-            {#$("#modal-show").on("show.bs.modal", function(e) {#}
-                {#$("#modal-show .modal-content")#}
-                    {#.html('{% filter spaceless %}{% include 'Components/Modal/spinner.html.twig' %}{% endfilter %}');#}
-                {#var href = $(e.relatedTarget).data('href');#}
-                {#$.get(href, function(data) {#}
-                    {#$("#modal-show .modal-content").html(data);#}
-                {#});#}
-
-            {#});#}
-        {#{% endif %}#}
         });
     </script>
 
-    <script src="{{ asset('assets/js/crud-manage.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+
+    <script src="{{ asset('assets/js/crud-manage.js') }}"></script>
 {% endblock %}
 
