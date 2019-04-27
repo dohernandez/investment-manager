@@ -12,3 +12,10 @@
 {% block logo_large %}<b>Investment</b> Manager{% endblock %}
 
 {% block page_title %}{{ entity_name|trans|title }}s{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <!-- promise -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js"></script>
+{% endblock %}

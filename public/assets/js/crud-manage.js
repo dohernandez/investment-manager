@@ -101,9 +101,14 @@
          * @private
          */
         _clearForm: function($form) {
-            console.log('$form', $form);
+            this._removeFormErrors($form);
 
             $form[0].reset();
+        },
+
+        _removeFormErrors: function($form) {
+            $form.find('.js-field-error').remove();
+            $form.find('.form-group').removeClass('has-error');
         },
 
         /**
@@ -115,42 +120,82 @@
             e.preventDefault();
 
             let $form = this.$createModal.find(this._selectors.createForm);
+
+            let _self = this;
+
+            this._saveForm(this.$createModal, $form)
+                .then(function (data) {
+                    console.log('successfully save');
+
+                    _self._addRow(data.item);
+
+                    // Hide modal to trigger event `hidden.bs.modal` to _toggleProcessingPanel
+                    _self.$createModal.modal('hide')
+                }).catch(function (errorData) {
+                    _self._toggleProcessingPanel(_self.$createModal, false);
+
+                    /**
+                     *  @var {Object} errorData
+                     *  @var {Object} errorData.errors
+                     */
+                    _self._mapErrorsToForm($form, errorData.errors);
+                })
+            ;
+        },
+
+        /**
+         * Save the data thro an ajax request. Add the new row to the table
+         *
+         * @param $modal
+         * @param $form
+         * @return {Promise<any>}
+         * @private
+         */
+        _saveForm: function($modal, $form) {
+            this._toggleProcessingPanel($modal, true);
+
+            let formData = this._getDataFromForm($form);
+
+            return this._sendRPC(Routing.generate('transfer_save'), 'POST', formData);
+        },
+
+        /**
+         * Extract data from a form and serialize it.
+         *
+         * @param data
+         *
+         * @private
+         *
+         * @return data
+         */
+        _getDataFromForm: function($form) {
             let formData = {};
 
             $.each($form.serializeArray(), function(key, fieldData) {
                 formData[fieldData.name] = fieldData.value
             });
 
-            this._toggleProcessingPanel(this.$createModal, true);
-
-            this._saveForm(formData);
+            return formData;
         },
 
-        /**
-         * Save the data thro an ajax request. Add the new row to the table
-         *
-         * @param data
-         * @return {Promise<any>}
-         * @private
-         */
-        _saveForm: function(data) {
-            let _self = this;
-
+        _sendRPC: function(url, method, formData) {
             return new Promise(function(resolve, reject) {
                 $.ajax({
-                    url: Routing.generate('transfer_save'),
-                    method: 'POST',
-                    data: JSON.stringify(data),
+                    url: url,
+                    method: method,
+                    data: formData !== 'undefined' ? JSON.stringify(formData) : ''
+                }).then(function(data, textStatus, jqXHR){
+                    resolve(data);
+                }).catch(function(jqXHR){
+                    if (jqXHR.status =! 400) {
+                        reject(jqXHR);
 
-                    success: function (data) {
-                        _self._addRow(data.item);
-
-                        // Hide modal to trigger event `hidden.bs.modal` to _toggleProcessingPanel
-                        _self.$createModal.modal('hide')
-                    },
-                    error: function (jqXHR) {
-                        this._toggleProcessingPanel(this.$createModal, true);
+                        return;
                     }
+
+                    let errorData = JSON.parse(jqXHR.responseText);
+
+                    reject(errorData);
                 });
             });
         },
@@ -215,6 +260,26 @@
             $processingBackground.hide();
         },
 
+        _mapErrorsToForm: function($form, errorData) {
+            this._removeFormErrors($form);
+
+            $form.find(':input').each(function() {
+                let fieldName = $(this).attr('name');
+                let $wrapper = $(this).closest('.form-group');
+
+                if (!errorData[fieldName]) {
+                    // no error!
+                    return;
+                }
+
+                let $error = $('<span class="js-field-error help-block"></span>');
+                $error.html(errorData[fieldName]);
+
+                $wrapper.append($error);
+                $wrapper.addClass('has-error');
+            });
+        },
+
         /**
          * Use to hide gracefully the create modal
          * @param e
@@ -273,11 +338,8 @@
 
             let _self = this;
 
-            $.ajax({
-                url: deleteUrl,
-                method: 'DELETE',
-
-                success: function () {
+            this._sendRPC(deleteUrl, 'DELETE')
+                .then(function () {
                     $row.fadeOut('normal', function () {
                         $(this).remove();
 
@@ -286,16 +348,15 @@
                         let $table = _self.$wrapper.find(_self._selectors.table);
                         let length = parseInt($table.data('length'));
                         $table.data('length', length - 1);
+
+                        _self.$deleteModal.modal('hide');
                     });
-
-                    _self.$deleteModal.modal('hide');
-                },
-
-                error: function (jqXHR) {
+                })
+                .catch(function (jqXHR) {
                     // TODO implement error form handling
                     console.log(jqXHR.responseText);
-                }
-            });
+                })
+            ;
         },
 
         /**

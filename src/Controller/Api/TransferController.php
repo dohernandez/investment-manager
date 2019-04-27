@@ -64,49 +64,29 @@ class TransferController extends BaseController
             );
         }
 
-        dump('data', $data);
         $form->submit($data);
 
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                /** @var Transfer $transfer */
-                $transfer = $form->getData();
+        if (!$form->isValid()) {
+            $errors = $this->getErrorsFromForm($form);
 
-                $em->persist($transfer);
-                $em->flush();
-
-                return $this->createApiResponse(
-                    [
-                        'item' => Api\Transfer::fromEntity($transfer),
-                    ]
-                );
-            } else {
-//                $iterator = $child->getErrors(true, true);
-//
-                $errors = [];
-                foreach ($form->getErrors(true, true) as $error) {
-                    dump($error->getCause()->getRoot());
-                    $errors[$error->getCause()->getPropertyPath()][] = $error->getMessage();
-                }
-
-                dump($form->getErrors(true, true), $form, $errors);
-
-                return $this->json(
-                    [
-                        'message' => 'fails $form->isValid()',
-                    ],
-                    Response::HTTP_INTERNAL_SERVER_ERROR
-                );
-            }
+            return $this->createApiResponse(
+                [
+                    'errors' => $errors
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
-        dump($form->getErrors(true, true), $form);
+        /** @var Transfer $transfer */
+        $transfer = $form->getData();
 
-        return $this->json(
+        $em->persist($transfer);
+        $em->flush();
+
+        return $this->createApiResponse(
             [
-                'message' => 'fails $form->isSubmitted()',
-            ],
-            Response::HTTP_INTERNAL_SERVER_ERROR
+                'item' => Api\Transfer::fromEntity($transfer),
+            ]
         );
     }
 
@@ -126,8 +106,8 @@ class TransferController extends BaseController
         }
 
 //        if ($this->isCsrfTokenValid('delete' . $transfer->getId(), $request->request->get('_token'))) {
-            $em->remove($transfer);
-            $em->flush();
+        $em->remove($transfer);
+        $em->flush();
 //        } else {
 //            return $this->json(
 //                [
