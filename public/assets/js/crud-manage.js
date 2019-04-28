@@ -60,6 +60,10 @@
             table: '.js-manager-table'
         },
 
+        setForm: function (form) {
+            this.form = form;
+        },
+
         /**
          * Handle on click event for create button.
          *
@@ -70,12 +74,10 @@
 
             let formOptionsText = this.swalFormOptionsText.create;
             
-            let _self = this;
-
             this._createFrom(formOptionsText)
                 .then((result) => {
                     if (result.value) {
-                        _self._addRow(result.value.item);
+                        this._addRow(result.value.item);
                     }
                 });
         },
@@ -87,8 +89,6 @@
 
             const swalForm = Swal.mixin(this.swalFormOptions);
 
-            let _self = this;
-
             return swalForm.fire({
                 html: html,
                 confirmButtonText: formOptionsText.confirmButtonText,
@@ -97,7 +97,7 @@
                     let modal = $(swalForm.getContainer()).find('.swal2-modal');
 
                     if (data) {
-                        let $form = modal.find(_self._selectors.createForm);
+                        let $form = modal.find(this._selectors.createForm);
                         for (let property in data) {
                             $form.find('#' + property).val(data[property]);
                         }
@@ -107,23 +107,23 @@
 
                     let $autocomplete = $('.js-account-autocomplete');
 
-                    $autocomplete.each(function () {
-                        let jsDataAccountUrl = $(this).data('autocomplete-url');
+                    $autocomplete.each((index, select) => {
+                        let jsDataAccountUrl = $(select).data('autocomplete-url');
 
-                        $(this).select2({
+                        $(select).select2({
                             dropdownParent: modal,
                             ajax: {
                                 url: jsDataAccountUrl,
                                 dataType: 'json',
                                 delay: 10,
                                 allowClear: true,
-                                data: function (params) {
+                                data: (params) => {
                                     return {
                                         q: params.term, // search term
                                         page: params.page
                                     };
                                 },
-                                processResults: function (data, params) {
+                                processResults: (data, params)=> {
                                     // parse the results into the format expected by Select2
                                     // since we are using custom formatting functions we do not need to
                                     // alter the remote JSON data, except to indicate that infinite
@@ -168,23 +168,24 @@
                     });
                 },
                 preConfirm: () => {
-                    let $form = $(swalForm.getContainer()).find(_self._selectors.createForm);
+                    let $form = $(swalForm.getContainer()).find(this._selectors.createForm);
 
-                    return _self._saveForm($form)
+                    return this._saveForm($form)
                         .catch((errorsData) => {
-                            _self._mapErrorsToForm($form, errorsData.errors);
+                            this._mapErrorsToForm($form, errorsData.errors);
 
                             return false;
                         });
                 }
             }).then((result) => {
                 if (result.value) {
-                    _self._showStatusMessage(formOptionsText);
+                    this._showStatusMessage(formOptionsText);
                 }
 
                 return result
-            }).catch(function(arg) {
+            }).catch((arg) => {
                 // canceling is cool!
+                console.log(arg)
             });
         },
 
@@ -209,7 +210,7 @@
         _saveForm: function($form) {
             let formData = {};
 
-            $.each($form.serializeArray(), function(key, fieldData) {
+            $.each($form.serializeArray(), (key, fieldData) => {
                 formData[fieldData.name] = fieldData.value
             });
 
@@ -217,14 +218,14 @@
         },
 
         _sendRPC: function(url, method, formData) {
-            return new Promise(function(resolve, reject) {
+            return new Promise((resolve, reject) => {
                 $.ajax({
                     url: url,
                     method: method,
                     data: formData !== 'undefined' ? JSON.stringify(formData) : ''
-                }).then(function(data, textStatus, jqXHR){
+                }).then((data, textStatus, jqXHR) => {
                     resolve(data);
-                }).catch(function(jqXHR){
+                }).catch((jqXHR) => {
                     if (jqXHR.status =! 400) {
                         reject(jqXHR);
 
@@ -241,15 +242,13 @@
         /**
          * Create a row table with the entity value.
          *
-         * @param {Object} entity
-         * @param {int} entity.id
-         * @param {string} entity.date
-         * @param {string} entity.beneficiaryParty.name
-         * @param {string} entity.beneficiaryParty.accountNo
-         * @param {string} entity.debtorParty.name
-         * @param {string} entity.debtorParty.accountNo
-         * @param {float} entity.amount
-         * @param {int} entity.index
+         * @param {{
+         *          id: int,
+         *          date: string,
+         *          beneficiaryParty: {name: string, accountNo: string},
+         *          debtorParty: {name: string, accountNo: string},
+         *          amount: float
+         *        }} entity
          *
          * @private
          */
@@ -272,10 +271,10 @@
         _mapErrorsToForm: function($form, errorData) {
             this._removeFormErrors($form);
 
-            $form.find(':input').each(function() {
-                let fieldName = $(this).attr('name');
-                let $groupWrapper = $(this).closest('.form-group');
-                let $wrapper = $(this).closest('div');
+            $form.find(':input').each((index, input) => {
+                let fieldName = $(input).attr('name');
+                let $groupWrapper = $(input).closest('.form-group');
+                let $wrapper = $(input).closest('div');
 
                 if (!errorData[fieldName]) {
                     // no error!
@@ -308,14 +307,11 @@
             let id = $form.data('id');
 
             let getUrl = Routing.generate('transfer_get', {id: id});
-            let _self = this;
-            
+
             this._sendRPC(getUrl, 'GET').then((data) => {
-                console.log(data);
+                let formOptionsText = this.swalFormOptionsText.update;
 
-                let formOptionsText = _self.swalFormOptionsText.update;
-
-                _self._createFrom(formOptionsText, data.item);
+                this._createFrom(formOptionsText, data.item);
             });
         },
 
@@ -334,21 +330,19 @@
             let itemTitle = $form.data('title');
             let id = $form.data('id');
 
-            let _self = this;
-
             let text = this.swalConfirmOptions.text.replace(/\{0\}/g, '"' + itemTitle + '"');
             const swalConfirm = Swal.mixin(this.swalConfirmOptions);
 
             swalConfirm.fire({
                 text: text,
                 preConfirm: () => {
-                    return _self._deleteForm($row, Routing.generate('transfer_delete', {id: id}));
+                    return this._deleteForm($row, Routing.generate('transfer_delete', {id: id}));
                 }
             }).then((result) => {
                 if (result.value) {
-                    _self._showStatusMessage(_self.swalFormOptionsText.delete)
+                    this._showStatusMessage(this.swalFormOptionsText.delete)
                 }
-            }).catch(function(arg) {
+            }).catch((arg) => {
                 // canceling is cool!
             });
         },
@@ -359,16 +353,14 @@
          * @param e
          */
         _deleteForm: function ($row, deleteUrl) {
-            let _self = this;
-
             return this._sendRPC(deleteUrl, 'DELETE')
-                .then(function () {
-                    $row.fadeOut('normal', function () {
-                        $(this).remove();
+                .then(() => {
+                    $row.fadeOut('normal', () => {
+                        $row.remove();
 
-                        _self._recalculateRowIndex();
+                        this._recalculateRowIndex();
 
-                        let $table = _self.$wrapper.find(_self._selectors.table);
+                        let $table = this.$wrapper.find(this._selectors.table);
                         let length = parseInt($table.data('length'));
                         $table.data('length', length - 1);
                     });
@@ -390,8 +382,8 @@
         _recalculateRowIndex: function () {
             let $rowIndexThs = this.$wrapper.find(this._selectors.table).find('.js-manager-row-index');
 
-            $.each($rowIndexThs, function (key, th) {
-                $(th).html(key + 1);
+            $.each($rowIndexThs, function (index, th) {
+                $(th).html(index + 1);
             })
         },
 
@@ -399,13 +391,11 @@
          * Loads all entities into the table.
          */
         loadEntities: function () {
-            let _self = this;
-
             $.ajax({
                 url: Routing.generate('transfer_list'),
-                success: function (data) {
-                    $.each(data.items, function (key, entity) {
-                        _self._addRow(entity);
+                success: (data) => {
+                    $.each(data.items, (index, entity) => {
+                        this._addRow(entity);
                     });
                 }
             });

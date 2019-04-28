@@ -3,17 +3,9 @@
 (function (window, $) {
 
     /**
-     * Create a transfer instance
-     * @constructor
-     *
-     * @param $wrapper
      * @constructor
      */
-    window.Transfer = function ($wrapper) {
-        this.$wrapper = $wrapper;
-
-        this.$wrapper.on();
-    };
+    window.Select2AccountTemplate = function () {};
 
     /**
      * Select2 template for account objects.
@@ -23,16 +15,23 @@
      *
      * @type {{templateResult: templateResult, templateSelection: templateSelection}}
      */
-    var Select2AccountTemplate = {
-        templateResult: function(item) {
-            if (item.loading) {
-                return item.text;
+    $.extend(window.Select2AccountTemplate.prototype, {
+        /**
+         * Define how will be render the item result.
+         *
+         * @param {{loading: boolean, text: string, name: string, accountNo: string}} account An account object with text property.
+         *
+         * @return {*}
+         */
+        templateResult: function(account) {
+            if (account.loading) {
+                return account.text;
             }
 
             let markup = "<div class='select2-result-account clearfix'>" +
-                "<strong>" + item.name + "</strong>" +
+                "<strong>" + account.name + "</strong>" +
                 "<br />" +
-                "<small>" + item.iban + "</small>" +
+                "<small>" + account.accountNo + "</small>" +
                 "</div>";
 
             return markup;
@@ -42,10 +41,7 @@
         /**
          * Define how will be render the item selected.
          *
-         * @param {Object} account An account object with text property.
-         * @param {string} account.text - The employee's department.
-         * @param {string} account.name - The name of the employee.
-         * @param {string} account.iban - The name of the employee.
+         * @param {{text: string, name: string, accountNo: string}} account An account object with text property.
          *
          * @return {string}
          */
@@ -54,33 +50,7 @@
                 return account.text;
             }
 
-            return account.name + " - " + account.iban;
+            return account.name + " - " + account.accountNo;
         }
-    };
-
-    /**
-     * Class represents ajax autocomplete using select2 from https://select2.org/
-     *
-     * It finds all selects that matches the given css classname and attach an ajax call to find matching
-     * options base on current search.
-     *
-     * @param $wrapper
-     * @param template Select2Template contains the functions use on render result and selection.
-     * @constructor
-     */
-    var Select2 = function ($wrapper) {
-        this.$wrapper = $wrapper;
-    };
-
-    $.extend(Select2.prototype, {
-
-        /**
-         * Set url
-         * @param {string} url
-         */
-        withUrl: function (url) {
-            this.url = url
-        }
-
     });
 })();
