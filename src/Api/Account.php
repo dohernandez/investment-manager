@@ -10,7 +10,7 @@ class Account
 
     public $name;
 
-    public $iban;
+    public $accountNo;
 
     public $alias;
 
@@ -20,7 +20,7 @@ class Account
 
         $self->id = $account->getId();
         $self->name = $account->getName();
-        $self->iban = $account->getAccountNo();
+        $self->accountNo = $account->getAccountNo();
         $self->alias = $account->getAlias();
 
         return $self;

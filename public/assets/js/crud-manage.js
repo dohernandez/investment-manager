@@ -8,16 +8,19 @@
      * @constructor
      *
      * @param $wrapper
-     * @param $createModal
+     * @param swalFormOptions
+     * @param swalFormOptionsText
      * @param swalFormOptions
      * @param toastOptions
      * @constructor
      */
-    window.CRUDManage = function ($wrapper, swalFormOptions, swalConfirmOptions, toastOptions) {
+    window.CRUDManage = function ($wrapper, swalFormOptions, swalFormOptionsText, swalConfirmOptions, toastOptions) {
         // Start binding functions for $wrapper
         this.$wrapper = $wrapper;
 
         this.swalFormOptions = swalFormOptions;
+        this.swalFormOptionsText = swalFormOptionsText;
+
         this.swalConfirmOptions = swalConfirmOptions;
         this.toastOptions = toastOptions;
 
@@ -33,12 +36,14 @@
             this.handleCreate.bind(this)
         );
 
+        // Delegate selector
         this.$wrapper.on(
             'click',
             '.js-entity-edit',
-            this.handleDisplayModalEdit.bind(this)
+            this.handleEdit.bind(this)
         );
 
+        // Delegate selector
         this.$wrapper.on(
             'click',
             '.js-entity-delete',
@@ -63,21 +68,44 @@
         handleCreate: function (e) {
             e.preventDefault();
 
+            let formOptionsText = this.swalFormOptionsText.create;
+            
+            let _self = this;
+
+            this._createFrom(formOptionsText)
+                .then((result) => {
+                    if (result.value) {
+                        _self._addRow(result.value.item);
+                    }
+                });
+        },
+
+        _createFrom : function (formOptionsText, data) {
             let tplText = $('#js-manager-form-template').html();
             let tpl = _.template(tplText);
             let html = tpl();
 
-            let _self = this;
-
             const swalForm = Swal.mixin(this.swalFormOptions);
 
-            swalForm.fire({
+            let _self = this;
+
+            return swalForm.fire({
                 html: html,
+                confirmButtonText: formOptionsText.confirmButtonText,
+                titleText: formOptionsText.titleText,
                 onBeforeOpen: () => {
+                    let modal = $(swalForm.getContainer()).find('.swal2-modal');
+
+                    if (data) {
+                        let $form = modal.find(_self._selectors.createForm);
+                        for (let property in data) {
+                            $form.find('#' + property).val(data[property]);
+                        }
+                    }
+
                     $('[data-datepickerenable="on"]').datetimepicker();
 
                     let $autocomplete = $('.js-account-autocomplete');
-                    let modal = $(swalForm.getContainer()).find('.swal2-modal');
 
                     $autocomplete.each(function () {
                         let jsDataAccountUrl = $(this).data('autocomplete-url');
@@ -91,7 +119,6 @@
                                 allowClear: true,
                                 data: function (params) {
                                     return {
-                                        group: 'options_name_account_no',
                                         q: params.term, // search term
                                         page: params.page
                                     };
@@ -152,18 +179,23 @@
                 }
             }).then((result) => {
                 if (result.value) {
-                    _self._addRow(result.value.item);
-
-                    let titleText = this.toastOptions.titleText.replace(/\{0\}/g, 'created');
-                    const toast = Swal.mixin(_self.toastOptions);
-
-                    toast.fire({
-                        type: 'success',
-                        titleText: titleText
-                    });
+                    _self._showStatusMessage(formOptionsText);
                 }
+
+                return result
             }).catch(function(arg) {
                 // canceling is cool!
+            });
+        },
+
+        _showStatusMessage: function (formOptionsText) {
+            // let titleText = formOptionsText.toastTitleText.replace(/\{0\}/g, 'created');
+            let titleText = formOptionsText.toastTitleText;
+            const toast = Swal.mixin(this.toastOptions);
+
+            toast.fire({
+                type: 'success',
+                titleText: titleText
             });
         },
 
@@ -175,28 +207,13 @@
          * @private
          */
         _saveForm: function($form) {
-            let formData = this._getDataFromForm($form);
-
-            return this._sendRPC(Routing.generate('transfer_save'), 'POST', formData);
-        },
-
-        /**
-         * Extract data from a form and serialize it.
-         *
-         * @param data
-         *
-         * @private
-         *
-         * @return data
-         */
-        _getDataFromForm: function($form) {
             let formData = {};
 
             $.each($form.serializeArray(), function(key, fieldData) {
                 formData[fieldData.name] = fieldData.value
             });
 
-            return formData;
+            return this._sendRPC(Routing.generate('transfer_save'), 'POST', formData);
         },
 
         _sendRPC: function(url, method, formData) {
@@ -228,9 +245,9 @@
          * @param {int} entity.id
          * @param {string} entity.date
          * @param {string} entity.beneficiaryParty.name
-         * @param {string} entity.beneficiaryParty.iban
+         * @param {string} entity.beneficiaryParty.accountNo
          * @param {string} entity.debtorParty.name
-         * @param {string} entity.debtorParty.iban
+         * @param {string} entity.debtorParty.accountNo
          * @param {float} entity.amount
          * @param {int} entity.index
          *
@@ -283,10 +300,23 @@
          *
          * @param e
          */
-        handleDisplayModalEdit: function (e) {
+        handleEdit: function (e) {
             e.preventDefault();
 
-            console.log('Modal edit should be displayed!!!');
+            // Setting form data
+            let $form = $(e.currentTarget).closest('tr');
+            let id = $form.data('id');
+
+            let getUrl = Routing.generate('transfer_get', {id: id});
+            let _self = this;
+            
+            this._sendRPC(getUrl, 'GET').then((data) => {
+                console.log(data);
+
+                let formOptionsText = _self.swalFormOptionsText.update;
+
+                _self._createFrom(formOptionsText, data.item);
+            });
         },
 
         /**
@@ -316,13 +346,7 @@
                 }
             }).then((result) => {
                 if (result.value) {
-                    let titleText = this.toastOptions.titleText.replace(/\{0\}/g, 'deleted');
-                    const toast = Swal.mixin(_self.toastOptions);
-
-                    toast.fire({
-                        type: 'success',
-                        titleText: titleText
-                    });
+                    _self._showStatusMessage(_self.swalFormOptionsText.delete)
                 }
             }).catch(function(arg) {
                 // canceling is cool!

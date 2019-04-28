@@ -11,10 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 /**
- * @Route("/v1/transfer")
+ * @Route("/v1/transfers")
  */
 class TransferController extends BaseController
 {
@@ -37,7 +36,28 @@ class TransferController extends BaseController
 
         return $this->createApiResponse(
             [
+                'total_count' => count($apiTransfers),
                 'items' => $apiTransfers,
+            ]
+        );
+    }
+
+    /**
+     * @Route("/{id}", name="transfer_get", methods={"GET"}, options={"expose"=true})
+     *
+     * @param Entity\Transfer $transfer
+     *
+     * @return JsonResponse
+     */
+    public function one(Entity\Transfer $transfer): JsonResponse
+    {
+        if (!$transfer) {
+            return $this->createApiErrorResponse('Transfer not found', Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->createApiResponse(
+            [
+                'item' => Api\Transfer::fromEntity($transfer),
             ]
         );
     }

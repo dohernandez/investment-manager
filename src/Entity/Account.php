@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -17,14 +16,12 @@ class Account implements Entity
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups("options_name_account_no")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank(message="Please enter the name")
-     * @Groups("options_name_account_no")
      */
     private $name;
 
@@ -32,7 +29,6 @@ class Account implements Entity
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank(message="Iban is not defined")
      * @Assert\Iban(message="Iban is not correct. Please enter a valid Iban")
-     * @Groups("options_name_account_no")
      */
     private $accountNo;
 

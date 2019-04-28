@@ -27,7 +27,7 @@
 {% macro render_account(value) %}
         <strong><%= {{ value }}.name %></strong>
         <br>
-        <small><%= {{ value }}.iban %></small>
+        <small><%= {{ value }}.accountNo %></small>
 {% endmacro render_account %}
 
 {% macro field(value, field) %}

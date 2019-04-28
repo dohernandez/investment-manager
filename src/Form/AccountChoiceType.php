@@ -72,7 +72,7 @@ class AccountChoiceType extends AbstractType implements DataTransformerInterface
         $attr['class'] = $class;
 
         // Set autocomplete-url
-        $attr['data-autocomplete-url'] = $this->resolver->generate('form_v1_account_options');
+        $attr['data-autocomplete-url'] = $this->resolver->generate('account_list');
 
         $view->vars['attr'] = $attr;
     }

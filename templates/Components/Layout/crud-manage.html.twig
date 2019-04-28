@@ -103,7 +103,7 @@
 
     <!-- row table manager template -->
     <script type="text/template" id="js-manager-row-template">
-        <tr>
+        <tr data-id="<%= id %>">
             <th style="vertical-align: middle;" scope="row" class="text-center js-manager-row-index"><%= index %></th>
             {% for field in fields %}
                 <td style="vertical-align: middle;">
@@ -192,9 +192,7 @@
                 allowEscapeKey: false,
                 allowOutsideClick: false,
                 showCloseButton: true,
-                position: 'top',
-                confirmButtonText: '{{ 'Create'|trans }}',
-                titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}'
+                position: 'top'
             };
 
             // Set up toast options, for showing the operation final status at the end.
@@ -209,8 +207,23 @@
                 titleText: '{{ entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}'
             };
 
+            let swalFormOptionsText = {
+                create: {
+                    confirmButtonText: '{{ 'Create'|trans }}',
+                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
+                },
+                update: {
+                    confirmButtonText: '{{ 'Update'|trans }}',
+                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}'
+                },
+                delete: {
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'
+                }
+            };
+
             // Create CRUDManage instance @see public/assets/js/crud-manage.js
-            new CRUDManage(contentWrapper, swalFormOptions, swalConfirmOptions, toastOptions);
+            new CRUDManage(contentWrapper, swalFormOptions, swalFormOptionsText, swalConfirmOptions, toastOptions);
         });
     </script>
 {% endblock %}
