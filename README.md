@@ -21,6 +21,10 @@ You need to make sure that you have  `docker` installed
 ```
 $ which docker
 /usr/local/bin/docker
+$ which yarn
+/usr/local/bin/yarn
+$ which php
+/usr/bin/php
 ```
 
 There is no other prerequisite needed in order to setup this project for development.
