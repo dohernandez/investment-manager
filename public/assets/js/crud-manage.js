@@ -63,10 +63,6 @@
         handleCreate: function (e) {
             e.preventDefault();
 
-            // let $form = this.$createModal.find(this._selectors.createForm);
-            //
-            // this._clearForm($form);
-
             let tplText = $('#js-manager-form-template').html();
             let tpl = _.template(tplText);
             let html = tpl();
@@ -147,7 +143,12 @@
                 preConfirm: () => {
                     let $form = $(swalForm.getContainer()).find(_self._selectors.createForm);
 
-                    return _self._saveForm($form);
+                    return _self._saveForm($form)
+                        .catch((errorsData) => {
+                            _self._mapErrorsToForm($form, errorsData.errors);
+
+                            return false;
+                        });
                 }
             }).then((result) => {
                 if (result.value) {
@@ -163,35 +164,7 @@
                 }
             }).catch(function(arg) {
                 // canceling is cool!
-                console.log(arg);
             });
-        },
-
-        /**
-         * Handle on click event for submit data to be created.
-         *
-         * @param e
-         */
-        handleModalCreateSubmit: function (e) {
-            e.preventDefault();
-
-            let $form = this.$createModal.find(this._selectors.createForm);
-
-            let _self = this;
-
-            this._saveForm(this.$createModal, $form)
-                .then(function (data) {
-                    console.log('successfully save');
-
-                    _self._addRow(data.item);
-                }).catch(function (errorData) {
-                    /**
-                     *  @var {Object} errorData
-                     *  @var {Object} errorData.errors
-                     */
-                    _self._mapErrorsToForm($form, errorData.errors);
-                })
-            ;
         },
 
         /**
@@ -284,19 +257,25 @@
 
             $form.find(':input').each(function() {
                 let fieldName = $(this).attr('name');
-                let $wrapper = $(this).closest('.form-group');
+                let $groupWrapper = $(this).closest('.form-group');
+                let $wrapper = $(this).closest('div');
 
                 if (!errorData[fieldName]) {
                     // no error!
                     return;
                 }
 
-                let $error = $('<span class="js-field-error help-block"></span>');
+                let $error = $('<span class="js-field-error help-block" style="text-align: left;"></span>');
                 $error.html(errorData[fieldName]);
 
                 $wrapper.append($error);
-                $wrapper.addClass('has-error');
+                $groupWrapper.addClass('has-error');
             });
+        },
+
+        _removeFormErrors: function($form) {
+            $form.find('.js-field-error').remove();
+            $form.find('.form-group').removeClass('has-error');
         },
 
         /**
@@ -323,7 +302,7 @@
             let $row = $form.closest('tr');
 
             let itemTitle = $form.data('title');
-            let deleteUrl = $form.data('url');
+            let id = $form.data('id');
 
             let _self = this;
 
@@ -333,7 +312,7 @@
             swalConfirm.fire({
                 text: text,
                 preConfirm: () => {
-                    return _self._deleteForm($row, deleteUrl);
+                    return _self._deleteForm($row, Routing.generate('transfer_delete', {id: id}));
                 }
             }).then((result) => {
                 if (result.value) {
