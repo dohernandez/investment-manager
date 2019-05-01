@@ -207,23 +207,8 @@
                 titleText: '{{ entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}'
             };
 
-            let swalFormOptionsText = {
-                create: {
-                    confirmButtonText: '{{ 'Create'|trans }}',
-                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
-                },
-                update: {
-                    confirmButtonText: '{{ 'Update'|trans }}',
-                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}'
-                },
-                delete: {
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'
-                }
-            };
-
             // Create CRUDManage instance @see public/assets/js/crud-manage.js
-            new CRUDManage(contentWrapper, swalFormOptions, swalFormOptionsText, swalConfirmOptions, toastOptions);
+            window.crudManager = new CRUDManage(contentWrapper, swalFormOptions, swalConfirmOptions, toastOptions);
         });
     </script>
 {% endblock %}

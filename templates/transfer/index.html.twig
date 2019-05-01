@@ -52,4 +52,28 @@
     <!-- select2 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
 
+    <script>
+        $(document).ready(function() {
+            let swalFormOptionsText = {
+                create: {
+                    confirmButtonText: '{{ 'Create'|trans }}',
+                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
+                },
+                update: {
+                    confirmButtonText: '{{ 'Update'|trans }}',
+                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}'
+                },
+                delete: {
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'
+                }
+            };
+
+            const form = new Form(swalFormOptionsText);
+
+            window.crudManager.withCreateButton(form);
+
+        });
+    </script>
+
 {% endblock %}

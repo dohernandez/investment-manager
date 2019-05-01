@@ -11,16 +11,14 @@
          *
          * @param $wrapper
          * @param swalFormOptions
-         * @param swalFormOptionsText
          * @param swalConfirmOptions
          * @param toastOptions
          */
-        constructor($wrapper, swalFormOptions, swalFormOptionsText, swalConfirmOptions, toastOptions) {
+        constructor($wrapper, swalFormOptions, swalConfirmOptions, toastOptions) {
             // Start binding functions for $wrapper
             this.$wrapper = $wrapper;
 
             this.swalFormOptions = swalFormOptions;
-            this.swalFormOptionsText = swalFormOptionsText;
 
             this.swalConfirmOptions = swalConfirmOptions;
             this.toastOptions = toastOptions;
@@ -29,13 +27,6 @@
              * Delegate selector
              * Define a second argument, which is the selector for the element that you truly want to react to.
              */
-
-            // Attaching show modals on button clicks
-            this.$wrapper.on(
-                'click',
-                '.js-entity-create',
-                this.handleCreate.bind(this)
-            );
 
             // Delegate selector
             this.$wrapper.on(
@@ -55,15 +46,21 @@
             this.loadEntities();
         }
 
-        static get _selectors() {
-            return {
-                createForm: '.js-entity-create-from',
-                table: '.js-manager-table'
-            };
+        withCreateButton(form) {
+            this.form = form;
+
+            // Attaching show modals on button clicks
+            this.$wrapper.on(
+                'click',
+                '.js-entity-create',
+                this.handleCreate.bind(this)
+            );
         }
 
-        setForm(form) {
-            this.form = form;
+        static get _selectors() {
+            return {
+                table: '.js-manager-table'
+            };
         }
 
         /**
@@ -74,9 +71,7 @@
         handleCreate(e) {
             e.preventDefault();
 
-            let formOptionsText = this.swalFormOptionsText.create;
-            
-            this._createFrom(formOptionsText)
+            this._createFrom()
                 .then((result) => {
                     if (result.value) {
                         this._addRow(result.value.item);
@@ -84,89 +79,23 @@
                 });
         }
 
-        _createFrom(formOptionsText, data = null) {
-            const tplText = $('#js-manager-form-template').html();
-            const tpl = _.template(tplText);
-            const html = tpl();
+        _createFrom(data = null) {
+            const html = this.form.html();
+            const formOptions = this.form.formOptions(data === null ? 'create' : 'update');
 
             const swalForm = Swal.mixin(this.swalFormOptions);
 
             return swalForm.fire({
                 html: html,
-                confirmButtonText: formOptionsText.confirmButtonText,
-                titleText: formOptionsText.titleText,
+                confirmButtonText: formOptions.text.confirmButtonText,
+                titleText: formOptions.text.titleText,
                 onBeforeOpen: () => {
-                    let modal = $(swalForm.getContainer()).find('.swal2-modal');
+                    const $modal = $(swalForm.getContainer()).find('.swal2-modal');
 
-                    if (data) {
-                        let $form = modal.find(CRUDManage._selectors.createForm);
-                        for (const property in data) {
-                            $form.find('#' + property).val(data[property]);
-                        }
-                    }
-
-                    $('[data-datepickerenable="on"]').datetimepicker();
-
-                    let $autocomplete = $('.js-account-autocomplete');
-
-                    $autocomplete.each((index, select) => {
-                        const url = $(select).data('autocomplete-url');
-
-                        $(select).select2({
-                            dropdownParent: modal,
-                            ajax: {
-                                url,
-                                dataType: 'json',
-                                delay: 10,
-                                allowClear: true,
-                                data: (params) => {
-                                    return {
-                                        q: params.term, // search term
-                                        page: params.page
-                                    };
-                                },
-                                processResults: (data, params)=> {
-                                    // parse the results into the format expected by Select2
-                                    // since we are using custom formatting functions we do not need to
-                                    // alter the remote JSON data, except to indicate that infinite
-                                    // scrolling can be used
-                                    params.page = params.page || 1;
-
-                                    return {
-                                        results: data.items,
-                                        pagination: {
-                                            more: (params.page * 30) < data.total_count
-                                        }
-                                    };
-                                },
-                                cache: true
-                            },
-                            placeholder: 'Search for an account',
-                            escapeMarkup: (markup) => markup,
-                            minimumInputLength: 1,
-                            templateResult: (repo) => {
-                                if (repo.loading) {
-                                    return repo.text;
-                                }
-
-                                return "<div class='select2-result-account clearfix'>" +
-                                    "<strong>" + repo.name + "</strong>" +
-                                    "<br />" +
-                                    "<small>" + repo.accountNo + "</small>" +
-                                    "</div>";
-                            },
-                            templateSelection: (repo) => {
-                                if (!repo.name) {
-                                    return repo.text;
-                                }
-
-                                return repo.name + " - " + repo.accountNo;
-                            }
-                        });
-                    });
+                    formOptions.onBeforeOpen(data, $modal);
                 },
                 preConfirm: () => {
-                    const $form = $(swalForm.getContainer()).find(CRUDManage._selectors.createForm);
+                    const $form = $(swalForm.getContainer()).find(this.form.selector);
 
                     return this._saveForm($form)
                         .catch((errorsData) => {
@@ -177,7 +106,7 @@
                 }
             }).then((result) => {
                 if (result.value) {
-                    this._showStatusMessage(formOptionsText);
+                    this._showStatusMessage(formOptions.text.toastTitleText);
                 }
 
                 return result
@@ -187,9 +116,8 @@
             });
         }
 
-        _showStatusMessage(formOptionsText) {
+        _showStatusMessage(titleText) {
             // let titleText = formOptionsText.toastTitleText.replace(/\{0\}/g, 'created');
-            const titleText = formOptionsText.toastTitleText;
             const toast = Swal.mixin(this.toastOptions);
 
             toast.fire({
@@ -307,9 +235,7 @@
             let getUrl = Routing.generate('transfer_get', {id: id});
 
             this._sendRPC(getUrl, 'GET').then((data) => {
-                const formOptionsText = this.swalFormOptionsText.update;
-
-                this._createFrom(formOptionsText, data.item);
+                this._createFrom(data.item);
             });
         }
 
@@ -336,7 +262,7 @@
                 preConfirm: () => this._deleteForm($row, Routing.generate('transfer_delete', {id: id}))
             }).then((result) => {
                 if (result.value) {
-                    this._showStatusMessage(this.swalFormOptionsText.delete)
+                    this._showStatusMessage(this.form.formOptions('delete').text.toastTitleText)
                 }
             }).catch((arg) => {
                 // canceling is cool!
@@ -400,5 +326,116 @@
         }
     }
 
+    class Form {
+        constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
+            this.swalFormOptionsText = swalFormOptionsText;
+            this.template = template;
+            this.selector = selector;
+        }
+
+        html() {
+           const tplText = $(this.template).html();
+           const tpl = _.template(tplText);
+           const html = tpl();
+
+           return html;
+        }
+
+        formOptions(option = 'create') {
+            let formOptions = {};
+
+            switch (option) {
+                case 'create':
+                    formOptions = {
+                        text: this.swalFormOptionsText.create,
+                        onBeforeOpen: this.onBeforeOpen.bind(this)
+                    };
+
+                    break;
+                case 'update':
+                    break;
+                case 'delete':
+                    formOptions = {
+                        text: this.swalFormOptionsText.delete
+                    };
+
+                    break;
+            }
+
+            return formOptions;
+        }
+
+        onBeforeOpen(data, $wrapper) {
+            if (data) {
+                let $form = $wrapper.find(this.selector);
+                for (const property in data) {
+                    $form.find('#' + property).val(data[property]);
+                }
+            }
+
+            $('[data-datepickerenable="on"]').datetimepicker();
+
+            let $autocomplete = $('.js-account-autocomplete');
+
+            $autocomplete.each((index, select) => {
+                const url = $(select).data('autocomplete-url');
+
+                $(select).select2({
+                    dropdownParent: $wrapper,
+                    ajax: {
+                        url,
+                        dataType: 'json',
+                        delay: 10,
+                        allowClear: true,
+                        data: (params) => {
+                            return {
+                                q: params.term, // search term
+                                page: params.page
+                            };
+                        },
+                        processResults: (data, params)=> {
+                            // parse the results into the format expected by Select2
+                            // since we are using custom formatting functions we do not need to
+                            // alter the remote JSON data, except to indicate that infinite
+                            // scrolling can be used
+                            params.page = params.page || 1;
+
+                            return {
+                                results: data.items,
+                                pagination: {
+                                    more: (params.page * 30) < data.total_count
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: 'Search for an account',
+                    escapeMarkup: (markup) => markup,
+                    minimumInputLength: 1,
+                    templateResult: (repo) => {
+                        if (repo.loading) {
+                            return repo.text;
+                        }
+
+                        return "<div class='select2-result-account clearfix'>" +
+                            "<strong>" + repo.name + "</strong>" +
+                            "<br />" +
+                            "<small>" + repo.accountNo + "</small>" +
+                            "</div>";
+                    },
+                    templateSelection: (repo) => {
+                        if (!repo.name) {
+                            return repo.text;
+                        }
+
+                        return repo.name + " - " + repo.accountNo;
+                    }
+                });
+            });
+        }
+    }
+
     window.CRUDManage = CRUDManage;
+    window.Form = Form;
+
 })(window, jQuery, Routing, Swal);
