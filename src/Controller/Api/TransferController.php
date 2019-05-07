@@ -7,6 +7,7 @@ use App\Entity;
 use App\Form\TransferType;
 use App\Repository\TransferRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,17 +64,31 @@ class TransferController extends BaseController
     }
 
     /**
-     * @Route("/", name="transfer_save", methods={"POST"}, options={"expose"=true})
+     * @Route("/", name="transfer_new", methods={"POST"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request
      *
      * @return Response
      */
-    public function save(EntityManagerInterface $em, Request $request): Response
+    public function new(EntityManagerInterface $em, Request $request): Response
     {
-        $form = $this->createForm(TransferType::class);
+        $transfer = new Entity\Transfer();
 
+        $form = $this->createForm(TransferType::class, $transfer);
+
+        return $this->save($form, $em, $request);
+    }
+
+    /**
+     * @param Form $form
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     *
+     * @return Response
+     */
+    protected function save(Form $form, EntityManagerInterface $em, Request $request): Response
+    {
         $data = json_decode($request->getContent(), true);
         if ($data === null) {
             return $this->json(
@@ -108,6 +123,22 @@ class TransferController extends BaseController
                 'item' => Api\Transfer::fromEntity($transfer),
             ]
         );
+    }
+
+    /**
+     * @Route("/{id}", name="transfer_edit", methods={"PUT"}, options={"expose"=true})
+     *
+     * @param Entity\Transfer $transfer
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function edit(Entity\Transfer $transfer, EntityManagerInterface $em, Request $request): Response
+    {
+        $form = $this->createForm(TransferType::class, $transfer);
+
+        return $this->save($form, $em, $request);
     }
 
     /**

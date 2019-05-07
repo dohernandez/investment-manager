@@ -64,6 +64,11 @@
         .swal2-toast-title {
             font-size: 1.625em !important;
         }
+
+        .has-error .select2-selection {
+            border-color: #dd4b39 !important;
+            box-shadow: none;
+        }
     </style>
 {% endblock %}
 
@@ -103,7 +108,7 @@
 
     <!-- row table manager template -->
     <script type="text/template" id="js-manager-row-template">
-        <tr data-id="<%= id %>">
+        <tr data-id="<%= id %>" data-i="<%= index %>">
             <th style="vertical-align: middle;" scope="row" class="text-center js-manager-row-index"><%= index %></th>
             {% for field in fields %}
                 <td style="vertical-align: middle;">
@@ -208,7 +213,7 @@
             };
 
             // Create CRUDManage instance @see public/assets/js/crud-manage.js
-            window.crudManager = new CRUDManage(contentWrapper, swalFormOptions, swalConfirmOptions, toastOptions);
+            window.crudManager = new CRUDManage('{{ entity_name|lower }}', contentWrapper, swalFormOptions, swalConfirmOptions, toastOptions);
         });
     </script>
 {% endblock %}

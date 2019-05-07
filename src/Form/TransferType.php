@@ -40,10 +40,6 @@ class TransferType extends AbstractType
                 'label' => 'Date',
                 'widget' => 'single_text',
             ])
-            // Resolver thro entity annotations
-            ->add('id', HiddenType::class, [
-                'required' => false,
-            ])
         ;
     }
 
