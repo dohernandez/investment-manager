@@ -155,7 +155,7 @@ class TransferController extends BaseController
      *
      * @param EntityManagerInterface $em
      * @param Request $request
-     * @param Transfer $transfer
+     * @param Entity\Transfer $transfer
      *
      * @return Response
      */

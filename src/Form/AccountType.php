@@ -45,4 +45,14 @@ class AccountType extends AbstractType
             'data_class' => Account::class,
         ]);
     }
+
+    /**
+     * This method is overwritten in this class to allow map the json request data with the form
+     *
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return '';
+    }
 }

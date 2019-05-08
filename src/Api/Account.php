@@ -14,6 +14,8 @@ class Account
 
     public $alias;
 
+    public $title;
+
     static public function fromEntity(Entity\Account $account): self
     {
         $self = new static();
@@ -22,6 +24,8 @@ class Account
         $self->name = $account->getName();
         $self->accountNo = $account->getAccountNo();
         $self->alias = $account->getAlias();
+
+        $self->title = (string) $account;
 
         return $self;
     }

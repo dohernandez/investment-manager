@@ -36,6 +36,7 @@ class AccountViewParameters extends AbstractViewParameters
             ],
             [
                 'name' => 'accountNo',
+                'label' => 'Account No',
                 'col_with' => '250',
             ],
             [

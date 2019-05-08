@@ -3,7 +3,7 @@
 (function (window, $, moment) {
 
     /**
-     * Form manage how a form should be build when a crud manager invokes a create or an update action.
+     * Form manage how the transfer form should be build when a crud manager invokes a create or an update action.
      */
     class TransferForm extends window.Form {
         constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {

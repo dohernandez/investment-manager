@@ -33,18 +33,6 @@
 {% block javascripts %}
     {{ parent() }}
 
-    <!-- form table manager template -->
-    <script type="text/template" id="js-manager-form-template">
-        {% set _form_theme = form_theme|default('Components/Form/horizontal-theme-form.html.twig') %}
-        {% form_theme form _form_theme %}
-
-        {{ form_start(form, {'attr': {'id': 'entity-form', 'class': 'form-horizontal js-entity-create-from' }}) }}
-        <div class="box-body">
-            {{ form_widget(form) }}
-        </div>
-        {{ form_end(form) }}
-    </script>
-
     <!-- bootstrap datepicker -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
