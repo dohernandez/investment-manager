@@ -1,6 +1,6 @@
 'use strict';
 
-(function (window, $, Routing, Swal, moment) {
+(function (window, $, Routing, Swal) {
     /**
      * CRUD Manage Table for adding, updating and removing rows (entities) in the table defined in
      * @see templates/Components/Table/crud-manage-table.html.twig.
@@ -191,7 +191,19 @@
                     return this._sendRPC(url, method, formData)
                         // Catches response error
                         .catch((errorsData) => {
-                            this.form.mapErrors($form, errorsData.errors);
+                            $('#swal2-validation-message').empty();
+
+                            if (errorsData.errors) {
+                                this.form.mapErrors($form, errorsData.errors);
+
+                                return false;
+                            }
+
+                            if (errorsData.message) {
+                                $('#swal2-validation-message').append(
+                                    $('<span></span>').html(errorsData.message)
+                                ).show()
+                            }
 
                             return false;
                         });
@@ -380,11 +392,11 @@
          * @return {*}
          */
         html() {
-           const tplText = $(this.template).html();
-           const tpl = _.template(tplText);
-           const html = tpl();
+            const tplText = $(this.template).html();
+            const tpl = _.template(tplText);
+            const html = tpl();
 
-           return html;
+            return html;
         }
 
         /**
@@ -423,97 +435,14 @@
         /**
          * Defines how inputs inside the form must be parser.
          *
+         * This method should overwritten by the child class in case the form requires to be preload.
+         *
          * @param {Object} data
          * @param $wrapper
          */
         onBeforeOpen(data, $wrapper) {
-            $('[data-datepickerenable="on"]').datetimepicker();
 
-            if (data) {
-                let $form = $wrapper.find(this.selector);
-                for (const property in data) {
-                    let $input = $form.find('#' + property);
-
-                    if (property == 'date') {
-                        $input.val(
-                            moment(new Date(data[property])).format('DD/MM/YYYY')
-                        ).change();
-
-                        continue;
-                    }
-
-                    if (property == 'beneficiaryParty' || property == 'debtorParty' ) {
-                        let inputData = data[property]
-                        $input.append(new Option(inputData.name + " - " + inputData.accountNo, inputData.id));
-
-                        $input.val(inputData.id);
-
-                        continue;
-                    }
-
-                    $input.val(data[property]);
-                }
-            }
-
-            let $autocomplete = $('.js-account-autocomplete');
-
-            $autocomplete.each((index, select) => {
-                const url = $(select).data('autocomplete-url');
-
-                $(select).select2({
-                    dropdownParent: $wrapper,
-                    ajax: {
-                        url,
-                        dataType: 'json',
-                        delay: 10,
-                        allowClear: true,
-                        data: (params) => {
-                            return {
-                                q: params.term, // search term
-                                page: params.page
-                            };
-                        },
-                        processResults: (data, params)=> {
-                            // parse the results into the format expected by Select2
-                            // since we are using custom formatting functions we do not need to
-                            // alter the remote JSON data, except to indicate that infinite
-                            // scrolling can be used
-                            params.page = params.page || 1;
-
-                            return {
-                                results: data.items,
-                                pagination: {
-                                    more: (params.page * 30) < data.total_count
-                                }
-                            };
-                        },
-                        cache: true
-                    },
-                    placeholder: 'Search for an account',
-                    escapeMarkup: (markup) => markup,
-                    minimumInputLength: 1,
-                    templateResult: (repo) => {
-                        if (repo.loading) {
-                            return repo.text;
-                        }
-
-                        return "<div class='select2-result-account clearfix'>" +
-                            "<strong>" + repo.name + "</strong>" +
-                            "<br />" +
-                            "<small>" + repo.accountNo + "</small>" +
-                            "</div>";
-                    },
-                    templateSelection: (repo) => {
-                        if (!repo.name) {
-                            return repo.text;
-                        }
-
-                        return repo.name + " - " + repo.accountNo;
-                    }
-                });
-            });
         }
-
 
         mapErrors($form, errorData) {
             // Remove form errors
@@ -543,4 +472,4 @@
     window.CRUDManage = CRUDManage;
     window.Form = Form;
 
-})(window, jQuery, Routing, Swal, moment);
+})(window, jQuery, Routing, Swal);

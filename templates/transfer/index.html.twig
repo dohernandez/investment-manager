@@ -52,6 +52,9 @@
     <!-- select2 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
 
+    <script src="{{ asset('assets/js/select2-account.js') }}"></script>
+    <script src="{{ asset('assets/js/transfer.js') }}"></script>
+
     <script>
         $(document).ready(function() {
             let swalFormOptionsText = {
@@ -70,7 +73,8 @@
                 }
             };
 
-            const form = new Form(swalFormOptionsText);
+            const form = new TransferForm(swalFormOptionsText);
+            form.withSelect2AccountTemplate(new Select2AccountTemplate());
 
             window.crudManager.withForm(form);
             window.crudManager.withCreateButton();

@@ -1,56 +1,102 @@
 'use strict';
 
-(function (window, $) {
+(function (window, $, moment) {
 
     /**
-     * @constructor
+     * Form manage how a form should be build when a crud manager invokes a create or an update action.
      */
-    window.Select2AccountTemplate = function () {};
-
-    /**
-     * Select2 template for account objects.
-     *
-     * templateResult defines how the selected item will be shown in the select area.
-     * templateSelection defines how items will be shown
-     *
-     * @type {{templateResult: templateResult, templateSelection: templateSelection}}
-     */
-    $.extend(window.Select2AccountTemplate.prototype, {
-        /**
-         * Define how will be render the item result.
-         *
-         * @param {{loading: boolean, text: string, name: string, accountNo: string}} account An account object with text property.
-         *
-         * @return {*}
-         */
-        templateResult: function(account) {
-            if (account.loading) {
-                return account.text;
-            }
-
-            let markup = "<div class='select2-result-account clearfix'>" +
-                "<strong>" + account.name + "</strong>" +
-                "<br />" +
-                "<small>" + account.accountNo + "</small>" +
-                "</div>";
-
-            return markup;
-        },
-
-
-        /**
-         * Define how will be render the item selected.
-         *
-         * @param {{text: string, name: string, accountNo: string}} account An account object with text property.
-         *
-         * @return {string}
-         */
-        templateSelection: function(account) {
-            if (!account.name) {
-                return account.text;
-            }
-
-            return account.name + " - " + account.accountNo;
+    class TransferForm extends window.Form {
+        constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
+            super(swalFormOptionsText, template, selector);
         }
-    });
-})();
+        /**
+         * Set the select2AccountTemplate
+         *
+         * @param select2AccountTemplate
+         */
+        withSelect2AccountTemplate(select2AccountTemplate) {
+            this.select2AccountTemplate = select2AccountTemplate
+        }
+
+        /**
+         * Defines how inputs inside the form must be parser.
+         *
+         * @param {Object} data
+         * @param $wrapper
+         */
+        onBeforeOpen(data, $wrapper) {
+            $('[data-datepickerenable="on"]').datetimepicker();
+
+            if (data) {
+                let $form = $wrapper.find(this.selector);
+                for (const property in data) {
+                    let $input = $form.find('#' + property);
+
+                    if (property === 'date') {
+                        $input.val(
+                            moment(new Date(data[property])).format('DD/MM/YYYY')
+                        ).change();
+
+                        continue;
+                    }
+
+                    if (property === 'beneficiaryParty' || property === 'debtorParty' ) {
+                        let inputData = data[property];
+                        $input.append(new Option(inputData.name + " - " + inputData.accountNo, inputData.id));
+
+                        $input.val(inputData.id);
+
+                        continue;
+                    }
+
+                    $input.val(data[property]);
+                }
+            }
+
+            let $autocomplete = $('.js-account-autocomplete');
+
+            $autocomplete.each((index, select) => {
+                const url = $(select).data('autocomplete-url');
+
+                $(select).select2({
+                    dropdownParent: $wrapper,
+                    ajax: {
+                        url,
+                        dataType: 'json',
+                        delay: 10,
+                        allowClear: true,
+                        data: (params) => {
+                            return {
+                                q: params.term, // search term
+                                page: params.page
+                            };
+                        },
+                        processResults: (data, params)=> {
+                            // parse the results into the format expected by Select2
+                            // since we are using custom formatting functions we do not need to
+                            // alter the remote JSON data, except to indicate that infinite
+                            // scrolling can be used
+                            params.page = params.page || 1;
+
+                            return {
+                                results: data.items,
+                                pagination: {
+                                    more: (params.page * 30) < data.total_count
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: 'Search for an account',
+                    escapeMarkup: (markup) => markup,
+                    minimumInputLength: 1,
+                    templateResult: this.select2AccountTemplate.templateResult,
+                    templateSelection: this.select2AccountTemplate.templateSelection
+                });
+            });
+        }
+    }
+
+    window.TransferForm = TransferForm;
+
+})(window, jQuery, moment);

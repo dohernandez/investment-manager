@@ -99,7 +99,16 @@ class TransferController extends BaseController
             );
         }
 
-        $form->submit($data);
+        try {
+            $form->submit($data);
+        } catch (\Exception $e) {
+            return $this->json(
+                [
+                    'message' => $e->getMessage(),
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
 
         if (!$form->isValid()) {
             $errors = $this->getErrorsFromForm($form);
