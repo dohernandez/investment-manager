@@ -39,11 +39,67 @@ cp .env.dist .env
 2. Build/run containers with (with and without detached mode)
 
 ```bash
-docker-compose build
 docker-compose up -d
 ```
 
+3. Download Composer dependencies
+
+Make sure you have [Composer installed](https://getcomposer.org/download/)
+and then run:
+
+```bash
+composer install
+```
+
+You may alternatively need to run `php composer.phar install`, depending
+on how you installed Composer.
+
+4. Download Yarn dependencies
+
+Make sure you have [Yarn installed](https://yarnpkg.com/en/docs/install)
+and then run:
+
+```bash
+yarn install
+```
+
+5. Setup the Database
+
+Create the database and the schema!
+
+```bash
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+```
+
+If you get an error that the database exists, that should
+be ok. But if you have problems, completely drop the
+database (`doctrine:database:drop --force`) and try again.
+
+6. Load the data fixtures (Optional)
+
+```bash
+php bin/console doctrine:fixtures:load
+```
+
 ## Development
+
+**For convenience**
+
+If you are using PhpStorm you may install and enable
+the [Symfony Plugin](https://plugins.jetbrains.com/idea/plugin/7219-symfony-plugin)
+via the preferences which provides more auto-completion for Symfony projects. 
+
+**Start the built-in web server**
+
+You can use Nginx or Apache, but the built-in web server works
+great:
+
+```bash
+php bin/console server:run
+```
+
+Now check out the site at `http://localhost:8000`
 
 ### Environment
 
@@ -73,22 +129,4 @@ Define the variable in the file `.env`, don't forget to define it in the file `.
 ###> symfony/framework-bundle ###
 APP_ENV=dev
 ...
-```
-
-and add it to the environment container
-
-```docker-compose
-php:
-        build:
-            context: ./docker/php7-fpm
-            args:
-                SERVER_NAME: ${SERVER_NAME}
-                TIMEZONE: ${TIMEZONE}
-        volumes:
-            - .:/var/www/${SERVER_NAME}
-            - ./logs/symfony:/var/www/symfony/app/logs
-        depends_on:
-          - db
-        environment:
-            APP_ENV: ${APP_ENV}
 ```
