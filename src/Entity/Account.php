@@ -27,7 +27,7 @@ class Account implements Entity
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Assert\NotBlank(message="Iban is not defined")
+     * @Assert\NotBlank(message="Please enter the Iban")
      * @Assert\Iban(message="Iban is not correct. Please enter a valid Iban")
      */
     private $accountNo;

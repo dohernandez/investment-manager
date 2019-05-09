@@ -211,7 +211,7 @@
             };
 
             // Create CRUDManage instance @see public/assets/js/crud-manage.js
-            window.crudManager = new CRUDManage('{{ entity_name|lower }}', contentWrapper, swalFormOptions, swalConfirmOptions, toastOptions);
+            window.crudManager = new CRUDManage('{{ entity_name|snake }}', contentWrapper, swalFormOptions, swalConfirmOptions, toastOptions);
         });
     </script>
 {% endblock %}

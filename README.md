@@ -130,3 +130,12 @@ Define the variable in the file `.env`, don't forget to define it in the file `.
 APP_ENV=dev
 ...
 ```
+
+## Resources
+
+- Twig documentation [https://twig.symfony.com/doc/2.x/](https://twig.symfony.com/doc/2.x/)
+- Select2 documentation [https://select2.org/](https://select2.org/)
+- Bootstrap 3.3 documentation [https://getbootstrap.com/docs/3.3/getting-started/](https://getbootstrap.com/docs/3.3/getting-started/)
+- Font Awesome Free documentation [https://fontawesome.com/](https://fontawesome.com/)
+
+

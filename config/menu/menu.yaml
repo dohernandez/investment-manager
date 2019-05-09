@@ -1,7 +1,7 @@
 menu:
   FinanceTransferMenuItem:
     label: 'Finance'
-    icon: 'fa fa-bars'
+    icon: 'fas fa-book'
     items:
       FinanceTransferMenuItem:
         label: 'Transfers'
@@ -11,4 +11,12 @@ menu:
         label: 'Accounts'
         icon: 'fa fa-credit-card'
         route: 'account_index'
+  MarketMenuItem:
+    label: 'Market'
+    icon: 'fas fa-landmark'
+    items:
+      MarketStockMarketMenuItem:
+        label: 'Stock Market'
+        icon: 'fas fa-business-time'
+        route: 'stock_market_index'
 
