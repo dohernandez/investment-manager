@@ -1,0 +1,19 @@
+{
+  "name": "investment-manager",
+  "version": "1.0.0",
+  "description": "Symfony application to manage investment.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://67ec41dd8ac0c8f3297f1e4b4f4a4d09b01a85fe@github.com/dohernandez/investment-manager.git"
+  },
+  "author": "Darien Hernandez <dohernandez@gmail.com",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "jquery": "^3.4.1",
+    "sweetalert2": "^8.10.6",
+    "webpack": "^4.31.0",
+    "webpack-cli": "^3.3.2"
+  }
+}

@@ -40,7 +40,7 @@
     {{ parent() }}
 
     <!-- sweetalert2 - for nice alert box -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@8.8.7/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@8.10.6/dist/sweetalert2.min.css">
 
     <style>
         <!-- swal -->
@@ -130,13 +130,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
 
-    <!-- sweetalert2 - for nice alert box -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8.8.7/dist/sweetalert2.all.min.js"></script>
-
     <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
     <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
 
-    <script src="{{ asset('assets/js/crud-manage.js') }}"></script>
+    <script src="{{ asset('build/crud_manager.js') }}"></script>
 
     <!-- form table manager template -->
     <script type="text/template" id="js-manager-form-template">
@@ -210,7 +207,7 @@
                 titleText: '{{ entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}'
             };
 
-            // Create CRUDManage instance @see public/assets/js/crud-manage.js
+            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
             window.crudManager = new CRUDManage('{{ entity_name|snake }}', contentWrapper, swalFormOptions, swalConfirmOptions, toastOptions);
         });
     </script>

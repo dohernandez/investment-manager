@@ -1,11 +1,13 @@
 'use strict';
 
-(function (window, $) {
+const Form = require('./Components/Form');
+
+(function (window) {
 
     /**
      * Form manage how the account form should be build when a crud manager invokes a create or an update action.
      */
-    class AccountForm extends window.Form {
+    class AccountForm extends Form {
         constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
             super(swalFormOptionsText, template, selector);
         }
@@ -30,4 +32,4 @@
 
     window.AccountForm = AccountForm;
 
-})(window, jQuery);
+})(window);

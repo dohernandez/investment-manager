@@ -1,21 +1,18 @@
 'use strict';
 
+const Form = require('./Components/Form');
+const Select2AccountTemplate = require('./Components/Select2AccountTemplate');
+
 (function (window, $, moment) {
 
     /**
      * Form manage how the transfer form should be build when a crud manager invokes a create or an update action.
      */
-    class TransferForm extends window.Form {
+    class TransferForm extends Form {
         constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
             super(swalFormOptionsText, template, selector);
-        }
-        /**
-         * Set the select2AccountTemplate
-         *
-         * @param select2AccountTemplate
-         */
-        withSelect2AccountTemplate(select2AccountTemplate) {
-            this.select2AccountTemplate = select2AccountTemplate
+
+            this.select2AccountTemplate = new Select2AccountTemplate()
         }
 
         /**
