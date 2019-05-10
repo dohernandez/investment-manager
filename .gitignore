@@ -1,5 +1,6 @@
 # Application
 .env
+.env.dev
 
 # Cache, session files and logs (Symfony3)
 /var/cache/*

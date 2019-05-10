@@ -4,10 +4,17 @@ use Symfony\Component\Dotenv\Dotenv;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
+// To allow to have real data and fake data for dev in the same machine
+// $_SERVER['SERVER_PORT'] == 8000 prod env
+if ($_SERVER['SERVER_PORT'] == 8000) {
+    $_ENV['APP_ENV'] = 'prod';
+}
+
 // Load cached env vars if the .env.local.php file exists
 // Run "composer dump-env prod" to create it (requires symfony/flex >=1.2)
-if (is_array($env = @include dirname(__DIR__).'/.env.local.php')) {
-    $_ENV += $env;
+// $_SERVER['APP_ENV'] != dev
+if ($_ENV['APP_ENV'] != 'dev' && is_array($env = @include dirname(__DIR__).'/.env.local.php')) {
+    $_ENV = $env + $_ENV;
 } elseif (!class_exists(Dotenv::class)) {
     throw new RuntimeException('Please run "composer require symfony/dotenv" to load the ".env" files configuring the application.');
 } else {

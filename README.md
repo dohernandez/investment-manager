@@ -39,7 +39,7 @@ cp .env.dist .env
 2. Build/run containers with (with and without detached mode)
 
 ```bash
-docker-compose up -d
+docker-compose -f docker-compose.dev.yml -p investment-manager-dev up -d
 ```
 
 3. Download Composer dependencies
@@ -96,7 +96,7 @@ You can use Nginx or Apache, but the built-in web server works
 great:
 
 ```bash
-php bin/console server:run
+php bin/console server:run *:8080
 ```
 
 Now check out the site at `http://localhost:8000`
