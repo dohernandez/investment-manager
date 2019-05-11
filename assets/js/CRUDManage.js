@@ -1,12 +1,12 @@
 'use strict';
 
-const Form = require('./Components/Form');
-const $ = require('jquery');
-const Swal = require('sweetalert2');
-const Routing = require('./Components/Routing');
-const _ = require('underscore');
+import Form from './Components/Form';
+import $ from 'jquery';
+import Swal from 'sweetalert2';
+import Routing from './Components/Routing';
+import _ from 'underscore';
 
-require('../css/CrudManager.scss');
+import '../css/CrudManager.scss';
 
 
 /**

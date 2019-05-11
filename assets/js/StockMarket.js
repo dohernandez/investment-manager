@@ -1,10 +1,10 @@
 'use strict';
 
-const Form = require('./Components/Form');
-const $ = require('jquery');
+import Form from './Components/Form';
+import $ from 'jquery';
 
-require('select2');
-require('../css/StockMarketForm.scss');
+import 'select2';
+import '../css/StockMarketForm.scss';
 
 /**
  * Form manage how the account form should be build when a crud manager invokes a create or an update action.

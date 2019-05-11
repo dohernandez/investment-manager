@@ -47,4 +47,4 @@ class Select2AccountTemplate {
     }
 }
 
-module.exports = Select2AccountTemplate
+export default Select2AccountTemplate;

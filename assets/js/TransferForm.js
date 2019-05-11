@@ -1,14 +1,14 @@
 'use strict';
 
-const Form = require('./Components/Form');
-const Select2AccountTemplate = require('./Components/Select2AccountTemplate');
-const moment = require('moment');
-const $ = require('jquery');
+import Form from './Components/Form';
+import Select2AccountTemplate from './Components/Select2AccountTemplate';
+import moment from 'moment';
+import $ from 'jquery';
 
-require('select2');
-require('eonasdan-bootstrap-datetimepicker');
+import 'select2';
+import 'eonasdan-bootstrap-datetimepicker';
 
-require('./../css/TransferFrom.scss');
+import './../css/TransferFrom.scss';
 
 /**
  * Form manage how the transfer form should be build when a crud manager invokes a create or an update action.

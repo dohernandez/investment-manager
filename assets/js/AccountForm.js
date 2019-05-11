@@ -1,6 +1,6 @@
 'use strict';
 
-const Form = require('./Components/Form');
+import Form from './Components/Form';
 
 /**
  * Form manage how the account form should be build when a crud manager invokes a create or an update action.
