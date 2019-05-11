@@ -1,8 +1,11 @@
 'use strict';
 
 const Form = require('./Components/Form');
+const $ = require('jquery');
 
-(function (window, $) {
+require('select2');
+
+(function (window) {
 
     /**
      * Form manage how the account form should be build when a crud manager invokes a create or an update action.
@@ -61,4 +64,4 @@ const Form = require('./Components/Form');
 
     window.StockMarketForm = StockMarketForm;
 
-})(window, jQuery);
+})(window);

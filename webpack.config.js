@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
     mode: "development", // "production" | "development" | "none"
@@ -12,5 +13,11 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'public', 'build'),
         filename: "[name].js",
-    }
-}
+    },
+    plugins: [
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery'
+        }),
+    ]
+};

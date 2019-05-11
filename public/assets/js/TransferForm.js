@@ -2,8 +2,14 @@
 
 const Form = require('./Components/Form');
 const Select2AccountTemplate = require('./Components/Select2AccountTemplate');
+const moment = require('moment');
 
-(function (window, $, moment) {
+const $ = require('jquery');
+
+require('select2');
+require('eonasdan-bootstrap-datetimepicker');
+
+(function (window) {
 
     /**
      * Form manage how the transfer form should be build when a crud manager invokes a create or an update action.
@@ -96,4 +102,4 @@ const Select2AccountTemplate = require('./Components/Select2AccountTemplate');
 
     window.TransferForm = TransferForm;
 
-})(window, jQuery, moment);
+})(window);
