@@ -5,10 +5,10 @@ module.exports = {
     mode: "development", // "production" | "development" | "none"
 
     entry: {
-        crud_manager: './public/assets/js/CRUDManage.js',
-        transfer_form: './public/assets/js/TransferForm.js',
-        stock_market_form: './public/assets/js/StockMarket.js',
-        account_from: './public/assets/js/AccountForm.js',
+        crud_manager: './assets/js/CRUDManage.js',
+        transfer_form: './assets/js/TransferForm.js',
+        stock_market_form: './assets/js/StockMarket.js',
+        account_from: './assets/js/AccountForm.js',
     },
     output: {
         path: path.resolve(__dirname, 'public', 'build'),
@@ -32,6 +32,14 @@ module.exports = {
                 use: [
                     'style-loader',
                     'css-loader',
+                ]
+            },
+            {
+                test: /\.scss$/,
+                use: [
+                    'style-loader',
+                    'css-loader',
+                    'sass-loader',
                 ]
             },
         ]

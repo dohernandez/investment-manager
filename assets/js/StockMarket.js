@@ -4,9 +4,8 @@ const Form = require('./Components/Form');
 const $ = require('jquery');
 
 require('select2');
-require('select2/dist/css/select2.css');
 
-require('./../css/stock_market_form.css');
+require('./../css/stock_market_form.scss');
 
 (function (window) {
 

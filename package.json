@@ -19,6 +19,8 @@
     "eonasdan-bootstrap-datetimepicker": "^4.17.47",
     "jquery": "^3.4.1",
     "moment": "^2.24.0",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.1.0",
     "select2": "^4.0.7-rc.0",
     "style-loader": "^0.23.1",
     "sweetalert2": "^8.10.6",
