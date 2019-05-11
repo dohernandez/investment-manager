@@ -7,7 +7,12 @@ const moment = require('moment');
 const $ = require('jquery');
 
 require('select2');
+require('select2/dist/css/select2.css');
+
 require('eonasdan-bootstrap-datetimepicker');
+require('eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css');
+
+require('./../css/transfer_from.css');
 
 (function (window) {
 

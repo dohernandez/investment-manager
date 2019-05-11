@@ -2,7 +2,12 @@
 
 const Form = require('./Components/Form');
 const $ = require('jquery');
+
 const Swal = require('sweetalert2');
+require('sweetalert2/dist/sweetalert2.css');
+
+require('./../css/crud_manager.css');
+
 
 (function (window, Routing) {
     /**

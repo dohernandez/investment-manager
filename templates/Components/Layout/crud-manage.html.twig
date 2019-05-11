@@ -33,44 +33,7 @@
 #}
 
 {% extends 'base.html.twig' %}
-
 {% import 'Components/Macros/crud-manage-render.html.twig' as render %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    <!-- sweetalert2 - for nice alert box -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@8.10.6/dist/sweetalert2.min.css">
-
-    <style>
-        <!-- swal -->
-        .swal2-confirm-title, .swal2-form-title {
-            font-size: 2.875em !important;
-        }
-
-        .swal2-confirm-content, .swal2-form-content {
-            font-size: 1.625em !important;
-        }
-
-        .swal2-confirm-actions .btn, .swal2-form-actions .btn {
-            margin-bottom: 0;
-            margin-left: 8px;
-        }
-
-        .swal2-form-actions {
-            z-index: 0 !important;
-        }
-
-        .swal2-toast-title {
-            font-size: 1.625em !important;
-        }
-
-        .has-error .select2-selection {
-            border-color: #dd4b39 !important;
-            box-shadow: none;
-        }
-    </style>
-{% endblock %}
 
 {% block page_content %}
     <div class="row js-crud-manage-row-box">
