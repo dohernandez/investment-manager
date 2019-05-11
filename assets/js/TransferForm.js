@@ -3,7 +3,6 @@
 const Form = require('./Components/Form');
 const Select2AccountTemplate = require('./Components/Select2AccountTemplate');
 const moment = require('moment');
-
 const $ = require('jquery');
 
 require('select2');

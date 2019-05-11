@@ -1,5 +1,8 @@
 'use strict';
 
+const _ = require('underscore');
+const $ = require('jquery');
+
 /**
  * Form manage how a form should be build when a crud manager invokes a create or an update action.
  */

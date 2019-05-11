@@ -4,6 +4,7 @@ const Form = require('./Components/Form');
 const $ = require('jquery');
 const Swal = require('sweetalert2');
 const Routing = require('./Components/Routing');
+const _ = require('underscore');
 
 require('../css/CrudManager.scss');
 
