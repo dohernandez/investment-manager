@@ -1,6 +1,27 @@
 const path = require('path');
 const webpack = require('webpack');
 
+const styleLoader = {
+    loader: 'style-loader',
+    options: {
+        sourceMap: true
+    }
+};
+
+const cssLoader = {
+    loader: 'css-loader',
+    options: {
+        sourceMap: true
+    }
+};
+
+const sassLoader = {
+    loader: 'sass-loader',
+    options: {
+        sourceMap: true
+    }
+};
+
 module.exports = {
     mode: "development", // "production" | "development" | "none"
 
@@ -30,16 +51,16 @@ module.exports = {
             {
                 test: /\.css$/,
                 use: [
-                    'style-loader',
-                    'css-loader',
+                    styleLoader,
+                    cssLoader,
                 ]
             },
             {
                 test: /\.scss$/,
                 use: [
-                    'style-loader',
-                    'css-loader',
-                    'sass-loader',
+                    styleLoader,
+                    cssLoader,
+                    sassLoader,
                 ]
             },
         ]
@@ -49,5 +70,6 @@ module.exports = {
             $: 'jquery',
             jQuery: 'jquery'
         }),
-    ]
+    ],
+    devtool: "inline-source-map"
 };
