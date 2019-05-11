@@ -63,13 +63,25 @@ module.exports = {
                     sassLoader,
                 ]
             },
-        ]
+        ],
     },
     plugins: [
         new webpack.ProvidePlugin({
             $: 'jquery',
-            jQuery: 'jquery'
+            jQuery: 'jquery',
+            'window.jQuery': 'jquery',
         }),
     ],
-    devtool: "inline-source-map"
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendors",
+                    chunks: "all"
+                }
+            }
+        }
+    },
+    devtool: "inline-source-map",
 };
