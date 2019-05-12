@@ -1,21 +1,27 @@
 const path = require('path');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserJSPlugin = require('terser-webpack-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const useSourceMap = process.env.NODE_ENV !== 'production';
 
 const styleLoader = {
     loader: 'style-loader',
     options: {
-        sourceMap: true
+        sourceMap: useSourceMap
     }
 };
 
+// cssLoader to parser css files into a js object
 const cssLoader = {
     loader: 'css-loader',
     options: {
-        sourceMap: true
+        sourceMap: useSourceMap
     }
 };
 
+// sassLoader to parser sass files into a css.
+// sourceMap MUST be always true.
 const sassLoader = {
     loader: 'sass-loader',
     options: {
@@ -23,8 +29,7 @@ const sassLoader = {
     }
 };
 
-const devMode = process.env.NODE_ENV !== 'production';
-
+// miniCssExtractLoader to extract css from js to a separate file
 const miniCssExtractLoader = {
     loader: MiniCssExtractPlugin.loader,
     options: {
@@ -34,9 +39,11 @@ const miniCssExtractLoader = {
             // while for ./css/main.css the publicPath will be ../
             return path.relative(path.dirname(resourcePath), context) + '/';
         },
-        hmr: devMode,
+        hmr: process.env.NODE_ENV === 'development',
     },
 };
+
+const devMode = process.env.NODE_ENV !== 'production';
 
 module.exports = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -49,11 +56,12 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, 'public', 'build'),
-        filename: "[name].js",
+        filename: devMode ? "[name].js" : '[name].[hash:6].js',
     },
     module: {
         rules: [
             {
+                // Enable babel loader. Transpile modern js to old js.
                 test: /\.js$/,
                 exclude: /(node_modules|bower_components)/,
                 use: {
@@ -65,6 +73,7 @@ module.exports = {
                 }
             },
             {
+                // Enable css loader.
                 test: /\.css$/,
                 use: [
                     miniCssExtractLoader,
@@ -72,6 +81,7 @@ module.exports = {
                 ]
             },
             {
+                // Enable sass loader.
                 test: /\.scss$/,
                 use: [
                     miniCssExtractLoader,
@@ -89,12 +99,15 @@ module.exports = {
         }),
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
-            // both options are optional
-            filename: devMode ? '[name].css' : '[name].[hash].css',
-            chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
+            // options are optional
+            filename: devMode ? '[name].css' : '[name].[hash:6].css',
         }),
     ],
     optimization: {
+        minimizer: [
+            new TerserJSPlugin({}),
+            new OptimizeCSSAssetsPlugin({}),
+        ],
         splitChunks: {
             cacheGroups: {
                 commons: {

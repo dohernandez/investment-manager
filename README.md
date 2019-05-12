@@ -92,14 +92,21 @@ via the preferences which provides more auto-completion for Symfony projects.
 
 **Start the built-in web server**
 
-You can use Nginx or Apache, but the built-in web server works
-great:
+You can use Nginx or Apache, but the built-in web server works great:
 
 ```bash
 php bin/console server:run *:8080
 ```
 
 Now check out the site at `http://localhost:8000`
+
+**Start webpack watcher**
+
+Run the following command
+
+```bash
+yarn watch
+```
 
 ### Environment
 

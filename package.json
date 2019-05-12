@@ -10,8 +10,8 @@
   "author": "Darien Hernandez <dohernandez@gmail.com",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=dev webpack",
-    "watch": "NODE_ENV=dev webpack --watch",
+    "dev": "NODE_ENV=development webpack",
+    "watch": "NODE_ENV=development webpack --watch",
     "production": "NODE_ENV=production webpack"
   },
   "dependencies": {},
@@ -26,6 +26,7 @@
     "mini-css-extract-plugin": "^0.6.0",
     "moment": "^2.24.0",
     "node-sass": "^4.12.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
     "sass-loader": "^7.1.0",
     "select2": "^4.0.7-rc.0",
     "style-loader": "^0.23.1",
