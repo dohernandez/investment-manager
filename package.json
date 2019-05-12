@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://67ec41dd8ac0c8f3297f1e4b4f4a4d09b01a85fe@github.com/dohernandez/investment-manager.git"
+    "url": "git+https://github.com/dohernandez/investment-manager.git"
   },
   "author": "Darien Hernandez <dohernandez@gmail.com",
   "license": "MIT",
