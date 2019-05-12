@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const styleLoader = {
     loader: 'style-loader',
@@ -22,8 +23,23 @@ const sassLoader = {
     }
 };
 
+const devMode = process.env.NODE_ENV !== 'production';
+
+const miniCssExtractLoader = {
+    loader: MiniCssExtractPlugin.loader,
+    options: {
+        publicPath: (resourcePath, context) => {
+            // publicPath is the relative path of the resource to the context
+            // e.g. for ./css/admin/main.css the publicPath will be ../../
+            // while for ./css/main.css the publicPath will be ../
+            return path.relative(path.dirname(resourcePath), context) + '/';
+        },
+        hmr: devMode,
+    },
+};
+
 module.exports = {
-    mode: "development", // "production" | "development" | "none"
+    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
 
     entry: {
         crud_manager: './assets/js/CRUDManage.js',
@@ -51,14 +67,14 @@ module.exports = {
             {
                 test: /\.css$/,
                 use: [
-                    styleLoader,
+                    miniCssExtractLoader,
                     cssLoader,
                 ]
             },
             {
                 test: /\.scss$/,
                 use: [
-                    styleLoader,
+                    miniCssExtractLoader,
                     cssLoader,
                     sassLoader,
                 ]
@@ -70,6 +86,12 @@ module.exports = {
             $: 'jquery',
             jQuery: 'jquery',
             'window.jQuery': 'jquery',
+        }),
+        new MiniCssExtractPlugin({
+            // Options similar to the same options in webpackOptions.output
+            // both options are optional
+            filename: devMode ? '[name].css' : '[name].[hash].css',
+            chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
         }),
     ],
     optimization: {

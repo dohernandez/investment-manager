@@ -1,5 +1,11 @@
 {% extends 'Components/Layout/crud-manage.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link rel="stylesheet" href="{{ asset('build/transfer_form.css') }}">
+{%  endblock %}
+
 {% block page_content %}
     {{ parent() }}
 {% endblock %}

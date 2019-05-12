@@ -35,6 +35,13 @@
 {% extends 'base.html.twig' %}
 {% import 'Components/Macros/crud-manage-render.html.twig' as render %}
 
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link rel="stylesheet" href="{{ asset('build/vendors.css') }}">
+    <link rel="stylesheet" href="{{ asset('build/crud_manager.css') }}">
+{%  endblock %}
+
 {% block page_content %}
     <div class="row js-crud-manage-row-box">
         <div class="col-md-12">

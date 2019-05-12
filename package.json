@@ -9,6 +9,11 @@
   },
   "author": "Darien Hernandez <dohernandez@gmail.com",
   "license": "MIT",
+  "scripts": {
+    "dev": "NODE_ENV=dev webpack",
+    "watch": "NODE_ENV=dev webpack --watch",
+    "production": "NODE_ENV=production webpack"
+  },
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.4.4",
@@ -18,6 +23,7 @@
     "css-loader": "^2.1.1",
     "eonasdan-bootstrap-datetimepicker": "^4.17.47",
     "jquery": "^3.4.1",
+    "mini-css-extract-plugin": "^0.6.0",
     "moment": "^2.24.0",
     "node-sass": "^4.12.0",
     "sass-loader": "^7.1.0",
