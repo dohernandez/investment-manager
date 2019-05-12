@@ -3,12 +3,16 @@ const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const useSourceMap = process.env.NODE_ENV !== 'production';
+const ManifestPlugin = require('webpack-manifest-plugin');
+const WebpackChunkHash = require('webpack-chunk-hash');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+
+const devMode = process.env.NODE_ENV !== 'production';
 
 const styleLoader = {
     loader: 'style-loader',
     options: {
-        sourceMap: useSourceMap
+        sourceMap: devMode
     }
 };
 
@@ -16,7 +20,7 @@ const styleLoader = {
 const cssLoader = {
     loader: 'css-loader',
     options: {
-        sourceMap: useSourceMap
+        sourceMap: devMode
     }
 };
 
@@ -43,8 +47,6 @@ const miniCssExtractLoader = {
     },
 };
 
-const devMode = process.env.NODE_ENV !== 'production';
-
 module.exports = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
 
@@ -56,7 +58,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, 'public', 'build'),
-        filename: devMode ? "[name].js" : '[name].[hash:6].js',
+        filename: devMode ? "[name].js" : '[name].[chunkhash:6].js',
     },
     module: {
         rules: [
@@ -92,6 +94,7 @@ module.exports = {
         ],
     },
     plugins: [
+        // autoimport jquery library whenever $, jQuery and window.jQuery is used.
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
@@ -100,10 +103,20 @@ module.exports = {
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
             // options are optional
-            filename: devMode ? '[name].css' : '[name].[hash:6].css',
+            filename: devMode ? '[name].css' : '[name].[chunkhash:6].css',
         }),
+        // create manifest json file for versioning support.
+        new ManifestPlugin({
+            basePath: 'build/',
+            publicPath: 'build/',
+        }),
+        // allows for [chunkhash]
+        new WebpackChunkHash(),
+        // clean
+        new CleanWebpackPlugin(),
     ],
     optimization: {
+        namedModules: true,
         minimizer: [
             new TerserJSPlugin({}),
             new OptimizeCSSAssetsPlugin({}),
