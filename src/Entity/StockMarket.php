@@ -103,7 +103,7 @@ class StockMarket implements Entity
      */
     public function __toString(): string
     {
-        return sprintf('%s - %s', $this->getName(), $this->getSymbol());
+        return $this->getSymbol() . ' - ' . $this->getName();
     }
 
     /**

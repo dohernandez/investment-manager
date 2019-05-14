@@ -55,6 +55,7 @@ module.exports = {
         transfer_form: './assets/js/TransferForm.js',
         stock_market_form: './assets/js/StockMarket.js',
         account_from: './assets/js/AccountForm.js',
+        stock_form: './assets/js/StockForm.js',
     },
     output: {
         path: path.resolve(__dirname, 'public', 'build'),

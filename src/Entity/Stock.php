@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StockRepository")
@@ -21,16 +23,19 @@ class Stock implements Entity
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Please enter the name")
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=10)
+     * @Assert\NotBlank(message="Please enter the symbol")
      */
     private $symbol;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
+     * @Assert\NotBlank(message="Please enter the value")
      */
     private $value;
 
@@ -40,6 +45,7 @@ class Stock implements Entity
     private $dividendYield;
 
     /**
+     * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
     private $lastPriceUpdate;
@@ -55,12 +61,17 @@ class Stock implements Entity
      */
     private $market;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $description;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -72,7 +83,7 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getSymbol(): ?string
+    public function getSymbol(): string
     {
         return $this->symbol;
     }
@@ -84,48 +95,48 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getValue()
+    public function getValue(): float
     {
         return $this->value;
     }
 
-    public function setValue($value): self
+    public function setValue(float $value): self
     {
         $this->value = $value;
 
         return $this;
     }
 
-    public function getDividendYield()
+    public function getDividendYield(): ?float
     {
         return $this->dividendYield;
     }
 
-    public function setDividendYield($dividendYield): self
+    public function setDividendYield(?float $dividendYield): self
     {
         $this->dividendYield = $dividendYield;
 
         return $this;
     }
 
-    public function getLastPriceUpdate()
+    public function getLastPriceUpdate(): \DateTime
     {
         return $this->lastPriceUpdate;
     }
 
-    public function setLastPriceUpdate($lastPriceUpdate): self
+    public function setLastPriceUpdate(\DateTime $lastPriceUpdate): self
     {
         $this->lastPriceUpdate = $lastPriceUpdate;
 
         return $this;
     }
 
-    public function getLastChangePrice()
+    public function getLastChangePrice(): ?float
     {
         return $this->lastChangePrice;
     }
 
-    public function setLastChangePrice($lastChangePrice): self
+    public function setLastChangePrice(?float $lastChangePrice): self
     {
         $this->lastChangePrice = $lastChangePrice;
 
@@ -137,17 +148,29 @@ class Stock implements Entity
      */
     public function __toString(): string
     {
-        return $this->getName();
+        return $this->getName() . ' ('. $this->getSymbol() .')';
     }
 
-    public function getMarket(): ?StockMarket
+    public function getMarket(): StockMarket
     {
         return $this->market;
     }
 
-    public function setMarket(?StockMarket $market): self
+    public function setMarket(StockMarket $market): self
     {
         $this->market = $market;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

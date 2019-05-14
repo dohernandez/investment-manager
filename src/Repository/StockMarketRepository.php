@@ -19,6 +19,19 @@ class StockMarketRepository extends ServiceEntityRepository
         parent::__construct($registry, StockMarket::class);
     }
 
+    public function findAllMatching($query, int $limit = 5)
+    {
+        return $this->createQueryBuilder('sm')
+            ->andWhere('sm.symbol LIKE :symbol OR sm.name LIKE :name')
+            ->setParameter('symbol', '%'.$query.'%')
+            ->setParameter('name', '%'.$query.'%')
+            ->orderBy('sm.symbol', 'ASC ')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     // /**
     //  * @return StockMarket[] Returns an array of StockMarket objects
     //  */
