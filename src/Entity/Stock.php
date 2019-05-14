@@ -66,6 +66,21 @@ class Stock implements Entity
      */
     private $description;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\StockInfo", inversedBy="stocks")
+     */
+    private $type;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\StockInfo", inversedBy="stocks")
+     */
+    private $sector;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\StockInfo", inversedBy="stocks")
+     */
+    private $industry;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -171,6 +186,64 @@ class Stock implements Entity
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getType(): ?StockInfo
+    {
+        return $this->type;
+    }
+
+    public function setType(?StockInfo $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getSector(): ?StockInfo
+    {
+        return $this->sector;
+    }
+
+    public function setSector(?StockInfo $sector): self
+    {
+        $this->sector = $sector;
+
+        return $this;
+    }
+
+    public function getIndustry(): ?StockInfo
+    {
+        return $this->industry;
+    }
+
+    public function setIndustry(?StockInfo $industry): self
+    {
+        $this->industry = $industry;
+
+        return $this;
+    }
+
+    public function setStockInfo(?StockInfo $stockInfo): self
+    {
+        switch ($stockInfo->getType()) {
+            case StockInfo::TYPE:
+                $this->setType($stockInfo);
+
+                break;
+            case StockInfo::SECTOR:
+                $this->setSector($stockInfo);
+
+                break;
+            case StockInfo::INDUSTRY:
+                $this->setIndustry($stockInfo);
+
+                break;
+            default:
+                throw new \LogicException('type ' . $stockInfo->getType() . ' not supported');
+        }
 
         return $this;
     }
