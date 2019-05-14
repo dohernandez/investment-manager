@@ -2,15 +2,20 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Intl\Intl;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StockMarketRepository")
  */
-class StockMarket
+class StockMarket implements Entity
 {
+    use TimestampableEntity;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -36,6 +41,16 @@ class StockMarket
      * @Assert\NotBlank(message="Symbol is not defined")
      */
     private $symbol;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Stock", mappedBy="market")
+     */
+    private $stocks;
+
+    public function __construct()
+    {
+        $this->stocks = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -88,6 +103,37 @@ class StockMarket
      */
     public function __toString(): string
     {
-        return sprintf('%s - %s', $this->getName(), $this->getSymbol());
+        return $this->getSymbol() . ' - ' . $this->getName();
+    }
+
+    /**
+     * @return Collection|Stock[]
+     */
+    public function getStocks(): Collection
+    {
+        return $this->stocks;
+    }
+
+    public function addStock(Stock $stock): self
+    {
+        if (!$this->stocks->contains($stock)) {
+            $this->stocks[] = $stock;
+            $stock->setMarket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStock(Stock $stock): self
+    {
+        if ($this->stocks->contains($stock)) {
+            $this->stocks->removeElement($stock);
+            // set the owning side to null (unless already changed)
+            if ($stock->getMarket() === $this) {
+                $stock->setMarket(null);
+            }
+        }
+
+        return $this;
     }
 }

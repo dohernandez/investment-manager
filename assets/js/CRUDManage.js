@@ -86,13 +86,7 @@ class CRUDManage {
     /**
      * Create a row base on row template.
      *
-     * @param {{
-     *          id: int,
-     *          date: string,
-     *          beneficiaryParty: {name: string, accountNo: string},
-     *          debtorParty: {name: string, accountNo: string},
-     *          amount: float
-     *        }} entity
+     * @param {Object} entity
      *
      * @return {Object}
      *

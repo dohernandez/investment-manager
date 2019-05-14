@@ -4,8 +4,8 @@ namespace App\Controller\Api;
 
 use App\Api;
 use App\Entity;
-use App\Form\StockMarketType;
-use App\Repository\StockMarketRepository;
+use App\Form\StockType;
+use App\Repository\StockRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,64 +14,57 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/v1/stock_markets")
+ * @Route("/v1/stocks")
  */
-class StockMarketController extends BaseController
+class StockController extends BaseController
 {
     /**
-     * @Route("/", name="stock_market_list", methods={"GET"}, options={"expose"=true})
+     * @Route("/", name="stock_list", methods={"GET"}, options={"expose"=true})
      *
-     * @param StockMarketRepository $repo
-     * @param Request $request
+     * @param StockRepository $repo
      *
      * @return JsonResponse
      */
-    public function all(StockMarketRepository $repo, Request $request): JsonResponse
+    public function all(StockRepository $repo): JsonResponse
     {
-        $query = $request->query->get('q');
+        $stocks = $repo->findAll();
 
-        if ($query !== null) {
-            $stockMarkets = $repo->findAllMatching($query);
-        } else {
-            $stockMarkets = $repo->findAll();
-        }
+        $apiStocks = [];
 
-        $apiStockMarkets = [];
-
-        foreach ($stockMarkets as $stockMarket) {
-            $apiStockMarkets[] = Api\StockMarket::fromEntity($stockMarket);
+        foreach ($stocks as $stock) {
+            $apiStocks[] = Api\Stock::fromEntity($stock);
         }
 
         return $this->createApiResponse(
             [
-                'total_count' => count($apiStockMarkets),
-                'items' => $apiStockMarkets,
+                'total_count' => count($apiStocks),
+                'items' => $apiStocks,
             ]
         );
     }
 
     /**
-     * @Route("/{id}", name="stock_market_get", methods={"GET"}, options={"expose"=true})
+     * @Route("/{id}", name="stock_get", methods={"GET"}, options={"expose"=true})
      *
-     * @param Entity\StockMarket $stockMarket
+     * @param Entity\Stock $stock
      *
      * @return JsonResponse
      */
-    public function one(Entity\StockMarket $stockMarket): JsonResponse
+    public function one(Entity\Stock $stock): JsonResponse
     {
-        if (!$stockMarket) {
-            return $this->createApiErrorResponse('StockMarket not found', Response::HTTP_NOT_FOUND);
+        if (!$stock) {
+            return $this->createApiErrorResponse('Stock not found', Response::HTTP_NOT_FOUND);
         }
 
         return $this->createApiResponse(
             [
-                'item' => Api\StockMarket::fromEntity($stockMarket),
+                'item' => Api\Stock::fromEntity($stock),
             ]
         );
     }
 
     /**
-     * @Route("/", name="stock_market_new", methods={"POST"}, options={"expose"=true})
+     * @Route("/", name="stock_new", methods={"POST"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request
@@ -80,9 +73,9 @@ class StockMarketController extends BaseController
      */
     public function new(EntityManagerInterface $em, Request $request): Response
     {
-        $stockMarket = new Entity\StockMarket();
+        $stock = new Entity\Stock();
 
-        $form = $this->createForm(StockMarketType::class, $stockMarket);
+        $form = $this->createForm(StockType::class, $stock);
 
         return $this->save($form, $em, $request);
     }
@@ -128,50 +121,50 @@ class StockMarketController extends BaseController
             );
         }
 
-        /** @var Entity\StockMarket $stockMarket */
-        $stockMarket = $form->getData();
+        /** @var Entity\Stock $stock */
+        $stock = $form->getData();
 
-        $em->persist($stockMarket);
+        $em->persist($stock);
         $em->flush();
 
         return $this->createApiResponse(
             [
-                'item' => Api\StockMarket::fromEntity($stockMarket),
+                'item' => Api\Stock::fromEntity($stock),
             ]
         );
     }
 
     /**
-     * @Route("/{id}", name="stock_market_edit", methods={"PUT"}, options={"expose"=true})
+     * @Route("/{id}", name="stock_edit", methods={"PUT"}, options={"expose"=true})
      *
-     * @param Entity\StockMarket $stockMarket
+     * @param Entity\Stock $stock
      * @param EntityManagerInterface $em
      * @param Request $request
      *
      * @return Response
      */
-    public function edit(Entity\StockMarket $stockMarket, EntityManagerInterface $em, Request $request): Response
+    public function edit(Entity\Stock $stock, EntityManagerInterface $em, Request $request): Response
     {
-        $form = $this->createForm(StockMarketType::class, $stockMarket);
+        $form = $this->createForm(StockType::class, $stock);
 
         return $this->save($form, $em, $request);
     }
 
     /**
-     * @Route("/{id}", name="stock_market_delete", methods={"DELETE"}, options={"expose"=true})
+     * @Route("/{id}", name="stock_delete", methods={"DELETE"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
-     * @param Entity\StockMarket $stockMarket
+     * @param Entity\Stock $stock
      *
      * @return Response
      */
-    public function delete(EntityManagerInterface $em, Entity\StockMarket $stockMarket): Response
+    public function delete(EntityManagerInterface $em, Entity\Stock $stock): Response
     {
-        if (!$stockMarket) {
-            return $this->createApiErrorResponse('StockMarket not found', Response::HTTP_NOT_FOUND);
+        if (!$stock) {
+            return $this->createApiErrorResponse('Stock not found', Response::HTTP_NOT_FOUND);
         }
 
-        $em->remove($stockMarket);
+        $em->remove($stock);
         $em->flush();
 
         return new Response(null, Response::HTTP_NO_CONTENT);
