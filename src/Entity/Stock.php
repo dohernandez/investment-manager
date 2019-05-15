@@ -73,12 +73,12 @@ class Stock implements Entity
     private $type;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\StockInfo", inversedBy="stocks")
+     * @ORM\ManyToOne(targetEntity="App\Entity\StockInfo", inversedBy="stocks", cascade={"persist"})
      */
     private $sector;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\StockInfo", inversedBy="stocks")
+     * @ORM\ManyToOne(targetEntity="App\Entity\StockInfo", inversedBy="stocks", cascade={"persist"})
      */
     private $industry;
 

@@ -51,6 +51,11 @@ class StockType extends AbstractType
                 'type' => 'sector',
                 'required' => false,
             ])
+            ->add('industry', StockInfoChoiceType::class, [
+                'placeholder' => 'Choose industry',
+                'type' => 'industry',
+                'required' => false,
+            ])
         ;
     }
 

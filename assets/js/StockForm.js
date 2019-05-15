@@ -122,7 +122,7 @@ class StockForm extends Form {
                     templateSelection = this.Select2StockInfoSectorTemplate.templateSelection;
                     break;
                 case 'industry':
-                    templateResult = this.Select2StockInfoIndustryTemplate.templateResult;
+                    templateResult = this.Select2StockInfoIndustryTemplate.templateResult.bind(this.Select2StockInfoIndustryTemplate);
                     templateSelection = this.Select2StockInfoIndustryTemplate.templateSelection;
                     break;
             }
