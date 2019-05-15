@@ -30,7 +30,9 @@ class StockForm extends Form {
      * @param $wrapper
      */
     onBeforeOpen(data, $wrapper) {
+        // start set data to the form
         if (data) {
+            // edition mode
             let $form = $wrapper.find(this.selector);
             for (const property in data) {
                 let $input = $form.find('#' + property);
@@ -44,9 +46,21 @@ class StockForm extends Form {
                     continue;
                 }
 
+                if (property === 'type') {
+                    let inputData = data[property];
+                    if (inputData !== null) {
+                        $input.append(new Option(inputData.title, inputData.id));
+
+                        $input.val(inputData.id);
+                    }
+
+                    continue;
+                }
+
                 $input.val(data[property]);
             }
         }
+        // end set data to the form
 
         // market dropdown
         let $market = $('.js-stock-market-autocomplete');
