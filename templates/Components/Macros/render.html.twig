@@ -30,6 +30,10 @@
         <small>{{ value.accountNo }}</small>
 {% endmacro render_account %}
 
+{% macro render_percentage(value) %}
+        {{ value }} <small>%</small>
+{% endmacro render_percentage %}
+
 {% macro field(value, field) %}
     {% import _self as render %}
 
@@ -44,6 +48,8 @@
             {{ render.render_currency(value) }}
         {% elseif field.render == 'account' %}
             {{ render.render_account(value) }}
+        {% elseif field.render == 'percentage' %}
+            {{ render.render_percentage(value) }}
         {% endif %}
     {% else %}
         {{ render.render_text(value) }}

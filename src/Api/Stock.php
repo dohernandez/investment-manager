@@ -19,6 +19,8 @@ class Stock
 
     public $description;
 
+    public $dividendYield;
+
     public $type;
 
     public $sector;
@@ -36,6 +38,7 @@ class Stock
         $self->symbol = $stock->getSymbol();
         $self->value = $stock->getValue();
         $self->description = $stock->getDescription();
+        $self->dividendYield = $stock->getDividendYield();
 
         $self->market = Api\StockMarket::fromEntity($stock->getMarket());
 

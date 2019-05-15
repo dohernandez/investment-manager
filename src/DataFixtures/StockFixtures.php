@@ -12,7 +12,7 @@ class StockFixtures extends BaseFixtures implements DependentFixtureInterface
 {
     public function loadData(ObjectManager $manager)
     {
-        $this->createMany($manager, Stock::class, 4, function (ObjectManager $manager, Stock $stock) {
+        $this->createMany($manager, Stock::class, 8, function (ObjectManager $manager, Stock $stock) {
 
             $market = $this->getRandomReference(StockMarket::class);
 
@@ -29,6 +29,7 @@ class StockFixtures extends BaseFixtures implements DependentFixtureInterface
                     $this->faker->randomDigitNotNull,
                     true
                 ))
+                ->setDividendYield($this->faker->randomFloat(2, 0, 15))
                 ->setMarket($market)
                 ->setType($type)
                 ->setSector($sector)

@@ -25,10 +25,16 @@
 {% endmacro render_slice %}
 
 {% macro render_account(value) %}
-        <strong><%= {{ value }}.name %></strong>
-        <br>
-        <small><%= {{ value }}.accountNo %></small>
+    <strong><%= {{ value }}.name %></strong>
+    <br>
+    <small><%= {{ value }}.accountNo %></small>
 {% endmacro render_account %}
+
+{% macro render_percentage(value) %}
+    <% if ({{ value }} !== null) { %>
+        <%= {{ value }} %><small>%</small>
+    <% } %>
+{% endmacro render_percentage %}
 
 {% macro field(value, field) %}
     {% import _self as render %}
@@ -42,6 +48,8 @@
             {{ render.render_currency(value) }}
         {% elseif field.render == 'date' %}
             {{ render.render_date(value, field.date_format) }}
+        {% elseif field.render == 'percentage' %}
+            {{ render.render_percentage(value) }}
         {% else %}
             {{ render.render_field(value) }}
         {% endif %}
