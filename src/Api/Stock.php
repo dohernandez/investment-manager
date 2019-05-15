@@ -17,6 +17,8 @@ class Stock
 
     public $market;
 
+    public $description;
+
     public $type;
 
     public $sector;
@@ -33,6 +35,7 @@ class Stock
         $self->name = $stock->getName();
         $self->symbol = $stock->getSymbol();
         $self->value = $stock->getValue();
+        $self->description = $stock->getDescription();
 
         $self->market = Api\StockMarket::fromEntity($stock->getMarket());
 

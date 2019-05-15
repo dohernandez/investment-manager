@@ -6,6 +6,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
 use Faker\Generator;
+use Psr\Log\LoggerInterface;
 
 abstract class BaseFixtures extends Fixture
 {
@@ -23,14 +24,12 @@ abstract class BaseFixtures extends Fixture
 
     abstract protected function loadData(ObjectManager $manager);
 
-    protected function createMany(ObjectManager $manager, string $className, int $count, callable $factory)
+    protected function createMany(ObjectManager $manager, string $className, int $count, callable $factory, int $offset = 0)
     {
-        for ($i = 0; $i < $count; $i++) {
+        for ($i = $offset; $i < $offset + $count; $i++) {
             $entity = new $className();
 
             $factory($manager, $entity, $i);
-
-            $manager->persist($entity);
 
             // store for usage later as App\Entity\ClassName_#COUNT#
             $this->addReference($className . '_' . $i, $entity);
@@ -56,6 +55,7 @@ abstract class BaseFixtures extends Fixture
         $randomReferenceKey = $this->faker->randomElement($this->referencesIndex[$className]);
         $randomReference = $this->getReference($randomReferenceKey);
 
+        // ensure that the reference is not part of the reference excludes
         while (in_array($randomReference, $exclude)) {
             $randomReferenceKey = $this->faker->randomElement($this->referencesIndex[$className]);
             $randomReference = $this->getReference($randomReferenceKey);

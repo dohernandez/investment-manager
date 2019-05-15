@@ -46,7 +46,7 @@ class StockForm extends Form {
                     continue;
                 }
 
-                if (property === 'type') {
+                if (property === 'type' || property === 'sector' || property === 'industry') {
                     let inputData = data[property];
                     if (inputData !== null) {
                         $input.append(new Option(inputData.title, inputData.id));
