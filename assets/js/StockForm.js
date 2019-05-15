@@ -2,6 +2,7 @@
 
 import Form from './Components/Form';
 import Select2StockMarketTemplate from './Components/Select2StockMarketTemplate';
+import Select2StockInfoTemplate from './Components/Select2StockInfoTemplate';
 import $ from 'jquery';
 
 import 'select2';
@@ -16,6 +17,10 @@ class StockForm extends Form {
         super(swalFormOptionsText, template, selector);
 
         this.Select2StockMarketTemplate = new Select2StockMarketTemplate();
+
+        this.Select2StockInfoTypeTemplate = new Select2StockInfoTemplate('type');
+        this.Select2StockInfoSectorTemplate = new Select2StockInfoTemplate('sector');
+        this.Select2StockInfoIndustryTemplate = new Select2StockInfoTemplate('industry');
     }
 
     /**
@@ -25,7 +30,9 @@ class StockForm extends Form {
      * @param $wrapper
      */
     onBeforeOpen(data, $wrapper) {
+        // start set data to the form
         if (data) {
+            // edition mode
             let $form = $wrapper.find(this.selector);
             for (const property in data) {
                 let $input = $form.find('#' + property);
@@ -39,16 +46,90 @@ class StockForm extends Form {
                     continue;
                 }
 
+                if (property === 'type' || property === 'sector' || property === 'industry') {
+                    let inputData = data[property];
+                    if (inputData !== null) {
+                        $input.append(new Option(inputData.title, inputData.id));
+
+                        $input.val(inputData.id);
+                    }
+
+                    continue;
+                }
+
                 $input.val(data[property]);
             }
         }
+        // end set data to the form
 
-        let $autocomplete = $('.js-stock-market-autocomplete');
+        // market dropdown
+        let $market = $('.js-stock-market-autocomplete');
+        const url = $market.data('autocomplete-url');
 
-        $autocomplete.each((index, select) => {
-            const url = $(select).data('autocomplete-url');
+        $market.select2({
+            dropdownParent: $wrapper,
+            ajax: {
+                url,
+                dataType: 'json',
+                delay: 10,
+                allowClear: true,
+                data: (params) => {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: (data, params)=> {
+                    // parse the results into the format expected by Select2
+                    // since we are using custom formatting functions we do not need to
+                    // alter the remote JSON data, except to indicate that infinite
+                    // scrolling can be used
+                    params.page = params.page || 1;
 
-            $(select).select2({
+                    return {
+                        results: data.items,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+                cache: true
+            },
+            placeholder: 'Search for a market',
+            escapeMarkup: (markup) => markup,
+            minimumInputLength: 1,
+            templateResult: this.Select2StockMarketTemplate.templateResult,
+            templateSelection: this.Select2StockMarketTemplate.templateSelection
+        });
+
+        // stock info dropdown
+        let $stockInfos = $('.js-stock-info-autocomplete');
+
+        $stockInfos.each((index, select) => {
+            let $stockInfo = $(select);
+            let type = $stockInfo.data('type');
+
+            let templateResult = null;
+            let templateSelection = null;
+
+            switch (type) {
+                case 'type':
+                    templateResult = this.Select2StockInfoTypeTemplate.templateResult.bind(this.Select2StockInfoTypeTemplate);
+                    templateSelection = this.Select2StockInfoTypeTemplate.templateSelection;
+                    break;
+                case 'sector':
+                    templateResult = this.Select2StockInfoSectorTemplate.templateResult.bind(this.Select2StockInfoSectorTemplate);
+                    templateSelection = this.Select2StockInfoSectorTemplate.templateSelection;
+                    break;
+                case 'industry':
+                    templateResult = this.Select2StockInfoIndustryTemplate.templateResult.bind(this.Select2StockInfoIndustryTemplate);
+                    templateSelection = this.Select2StockInfoIndustryTemplate.templateSelection;
+                    break;
+            }
+
+            const url = $stockInfo.data('autocomplete-url');
+
+            $stockInfo.select2({
                 dropdownParent: $wrapper,
                 ajax: {
                     url,
@@ -57,6 +138,7 @@ class StockForm extends Form {
                     allowClear: true,
                     data: (params) => {
                         return {
+                            t: type, // type term
                             q: params.term, // search term
                             page: params.page
                         };
@@ -77,11 +159,12 @@ class StockForm extends Form {
                     },
                     cache: true
                 },
-                placeholder: 'Search for a market',
+                placeholder: 'Search for a ' + type,
                 escapeMarkup: (markup) => markup,
                 minimumInputLength: 1,
-                templateResult: this.Select2StockMarketTemplate.templateResult,
-                templateSelection: this.Select2StockMarketTemplate.templateSelection
+                templateResult: templateResult,
+                templateSelection: templateSelection,
+                tags: true,
             });
         });
     }

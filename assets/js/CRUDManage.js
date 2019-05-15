@@ -134,7 +134,10 @@ class CRUDManage {
         this._createFrom()
             .then((result) => {
                 if (result.value) {
-                    this._addRow(result.value.item);
+                    let item = result.value.item;
+
+                    this._addRow(item);
+                    this.form.onCreated(item)
                 }
             });
     }

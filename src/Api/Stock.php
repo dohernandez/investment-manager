@@ -3,6 +3,7 @@
 namespace App\Api;
 
 use App\Entity;
+use App\Api;
 
 class Stock
 {
@@ -14,6 +15,18 @@ class Stock
 
     public $value;
 
+    public $market;
+
+    public $description;
+
+    public $dividendYield;
+
+    public $type;
+
+    public $sector;
+
+    public $industry;
+
     public $title;
 
     static public function fromEntity(Entity\Stock $stock): self
@@ -24,6 +37,14 @@ class Stock
         $self->name = $stock->getName();
         $self->symbol = $stock->getSymbol();
         $self->value = $stock->getValue();
+        $self->description = $stock->getDescription();
+        $self->dividendYield = $stock->getDividendYield();
+
+        $self->market = Api\StockMarket::fromEntity($stock->getMarket());
+
+        $self->type = $stock->getType() ? Api\StockInfo::fromEntity($stock->getType()) : null;
+        $self->sector = $stock->getSector() ? Api\StockInfo::fromEntity($stock->getSector()) : null;
+        $self->industry = $stock->getIndustry() ? Api\StockInfo::fromEntity($stock->getIndustry()) : null;
 
         $self->title = (string) $stock;
 

@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Stock;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -33,6 +34,27 @@ class StockType extends AbstractType
                     'placeholder' => 'Enter value',
                     'autocomplete' => "off",
                 ],
+            ])
+            ->add('description', TextareaType::class, [
+                'attr' => [
+                    'placeholder' => 'Enter description',
+                    'style' => 'height: 200px;'
+                ],
+                'required' => false,
+            ])
+            ->add('type', StockInfoChoiceType::class, [
+                'placeholder' => 'Choose type',
+                'required' => false,
+            ])
+            ->add('sector', StockInfoChoiceType::class, [
+                'placeholder' => 'Choose sector',
+                'type' => 'sector',
+                'required' => false,
+            ])
+            ->add('industry', StockInfoChoiceType::class, [
+                'placeholder' => 'Choose industry',
+                'type' => 'industry',
+                'required' => false,
             ])
         ;
     }
