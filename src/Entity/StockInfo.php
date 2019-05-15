@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StockInfoRepository")
  */
-class StockInfo
+class StockInfo implements Entity
 {
     const TYPE = 'type';
     const SECTOR = 'sector';
@@ -100,5 +100,13 @@ class StockInfo
         }
 
         return $this;
+    }
+
+    /**
+     * @return string Entity string
+     */
+    public function __toString(): string
+    {
+        return $this->getName();
     }
 }

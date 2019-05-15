@@ -19,6 +19,45 @@ class StockInfoRepository extends ServiceEntityRepository
         parent::__construct($registry, StockInfo::class);
     }
 
+    /**
+     * @param string $query
+     * @param int $limit
+     *
+     * @return StockInfo[] Returns an array of StockInfo objects
+     */
+    public function findAllMatching(string $query, int $limit = 5)
+    {
+        return $this->createQueryBuilder('si')
+            ->andWhere('si.name LIKE :name')
+            ->setParameter('name', '%'.$query.'%')
+            ->orderBy('si.id', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * @param string $type
+     * @param string $query
+     * @param int $limit
+     *
+     * @return StockInfo[] Returns an array of StockInfo objects
+     */
+    public function findAllTypeMatching(string $type, string $query, int $limit = 5)
+    {
+        return $this->createQueryBuilder('si')
+            ->andWhere('si.type = :type')
+            ->andWhere('si.name LIKE :name')
+            ->setParameter('type', $type)
+            ->setParameter('name', '%'.$query.'%')
+            ->orderBy('si.id', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     // /**
     //  * @return StockInfo[] Returns an array of StockInfo objects
     //  */

@@ -53,7 +53,7 @@ module.exports = {
     entry: {
         crud_manager: './assets/js/CRUDManage.js',
         transfer_form: './assets/js/TransferForm.js',
-        stock_market_form: './assets/js/StockMarket.js',
+        stock_market_form: './assets/js/StockMarketForm.js',
         account_from: './assets/js/AccountForm.js',
         stock_form: './assets/js/StockForm.js',
     },

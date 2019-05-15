@@ -72,6 +72,17 @@ class Form {
 
     }
 
+    /**
+     * Callback function when data is created
+     *
+     * This method should overwritten by the child class in case the form requires to do an action after data is stored.
+     *
+     * @param {Object} data
+     */
+    onCreated(data) {
+
+    }
+
     mapErrors($form, errorData) {
         // Remove form errors
         $form.find('.js-field-error').remove();

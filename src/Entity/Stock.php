@@ -58,6 +58,7 @@ class Stock implements Entity
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\StockMarket", inversedBy="stocks")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotBlank(message="Please enter the market")
      */
     private $market;
 
@@ -67,7 +68,7 @@ class Stock implements Entity
     private $description;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\StockInfo", inversedBy="stocks")
+     * @ORM\ManyToOne(targetEntity="App\Entity\StockInfo", inversedBy="stocks", cascade={"persist"})
      */
     private $type;
 
@@ -86,7 +87,7 @@ class Stock implements Entity
         return $this->id;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -98,7 +99,7 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getSymbol(): string
+    public function getSymbol(): ?string
     {
         return $this->symbol;
     }
@@ -110,7 +111,7 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getValue(): float
+    public function getValue(): ?float
     {
         return $this->value;
     }
@@ -134,7 +135,7 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getLastPriceUpdate(): \DateTime
+    public function getLastPriceUpdate(): ?\DateTime
     {
         return $this->lastPriceUpdate;
     }
@@ -166,7 +167,7 @@ class Stock implements Entity
         return $this->getName() . ' ('. $this->getSymbol() .')';
     }
 
-    public function getMarket(): StockMarket
+    public function getMarket(): ?StockMarket
     {
         return $this->market;
     }

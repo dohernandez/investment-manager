@@ -3,6 +3,7 @@
 namespace App\Api;
 
 use App\Entity;
+use App\Api;
 
 class Stock
 {
@@ -14,6 +15,8 @@ class Stock
 
     public $value;
 
+    public $type;
+
     public $title;
 
     static public function fromEntity(Entity\Stock $stock): self
@@ -24,6 +27,7 @@ class Stock
         $self->name = $stock->getName();
         $self->symbol = $stock->getSymbol();
         $self->value = $stock->getValue();
+        $self->type = $stock->getType() ? Api\StockInfo::fromEntity($stock->getType()) : null;
 
         $self->title = (string) $stock;
 
