@@ -19,6 +19,8 @@ class Stock
 
     public $type;
 
+    public $sector;
+
     public $title;
 
     static public function fromEntity(Entity\Stock $stock): self
@@ -31,7 +33,9 @@ class Stock
         $self->value = $stock->getValue();
 
         $self->market = Api\StockMarket::fromEntity($stock->getMarket());
+
         $self->type = $stock->getType() ? Api\StockInfo::fromEntity($stock->getType()) : null;
+        $self->sector = $stock->getSector() ? Api\StockInfo::fromEntity($stock->getSector()) : null;
 
         $self->title = (string) $stock;
 
