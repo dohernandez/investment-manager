@@ -22,11 +22,9 @@
 
      'buttons': [
            {
-               'route': '<value>', -> should depends on the id.
-               'action': '<value>', default(view) -> action to performance.
-               'type': '<value>', default(info) -> buton type.
-               'icon': '<value>', default(eye) -> buton icon.
-               'modal': '<value>', default(1) -> open a modal window.
+               'type': '<value>', default('info') -> buton type.
+               'jsClass': '<value>', default('js-entity-view') -> buton type.
+               'icon': '<value>', default('fas fa-eye') -> buton icon.
            },
        ]
     form => form object
@@ -61,7 +59,7 @@
                                     {% if field.label is not defined %}{{ field.name|trans|upper }}{% else %}{{ field.label|trans|upper }}{% endif %}
                                 </th>
                             {% endfor %}
-                            <th width="{% if buttons is defined %}{{ buttons|length * 22 + 100 }}{% else %}100{% endif %}" scope="col">MANAGE</th>
+                            <th width="{% if buttons is defined %}{{ buttons|length * 32 + 100 }}{% else %}100{% endif %}" scope="col">MANAGE</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -86,8 +84,26 @@
                 </td>
             {% endfor %}
             <td>
+                {% if buttons is defined %}
+                    {% for button in buttons %}
+                        {#
+                            'buttons': [
+                               {
+                                   'type': '<value>', default('info') -> buton type.
+                                   'jsClass': '<value>', default('js-entity-view') -> buton type.
+                                   'icon': '<value>', default('fas fa-eye') -> buton icon.
+                               },
+                           ]
+                        #}
+                        <button type="button" data-backdrop="static" data-keyboard="false"
+                                class="{{ button.jsClass|default('js-entity-view') }} btn btn-{{ button.type|default('info') }} btn-sm pull-left"
+                                style="margin-left: 3px">
+                            <i class="{{ button.icon|default('fas fa-eye') }}" aria-hidden="true"></i>
+                        </button>
+                    {% endfor %}
+                {% endif %}
                 <button type="button" data-backdrop="static" data-keyboard="false" class="js-entity-edit btn btn-primary btn-sm pull-left"
-                        data-target="#modal-create" data-keyboard="true" style="margin-left: 3px">
+                        style="margin-left: 3px">
                     <i class="fa fa-pencil-alt" aria-hidden="true"></i>
                 </button>
                 <button type="button" data-backdrop="static" data-keyboard="false" class="js-entity-delete btn btn-danger btn-sm"
