@@ -29,13 +29,15 @@ class StockFixtures extends BaseFixtures implements DependentFixtureInterface
                     $this->faker->randomDigitNotNull,
                     true
                 ))
-                ->setDividendYield($this->faker->randomFloat(2, 0, 15))
                 ->setMarket($market)
                 ->setType($type)
                 ->setSector($sector)
                 ->setIndustry($industry)
             ;
 
+            if ($this->faker->boolean($chanceOfGettingTrue = 50)) {
+                $stock->setDividendYield($this->faker->randomFloat(2, 0, 15));
+            }
             $manager->persist($stock);
         });
 

@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -81,6 +83,16 @@ class Stock implements Entity
      * @ORM\ManyToOne(targetEntity="App\Entity\StockInfo", inversedBy="stocks", cascade={"persist"})
      */
     private $industry;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\StockDividend", mappedBy="stock", orphanRemoval=true)
+     */
+    private $dividends;
+
+    public function __construct()
+    {
+        $this->dividends = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -244,6 +256,37 @@ class Stock implements Entity
                 break;
             default:
                 throw new \LogicException('type ' . $stockInfo->getType() . ' not supported');
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|StockDividend[]
+     */
+    public function getDividends(): Collection
+    {
+        return $this->dividends;
+    }
+
+    public function addDividend(StockDividend $dividend): self
+    {
+        if (!$this->dividends->contains($dividend)) {
+            $this->dividends[] = $dividend;
+            $dividend->setStock($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDividend(StockDividend $dividend): self
+    {
+        if ($this->dividends->contains($dividend)) {
+            $this->dividends->removeElement($dividend);
+            // set the owning side to null (unless already changed)
+            if ($dividend->getStock() === $this) {
+                $dividend->setStock(null);
+            }
         }
 
         return $this;

@@ -43,7 +43,7 @@ class StockViewParameters extends AbstractViewParameters
             ],
             [
                 'name' => 'dividendYield',
-                'label' => 'Dividend Yield',
+                'label' => 'D. Yield',
                 'render' => 'percentage',
             ],
         ];
