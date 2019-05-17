@@ -33,6 +33,8 @@ class CRUDManage {
 
         this.swalConfirmOptions = swalConfirmOptions;
         this.toastOptions = toastOptions;
+
+        this.routing = this._getRouting
     }
 
     static get _selectors() {
@@ -42,12 +44,16 @@ class CRUDManage {
         };
     }
 
+    setRouteGenerating(routing) {
+        this.routing = routing.bind(this);
+    }
+
     /**
      * Loads all entities via ajax and create its respective row into the table.
      */
     loadRows() {
         $.ajax({
-            url: Routing.generate(this.entityType + '_list'),
+            url: this.routing(this.entityType, 'list'),
             success: (data) => {
                 $.each(data.items, (index, entity) => {
                     this._addRow(entity);
@@ -56,20 +62,40 @@ class CRUDManage {
         });
     }
 
-    /**
-     * Loads all entities via ajax and create its respective row into the table for a given entity id.
-     *
-     * This function should be use when we are requesting a list of entity relation one to many
-     */
-    loadRowsFor(id) {
-        $.ajax({
-            url: Routing.generate(this.entityType + '_list', {id}),
-            success: (data) => {
-                $.each(data.items, (index, entity) => {
-                    this._addRow(entity);
-                });
-            }
-        });
+    _getRouting(entityType, endpoint, id = null) {
+        let route = '';
+        let param = {};
+
+        if (id) {
+            param['id'] = id;
+        }
+
+        switch (endpoint) {
+            case 'list':
+                route = Routing.generate(entityType + '_list', param);
+
+                break;
+            case 'new':
+                route = Routing.generate(entityType + '_new', param);
+
+                break;
+            case 'get':
+                route = Routing.generate(entityType + '_get', param);
+
+                break;
+            case 'edit':
+                route = Routing.generate(entityType + '_edit', param);
+
+                break;
+            case 'delete':
+                route = Routing.generate(entityType + '_delete', param);
+
+                break;
+            default:
+                throw "Endpoint not supported";
+        }
+
+        return route
     }
 
     /**
@@ -200,10 +226,10 @@ class CRUDManage {
                 let url, method = '';
 
                 if (action === 'create') {
-                    url = Routing.generate(this.entityType + '_new');
+                    url = this.routing(this.entityType, 'new');
                     method = 'POST';
                 } else {
-                    url = Routing.generate(this.entityType + '_edit', {id: data.id});
+                    url = this.routing(this.entityType, 'edit', data.id);
                     method = 'PUT';
                 }
 
@@ -311,7 +337,7 @@ class CRUDManage {
         const $row = $(e.currentTarget).closest('tr');
         const id = $row.data('id');
 
-        let getUrl = Routing.generate(this.entityType + '_get', {id});
+        let getUrl = this.routing(this.entityType, 'get', id);
 
         this._sendRPC(getUrl, 'GET')
             .then((data) => {
@@ -368,7 +394,7 @@ class CRUDManage {
         swalConfirm.fire({
             text,
             preConfirm: () => {
-                return this._sendRPC(Routing.generate(this.entityType + '_delete', {id: id}), 'DELETE')
+                return this._sendRPC(this.routing(this.entityType, 'delete', id), 'DELETE')
                     // Remove the row from the table.
                     .then(() => {
                         $row.fadeOut('normal', () => {

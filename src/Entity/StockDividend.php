@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     message="The date is already taken."
  * )
  */
-class StockDividend
+class StockDividend implements Entity
 {
     use TimestampableEntity;
 
@@ -46,7 +46,8 @@ class StockDividend
 
     /**
      * @ORM\Column(type="string", length=20)
-     * @Assert\Choice(choices=StockDividend::STATUS, message="Choose a valid status.")
+     * @Assert\Choice(choices=StockDividend::STATUS, message="Please, choose a valid status.")
+     * @Assert\NotBlank(message="Please enter the status.")
      */
     private $status;
 
@@ -130,7 +131,7 @@ class StockDividend
         return $this;
     }
 
-    public function getValue()
+    public function getValue(): ?float
     {
         return $this->value;
     }
@@ -142,7 +143,7 @@ class StockDividend
         return $this;
     }
 
-    public function getChangeFromPrev()
+    public function getChangeFromPrev(): ?float
     {
         return $this->changeFromPrev;
     }
@@ -154,7 +155,7 @@ class StockDividend
         return $this;
     }
 
-    public function getChangeFromPrevYear()
+    public function getChangeFromPrevYear(): ?float
     {
         return $this->changeFromPrevYear;
     }
@@ -166,7 +167,7 @@ class StockDividend
         return $this;
     }
 
-    public function getPrior12MonthsYield()
+    public function getPrior12MonthsYield(): ?float
     {
         return $this->prior12MonthsYield;
     }
@@ -188,5 +189,13 @@ class StockDividend
         $this->stock = $stock;
 
         return $this;
+    }
+
+    /**
+     * @return string Entity string
+     */
+    public function __toString(): string
+    {
+        return $this->getValue() . '(' . $this->getStatus() . ')';
     }
 }

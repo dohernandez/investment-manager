@@ -32,12 +32,46 @@
 
             const form = new StockDividendForm(swalFormOptionsText);
 
+            window.crudManager.setRouteGenerating((entityType, endpoint, id = null) => {
+                let route = '';
+                let param = {
+                    'id': {{ stock.id }}
+                };
+
+                switch (endpoint) {
+                    case 'list':
+                        route = Routing.generate(entityType + '_list', param);
+
+                        break;
+                    case 'new':
+                        route = Routing.generate(entityType + '_new', param);
+
+                        break;
+                    // case 'get':
+                    //     route = Routing.generate(this.entityType + '_get', param);
+                    //
+                    //     break;
+                    // case 'edit':
+                    //     route = Routing.generate(this.entityType + '_edit', param);
+                    //
+                    //     break;
+                    // case 'delete':
+                    //     route = Routing.generate(this.entityType + '_delete', param);
+                    //
+                    //     break;
+                    default:
+                        throw 'Endpoint ' + endpoint + ' not supported';
+                }
+
+                return route
+            });
+
             window.crudManager.withForm(form);
             window.crudManager.withCreateButton();
-
-            window.crudManager.loadRowsFor({{ stock.id }});
             // window.crudManager.withEditButton();
             // window.crudManager.withDeleteButton();
+
+            window.crudManager.loadRows();
         });
     </script>
 {% endblock %}

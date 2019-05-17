@@ -13,7 +13,9 @@
 {% endmacro render_currency %}
 
 {% macro render_date(value, format) %}
-    <%= moment(new Date({{ value }})).format('{{ format }}') %>
+    <% if ({{ value }} !== null) { %>
+        <%= moment(new Date({{ value }})).format('{{ format }}') %>
+    <% } %>
 {% endmacro render_date %}
 
 {% macro render_slice(value, truncate) %}

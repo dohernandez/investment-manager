@@ -55,7 +55,8 @@ class StockDividendType extends AbstractType
                 'choices' => StockDividend::STATUS,
                 'choice_label' => function ($choice, $key, $value) {
                     return ucwords($value);
-                }
+                },
+                'invalid_message' => 'Please, choose a valid status.',
             ])
             ->add('value', TextType::class, [
                 'attr' => [
