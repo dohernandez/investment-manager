@@ -54,7 +54,7 @@
                     const $row = $(e.currentTarget).closest('tr');
                     const id = $row.data('id');
 
-                    window.location = Routing.generate('stock_dividend_index', {id})
+                    window.location = Routing.generate('stock_dividend_index', {'_id': id})
                 }
             );
         });

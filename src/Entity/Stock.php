@@ -47,7 +47,7 @@ class Stock implements Entity
     private $dividendYield;
 
     /**
-     * @Gedmo\Timestampable(on="create")
+     * @Gedmo\Timestampable(on="change", field={"value"})
      * @ORM\Column(type="datetime")
      */
     private $lastPriceUpdate;

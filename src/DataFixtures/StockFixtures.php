@@ -35,9 +35,6 @@ class StockFixtures extends BaseFixtures implements DependentFixtureInterface
                 ->setIndustry($industry)
             ;
 
-            if ($this->faker->boolean($chanceOfGettingTrue = 50)) {
-                $stock->setDividendYield($this->faker->randomFloat(2, 0, 15));
-            }
             $manager->persist($stock);
         });
 

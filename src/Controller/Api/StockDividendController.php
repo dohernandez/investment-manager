@@ -5,12 +5,15 @@ namespace App\Controller\Api;
 use App\Api;
 use App\Entity;
 use App\Form\StockDividendType;
+use App\Message\StockDividendDeleted;
+use App\Message\StockDividendSaved;
 use App\Repository\StockRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -41,14 +44,22 @@ class StockDividendController extends BaseController
 
         $apiStockDividends = [];
 
-        foreach ($stock->getDividends() as $StockDividend) {
+        // get a new ArrayIterator
+        $iterator = $stock->getDividends()->getIterator();
+
+        // define ordering closure, using preferred comparison method/field
+        $iterator->uasort(function ($first, $second) {
+            return $first->getExDate() < $second->getExDate() ? 1 : -1;
+        });
+
+        foreach ($iterator as $StockDividend) {
             $apiStockDividends[] = Api\StockDividend::fromEntity($StockDividend);
         }
 
         return $this->createApiResponse(
             [
                 'total_count' => count($apiStockDividends),
-                'items' => $apiStockDividends,
+                'items'       => $apiStockDividends,
             ]
         );
     }
@@ -94,14 +105,14 @@ class StockDividendController extends BaseController
      *
      * @return Response
      */
-    public function new(int $_id, EntityManagerInterface $em, Request $request): Response
+    public function new(int $_id, EntityManagerInterface $em, Request $request, MessageBusInterface $bus): Response
     {
         $stock = $this->stockRepository->find($_id);
         $stockDividend = new Entity\StockDividend();
 
         $form = $this->createForm(StockDividendType::class, $stockDividend);
 
-        return $this->save($form, $em, $stock, $request);
+        return $this->save($form, $em, $stock, $request, $bus);
     }
 
     /**
@@ -109,11 +120,17 @@ class StockDividendController extends BaseController
      * @param EntityManagerInterface $em
      * @param Entity\Stock $stock
      * @param Request $request
+     * @param MessageBusInterface $bus
      *
      * @return Response
      */
-    protected function save(Form $form, EntityManagerInterface $em, Entity\Stock $stock, Request $request): Response
-    {
+    protected function save(
+        Form $form,
+        EntityManagerInterface $em,
+        Entity\Stock $stock,
+        Request $request,
+        MessageBusInterface $bus
+    ): Response {
         $data = json_decode($request->getContent(), true);
         if ($data === null) {
             return $this->json(
@@ -150,6 +167,8 @@ class StockDividendController extends BaseController
         $stockDividend = $form->getData();
         $stockDividend->setStock($stock);
 
+        $bus->dispatch(new StockDividendSaved($stockDividend));
+
         $em->persist($stockDividend);
         $em->flush();
 
@@ -167,11 +186,17 @@ class StockDividendController extends BaseController
      * @param Entity\StockDividend $stockDividend
      * @param EntityManagerInterface $em
      * @param Request $request
+     * @param MessageBusInterface $bus
      *
      * @return Response
      */
-    public function edit(int $_id, Entity\StockDividend $stockDividend, EntityManagerInterface $em, Request $request): Response
-    {
+    public function edit(
+        int $_id,
+        Entity\StockDividend $stockDividend,
+        EntityManagerInterface $em,
+        Request $request,
+        MessageBusInterface $bus
+    ): Response {
         $stock = $this->stockRepository->find($_id);
 
         if (!$stock->getDividends()->contains($stockDividend)) {
@@ -185,7 +210,7 @@ class StockDividendController extends BaseController
 
         $form = $this->createForm(StockDividendType::class, $stockDividend);
 
-        return $this->save($form, $em, $stock, $request);
+        return $this->save($form, $em, $stock, $request, $bus);
     }
 
     /**
@@ -194,11 +219,16 @@ class StockDividendController extends BaseController
      * @param int $_id
      * @param Entity\StockDividend $stockDividend
      * @param EntityManagerInterface $em
+     * @param MessageBusInterface $bus
      *
      * @return Response
      */
-    public function delete(int $_id, Entity\StockDividend $stockDividend, EntityManagerInterface $em): Response
-    {
+    public function delete(
+        int $_id,
+        Entity\StockDividend $stockDividend,
+        EntityManagerInterface $em,
+        MessageBusInterface $bus
+    ): Response {
         if (!$stockDividend) {
             return $this->createApiErrorResponse('Stock dividend not found', Response::HTTP_NOT_FOUND);
         }
@@ -213,6 +243,9 @@ class StockDividendController extends BaseController
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
+
+        $stockDividend->setStock($stock);
+        $bus->dispatch(new StockDividendDeleted($stockDividend));
 
         $em->remove($stockDividend);
         $em->flush();

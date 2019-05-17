@@ -19,7 +19,11 @@ class StockDividend implements Entity
 {
     use TimestampableEntity;
 
-    const STATUS = ['projected', 'announced', 'payed'];
+    const STATUS_PROJECTED = 'projected';
+    const STATUS_ANNOUNCED = 'announced';
+    const STATUS_PAYED = 'payed';
+
+    const STATUS = [self::STATUS_PROJECTED, self::STATUS_ANNOUNCED, self::STATUS_PAYED];
 
     /**
      * @ORM\Id()
