@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Api;
 use App\Entity;
 use App\Form\StockDividendType;
+use App\Repository\StockRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,19 +14,31 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/v1/stocks/{id}/dividend")
+ * @Route("/v1/stocks/{_id}/dividend")
  */
 class StockDividendController extends BaseController
 {
     /**
+     * @var StockRepository
+     */
+    private $stockRepository;
+
+    public function __construct(StockRepository $stockRepository)
+    {
+        $this->stockRepository = $stockRepository;
+    }
+
+    /**
      * @Route("/", name="stock_dividend_list", methods={"GET"}, options={"expose"=true})
      *
-     * @param Entity\Stock $stock
+     * @param int $_id
      *
      * @return JsonResponse
      */
-    public function all(Entity\Stock $stock): JsonResponse
+    public function all(int $_id): JsonResponse
     {
+        $stock = $this->stockRepository->find($_id);
+
         $apiStockDividends = [];
 
         foreach ($stock->getDividends() as $StockDividend) {
@@ -41,16 +54,49 @@ class StockDividendController extends BaseController
     }
 
     /**
+     * @Route("/{id}", name="stock_dividend_get", methods={"GET"}, options={"expose"=true})
+     *
+     * @param int $_id
+     * @param Entity\StockDividend $stockDividend
+     *
+     * @return JsonResponse
+     */
+    public function one(int $_id, Entity\StockDividend $stockDividend): JsonResponse
+    {
+        $stock = $this->stockRepository->find($_id);
+
+        if (!$stock->getDividends()->contains($stockDividend)) {
+            return $this->json(
+                [
+                    'message' => 'Resource does not belongs to the entity',
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        if (!$stockDividend) {
+            return $this->createApiErrorResponse('StockDividend not found', Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->createApiResponse(
+            [
+                'item' => Api\StockDividend::fromEntity($stockDividend),
+            ]
+        );
+    }
+
+    /**
      * @Route("/", name="stock_dividend_new", methods={"POST"}, options={"expose"=true})
      *
+     * @param int $_id
      * @param EntityManagerInterface $em
-     * @param Entity\Stock $stock
      * @param Request $request
      *
      * @return Response
      */
-    public function new(EntityManagerInterface $em, Entity\Stock $stock, Request $request): Response
+    public function new(int $_id, EntityManagerInterface $em, Request $request): Response
     {
+        $stock = $this->stockRepository->find($_id);
         $stockDividend = new Entity\StockDividend();
 
         $form = $this->createForm(StockDividendType::class, $stockDividend);
@@ -112,5 +158,65 @@ class StockDividendController extends BaseController
                 'item' => Api\StockDividend::fromEntity($stockDividend),
             ]
         );
+    }
+
+    /**
+     * @Route("/{id}", name="stock_dividend_edit", methods={"PUT"}, options={"expose"=true})
+     *
+     * @param int $_id
+     * @param Entity\StockDividend $stockDividend
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function edit(int $_id, Entity\StockDividend $stockDividend, EntityManagerInterface $em, Request $request): Response
+    {
+        $stock = $this->stockRepository->find($_id);
+
+        if (!$stock->getDividends()->contains($stockDividend)) {
+            return $this->json(
+                [
+                    'message' => 'Resource does not belongs to the entity',
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        $form = $this->createForm(StockDividendType::class, $stockDividend);
+
+        return $this->save($form, $em, $stock, $request);
+    }
+
+    /**
+     * @Route("/{id}", name="stock_dividend_delete", methods={"DELETE"}, options={"expose"=true})
+     *
+     * @param int $_id
+     * @param Entity\StockDividend $stockDividend
+     * @param EntityManagerInterface $em
+     *
+     * @return Response
+     */
+    public function delete(int $_id, Entity\StockDividend $stockDividend, EntityManagerInterface $em): Response
+    {
+        if (!$stockDividend) {
+            return $this->createApiErrorResponse('Stock dividend not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $stock = $this->stockRepository->find($_id);
+
+        if (!$stock->getDividends()->contains($stockDividend)) {
+            return $this->json(
+                [
+                    'message' => 'Resource does not belongs to the entity',
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        $em->remove($stockDividend);
+        $em->flush();
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 }

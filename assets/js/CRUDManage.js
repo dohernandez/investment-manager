@@ -92,7 +92,7 @@ class CRUDManage {
 
                 break;
             default:
-                throw "Endpoint not supported";
+                throw 'Endpoint ' + endpoint + ' not supported';
         }
 
         return route

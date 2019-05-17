@@ -3,13 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Stock;
+use App\Repository\StockRepository;
 use App\Twig\Parameters\StockDividendViewParameters;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/stocks/{id}/dividend")
+ * @Route("/stocks/{_id}/dividend")
  */
 class StockDividendController extends AbstractController
 {
@@ -26,12 +27,15 @@ class StockDividendController extends AbstractController
     /**
      * @Route("/", name="stock_dividend_index", methods={"GET"}, options={"expose"=true})
      *
-     * @param Stock $stock
+     * @param int $_id
+     * @param StockRepository $stockRepository
      *
      * @return Response
      */
-    public function index(Stock $stock): Response
+    public function index(int $_id, StockRepository $stockRepository): Response
     {
+        $stock = $stockRepository->find($_id);
+
         return $this->render('stocks_dividend/index.html.twig', $this->stockDividendViewParameters->index([], [
             'stock' => $stock
         ]));

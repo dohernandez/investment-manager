@@ -33,11 +33,13 @@ class StockDividendForm extends Form {
                 let $input = $form.find('#' + property);
 
                 if (property === 'exDate' || property === 'paymentDate' || property === 'recordDate') {
-                    $input.val(
-                        moment(new Date(data[property])).format('DD/MM/YYYY')
-                    ).change();
+                    if (data[property]) {
+                        $input.val(
+                            moment(new Date(data[property])).format('DD/MM/YYYY')
+                        ).change();
 
-                    continue;
+                        continue;
+                    }
                 }
 
                 $input.val(data[property]);
