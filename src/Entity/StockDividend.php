@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -16,6 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class StockDividend
 {
+    use TimestampableEntity;
+
     const STATUS = ['projected', 'announced', 'payed'];
 
     /**
@@ -42,7 +45,7 @@ class StockDividend
     private $recordDate;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=20)
      * @Assert\Choice(choices=StockDividend::STATUS, message="Choose a valid status.")
      */
     private $status;
