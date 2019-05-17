@@ -17,9 +17,6 @@
                 'col_with': <value> -> Collumn with
             }
 
-     'edit_route' => edit route
-     'delete_route' => delete route
-
      'buttons': [
            {
                'type': '<value>', default('info') -> buton type.
@@ -95,8 +92,7 @@
                                },
                            ]
                         #}
-                        <button type="button" data-backdrop="static" data-keyboard="false"
-                                class="{{ button.jsClass|default('js-entity-view') }} btn btn-{{ button.type|default('info') }} btn-sm pull-left"
+                        <button class="{{ button.jsClass|default('js-entity-view') }} btn btn-{{ button.type|default('info') }} btn-sm pull-left"
                                 style="margin-left: 3px">
                             <i class="{{ button.icon|default('fas fa-eye') }}" aria-hidden="true"></i>
                         </button>

@@ -1,5 +1,4 @@
 {% extends 'Components/Layout/crud-manage.html.twig' %}
-{% import 'Components/Macros/crud-manage-render.html.twig' as render %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -18,6 +17,7 @@
 
     <script>
         $(document).ready(function() {
+            // prepare the crud manage table
             let swalFormOptionsText = {
                 create: {
                     confirmButtonText: '{{ 'Create'|trans }}',
@@ -41,6 +41,20 @@
             window.crudManager.withEditButton();
             window.crudManager.withDeleteButton();
 
+
+            // Delegate selector for edit stock dividend
+            $('.js-crud-manage-row-box').closest('section').on(
+                'click',
+                '.js-entity-edit-dividend-yield',
+                (e) => {
+                    e.preventDefault();
+
+                    const $row = $(e.currentTarget).closest('tr');
+                    const id = $row.data('id');
+
+                    window.location = Routing.generate('stock_dividend_index', {id})
+                }
+            );
         });
     </script>
 {% endblock %}

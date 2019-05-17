@@ -51,14 +51,6 @@ abstract class AbstractViewParameters
     }
 
     /**
-     * @return string
-     */
-    public function getEntityPrefixRoute(): string
-    {
-        return $this->prefixRoute;
-    }
-
-    /**
      * Generate the parameters to use when render index view.
      *
      * @param Entity[] $entities
@@ -74,8 +66,6 @@ abstract class AbstractViewParameters
                 'entities' => $entities,
                 'fields' => $this->getFields(),
                 'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
-                'edit_route' => $this->getEntityPrefixRoute() . '_index',
-                'delete_route' => $this->getEntityPrefixRoute() . '_delete',
                 'form' => $form->createView(),
             ] + $context;
     }
