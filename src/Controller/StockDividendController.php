@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Stock;
-use App\Repository\StockRepository;
 use App\Twig\Parameters\StockDividendViewParameters;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;

@@ -33,8 +33,6 @@ class CRUDManage {
 
         this.swalConfirmOptions = swalConfirmOptions;
         this.toastOptions = toastOptions;
-
-        this.loadRows();
     }
 
     static get _selectors() {
@@ -50,6 +48,22 @@ class CRUDManage {
     loadRows() {
         $.ajax({
             url: Routing.generate(this.entityType + '_list'),
+            success: (data) => {
+                $.each(data.items, (index, entity) => {
+                    this._addRow(entity);
+                });
+            }
+        });
+    }
+
+    /**
+     * Loads all entities via ajax and create its respective row into the table for a given entity id.
+     *
+     * This function should be use when we are requesting a list of entity relation one to many
+     */
+    loadRowsFor(id) {
+        $.ajax({
+            url: Routing.generate(this.entityType + '_list', {id}),
             success: (data) => {
                 $.each(data.items, (index, entity) => {
                     this._addRow(entity);

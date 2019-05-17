@@ -9,17 +9,17 @@
 {% block javascripts %}
     {{ parent() }}
 
-    {#<script src="{{ asset('build/stock_form.js') }}"></script>#}
+    <script src="{{ asset('build/stock_dividend_form.js') }}"></script>
 
-    {#<script>#}
-        {#$(document).ready(function() {#}
-            {#// prepare the crud manage table#}
-            {#let swalFormOptionsText = {#}
-                {#create: {#}
-                    {#confirmButtonText: '{{ 'Create'|trans }}',#}
-                    {#titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',#}
-                    {#toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'#}
-                {#},#}
+    <script>
+        $(document).ready(function() {
+            // prepare the crud manage table
+            let swalFormOptionsText = {
+                create: {
+                    confirmButtonText: '{{ 'Create'|trans }}',
+                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
+                },
                 {#update: {#}
                     {#confirmButtonText: '{{ 'Update'|trans }}',#}
                     {#titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}',#}
@@ -28,14 +28,16 @@
                 {#delete: {#}
                     {#toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'#}
                 {#}#}
-            {#};#}
+            };
 
-            {#const form = new StockForm(swalFormOptionsText);#}
+            const form = new StockDividendForm(swalFormOptionsText);
 
-            {#window.crudManager.withForm(form);#}
-            {#window.crudManager.withCreateButton();#}
-            {#window.crudManager.withEditButton();#}
-            {#window.crudManager.withDeleteButton();#}
-        {#});#}
-    {#</script>#}
+            window.crudManager.withForm(form);
+            window.crudManager.withCreateButton();
+
+            window.crudManager.loadRowsFor({{ stock.id }});
+            // window.crudManager.withEditButton();
+            // window.crudManager.withDeleteButton();
+        });
+    </script>
 {% endblock %}

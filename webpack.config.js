@@ -56,6 +56,7 @@ module.exports = {
         stock_market_form: './assets/js/StockMarketForm.js',
         account_from: './assets/js/AccountForm.js',
         stock_form: './assets/js/StockForm.js',
+        stock_dividend_form: './assets/js/StockDividendForm.js',
     },
     output: {
         path: path.resolve(__dirname, 'public', 'build'),

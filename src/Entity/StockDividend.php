@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StockDividendRepository")
@@ -15,6 +16,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  */
 class StockDividend
 {
+    const STATUS = ['projected', 'announced', 'payed'];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -24,6 +27,7 @@ class StockDividend
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\NotBlank(message="Please enter the ex date.")
      */
     private $exDate;
 
@@ -39,11 +43,13 @@ class StockDividend
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Choice(choices=StockDividend::STATUS, message="Choose a valid status.")
      */
     private $status;
 
     /**
      * @ORM\Column(type="decimal", precision=7, scale=4)
+     * @Assert\NotBlank(message="Please enter the value.")
      */
     private $value;
 
