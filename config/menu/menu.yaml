@@ -19,8 +19,7 @@ menu:
         label: 'Stock Market'
         icon: 'fas fa-business-time'
         route: 'stock_market_index'
-      StockMarketMenuItem:
+      StockMenuItem:
         label: 'Stock'
         icon: 'fas fa-money-bill'
         route: 'stock_index'
-
