@@ -48,6 +48,11 @@ class Account implements Entity
      */
     private $type;
 
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Broker", mappedBy="account")
+     */
+    private $broker;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -107,5 +112,22 @@ class Account implements Entity
     public function __toString(): string
     {
         return sprintf('%s - %s', $this->getName(), $this->getAccountNo());
+    }
+
+    public function getBroker(): ?Broker
+    {
+        return $this->broker;
+    }
+
+    public function setBroker(Broker $broker): self
+    {
+        $this->broker = $broker;
+
+        // set the owning side of the relation if necessary
+        if ($this !== $broker->getAccount()) {
+            $broker->setAccount($this);
+        }
+
+        return $this;
     }
 }

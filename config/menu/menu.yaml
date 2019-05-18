@@ -17,9 +17,13 @@ menu:
     items:
       MarketStockMarketMenuItem:
         label: 'Stock Market'
-        icon: 'fas fa-business-time'
+        icon: 'fas fa-industry'
         route: 'stock_market_index'
       StockMenuItem:
         label: 'Stock'
         icon: 'fas fa-money-bill'
         route: 'stock_index'
+      BrokerMenuItem:
+        label: 'Broker'
+        icon: 'fas fa-business-time'
+        route: 'broker_index'

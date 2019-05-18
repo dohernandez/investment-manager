@@ -1,0 +1,47 @@
+{% extends 'Components/Layout/crud-manage.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link rel="stylesheet" href="{{ asset('build/broker_form.css') }}">
+{%  endblock %}
+
+{% block page_content %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('build/broker_form.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            let swalFormOptionsText = {
+                create: {
+                    confirmButtonText: '{{ 'Create'|trans }}',
+                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
+                },
+                update: {
+                    confirmButtonText: '{{ 'Update'|trans }}',
+                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was updated successfully.'|trans }}'
+                },
+                delete: {
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'
+                }
+            };
+
+            const form = new BrokerForm(swalFormOptionsText);
+
+            window.crudManager.withForm(form);
+            window.crudManager.withCreateButton();
+            window.crudManager.withEditButton();
+            window.crudManager.withDeleteButton();
+
+            window.crudManager.loadRows();
+        });
+    </script>
+
+{% endblock %}
