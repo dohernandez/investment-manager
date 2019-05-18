@@ -61,6 +61,17 @@
                         </thead>
                         <tbody>
                         </tbody>
+                        <tfoot>
+                        <tr>
+                            <th width="60" class="text-center" scope="col">#</th>
+                            {% for field in fields %}
+                                <th {% if field.col_with is defined %} width="{{ field.col_with }}" {% endif %} scope="col">
+                                    {% if field.label is not defined %}{{ field.name|trans|upper }}{% else %}{{ field.label|trans|upper }}{% endif %}
+                                </th>
+                            {% endfor %}
+                            <th width="{% if buttons is defined %}{{ buttons|length * 32 + 100 }}{% else %}100{% endif %}" scope="col">MANAGE</th>
+                        </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -110,6 +121,11 @@
         </tr>
     </script>
 
+    <!--
+        This two script exposes a global variable called Routing.
+        You can use that Routing variable to generate links in the same way that we use the
+        path function in Twig templates: just pass it the route name and parameters.
+    -->
     <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
     <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
 
@@ -189,7 +205,13 @@
             };
 
             // Create CRUDManage instance @see public/assets/js/CRUDManage.js
-            window.crudManager = new CRUDManage('{{ entity_name|snake }}', contentWrapper, swalFormOptions, swalConfirmOptions, toastOptions);
+            window.crudManager = new CRUDManage({
+                entityType: '{{ entity_name|snake }}',
+                wrapper: contentWrapper,
+                swalFormOptions: swalFormOptions,
+                swalConfirmOptions: swalConfirmOptions,
+                toastOptions: toastOptions
+            });
         });
     </script>
 {% endblock %}

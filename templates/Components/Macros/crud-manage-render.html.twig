@@ -33,7 +33,7 @@
 {% endmacro render_account %}
 
 {% macro render_percentage(value) %}
-    <% if ({{ value }} !== null) { %>
+    <% if ({{ value }} !== null && {{ value }} !== 0) { %>
         <%= {{ value }} %><small>%</small>
     <% } %>
 {% endmacro render_percentage %}

@@ -18,11 +18,6 @@ class StockViewParameters extends AbstractViewParameters
     /**
      * {@inheritdoc}
      */
-    protected $prefixRoute = 'transfer';
-
-    /**
-     * {@inheritdoc}
-     */
     protected $newFormTypeClass = StockType::class;
 
     /**

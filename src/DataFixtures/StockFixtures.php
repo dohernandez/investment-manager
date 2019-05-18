@@ -12,7 +12,7 @@ class StockFixtures extends BaseFixtures implements DependentFixtureInterface
 {
     public function loadData(ObjectManager $manager)
     {
-        $this->createMany($manager, Stock::class, 8, function (ObjectManager $manager, Stock $stock) {
+        $this->createMany($manager, Stock::class, 50, function (ObjectManager $manager, Stock $stock) {
 
             $market = $this->getRandomReference(StockMarket::class);
 

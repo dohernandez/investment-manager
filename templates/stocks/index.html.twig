@@ -48,7 +48,7 @@
             $('.js-crud-manage-row-box').closest('section').on(
                 'click',
                 '.js-entity-edit-dividend-yield',
-                (e) => {
+                function (e) {
                     e.preventDefault();
 
                     const $row = $(e.currentTarget).closest('tr');

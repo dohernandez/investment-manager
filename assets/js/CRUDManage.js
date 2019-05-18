@@ -17,22 +17,24 @@ import '../css/CrudManager.scss';
 class CRUDManage {
     /**
      *
-     * @param {string} entityType
-     * @param {Object} $wrapper
-     * @param {Object} swalFormOptions
-     * @param {Object} swalConfirmOptions
-     * @param {Object} toastOptions
+     * @param {{
+     *      entityType: string,
+     *      wrapper: {Object},
+     *      swalFormOptions: {Object},
+     *      swalConfirmOptions: {Object},
+     *      toastOptions: {Object}
+     * }} options
      */
-    constructor(entityType, $wrapper, swalFormOptions, swalConfirmOptions, toastOptions) {
-        this.entityType = entityType;
+    constructor(options) {
+        this.entityType = options.entityType;
 
         // Start binding functions for $wrapper
-        this.$wrapper = $wrapper;
+        this.$wrapper = options.wrapper;
 
-        this.swalFormOptions = swalFormOptions;
+        this.swalFormOptions = options.swalFormOptions;
 
-        this.swalConfirmOptions = swalConfirmOptions;
-        this.toastOptions = toastOptions;
+        this.swalConfirmOptions = options.swalConfirmOptions;
+        this.toastOptions = options.toastOptions;
 
         this.routing = this._getRouting
     }
