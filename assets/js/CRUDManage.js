@@ -6,6 +6,8 @@ import Swal from 'sweetalert2';
 import Routing from './Components/Routing';
 import _ from 'underscore';
 
+import 'twbs-pagination';
+
 import '../css/CrudManager.scss';
 
 
@@ -26,23 +28,42 @@ class CRUDManage {
      * }} options
      */
     constructor(options) {
-        this.entityType = options.entityType;
+        let _options = _.defaults(options || {}, {
+            showPerPage: 0,
+        });
+
+        this.entityType = _options.entityType;
 
         // Start binding functions for $wrapper
-        this.$wrapper = options.wrapper;
+        this.$wrapper = _options.wrapper;
 
-        this.swalFormOptions = options.swalFormOptions;
+        this.swalFormOptions = _options.swalFormOptions;
 
-        this.swalConfirmOptions = options.swalConfirmOptions;
-        this.toastOptions = options.toastOptions;
+        this.swalConfirmOptions = _options.swalConfirmOptions;
+        this.toastOptions = _options.toastOptions;
+
+        // The total records object of array.
+        this.records = [];
+
+        // The records per page will show into table.
+        this.showPerPage = _options.showPerPage;
+        // The total number of records fetch from database.
+        this.totalRecords = 0;
+        // The current page number.
+        this.page = 1;
+        // The total pages based on records.
+        this.totalPages = 0;
 
         this.routing = this._getRouting
     }
 
     static get _selectors() {
         return {
+            showPerPage: '.js-manage-show-per-page',
             table: '.js-manager-table',
-            rowTemplate : '#js-manager-row-template'
+            rowTemplate : '#js-manager-row-template',
+            pagination: '.js-manage-pagination',
+            paginationInfo: '.js-manage-pagination-info'
         };
     }
 
@@ -57,8 +78,38 @@ class CRUDManage {
         $.ajax({
             url: this.routing(this.entityType, 'list'),
             success: (data) => {
-                $.each(data.items, (index, entity) => {
-                    this._addRow(entity);
+                this.records = data.items;
+                this.totalRecords = data.items.length;
+
+                if (this.showPerPage > 0 && this.totalRecords > this.showPerPage) {
+                    // Delegate selector
+                    this.$wrapper.on(
+                        'change',
+                        CRUDManage._selectors.showPerPage,
+                        (e) => {
+                            e.preventDefault();
+
+                            const perPage = $(e.currentTarget).val();
+                            this.showPerPage = parseInt(perPage);
+                            this.page = 1;
+
+                            this._refreshPagination();
+                        }
+                    );
+
+                    let $pagination = this.$wrapper.find($(CRUDManage._selectors.pagination));
+                    $pagination.each((index, ul) => {
+                        let $ul = $(ul)
+                        this._showPagination($ul);
+                    });
+
+                    return;
+                }
+
+                this._cleanRows();
+
+                $.each(this.records, (index, entity) => {
+                    this._addRow(entity, index);
                 });
             }
         });
@@ -100,6 +151,75 @@ class CRUDManage {
         return route
     }
 
+    _refreshPagination() {
+        let $pagination = this.$wrapper.find($(CRUDManage._selectors.pagination));
+        let $parent = $pagination.parent();
+
+        $pagination.remove();
+
+        $pagination = new $('<ul id="pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>')
+        $parent.append($pagination);
+
+        this._showPagination($pagination);
+    }
+
+    _showPagination($pagination) {
+        this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
+
+        let $paginationInfo = this.$wrapper.find($(CRUDManage._selectors.paginationInfo));
+        $paginationInfo.parent().css('margin-top', '24px');
+
+        self = this;
+
+        let pageInfoText = $paginationInfo.data('text');
+
+        $pagination.twbsPagination({
+            totalPages: self.totalPages,
+            visiblePages: 6,
+            onPageClick: function (event, page) {
+                let displayRecordsIndex = Math.max(page - 1, 0) * self.showPerPage;
+                let endRec = (displayRecordsIndex) + self.showPerPage;
+
+                self.displayRecords = self.records.slice(displayRecordsIndex, endRec);
+
+                self._cleanRows();
+
+                $.each(self.displayRecords, (index, entity) => {
+                    self._addRow(entity, displayRecordsIndex + index);
+                });
+
+                let pageInfo = pageInfoText
+                    .replace(/:from/g, displayRecordsIndex + 1)
+                    .replace(/:to/g, displayRecordsIndex + self.displayRecords.length)
+                    .replace(/:of/g, self.totalRecords)
+                ;
+
+                $paginationInfo.html(pageInfo);
+            }
+        });
+
+        if (this.totalRecords <= this.showPerPage) {
+            console.log('hiding $pagination');
+
+            $pagination.hide();
+
+            return;
+        }
+
+        // margin-top: 24px;
+    }
+
+    /**
+     * Clean the rows from the table.
+     *
+     * @private
+     */
+    _cleanRows() {
+        const $table = this.$wrapper.find(CRUDManage._selectors.table);
+
+        $table.find('tbody').html('');
+    }
+
     /**
      * Create a row table with the entity value.
      *
@@ -110,19 +230,16 @@ class CRUDManage {
      *          debtorParty: {name: string, accountNo: string},
      *          amount: float
      *        }} entity
+     * @param {int} index
      *
      * @private
      */
-    _addRow(entity) {
+    _addRow(entity, index) {
         const $table = this.$wrapper.find(CRUDManage._selectors.table);
 
-        // adding index to the entity
-        const length = parseInt($table.data('length'));
-        entity.index = length + 1;
+        entity.index = index + 1;
 
         $table.find('tbody').append(this._createRow(entity));
-
-        $table.data('length', entity.index)
     }
 
     /**

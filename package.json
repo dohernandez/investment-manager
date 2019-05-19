@@ -14,7 +14,9 @@
     "watch": "NODE_ENV=development webpack --watch",
     "production": "NODE_ENV=production webpack"
   },
-  "dependencies": {},
+  "dependencies": {
+    "twbs-pagination": "^1.4.1"
+  },
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "@babel/preset-env": "^7.4.4",

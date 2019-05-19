@@ -41,13 +41,28 @@
     <div class="row js-crud-manage-row-box">
         <div class="col-md-12">
             <div class="box">
-                <div class="box-header with-border">
-                    <button class="js-entity-create btn btn-success pull-right">
-                        <i class="fa-plus-circle fa" aria-hidden="true"></i> Create new {{ entity_name|trans|lower }}</button>
+                <div class="box-header with-border js-manage-header">
+                    <div class="col-md-12">
+                        <button class="js-entity-create btn btn-success pull-right">
+                            <i class="fa-plus-circle fa" aria-hidden="true"></i> Create new {{ entity_name|trans|lower }}</button>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-4">
+                            <label>{{ 'Show'|trans }}
+                                <select id="show-{{ entity_name|trans|lower|trim(' ') }}s-per-page" name="manage-per-page" aria-controls="per page"
+                                        class="form-control input-sm js-manage-show-per-page"
+                                style="width: 75px; display: inline-block;">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                entries</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="box-body table-responsive no-padding">
-                    <table id="{{ entity_name|trans|lower|trim(' ') }}s" class="table table-bordered table-striped js-manager-table"
-                    data-length="0">
+                    <table id="{{ entity_name|trans|lower|trim(' ') }}s" class="table table-bordered table-striped js-manager-table">
                         <thead>
                         <tr>
                             <th width="60" class="text-center" scope="col">#</th>
@@ -73,6 +88,17 @@
                         </tr>
                         </tfoot>
                     </table>
+                </div>
+                <div class="box-footer with-border js-manage-footer">
+                    <div class="col-md-12">
+                        <div class="pull-left col-sm-6">
+                            <span class="js-manage-pagination-info" id="{{ entity_name|trans|lower|trim(' ') }}s-pagination-info" role="status" aria-live="polite"
+                               data-text="{{ 'Showing :from to :to of :of'|trans }} {{ entity_name|trans|lower|trim(' ') }}s"></span>
+                        </div>
+                        <div class="pull-right col-sm-6">
+                            <ul id="{{ entity_name|trans|lower|trim(' ') }}s-pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -210,7 +236,7 @@
                 wrapper: contentWrapper,
                 swalFormOptions: swalFormOptions,
                 swalConfirmOptions: swalConfirmOptions,
-                toastOptions: toastOptions
+                showPerPage: 10,
             });
         });
     </script>
