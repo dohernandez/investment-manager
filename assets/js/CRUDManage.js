@@ -164,7 +164,15 @@ class CRUDManage {
     }
 
     _showPagination($pagination) {
-        this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
+        let newTotalPages = Math.ceil(this.totalRecords / this.showPerPage);
+
+        if (this.totalPages !== newTotalPages ) {
+            if (this.totalPages > newTotalPages && this.page === this.totalPages) {
+                this.page--;
+            }
+
+            this.totalPages = newTotalPages;
+        }
 
         let $paginationInfo = this.$wrapper.find($(CRUDManage._selectors.paginationInfo));
         $paginationInfo.parent().css('margin-top', '24px');
@@ -195,7 +203,9 @@ class CRUDManage {
                 ;
 
                 $paginationInfo.html(pageInfo);
-            }
+                self.page = page;
+            },
+            startPage: self.page
         });
 
         if (this.totalRecords <= this.showPerPage) {
@@ -293,10 +303,14 @@ class CRUDManage {
         this._createFrom()
             .then((result) => {
                 if (result.value) {
-                    let item = result.value.item;
+                    let entity = result.value.item;
 
-                    this._addRow(item);
-                    this.form.onCreated(item)
+                    this.records.push(entity);
+                    this.totalRecords++;
+
+                    this._refreshPagination();
+
+                    this.form.onCreated(entity);
                 }
             });
     }
@@ -456,23 +470,59 @@ class CRUDManage {
         const $row = $(e.currentTarget).closest('tr');
         const id = $row.data('id');
 
-        let getUrl = this.routing(this.entityType, 'get', id);
+        let entity = null;
+        let recordIndex = 0;
+        for (let i = 0; i < this.records.length; i++) {
+            let record = this.records[i];
 
-        this._sendRPC(getUrl, 'GET')
-            .then((data) => {
-                this._createFrom(data.item)
+            if (record.id === id) {
+                entity = record;
+                recordIndex = i;
+
+                break;
+            }
+        }
+
+        // fetch the entity from the server because it is not loaded yet.
+        // So far there is not clear use case where the application hit this scope, but we will like to
+        // keep it.
+        if (entity === null) {
+            let getUrl = this.routing(this.entityType, 'get', id);
+
+            this._sendRPC(getUrl, 'GET')
+                .then((data) => {
+                    this._createFrom(data.item)
                     // update the row by creating a new row base on the row template and
                     // replace the old row
-                    .then((result) => {
-                        if (result.value) {
-                            let entity = result.value.item;
-                            entity.index = $row.data('i');
+                        .then((result) => {
+                            if (result.value) {
+                                let entity = result.value.item;
+                                entity.index = $row.data('i');
 
-                            $row.fadeOut('normal', () => {
-                                $row.replaceWith(this._createRow(entity));
-                            });
-                        }
+                                $row.fadeOut('normal', () => {
+                                    $row.replaceWith(this._createRow(entity));
+                                });
+                            }
+                        });
+                });
+
+            return
+        }
+
+        this._createFrom(entity)
+        // update the row by creating a new row base on the row template and
+        // replace the old row
+            .then((result) => {
+                if (result.value) {
+                    let entity = result.value.item;
+
+                    this.records[recordIndex] = entity;
+                    entity.index = $row.data('i');
+
+                    $row.fadeOut('normal', () => {
+                        $row.replaceWith(this._createRow(entity));
                     });
+                }
             });
     }
 
@@ -516,16 +566,15 @@ class CRUDManage {
                 return this._sendRPC(this.routing(this.entityType, 'delete', id), 'DELETE')
                     // Remove the row from the table.
                     .then(() => {
-                        $row.fadeOut('normal', () => {
-                            $row.remove();
+                        for( let i = 0; i < this.records.length; i++){
+                            if ( this.records[i].id === id) {
+                                this.records.splice(i, 1);
+                            }
+                        }
 
-                            // re calculate row index to reflect the removal;
-                            const $rowIndexThs = this.$wrapper.find(CRUDManage._selectors.table).find('.js-manager-row-index');
+                        this.totalRecords--;
 
-                            $.each($rowIndexThs, function (index, th) {
-                                $(th).html(index + 1);
-                            });
-                        });
+                        this._refreshPagination();
                     });
             }
         }).then((result) => {
