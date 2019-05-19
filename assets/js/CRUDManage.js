@@ -210,7 +210,7 @@ class CRUDManage {
             startPage: currentPage
         });
 
-        if (this.totalRecords <= this.showPerPage) {
+        if (totalRecords <= this.showPerPage) {
             $pagination.hide();
             $paginationInfo.parent().css('margin-top', '0px');
 
@@ -628,9 +628,24 @@ class CRUDManage {
 
         let $search = $(e.currentTarget);
 
-        let recordMatches = this.searchFunc(this.records, $search.val());
+        let matches = this.searchFunc(this.records, $search.val());
 
-        console.log(recordMatches);
+        if (matches === null) {
+            this.page = 1;
+
+            this._refreshPagination();
+
+            return;
+        }
+
+        let totalRecords = matches.length;
+
+        this._refreshPagination({
+            records: matches,
+            totalRecords: totalRecords,
+            totalPages: Math.ceil(totalRecords / this.showPerPage),
+            page: 1,
+        });
     }
 }
 
