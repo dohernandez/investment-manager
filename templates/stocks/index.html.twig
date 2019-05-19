@@ -17,6 +17,28 @@
 
     <script>
         $(document).ready(function() {
+            let crudManager = window.crudManager;
+
+            crudManager.withSearch(function (stocks, search) {
+                if (search.length >= 2) {
+                    let $matches = [];
+
+                    search = search.toUpperCase();
+
+                    $.each(stocks, function (index, stock) {
+                        if (stock.name.toUpperCase().indexOf(search) > -1 ||
+                            stock.symbol.toUpperCase().indexOf(search) > -1 ) {
+
+                            $matches.push(stock);
+                        }
+                    });
+
+                    return $matches;
+                }
+
+                return null;
+            });
+
             // prepare the crud manage table
             let swalFormOptionsText = {
                 create: {
@@ -36,12 +58,12 @@
 
             const form = new StockForm(swalFormOptionsText);
 
-            window.crudManager.withForm(form);
-            window.crudManager.withCreateButton();
-            window.crudManager.withEditButton();
-            window.crudManager.withDeleteButton();
+            crudManager.withForm(form);
+            crudManager.withCreateButton();
+            crudManager.withEditButton();
+            crudManager.withDeleteButton();
 
-            window.crudManager.loadRows();
+            crudManager.loadRows();
 
 
             // Delegate selector for edit stock dividend

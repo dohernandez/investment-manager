@@ -46,18 +46,24 @@
                         <button class="js-entity-create btn btn-success pull-right">
                             <i class="fa-plus-circle fa" aria-hidden="true"></i> Create new {{ entity_name|trans|lower }}</button>
                     </div>
-                    <div class="col-md-12">
-                        <div class="col-md-4">
+                    <div class="col-md-12" style="margin-top: 20px;">
+                        <div class="col-md-4" style="padding-left: 0px;">
                             <label>{{ 'Show'|trans }}
                                 <select id="show-{{ entity_name|trans|lower|trim(' ') }}s-per-page" name="manage-per-page" aria-controls="per page"
                                         class="form-control input-sm js-manage-show-per-page"
-                                style="width: 75px; display: inline-block;">
+                                        style="width: 75px; display: inline-block;">
                                     <option value="10">10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
                                     <option value="100">100</option>
                                 </select>
                                 entries</label>
+                        </div>
+                        <div class="col-md-4 pull-right" style="padding-right: 0px; display: none;">
+                            <label>Search:
+                                <input type="search" class="form-control js-manage-search" placeholder="Search" aria-controls="search"
+                                       style="width: 248px; display: inline-block;">
+                            </label>
                         </div>
                     </div>
                 </div>

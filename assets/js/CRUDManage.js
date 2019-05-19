@@ -54,7 +54,7 @@ class CRUDManage {
         // The total pages based on records.
         this.totalPages = 0;
 
-        this.routing = this._getRouting
+        this.routing = this._getRouting;
     }
 
     static get _selectors() {
@@ -63,7 +63,8 @@ class CRUDManage {
             table: '.js-manager-table',
             rowTemplate : '#js-manager-row-template',
             pagination: '.js-manage-pagination',
-            paginationInfo: '.js-manage-pagination-info'
+            paginationInfo: '.js-manage-pagination-info',
+            search: '.js-manage-search'
         };
     }
 
@@ -80,37 +81,29 @@ class CRUDManage {
             success: (data) => {
                 this.records = data.items;
                 this.totalRecords = data.items.length;
+                this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
-                if (this.showPerPage > 0 && this.totalRecords > this.showPerPage) {
-                    // Delegate selector
-                    this.$wrapper.on(
-                        'change',
-                        CRUDManage._selectors.showPerPage,
-                        (e) => {
-                            e.preventDefault();
+                // Delegate selector
+                this.$wrapper.on(
+                    'change',
+                    CRUDManage._selectors.showPerPage,
+                    (e) => {
+                        e.preventDefault();
 
-                            const perPage = $(e.currentTarget).val();
-                            this.showPerPage = parseInt(perPage);
-                            this.page = 1;
+                        const perPage = $(e.currentTarget).val();
+                        this.showPerPage = parseInt(perPage);
+                        this.page = 1;
 
-                            this._refreshPagination();
-                        }
-                    );
+                        this._refreshPagination();
+                    }
+                );
 
-                    let $pagination = this.$wrapper.find($(CRUDManage._selectors.pagination));
-                    $pagination.each((index, ul) => {
-                        let $ul = $(ul)
-                        this._showPagination($ul);
-                    });
-
-                    return;
-                }
-
-                this._cleanRows();
-
-                $.each(this.records, (index, entity) => {
-                    this._addRow(entity, index);
+                let $pagination = this.$wrapper.find($(CRUDManage._selectors.pagination));
+                $pagination.each((index, ul) => {
+                    let $ul = $(ul)
+                    this._showPagination($ul);
                 });
+
             }
         });
     }
@@ -151,7 +144,7 @@ class CRUDManage {
         return route
     }
 
-    _refreshPagination() {
+    _refreshPagination(options) {
         let $pagination = this.$wrapper.find($(CRUDManage._selectors.pagination));
         let $parent = $pagination.parent();
 
@@ -160,58 +153,66 @@ class CRUDManage {
         $pagination = new $('<ul id="pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>')
         $parent.append($pagination);
 
-        this._showPagination($pagination);
+        this._showPagination($pagination, options);
     }
 
-    _showPagination($pagination) {
-        let newTotalPages = Math.ceil(this.totalRecords / this.showPerPage);
+    _showPagination($pagination, options) {
+        // init all the pagination variables
+        let _options = _.defaults(options || {}, {
+            totalPages: this.totalPages,
+            showPerPage: this.showPerPage,
+            records: this.records,
+            page: this.page,
+            totalRecords: this.totalRecords,
+        });
 
-        if (this.totalPages !== newTotalPages ) {
-            if (this.totalPages > newTotalPages && this.page === this.totalPages) {
-                this.page--;
-            }
+        let showPerPage = _options.showPerPage;
+        let records = _options.records;
+        let totalPages = _options.totalPages;
+        let currentPage = _options.page;
+        let totalRecords = _options.totalRecords;
 
-            this.totalPages = newTotalPages;
-        }
-
+        // tweak pagination info
         let $paginationInfo = this.$wrapper.find($(CRUDManage._selectors.paginationInfo));
         $paginationInfo.parent().css('margin-top', '24px');
 
         self = this;
 
-        let pageInfoText = $paginationInfo.data('text');
-
+        // init pagination object
         $pagination.twbsPagination({
-            totalPages: self.totalPages,
+            totalPages: totalPages,
             visiblePages: 6,
             onPageClick: function (event, page) {
-                let displayRecordsIndex = Math.max(page - 1, 0) * self.showPerPage;
-                let endRec = (displayRecordsIndex) + self.showPerPage;
+                let displayRecordsIndex = Math.max(page - 1, 0) * showPerPage;
+                let endRec = (displayRecordsIndex) + showPerPage;
 
-                self.displayRecords = self.records.slice(displayRecordsIndex, endRec);
+                let displayRecords = records.slice(displayRecordsIndex, endRec);
 
                 self._cleanRows();
 
-                $.each(self.displayRecords, (index, entity) => {
+                // create the rows of the table based on the records to display
+                $.each(displayRecords, (index, entity) => {
                     self._addRow(entity, displayRecordsIndex + index);
                 });
 
-                let pageInfo = pageInfoText
+                // update pagination text
+                let pageInfo = $paginationInfo.data('text')
                     .replace(/:from/g, displayRecordsIndex + 1)
-                    .replace(/:to/g, displayRecordsIndex + self.displayRecords.length)
-                    .replace(/:of/g, self.totalRecords)
+                    .replace(/:to/g, displayRecordsIndex + displayRecords.length)
+                    .replace(/:of/g, totalRecords)
                 ;
 
                 $paginationInfo.html(pageInfo);
-                self.page = page;
+
+                // to keep the current page
+                self.page = page
             },
-            startPage: self.page
+            startPage: currentPage
         });
 
         if (this.totalRecords <= this.showPerPage) {
-            console.log('hiding $pagination');
-
             $pagination.hide();
+            $paginationInfo.parent().css('margin-top', '0px');
 
             return;
         }
@@ -307,6 +308,7 @@ class CRUDManage {
 
                     this.records.push(entity);
                     this.totalRecords++;
+                    this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
                     this._refreshPagination();
 
@@ -574,6 +576,18 @@ class CRUDManage {
 
                         this.totalRecords--;
 
+                        let newTotalPages = Math.ceil(this.totalRecords / this.showPerPage);
+                        if (this.totalPages !== newTotalPages ) {
+                            // Once here it is because the newTotalPages is minor than this.totalPages.
+                            // This is a delete method this.totalRecords always decrease, therefore
+                            // this.totalPages will never be bigger
+                            if (this.page > newTotalPages) {
+                                this.page = newTotalPages;
+                            }
+
+                            this.totalPages = newTotalPages;
+                        }
+
                         this._refreshPagination();
                     });
             }
@@ -585,6 +599,38 @@ class CRUDManage {
         }).catch((arg) => {
             // canceling is cool!
         });
+    }
+
+    /**
+     *
+     * @param {function} searchFunc
+     */
+    withSearch(searchFunc) {
+        let $search = this.$wrapper.find(CRUDManage._selectors.search);
+        $search.parent().parent().show();
+
+        this.searchFunc = searchFunc;
+
+        this.$wrapper.on(
+            'keyup',
+            CRUDManage._selectors.search,
+            this.handlerSearch.bind(this)
+        );
+    }
+
+    /**
+     * Handle on keyup event for search input.
+     *
+     * @param e The event
+     */
+    handlerSearch(e) {
+        e.preventDefault();
+
+        let $search = $(e.currentTarget);
+
+        let recordMatches = this.searchFunc(this.records, $search.val());
+
+        console.log(recordMatches);
     }
 }
 
