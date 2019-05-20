@@ -73,7 +73,8 @@
                         <tr>
                             <th width="60" class="text-center" scope="col">#</th>
                             {% for field in fields %}
-                                <th {% if field.col_with is defined %} width="{{ field.col_with }}" {% endif %} scope="col">
+                                <th {% if field.col_with is defined %} width="{{ field.col_with }}" {% endif %} scope="col"
+                                        {% if field.class is defined %} class="{{ field.class }}" {% endif %}>
                                     {% if field.label is not defined %}{{ field.name|trans|upper }}{% else %}{{ field.label|trans|upper }}{% endif %}
                                 </th>
                             {% endfor %}
@@ -86,7 +87,8 @@
                         <tr>
                             <th width="60" class="text-center" scope="col">#</th>
                             {% for field in fields %}
-                                <th {% if field.col_with is defined %} width="{{ field.col_with }}" {% endif %} scope="col">
+                                <th {% if field.col_with is defined %} width="{{ field.col_with }}" {% endif %} scope="col"
+                                        {% if field.class is defined %} class="{{ field.class }}" {% endif %}>
                                     {% if field.label is not defined %}{{ field.name|trans|upper }}{% else %}{{ field.label|trans|upper }}{% endif %}
                                 </th>
                             {% endfor %}

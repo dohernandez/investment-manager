@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\This;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StockInfoRepository")
@@ -35,11 +36,24 @@ class StockInfo implements Entity
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Stock", mappedBy="type")
      */
-    private $stocks;
+    private $typeStocks;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Stock", mappedBy="sector")
+     */
+    private $sectorStocks;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Stock", mappedBy="industry")
+     */
+    private $industryStocks;
 
     public function __construct()
     {
-        $this->stocks = new ArrayCollection();
+        // Work around because Doctrine's official docs: you can't add multiple mappedBy columns.
+        $this->typeStocks = new ArrayCollection();
+        $this->sectorStocks = new ArrayCollection();
+        $this->industryStocks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -76,14 +90,35 @@ class StockInfo implements Entity
      */
     public function getStocks(): Collection
     {
-        return $this->stocks;
+        return $this->typeStocks + $this->sectorStocks + $this->industryStocks;
     }
 
     public function addStock(Stock $stock): self
     {
-        if (!$this->stocks->contains($stock)) {
-            $this->stocks[] = $stock;
-            $stock->setStockInfo($this);
+        switch ($this->getType()) {
+            case StockInfo::TYPE:
+                if (!$this->typeStocks->contains($stock)) {
+                    $this->typeStocks[] = $stock;
+                    $stock->setType($this);
+                }
+
+                break;
+            case StockInfo::SECTOR:
+                if (!$this->sectorStocks->contains($stock)) {
+                    $this->sectorStocks[] = $stock;
+                    $stock->setSector($this);
+                }
+
+                break;
+            case StockInfo::INDUSTRY:
+                if (!$this->industryStocks->contains($stock)) {
+                    $this->industryStocks[] = $stock;
+                    $stock->setIndustry($this);
+                }
+
+                break;
+            default:
+                throw new \LogicException('type ' . $this->getType() . ' not supported');
         }
 
         return $this;
@@ -91,8 +126,8 @@ class StockInfo implements Entity
 
     public function removeStock(Stock $stock): self
     {
-        if ($this->stocks->contains($stock)) {
-            $this->stocks->removeElement($stock);
+        if ($this->typeStocks->contains($stock)) {
+            $this->typeStocks->removeElement($stock);
             // set the owning side to null (unless already changed)
             if ($stock->getType() === $this) {
                 $stock->setType(null);

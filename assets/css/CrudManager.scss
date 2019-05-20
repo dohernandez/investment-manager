@@ -26,3 +26,11 @@
     border-color: #dd4b39 !important;
     box-shadow: none;
 }
+
+.js-manager-table-extra-row {
+    display: none;
+}
+
+.js-manager-table-extra-row.in {
+    display: table-cell;
+}
