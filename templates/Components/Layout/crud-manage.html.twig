@@ -24,7 +24,7 @@
                'icon': '<value>', default('fas fa-eye') -> buton icon.
            },
        ]
-    form => form object
+    form => form object,
 #}
 
 {% extends 'base.html.twig' %}
@@ -147,14 +147,18 @@
                         </button>
                     {% endfor %}
                 {% endif %}
+                <% if (editButton) { %>
                 <button type="button" data-backdrop="static" data-keyboard="false" class="js-entity-edit btn btn-primary btn-sm pull-left"
                         style="margin-left: 3px">
                     <i class="fa fa-pencil-alt" aria-hidden="true"></i>
                 </button>
+                <% } %>
+                <% if (deleteButton) { %>
                 <button type="button" data-backdrop="static" data-keyboard="false" class="js-entity-delete btn btn-danger btn-sm"
                         data-id="<%= id %>" data-title="<%= title %>" style="margin-left: 3px">
                     <i class="fa-trash-alt fa" aria-hidden="true"></i>
                 </button>
+                <% } %>
             </td>
         </tr>
     </script>

@@ -31,6 +31,8 @@ class CRUDManage {
     constructor(options) {
         let _options = _.defaults(options || {}, {
             showPerPage: 0,
+            editButton: false,
+            deleteButton: false,
         });
 
         this.entityType = _options.entityType;
@@ -42,6 +44,10 @@ class CRUDManage {
 
         this.swalConfirmOptions = _options.swalConfirmOptions;
         this.toastOptions = _options.toastOptions;
+
+        // buttons
+        this.editButton = _options.editButton;
+        this.deleteButton = _options.deleteButton;
 
         // The total records object of array.
         this.records = [];
@@ -63,13 +69,20 @@ class CRUDManage {
 
     static get _selectors() {
         return {
-            showPerPage: '.js-manage-show-per-page',
+            // table
             table: '.js-manager-table',
+            // row
             rowTemplate : '#js-manager-row-template',
+            // pagination
+            showPerPage: '.js-manage-show-per-page',
             pagination: '.js-manage-pagination',
             paginationInfo: '.js-manage-pagination-info',
+            // serach input
             search: '.js-manage-search',
-            searchClear: '.js-manage-search-clear'
+            searchClear: '.js-manage-search-clear',
+            // show/hide column
+            extraCell: '.js-manager-table-extra-cell',
+            extraCellShown: '.js-manager-table-extra-cell-show'
         };
     }
 
@@ -199,11 +212,11 @@ class CRUDManage {
 
                 let displayRecords = records.slice(displayRecordsIndex, endRec);
 
-                self._cleanRows();
+                self.cleanRows();
 
                 // create the rows of the table based on the records to display
                 $.each(displayRecords, (index, entity) => {
-                    self._addRow(entity, displayRecordsIndex + index);
+                    self.addRow(entity, displayRecordsIndex + index);
                 });
 
                 // update pagination text
@@ -228,10 +241,8 @@ class CRUDManage {
 
     /**
      * Clean the rows from the table.
-     *
-     * @private
      */
-    _cleanRows() {
+    cleanRows() {
         const $table = this.$wrapper.find(CRUDManage._selectors.table);
 
         $table.find('tbody').html('');
@@ -248,38 +259,47 @@ class CRUDManage {
      *          amount: float
      *        }} entity
      * @param {int} index
-     *
-     * @private
      */
-    _addRow(entity, index) {
+    addRow(entity, index) {
         const $table = this.$wrapper.find(CRUDManage._selectors.table);
 
-        entity.index = index + 1;
-        let row = this._createRow(entity);
+        let data = entity;
+        data.index = index + 1;
+        let row = this._createRow(data);
 
         $table.find('tbody').append(row);
 
         if (this.expanded) {
-            let $cell = $table.find('.js-manager-table-extra-cell');
-            console.log($cell);
-            $cell.addClass('js-manager-table-extra-cell-show');
+            let $cell = $table.find(CRUDManage._selectors.extraCell);
+            $cell.addClass(CRUDManage._selectors.extraCellShown.slice(1));
         }
     }
 
     /**
      * Create a row base on row template.
      *
-     * @param {Object} entity
+     * @param {{
+     *          id: int,
+     *          date: string,
+     *          beneficiaryParty: {name: string, accountNo: string},
+     *          debtorParty: {name: string, accountNo: string},
+     *          amount: float
+     *          editButton: boolean
+     *          deleteButton: boolean
+     *        }} compile
      *
      * @return {Object}
      *
      * @private
      */
-    _createRow(entity) {
+    _createRow(compile) {
         const tplText = $(CRUDManage._selectors.rowTemplate).html();
         const tpl = _.template(tplText);
 
-        const html = tpl(entity);
+        compile.editButton = this.editButton;
+        compile.deleteButton = this.deleteButton;
+
+        const html = tpl(compile);
 
         return $.parseHTML(html);
     }
@@ -464,6 +484,8 @@ class CRUDManage {
      * Enables a edit button for the rows table and adds it handler function.
      */
     withEditButton() {
+        this.editButton = true;
+
         // Delegate selector
         this.$wrapper.on(
             'click',
@@ -545,6 +567,8 @@ class CRUDManage {
      * Enables a delete button for the rows table and adds it handler function.
      */
     withDeleteButton() {
+        this.deleteButton = true;
+
         // Delegate selector
         this.$wrapper.on(
             'click',
@@ -702,7 +726,7 @@ class CRUDManage {
 
             $paginationInfo.html('');
 
-            this._cleanRows();
+            this.cleanRows();
         }
     }
 
@@ -716,6 +740,22 @@ class CRUDManage {
 
     toggleExpanded() {
         this.setExpanded(!this.expanded);
+
+        const $table = this.$wrapper.find(CRUDManage._selectors.table);
+
+        if (this.expanded) {
+            let $cell = $table.find(CRUDManage._selectors.extraCell);
+
+            $cell.fadeIn('fast', function () {
+                $cell.addClass(CRUDManage._selectors.extraCellShown.slice(1));
+            });
+        } else {
+            let $cell = $table.find(CRUDManage._selectors.extraCell);
+
+            $cell.fadeOut('fast', function () {
+                $cell.removeClass(CRUDManage._selectors.extraCellShown.slice(1));
+            });
+        }
     }
 }
 

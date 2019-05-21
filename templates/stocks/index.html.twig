@@ -59,8 +59,13 @@
             const form = new StockForm(swalFormOptionsText);
 
             crudManager.withForm(form);
+            // add button view
+            // crudManager.withViewButton();
+            // add button create click event
             crudManager.withCreateButton();
+            // add button create
             crudManager.withEditButton();
+            // add button create
             crudManager.withDeleteButton();
 
             crudManager.loadRows();
@@ -80,24 +85,14 @@
                 }
             );
 
+            // Tweak button toggle main menu to show/hide columns
             $('.sidebar-toggle').on(
                 'click',
                 function(e) {
                     let $button = $(e.currentTarget);
 
-                    window.crudManager.toggleExpanded();
-
                     if ($button.data('toggle') === 'push-menu') {
-                        let $cell = $('.table .js-manager-table-extra-cell');
-                        if (!$cell.hasClass('js-manager-table-extra-cell-show')) {
-                            $cell.fadeIn('fast', function () {
-                                $cell.addClass('js-manager-table-extra-cell-show');
-                            });
-                        } else {
-                            $cell.fadeOut('fast', function () {
-                                $cell.removeClass('js-manager-table-extra-cell-show');
-                            });
-                        }
+                        window.crudManager.toggleExpanded();
                     }
                 }
             );
