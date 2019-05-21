@@ -24,7 +24,8 @@ class CRUDManage {
      *      wrapper: {Object},
      *      swalFormOptions: {Object},
      *      swalConfirmOptions: {Object},
-     *      toastOptions: {Object}
+     *      toastOptions: {Object},
+     *      expanded: boolean,
      * }} options
      */
     constructor(options) {
@@ -54,6 +55,9 @@ class CRUDManage {
         // The total pages based on records.
         this.totalPages = 0;
 
+        // set whether the table is shows all it cols
+        this.expanded = 0;
+
         this.routing = this._getRouting;
     }
 
@@ -64,7 +68,8 @@ class CRUDManage {
             rowTemplate : '#js-manager-row-template',
             pagination: '.js-manage-pagination',
             paginationInfo: '.js-manage-pagination-info',
-            search: '.js-manage-search'
+            search: '.js-manage-search',
+            searchClear: '.js-manage-search-clear'
         };
     }
 
@@ -100,7 +105,7 @@ class CRUDManage {
 
                 let $pagination = this.$wrapper.find($(CRUDManage._selectors.pagination));
                 $pagination.each((index, ul) => {
-                    let $ul = $(ul)
+                    let $ul = $(ul);
                     this._showPagination($ul);
                 });
 
@@ -138,22 +143,28 @@ class CRUDManage {
 
                 break;
             default:
-                throw 'Endpoint ' + endpoint + ' not supported';
+                throw Error('Endpoint ' + endpoint + ' not supported');
         }
 
         return route
     }
 
     _refreshPagination(options) {
+        let $parent = this._removePagination();
+
+        let $pagination = new $('<ul id="pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>')
+        $parent.append($pagination);
+
+        this._showPagination($pagination, options);
+    }
+
+    _removePagination(){
         let $pagination = this.$wrapper.find($(CRUDManage._selectors.pagination));
         let $parent = $pagination.parent();
 
         $pagination.remove();
 
-        $pagination = new $('<ul id="pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>')
-        $parent.append($pagination);
-
-        this._showPagination($pagination, options);
+        return $parent;
     }
 
     _showPagination($pagination, options) {
@@ -174,7 +185,7 @@ class CRUDManage {
 
         // tweak pagination info
         let $paginationInfo = this.$wrapper.find($(CRUDManage._selectors.paginationInfo));
-        $paginationInfo.parent().css('margin-top', '24px');
+        $paginationInfo.parent().css('margin', '24px 0');
 
         self = this;
 
@@ -212,12 +223,7 @@ class CRUDManage {
 
         if (totalRecords <= this.showPerPage) {
             $pagination.hide();
-            $paginationInfo.parent().css('margin-top', '0px');
-
-            return;
         }
-
-        // margin-top: 24px;
     }
 
     /**
@@ -249,8 +255,15 @@ class CRUDManage {
         const $table = this.$wrapper.find(CRUDManage._selectors.table);
 
         entity.index = index + 1;
+        let row = this._createRow(entity);
 
-        $table.find('tbody').append(this._createRow(entity));
+        $table.find('tbody').append(row);
+
+        if (this.expanded) {
+            let $cell = $table.find('.js-manager-table-extra-cell');
+            console.log($cell);
+            $cell.addClass('js-manager-table-extra-cell-show');
+        }
     }
 
     /**
@@ -582,7 +595,7 @@ class CRUDManage {
                             // This is a delete method this.totalRecords always decrease, therefore
                             // this.totalPages will never be bigger
                             if (this.page > newTotalPages) {
-                                this.page = newTotalPages;
+                                this.page = newTotalPages ? newTotalPages : 1;
                             }
 
                             this.totalPages = newTotalPages;
@@ -607,15 +620,39 @@ class CRUDManage {
      */
     withSearch(searchFunc) {
         let $search = this.$wrapper.find(CRUDManage._selectors.search);
-        $search.parent().parent().show();
+        $search.parent().parent().parent().show();
 
         this.searchFunc = searchFunc;
+
+        this.$wrapper.on(
+            'click',
+            CRUDManage._selectors.searchClear,
+            this.handlerSearchClear.bind(this)
+        );
 
         this.$wrapper.on(
             'keyup',
             CRUDManage._selectors.search,
             this.handlerSearch.bind(this)
         );
+    }
+
+    /**
+     * Clear the search input
+     * @param expanded
+     */
+    handlerSearchClear(e) {
+        e.preventDefault();
+
+        let $searchClear = $(e.currentTarget);
+        let $search = this.$wrapper.find(CRUDManage._selectors.search);
+
+        $search.val('');
+
+        $searchClear.hide();
+
+        this.page = 1;
+        this._refreshPagination();
     }
 
     /**
@@ -627,12 +664,25 @@ class CRUDManage {
         e.preventDefault();
 
         let $search = $(e.currentTarget);
+        let $searchClear = this.$wrapper.find(CRUDManage._selectors.searchClear);
+
+        let search = $search.val();
+        if (search == '') {
+            // clear pagination and hide clear button
+            $searchClear.hide();
+
+            this.page = 1;
+            this._refreshPagination();
+
+            return;
+        }
+
+        // force show clear button
+        $searchClear.show();
 
         let matches = this.searchFunc(this.records, $search.val());
-
         if (matches === null) {
             this.page = 1;
-
             this._refreshPagination();
 
             return;
@@ -640,12 +690,32 @@ class CRUDManage {
 
         let totalRecords = matches.length;
 
-        this._refreshPagination({
-            records: matches,
-            totalRecords: totalRecords,
-            totalPages: Math.ceil(totalRecords / this.showPerPage),
-            page: 1,
-        });
+        try {
+            this._refreshPagination({
+                records: matches,
+                totalRecords: totalRecords,
+                totalPages: Math.ceil(totalRecords / this.showPerPage),
+                page: 1,
+            });
+        } catch (err) {
+            let $paginationInfo = this.$wrapper.find($(CRUDManage._selectors.paginationInfo));
+
+            $paginationInfo.html('');
+
+            this._cleanRows();
+        }
+    }
+
+    /**
+     * Set whether the table is expanded or not
+     * @param expanded
+     */
+    setExpanded(expanded) {
+        this.expanded = expanded;
+    }
+
+    toggleExpanded() {
+        this.setExpanded(!this.expanded);
     }
 }
 

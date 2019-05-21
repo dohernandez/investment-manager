@@ -27,10 +27,22 @@
     box-shadow: none;
 }
 
-.js-manager-table-extra-row {
+.js-manager-table-extra-cell {
     display: none;
 }
 
-.js-manager-table-extra-row.in {
+.js-manager-table-extra-cell-show {
     display: table-cell;
+}
+
+.js-manage-search-clear {
+  position: absolute;
+  right: 5px;
+  top: 0;
+  bottom: 0;
+  height: 14px;
+  margin: auto;
+  font-size: 14px;
+  cursor: pointer;
+  color: #ccc;
 }

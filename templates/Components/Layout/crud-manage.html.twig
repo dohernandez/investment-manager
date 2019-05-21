@@ -60,9 +60,13 @@
                                 entries</label>
                         </div>
                         <div class="col-md-4 pull-right" style="padding-right: 0px; display: none;">
-                            <label>Search:
-                                <input type="search" class="form-control js-manage-search" placeholder="Search" aria-controls="search"
-                                       style="width: 248px; display: inline-block;">
+                            <label class="pull-right">Search:
+                                <div class="btn-group">
+                                    <input type="search" class="form-control js-manage-search" placeholder="Search" aria-controls="search"
+                                           style="width: 248px; display: inline-block;">
+                                    <span class="glyphicon glyphicon-remove-circle js-manage-search-clear"
+                                          style="display: none;"></span>
+                                </div>
                             </label>
                         </div>
                     </div>
@@ -121,7 +125,7 @@
         <tr data-id="<%= id %>" data-i="<%= index %>">
             <th style="vertical-align: middle;" scope="row" class="text-center js-manager-row-index"><%= index %></th>
             {% for field in fields %}
-                <td style="vertical-align: middle;">
+                <td style="vertical-align: middle;" {% if field.class is defined %} class="{{ field.class }}" {% endif %}>
                     {{ render.field(field.name, field) }}
                 </td>
             {% endfor %}

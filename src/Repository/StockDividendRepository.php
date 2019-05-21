@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Stock;
 use App\Entity\StockDividend;
+use App\Repository\Criteria\StockDividendByExDateCriteria;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -28,6 +29,7 @@ class StockDividendRepository extends ServiceEntityRepository
      *
      * @return StockDividend|null
      * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\Query\QueryException
      */
     public function findNextByStock(Stock $stock, \DateTimeInterface $exDate = null): ?StockDividend
     {
@@ -35,11 +37,11 @@ class StockDividendRepository extends ServiceEntityRepository
             $exDate = new \DateTime();
         }
 
+
         return $this->createQueryBuilder('sd')
-            ->andWhere('sd.stock= :stock')
+            ->andWhere('sd.stock = :stock')
             ->setParameter('stock', $stock)
-            ->andWhere('sd.exDate >= :exDate')
-            ->setParameter('exDate', $exDate)
+            ->addCriteria(StockDividendByExDateCriteria::createWithExDate($exDate))
             ->orderBy('sd.exDate', 'ASC')
             ->setMaxResults(1)
             ->getQuery()

@@ -41,6 +41,13 @@ class StockViewParameters extends AbstractViewParameters
                 'label' => 'D. Yield',
                 'render' => 'percentage',
             ],
+            [
+                'name' => 'exDate',
+                'label' => 'Ex. Date',
+                'render' => 'date',
+                'date_format' => 'DD/MM/YYYY',
+                'class' => 'js-manager-table-extra-cell',
+            ],
         ];
     }
 }

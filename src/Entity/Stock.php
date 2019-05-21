@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\Criteria\StockDividendByExDateCriteria;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -290,5 +291,22 @@ class Stock implements Entity
         }
 
         return $this;
+    }
+
+    public function getExDate()
+    {
+        $now = new \DateTime();
+
+        /**
+         * @psalm-var Collection<TKey,StockDividend>
+         * @var Collection $matches
+         */
+        $matches = $this->dividends->matching(StockDividendByExDateCriteria::createWithExDate($now));
+
+        if ($matches->isEmpty()){
+            return null;
+        }
+
+        return $matches->first()->getExDate();
     }
 }

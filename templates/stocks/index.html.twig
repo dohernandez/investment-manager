@@ -85,8 +85,19 @@
                 function(e) {
                     let $button = $(e.currentTarget);
 
+                    window.crudManager.toggleExpanded();
+
                     if ($button.data('toggle') === 'push-menu') {
-                        $('.table .toggleDisplay').toggleClass("in");
+                        let $cell = $('.table .js-manager-table-extra-cell');
+                        if (!$cell.hasClass('js-manager-table-extra-cell-show')) {
+                            $cell.fadeIn('fast', function () {
+                                $cell.addClass('js-manager-table-extra-cell-show');
+                            });
+                        } else {
+                            $cell.fadeOut('fast', function () {
+                                $cell.removeClass('js-manager-table-extra-cell-show');
+                            });
+                        }
                     }
                 }
             );
