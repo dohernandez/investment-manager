@@ -62,6 +62,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'public', 'build'),
         filename: devMode ? "[name].js" : '[name].[chunkhash:6].js',
+        publicPath: '/',
     },
     module: {
         rules: [
@@ -112,6 +113,8 @@ module.exports = {
         new ManifestPlugin({
             basePath: 'build/',
             publicPath: 'build/',
+            // always dump manifest
+            writeToFileEmit: true
         }),
         // allows for [chunkhash]
         new WebpackChunkHash(),
@@ -135,4 +138,18 @@ module.exports = {
         }
     },
     devtool: "inline-source-map",
+    devServer: {
+        host: '0.0.0.0',
+        useLocalIp: true,
+        // to set base web folder "public"
+        contentBase: path.resolve(__dirname, 'public'),
+        compress: true,
+        // to run server in port
+        port: 9000,
+        // to set where to find the build files
+        publicPath: '/build/',
+        // to remove host check in CORS policy
+        disableHostCheck: true,
+
+    },
 };

@@ -12,6 +12,7 @@
   "scripts": {
     "dev": "NODE_ENV=development webpack",
     "watch": "NODE_ENV=development webpack --watch",
+    "start": "NODE_ENV=development webpack-dev-server --open",
     "production": "NODE_ENV=production webpack"
   },
   "dependencies": {
@@ -38,6 +39,7 @@
     "webpack": "^4.31.0",
     "webpack-chunk-hash": "^0.6.0",
     "webpack-cli": "^3.3.2",
+    "webpack-dev-server": "^3.4.1",
     "webpack-manifest-plugin": "^2.0.4"
   }
 }
