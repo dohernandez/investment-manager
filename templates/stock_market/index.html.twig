@@ -39,11 +39,15 @@
             const form = new StockMarketForm(swalFormOptionsText);
 
             window.crudManager.withForm(form);
+            // add button create
             window.crudManager.withCreateButton();
+            // add button edit
+            window.crudManager.withViewButton();
             window.crudManager.withEditButton();
+            // add button delete
             window.crudManager.withDeleteButton();
 
-            window.crudManager.loadRows();
+            window.crudManager.render();
         });
     </script>
 {% endblock %}

@@ -59,14 +59,16 @@
             const form = new StockForm(swalFormOptionsText);
 
             crudManager.withForm(form);
-            // add button view
-            crudManager.withViewButton();
             // add button create
             crudManager.withCreateButton();
-            // add button create
+            // add button view
+            crudManager.withViewButton();
+            // add button edit
             crudManager.withEditButton();
-            // add button create
+            // add button delete
             crudManager.withDeleteButton();
+            // add button extra
+            crudManager.withExtraButton();
 
             crudManager.render();
 

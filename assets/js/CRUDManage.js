@@ -36,6 +36,7 @@ class CRUDManage {
             createButton: false,
             editButton: false,
             deleteButton: false,
+            totalButtons: 0,
         });
 
         this.entityType = _options.entityType;
@@ -53,6 +54,7 @@ class CRUDManage {
         this.editButton = _options.editButton;
         this.deleteButton = _options.deleteButton;
         this.viewButton = _options.viewButton;
+        this.totalButtons = 0;
 
         // The total records object of array.
         this.records = [];
@@ -104,7 +106,9 @@ class CRUDManage {
 
             // show/hide column
             extraCell: '.js-manager-table-extra-cell',
-            extraCellShown: '.js-manager-table-extra-cell-show'
+            extraCellShown: '.js-manager-table-extra-cell-show',
+
+            manageButtons: '.js-manage-buttons'
         };
     }
 
@@ -149,6 +153,31 @@ class CRUDManage {
             this.$wrapper.find(CRUDManage._selectors.perPageContainer)
                 .append($perPage);
         }
+
+        // render manage col with
+        let $manageButtons = this.$wrapper.find(CRUDManage._selectors.manageButtons);
+        console.log("before $manageButtons.width", $manageButtons.width());
+        console.log("before $manageButtons.outerWidth", $manageButtons.outerWidth());
+        console.log("this.totalButtons", this.totalButtons);
+
+        switch (this.totalButtons) {
+            case 1:
+                $manageButtons.width($manageButtons.width());
+                break;
+            case 2:
+                $manageButtons.width($manageButtons.width() + 34);
+                break;
+            case 3:
+                $manageButtons.width($manageButtons.width() + 72);
+                break;
+            case 4:
+                $manageButtons.width($manageButtons.width() + 110);
+                break;
+            default:
+        }
+
+        console.log("after $manageButtons.width", $manageButtons.width());
+        console.log("after $manageButtons.outerWidth", $manageButtons.outerWidth());
 
         this.loadRows();
     }
@@ -554,6 +583,7 @@ class CRUDManage {
      */
     withEditButton() {
         this.editButton = true;
+        this.totalButtons++;
 
         // Delegate selector
         this.$wrapper.on(
@@ -638,6 +668,7 @@ class CRUDManage {
      */
     withDeleteButton() {
         this.deleteButton = true;
+        this.totalButtons++;
 
         // Delegate selector
         this.$wrapper.on(
@@ -857,6 +888,7 @@ class CRUDManage {
      */
     withViewButton() {
         this.viewButton = true;
+        this.totalButtons++;
 
         // Delegate selector
         this.$wrapper.on(
@@ -894,6 +926,13 @@ class CRUDManage {
         }
 
         console.log(entity);
+    }
+
+    /**
+     * Enables a view button for the table and adds it handler function.
+     */
+    withExtraButton() {
+        this.totalButtons++;
     }
 }
 

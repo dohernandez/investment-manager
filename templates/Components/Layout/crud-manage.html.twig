@@ -65,20 +65,20 @@
                                     {% if field.label is not defined %}{{ field.name|trans|upper }}{% else %}{{ field.label|trans|upper }}{% endif %}
                                 </th>
                             {% endfor %}
-                            <th width="{% if buttons is defined %}{{ buttons|length * 42 + 132 }}{% else %}132{% endif %}" scope="col">MANAGE</th>
+                            <th class="js-manage-buttons" scope="col"></th>
                         </tr>
                         </thead>
                         <tbody>
                         </tbody>
                         <tfoot>
                         <tr>
-                            <th>#</th>
+                            <th class="text-center" scope="col">#</th>
                             {% for field in fields %}
-                                <th {% if field.class is defined %} class="{{ field.class }}" {% endif %}>
+                                <th {% if field.class is defined %} class="{{ field.class }}" {% endif %}  scope="col">
                                     {% if field.label is not defined %}{{ field.name|trans|upper }}{% else %}{{ field.label|trans|upper }}{% endif %}
                                 </th>
                             {% endfor %}
-                            <th>MANAGE</th>
+                            <th scope="col"></th>
                         </tr>
                         </tfoot>
                     </table>
