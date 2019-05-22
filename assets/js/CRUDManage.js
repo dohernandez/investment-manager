@@ -31,6 +31,8 @@ class CRUDManage {
     constructor(options) {
         let _options = _.defaults(options || {}, {
             showPerPage: 0,
+            viewButton: false,
+            createButton: false,
             editButton: false,
             deleteButton: false,
         });
@@ -46,8 +48,10 @@ class CRUDManage {
         this.toastOptions = _options.toastOptions;
 
         // buttons
+        this.createButton = _options.createButton;
         this.editButton = _options.editButton;
         this.deleteButton = _options.deleteButton;
+        this.viewButton = _options.viewButton;
 
         // The total records object of array.
         this.records = [];
@@ -64,22 +68,35 @@ class CRUDManage {
         // set whether the table is shows all it cols
         this.expanded = 0;
 
+        // search
+        this.searchFunc = null;
+
         this.routing = this._getRouting;
     }
 
     static get _selectors() {
         return {
-            // table
+            // containers
             table: '.js-manager-table',
-            // row
-            rowTemplate : '#js-manager-row-template',
+            header : '.js-manage-header',
+            footer : '.js-manage-footer',
+            createButtonContainer: '.js-manage-header-create-button-container',
+            searchContainer: '.js-manage-header-search-container',
+
+            // template
+            rowTemplate: '#js-manager-row-template',
+            createButtonTemplate: '#js-manager-create-button-template',
+            searchTemplate: '#js-manager-search-template',
+
             // pagination
             showPerPage: '.js-manage-show-per-page',
             pagination: '.js-manage-pagination',
             paginationInfo: '.js-manage-pagination-info',
+
             // serach input
             search: '.js-manage-search',
             searchClear: '.js-manage-search-clear',
+
             // show/hide column
             extraCell: '.js-manager-table-extra-cell',
             extraCellShown: '.js-manager-table-extra-cell-show'
@@ -88,6 +105,37 @@ class CRUDManage {
 
     setRouteGenerating(routing) {
         this.routing = routing.bind(this);
+    }
+
+    render() {
+        // render create button
+        if (this.createButton) {
+            let $createButton = this._compileTemplate(CRUDManage._selectors.createButtonTemplate);
+            this.$wrapper.find(CRUDManage._selectors.createButtonContainer)
+                .append($createButton);
+        }
+
+        // render search input
+        if (this.searchFunc !== null) {
+            let $search = this._compileTemplate(CRUDManage._selectors.searchTemplate);
+            this.$wrapper.find(CRUDManage._selectors.searchContainer)
+                .append($search);
+        }
+
+        this.loadRows();
+    }
+
+    _compileTemplate(selector, compile) {
+        const tplText = $(selector).html();
+        const tpl = _.template(tplText);
+
+        let html = '';
+
+        if (compile !== null || typeof compile !== 'undefined') {
+            html = tpl(compile);
+        }
+
+        return $.parseHTML(html);
     }
 
     /**
@@ -286,6 +334,7 @@ class CRUDManage {
      *          amount: float
      *          editButton: boolean
      *          deleteButton: boolean
+     *          viewButton: boolean
      *        }} compile
      *
      * @return {Object}
@@ -293,15 +342,11 @@ class CRUDManage {
      * @private
      */
     _createRow(compile) {
-        const tplText = $(CRUDManage._selectors.rowTemplate).html();
-        const tpl = _.template(tplText);
-
         compile.editButton = this.editButton;
         compile.deleteButton = this.deleteButton;
+        compile.viewButton = this.viewButton;
 
-        const html = tpl(compile);
-
-        return $.parseHTML(html);
+        return this._compileTemplate(CRUDManage._selectors.rowTemplate, compile);
     }
 
     /**
@@ -317,6 +362,8 @@ class CRUDManage {
      * Enables a create button for the table and adds it handler function.
      */
     withCreateButton() {
+        this.createButton = true;
+
         // Delegate selector
         this.$wrapper.on(
             'click',
@@ -504,6 +551,7 @@ class CRUDManage {
     handleEdit(e) {
         e.preventDefault();
 
+        // find entity to edit
         const $row = $(e.currentTarget).closest('tr');
         const id = $row.data('id');
 
@@ -643,9 +691,6 @@ class CRUDManage {
      * @param {function} searchFunc
      */
     withSearch(searchFunc) {
-        let $search = this.$wrapper.find(CRUDManage._selectors.search);
-        $search.parent().parent().parent().show();
-
         this.searchFunc = searchFunc;
 
         this.$wrapper.on(
@@ -756,6 +801,50 @@ class CRUDManage {
                 $cell.removeClass(CRUDManage._selectors.extraCellShown.slice(1));
             });
         }
+    }
+
+    /**
+     * Enables a view button for the table and adds it handler function.
+     */
+    withViewButton() {
+        this.viewButton = true;
+
+        // Delegate selector
+        this.$wrapper.on(
+            'click',
+            '.js-entity-view',
+            this.handleView.bind(this)
+        );
+    }
+
+
+    /**
+     * Handle on click event for create button.
+     * Create a new row when create success.
+     *
+     * @param e
+     */
+    handleView(e) {
+        e.preventDefault();
+
+        // find entity to view
+        const $row = $(e.currentTarget).closest('tr');
+        const id = $row.data('id');
+
+        let entity = null;
+        let recordIndex = 0;
+        for (let i = 0; i < this.records.length; i++) {
+            let record = this.records[i];
+
+            if (record.id === id) {
+                entity = record;
+                recordIndex = i;
+
+                break;
+            }
+        }
+
+        console.log(entity);
     }
 }
 

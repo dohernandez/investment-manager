@@ -60,15 +60,15 @@
 
             crudManager.withForm(form);
             // add button view
-            // crudManager.withViewButton();
-            // add button create click event
+            crudManager.withViewButton();
+            // add button create
             crudManager.withCreateButton();
             // add button create
             crudManager.withEditButton();
             // add button create
             crudManager.withDeleteButton();
 
-            crudManager.loadRows();
+            crudManager.render();
 
 
             // Delegate selector for edit stock dividend
