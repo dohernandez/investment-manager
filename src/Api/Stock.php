@@ -21,7 +21,23 @@ class Stock
 
     public $dividendYield;
 
+    public $forwardDividendYield;
+
     public $exDate;
+
+    public $peRatio;
+
+    public $preClose;
+
+    public $open;
+
+    public $dayLow;
+
+    public $dayHigh;
+
+    public $week52Low;
+
+    public $week52High;
 
     public $type;
 

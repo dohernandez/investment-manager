@@ -1,5 +1,11 @@
+{% set compile = false %}
+
+{% if tmpl is defined and tmpl == true %}
+    {% set compile = true %}
+{% endif %}
+
 <div class="stock-price-block">
-    <span class="last-price">26.90</span>
+    <span class="last-price">{{ current_price|compile_tmpl(compile) }}</span>
     <span class="change">-0.61 (-2.22%)</span>
     <div class="text-left" style="margin-top: -8px;">
         <span class="updated-at">At close:  4:01PM EDT</span>

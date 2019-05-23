@@ -16,6 +16,14 @@
     font-size: 14px;
 }
 
+.swal2-form-title {
+    display: block !important;
+
+    .small {
+        font-size: 50%;
+    }
+}
+
 .swal2-content {
     .box-body {
         margin-top: 20px;

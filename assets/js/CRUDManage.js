@@ -928,14 +928,15 @@ class CRUDManage {
         }
 
         // Build form html base on the template.
-        const html = this._compileTemplate(this.viewTemplate);
+        const html = this._compileTemplate(this.viewTemplate, entity);
+        const title = this._compileTemplate('#js-view-title-template', entity);
 
         // Swal form modal
         const swalForm = Swal.mixin(this.swalViewOptions);
 
         return swalForm.fire({
-            html: html,
-            titleText: entity.name + ' (' + entity.symbol + ')',
+            html,
+            title,
             onBeforeOpen: () => {
                 this.form.onPreview(entity);
             },

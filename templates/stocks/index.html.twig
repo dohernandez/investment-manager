@@ -118,11 +118,20 @@
         });
     </script>
 
-    <!-- row table manager template -->
+    <!-- view title manager template -->
+    <script type="text/template" id="js-view-title-template">
+        <div><%= name %> (<%= symbol %>)</div>
+        <div class="small"><%= market.symbol %> - <%= market.name %></div>
+    </script>
+
+    <!-- view manager template -->
     <script type="text/template" id="js-view-template">
         <div class="box no-border no-shadow">
             <div class="box-header with-border">
-                {% embed 'Components/ui/stock-price.html.twig' %}
+                {% embed 'Components/ui/stock-price.html.twig' with {
+                    'current_price': 'value',
+                    'tmpl': true,
+                } %}
                 {% endembed %}
             </div>
             <div class="box-body">
@@ -132,77 +141,67 @@
                             'rows' : [
                                 {
                                     'key': 'Prev. Close',
-                                    'value': '27.79'
+                                    'value': 'preClose',
                                 },
                                 {
                                     'key': 'Open',
-                                    'value': '27.65'
+                                    'value': 'open',
                                 },
                                 {
                                     'key': 'PE Ratio (TTM)',
-                                    'value': '15.39'
+                                    'value': 'peRatio',
                                 },
                                 {
                                     'key': 'Forward Dividend & Yield',
-                                    'value': '2.68 (9.86%)'
+                                    'value': 'forwardDividendYield',
                                 },
                                 {
                                     'key': 'Ex-Dividend Date',
-                                    'value': '2019-04-26'
+                                    'value': 'open',
                                 },
                             ],
+                            'tmpl': true,
                         } %}
                         {% endembed %}
                     </div>
                     <div class="col-md-7 stock-open-close-day-price-block pull-right">
                         {% embed 'Components/ui/range-slider-show.html.twig' with {
                             'id': 'low-high-day-price',
-                            'min_price': '26.76',
-                            'max_price': '27.88',
-                            'current_price': '26.90',
-                            'type' : 'Day low/high'|trans|upper
+                            'min_price': 'dayLow',
+                            'max_price': 'dayHigh',
+                            'current_price': 'value',
+                            'type' : 'Day low/high'|trans|upper,
+                            'tmpl': true,
                         } %}
                         {% endembed %}
                         {% embed 'Components/ui/range-slider-show.html.twig' with {
                             'id': 'low-high-52-week-price',
-                            'min_price': '26.44',
-                            'max_price': '34.00',
-                            'current_price': '26.90',
-                            'type' : '52 week low/high'|trans|upper
+                            'min_price': 'week52Low',
+                            'max_price': 'week52High',
+                            'current_price': 'value',
+                            'type' : '52 week low/high'|trans|upper,
+                            'tmpl': true,
                         } %}
                         {% endembed %}
                         {% embed 'Components/ui/table-simple-key-value.html.twig' with {
                             'rows' : [
                                 {
                                     'key': 'Sector',
-                                    'value': 'Energy'
+                                    'value': 'sector.title'
                                 },
                                 {
                                     'key': 'Industry',
-                                    'value': 'Oil & Gas Midstream'
+                                    'value': 'industry.title'
                                 },
                             ],
+                            'tmpl': true,
                         } %}
                         {% endembed %}
                     </div>
                 </div>
                 <div class="row stock-description-row">
                     <h4>{{ 'Description'|trans }}</h4>
-                    <p>Holly Energy Partners, L.P. owns and operates petroleum product and crude pipelines,
-                        storage tanks, distribution terminals, loading rack facilities, and refinery processing
-                        units that support the refining and marketing operations of HollyFrontier Corporation
-                        in West Texas, New Mexico, Utah, Nevada, Oklahoma, Wyoming, Kansas, Arizona, Idaho,
-                        and Washington. It operates through Pipelines and Terminals, and Refinery Processing Units
-                        segments. The company operates refined product pipelines that transport conventional
-                        gasolines, reformulated gasolines, and low-octane gasolines for oxygenate blending,
-                        as well as distillates, such as high- and low-sulfur diesel and jet fuels, and liquefied
-                        petroleum gases; intermediate product pipelines that transport intermediate feedstocks
-                        and crude oils; and oil trunk, gathering, and connection pipelines that delivers crude oil.
-                        It operates 26 main pipelines; crude gathering networks; 10 refined product terminals;
-                        1 crude terminal; 31,800 track feet of rail storage; 7 locations with truck and/or rail racks;
-                        and tankages at 6 refining facility locations, as well as 5 refinery processing units.
-                        HEP Logistics Holdings, L.P. serves as the general partner of the company.
-                        Holly Energy Partners, L.P. was founded in 2004 and is based in Dallas, Texas.</p>
+                    <p><%= description %></p>
                 </div>
             </div>
         </div>

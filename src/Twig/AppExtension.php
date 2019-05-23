@@ -15,6 +15,7 @@ class AppExtension extends AbstractExtension
             // parameter: ['is_safe' => ['html']]
             // Reference: https://twig.symfony.com/doc/2.x/advanced.html#automatic-escaping
             new TwigFilter('snake', [$this, 'snake']),
+            new TwigFilter('compile_tmpl', [$this, 'compile'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -22,6 +23,7 @@ class AppExtension extends AbstractExtension
     {
         return [
             new TwigFunction('snake', [$this, 'snake']),
+            new TwigFunction('compile_tmpl', [$this, 'compile']),
         ];
     }
 
@@ -30,5 +32,14 @@ class AppExtension extends AbstractExtension
         $value = strtolower(preg_replace('/(.)(?=[A-Z])/', '_', $value));
 
         return strtolower($value);
+    }
+
+    public function compile($value, $tmpl = false)
+    {
+        if ($tmpl) {
+            return "<%= $value %>";
+        }
+
+        return $value;
     }
 }
