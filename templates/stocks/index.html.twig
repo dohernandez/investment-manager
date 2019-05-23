@@ -19,6 +19,7 @@
         $(document).ready(function() {
             let crudManager = window.crudManager;
 
+            // add search input function
             crudManager.withSearch(function (stocks, search) {
                 if (search.length >= 2) {
                     let $matches = [];
@@ -61,8 +62,24 @@
             crudManager.withForm(form);
             // add button create
             crudManager.withCreateButton();
+
+            // Set up swal confirm options
+            let swalViewOptions = {
+                customClass: {
+                    title: 'swal2-form-title',
+                    content: 'swal2-form-content',
+                },
+                showConfirmButton: false,
+                buttonsStyling: false,
+                width: 700,
+                allowEscapeKey: true,
+                allowOutsideClick: true,
+                showCloseButton: true,
+                position: 'top'
+            };
+
             // add button view
-            crudManager.withViewButton();
+            crudManager.withViewButton(swalViewOptions, '#js-view-template');
             // add button edit
             crudManager.withEditButton();
             // add button delete
@@ -99,5 +116,95 @@
                 }
             );
         });
+    </script>
+
+    <!-- row table manager template -->
+    <script type="text/template" id="js-view-template">
+        <div class="box no-border no-shadow">
+            <div class="box-header with-border">
+                {% embed 'Components/ui/stock-price.html.twig' %}
+                {% endembed %}
+            </div>
+            <div class="box-body">
+                <div class="row stock-price-row">
+                    <div class="col-md-5">
+                        {% embed 'Components/ui/table-simple-key-value.html.twig' with {
+                            'rows' : [
+                                {
+                                    'key': 'Prev. Close',
+                                    'value': '27.79'
+                                },
+                                {
+                                    'key': 'Open',
+                                    'value': '27.65'
+                                },
+                                {
+                                    'key': 'PE Ratio (TTM)',
+                                    'value': '15.39'
+                                },
+                                {
+                                    'key': 'Forward Dividend & Yield',
+                                    'value': '2.68 (9.86%)'
+                                },
+                                {
+                                    'key': 'Ex-Dividend Date',
+                                    'value': '2019-04-26'
+                                },
+                            ],
+                        } %}
+                        {% endembed %}
+                    </div>
+                    <div class="col-md-7 stock-open-close-day-price-block pull-right">
+                        {% embed 'Components/ui/range-slider-show.html.twig' with {
+                            'id': 'low-high-day-price',
+                            'min_price': '26.76',
+                            'max_price': '27.88',
+                            'current_price': '26.90',
+                            'type' : 'Day low/high'|trans|upper
+                        } %}
+                        {% endembed %}
+                        {% embed 'Components/ui/range-slider-show.html.twig' with {
+                            'id': 'low-high-52-week-price',
+                            'min_price': '26.44',
+                            'max_price': '34.00',
+                            'current_price': '26.90',
+                            'type' : '52 week low/high'|trans|upper
+                        } %}
+                        {% endembed %}
+                        {% embed 'Components/ui/table-simple-key-value.html.twig' with {
+                            'rows' : [
+                                {
+                                    'key': 'Sector',
+                                    'value': 'Energy'
+                                },
+                                {
+                                    'key': 'Industry',
+                                    'value': 'Oil & Gas Midstream'
+                                },
+                            ],
+                        } %}
+                        {% endembed %}
+                    </div>
+                </div>
+                <div class="row stock-description-row">
+                    <h4>{{ 'Description'|trans }}</h4>
+                    <p>Holly Energy Partners, L.P. owns and operates petroleum product and crude pipelines,
+                        storage tanks, distribution terminals, loading rack facilities, and refinery processing
+                        units that support the refining and marketing operations of HollyFrontier Corporation
+                        in West Texas, New Mexico, Utah, Nevada, Oklahoma, Wyoming, Kansas, Arizona, Idaho,
+                        and Washington. It operates through Pipelines and Terminals, and Refinery Processing Units
+                        segments. The company operates refined product pipelines that transport conventional
+                        gasolines, reformulated gasolines, and low-octane gasolines for oxygenate blending,
+                        as well as distillates, such as high- and low-sulfur diesel and jet fuels, and liquefied
+                        petroleum gases; intermediate product pipelines that transport intermediate feedstocks
+                        and crude oils; and oil trunk, gathering, and connection pipelines that delivers crude oil.
+                        It operates 26 main pipelines; crude gathering networks; 10 refined product terminals;
+                        1 crude terminal; 31,800 track feet of rail storage; 7 locations with truck and/or rail racks;
+                        and tankages at 6 refining facility locations, as well as 5 refinery processing units.
+                        HEP Logistics Holdings, L.P. serves as the general partner of the company.
+                        Holly Energy Partners, L.P. was founded in 2004 and is based in Dallas, Texas.</p>
+                </div>
+            </div>
+        </div>
     </script>
 {% endblock %}

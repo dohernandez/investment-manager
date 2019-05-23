@@ -1,0 +1,10 @@
+<table class="table table-responsive no-border no-margin">
+    <tbody>
+    {% for row in rows %}
+        <tr>
+            <td scope="key">{{ row.key|trans }}</td>
+            <td scope="value">{{ row.value }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

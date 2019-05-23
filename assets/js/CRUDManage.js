@@ -5,6 +5,7 @@ import $ from 'jquery';
 import Swal from 'sweetalert2';
 import Routing from './Components/Routing';
 import _ from 'underscore';
+import Slider from 'bootstrap-slider';
 
 import 'twbs-pagination';
 
@@ -37,6 +38,8 @@ class CRUDManage {
             editButton: false,
             deleteButton: false,
             totalButtons: 0,
+            swalViewOptions: null,
+            viewTemplate: '',
         });
 
         this.entityType = _options.entityType;
@@ -53,7 +56,11 @@ class CRUDManage {
         this.createButton = _options.createButton;
         this.editButton = _options.editButton;
         this.deleteButton = _options.deleteButton;
+
         this.viewButton = _options.viewButton;
+        this.swalViewOptions = _options.swalViewOptions;
+        this.viewTemplate = _options.viewTemplate;
+
         this.totalButtons = 0;
 
         // The total records object of array.
@@ -156,9 +163,6 @@ class CRUDManage {
 
         // render manage col with
         let $manageButtons = this.$wrapper.find(CRUDManage._selectors.manageButtons);
-        console.log("before $manageButtons.width", $manageButtons.width());
-        console.log("before $manageButtons.outerWidth", $manageButtons.outerWidth());
-        console.log("this.totalButtons", this.totalButtons);
 
         switch (this.totalButtons) {
             case 1:
@@ -175,9 +179,6 @@ class CRUDManage {
                 break;
             default:
         }
-
-        console.log("after $manageButtons.width", $manageButtons.width());
-        console.log("after $manageButtons.outerWidth", $manageButtons.outerWidth());
 
         this.loadRows();
     }
@@ -886,9 +887,11 @@ class CRUDManage {
     /**
      * Enables a view button for the table and adds it handler function.
      */
-    withViewButton() {
+    withViewButton(swalViewOptions, viewTemplate) {
         this.viewButton = true;
         this.totalButtons++;
+        this.swalViewOptions = swalViewOptions;
+        this.viewTemplate = viewTemplate;
 
         // Delegate selector
         this.$wrapper.on(
@@ -925,7 +928,24 @@ class CRUDManage {
             }
         }
 
-        console.log(entity);
+        // Build form html base on the template.
+        const html = this._compileTemplate(this.viewTemplate);
+
+        // Swal form modal
+        const swalForm = Swal.mixin(this.swalViewOptions);
+
+        return swalForm.fire({
+            html: html,
+            titleText: entity.name + ' (' + entity.symbol + ')',
+            onBeforeOpen: () => {
+                let sliderDay = new Slider('#low-high-day-price', {
+                    precision: 3
+                });
+                let sliderWeek = new Slider('#low-high-52-week-price', {
+                    precision: 3
+                });
+            },
+        });
     }
 
     /**

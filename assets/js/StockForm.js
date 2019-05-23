@@ -7,7 +7,7 @@ import $ from 'jquery';
 
 import 'select2';
 
-import './../css/TransferFrom.scss';
+import './../css/StockForm.scss';
 
 /**
  * Form manage how the stock form should be build when a crud manager invokes a create or an update action.
