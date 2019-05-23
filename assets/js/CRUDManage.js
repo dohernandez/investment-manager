@@ -5,7 +5,6 @@ import $ from 'jquery';
 import Swal from 'sweetalert2';
 import Routing from './Components/Routing';
 import _ from 'underscore';
-import Slider from 'bootstrap-slider';
 
 import 'twbs-pagination';
 
@@ -938,12 +937,7 @@ class CRUDManage {
             html: html,
             titleText: entity.name + ' (' + entity.symbol + ')',
             onBeforeOpen: () => {
-                let sliderDay = new Slider('#low-high-day-price', {
-                    precision: 3
-                });
-                let sliderWeek = new Slider('#low-high-52-week-price', {
-                    precision: 3
-                });
+                this.form.onPreview(entity);
             },
         });
     }

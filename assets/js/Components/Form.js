@@ -83,6 +83,17 @@ class Form {
 
     }
 
+    /**
+     * Callback function when data is preview
+     *
+     * This method should overwritten by the child class in case the form requires to do an action after data is preview.
+     *
+     * @param {Object} data
+     */
+    onPreview(data) {
+
+    }
+
     mapErrors($form, errorData) {
         // Remove form errors
         $form.find('.js-field-error').remove();

@@ -4,6 +4,7 @@ import Form from './Components/Form';
 import Select2StockMarketTemplate from './Components/Select2StockMarketTemplate';
 import Select2StockInfoTemplate from './Components/Select2StockInfoTemplate';
 import $ from 'jquery';
+import Slider from 'bootstrap-slider';
 
 import 'select2';
 
@@ -166,6 +167,22 @@ class StockForm extends Form {
                 templateSelection: templateSelection,
                 tags: true,
             });
+        });
+    }
+
+    /**
+     * Callback function when data is preview
+     *
+     * This method should overwritten by the child class in case the form requires to do an action after data is preview.
+     *
+     * @param {Object} data
+     */
+    onPreview(data) {
+        let sliderDay = new Slider('#low-high-day-price', {
+            precision: 3
+        });
+        let sliderWeek = new Slider('#low-high-52-week-price', {
+            precision: 3
         });
     }
 }
