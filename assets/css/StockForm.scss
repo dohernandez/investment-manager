@@ -41,9 +41,17 @@
     }
 
     .change {
-        color: #ff333a;
+        margin-left: 4px;
         font-weight: 500;
         font-size: 24px;
+    }
+
+    .positive {
+        color: #093;
+    }
+
+    .negative {
+        color: #ff333a;
     }
 
     .updated-at {
@@ -82,12 +90,14 @@
             td[scope="key"] {
                 color: #9b9b9b !important;
                 text-align: left;
+                width: 60%;
             }
 
             td[scope="value"] {
                 color: #000;
                 font-weight: 400;
                 text-align: right;
+                width: 40%;
             }
         }
 
@@ -115,6 +125,7 @@
 
         .slider.slider-horizontal {
             margin: 0 10px;
+            width: 186px;
         }
 
         b {
@@ -129,6 +140,16 @@
 
         span {
             color: #9b9b9b !important;
+        }
+    }
+
+    table tr {
+        td[scope="key"] {
+            width: 30%;
+        }
+
+        td[scope="value"] {
+            width: 70%;
         }
     }
 }

@@ -128,10 +128,7 @@
     <script type="text/template" id="js-view-template">
         <div class="box no-border no-shadow">
             <div class="box-header with-border">
-                {% embed 'Components/ui/stock-price.html.twig' with {
-                    'current_price': 'value',
-                    'tmpl': true,
-                } %}
+                {% embed 'Components/ui/stock-price.html.twig'%}
                 {% endembed %}
             </div>
             <div class="box-body">

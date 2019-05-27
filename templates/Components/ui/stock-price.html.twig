@@ -4,9 +4,16 @@
     {% set compile = true %}
 {% endif %}
 
+<% var changeClass %>
+<% if (change > 0) { %>
+    <% changeClass = "positive" %>
+<% } else { %>
+    <% changeClass = "negative" %>
+<% } %>
+
 <div class="stock-price-block">
-    <span class="last-price">{{ current_price|compile_tmpl(compile) }}</span>
-    <span class="change">-0.61 (-2.22%)</span>
+    <span class="last-price"><%= value %></span>
+    <span class="change <%= changeClass %>"><%= change %> (<%= changePercentage %>%)</span>
     <div class="text-left" style="margin-top: -8px;">
         <span class="updated-at">At close:  4:01PM EDT</span>
     </div>

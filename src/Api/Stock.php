@@ -39,6 +39,10 @@ class Stock
 
     public $week52High;
 
+    public $change;
+
+    public $changePercentage;
+
     public $type;
 
     public $sector;
@@ -64,6 +68,17 @@ class Stock
         $self->type = $stock->getType() ? Api\StockInfo::fromEntity($stock->getType()) : null;
         $self->sector = $stock->getSector() ? Api\StockInfo::fromEntity($stock->getSector()) : null;
         $self->industry = $stock->getIndustry() ? Api\StockInfo::fromEntity($stock->getIndustry()) : null;
+
+        $self->peRatio = $stock->getPeRatio();
+        $self->preClose = $stock->getPreClose();
+        $self->open = $stock->getOpen();
+        $self->dayLow = $stock->getDayLow();
+        $self->dayHigh = $stock->getDayHigh();
+        $self->week52Low = $stock->getWeek52Low();
+        $self->week52High = $stock->getWeek52High();
+
+        $self->change = round($self->value - $self->preClose, 3);
+        $self->changePercentage = round($self->change * 100 / $self->preClose, 3);
 
         $self->title = (string) $stock;
 

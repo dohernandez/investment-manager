@@ -49,7 +49,7 @@ class Stock implements Entity
 
     /**
      * @Gedmo\Timestampable(on="change", field={"value"})
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $lastPriceUpdate;
 
@@ -89,6 +89,41 @@ class Stock implements Entity
      * @ORM\OneToMany(targetEntity="App\Entity\StockDividend", mappedBy="stock", orphanRemoval=true)
      */
     private $dividends;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $peRatio;
+
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
+     */
+    private $preClose;
+
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
+     */
+    private $open;
+
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
+     */
+    private $dayLow;
+
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
+     */
+    private $dayHigh;
+
+    /**
+     * @ORM\Column(name="week_52_low", type="decimal", precision=10, scale=3, nullable=true)
+     */
+    private $week52Low;
+
+    /**
+     * @ORM\Column(name="week_52_high", type="decimal", precision=10, scale=3, nullable=true)
+     */
+    private $week52High;
 
     public function __construct()
     {
@@ -308,5 +343,89 @@ class Stock implements Entity
         }
 
         return $matches->first()->getExDate();
+    }
+
+    public function getPeRatio(): ?float
+    {
+        return $this->peRatio;
+    }
+
+    public function setPeRatio(?float $peRatio): self
+    {
+        $this->peRatio = $peRatio;
+
+        return $this;
+    }
+
+    public function getPreClose(): ?float
+    {
+        return $this->preClose;
+    }
+
+    public function setPreClose(?float $preClose): self
+    {
+        $this->preClose = $preClose;
+
+        return $this;
+    }
+
+    public function getOpen(): ?float
+    {
+        return $this->open;
+    }
+
+    public function setOpen(?float $open): self
+    {
+        $this->open = $open;
+
+        return $this;
+    }
+
+    public function getDayLow()
+    {
+        return $this->dayLow;
+    }
+
+    public function setDayLow(?float $dayLow): self
+    {
+        $this->dayLow = $dayLow;
+
+        return $this;
+    }
+
+    public function getDayHigh()
+    {
+        return $this->dayHigh;
+    }
+
+    public function setDayHigh(?float $dayHigh): self
+    {
+        $this->dayHigh = $dayHigh;
+
+        return $this;
+    }
+
+    public function getWeek52Low(): ?float
+    {
+        return $this->week52Low;
+    }
+
+    public function setWeek52Low(?float $week52Low): self
+    {
+        $this->week52Low = $week52Low;
+
+        return $this;
+    }
+
+    public function getWeek52High(): ?float
+    {
+        return $this->week52High;
+    }
+
+    public function setWeek52High(?float $week52High): self
+    {
+        $this->week52High = $week52High;
+
+        return $this;
     }
 }

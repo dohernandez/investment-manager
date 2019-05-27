@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Stock;
 use App\Entity\StockDividend;
 use App\Message\StockDividendSaved;
+use DateTime;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -48,9 +49,9 @@ class StockDividendFixtures extends BaseFixtures implements DependentFixtureInte
             );
             $paymentDate = $fakeDate->getTimestamp();
 
-            $stockDividend->setExDate(new \DateTime("@$exDate"))
-                ->setRecordDate(new \DateTime("@$recordDate"))
-                ->setPaymentDate(new \DateTime("@$paymentDate"))
+            $stockDividend->setExDate(new DateTime("@$exDate"))
+                ->setRecordDate(new DateTime("@$recordDate"))
+                ->setPaymentDate(new DateTime("@$paymentDate"))
                 ->setValue($this->faker->randomFloat(4, 0.01, 1.40))
                 ->setStatus(StockDividend::STATUS_ANNOUNCED)
                 ->setStock($stock)
