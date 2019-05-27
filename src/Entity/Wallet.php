@@ -8,7 +8,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\WalletRepository")
  */
-class Wallet
+class Wallet implements Entity
 {
     /**
      * @ORM\Id()
@@ -124,5 +124,13 @@ class Wallet
         $this->slug = $slug;
 
         return $this;
+    }
+
+    /**
+     * @return string Entity string
+     */
+    public function __toString(): string
+    {
+        return $this->getName();
     }
 }

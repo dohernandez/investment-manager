@@ -7,4 +7,24 @@
 {% block javascripts %}
     {{ parent() }}
 
+    <script src="{{ asset('build/wallet_form.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            let swalFormOptionsText = {
+                create: {
+                    confirmButtonText: '{{ 'Create'|trans }}',
+                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
+                },
+            };
+
+            const form = new WalletForm(swalFormOptionsText);
+
+            window.crudManager.withForm(form);
+            window.crudManager.withCreateButton();
+
+            window.crudManager.render();
+        });
+    </script>
 {% endblock %}
