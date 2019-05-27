@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\WalletRepository")
@@ -42,6 +43,12 @@ class Wallet
      */
     private $broker;
 
+    /**
+     * @ORM\Column(type="string", length=255, unique=true)
+     * @Gedmo\Slug(fields={"name"})
+     */
+    private $slug;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,36 +66,36 @@ class Wallet
         return $this;
     }
 
-    public function getInvested()
+    public function getInvested(): float
     {
         return $this->invested;
     }
 
-    public function setInvested($invested): self
+    public function setInvested(float $invested): self
     {
         $this->invested = $invested;
 
         return $this;
     }
 
-    public function getCapital()
+    public function getCapital(): float
     {
         return $this->capital;
     }
 
-    public function setCapital($capital): self
+    public function setCapital(float $capital): self
     {
         $this->capital = $capital;
 
         return $this;
     }
 
-    public function getFunds()
+    public function getFunds(): float
     {
         return $this->funds;
     }
 
-    public function setFunds($funds): self
+    public function setFunds(float $funds): self
     {
         $this->funds = $funds;
 
@@ -103,6 +110,18 @@ class Wallet
     public function setBroker(?Broker $broker): self
     {
         $this->broker = $broker;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
 
         return $this;
     }
