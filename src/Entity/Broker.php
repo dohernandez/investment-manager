@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -34,6 +36,16 @@ class Broker implements Entity
      * @Assert\NotNull(message="Please choose an account")
      */
     private $account;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Wallet", mappedBy="broker", orphanRemoval=true)
+     */
+    private $wallets;
+
+    public function __construct()
+    {
+        $this->wallets = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -82,5 +94,36 @@ class Broker implements Entity
     public function __toString(): string
     {
         return $this->getName();
+    }
+
+    /**
+     * @return Collection|Wallet[]
+     */
+    public function getWallets(): Collection
+    {
+        return $this->wallets;
+    }
+
+    public function addWallet(Wallet $wallet): self
+    {
+        if (!$this->wallets->contains($wallet)) {
+            $this->wallets[] = $wallet;
+            $wallet->setBroker($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWallet(Wallet $wallet): self
+    {
+        if ($this->wallets->contains($wallet)) {
+            $this->wallets->removeElement($wallet);
+            // set the owning side to null (unless already changed)
+            if ($wallet->getBroker() === $this) {
+                $wallet->setBroker(null);
+            }
+        }
+
+        return $this;
     }
 }

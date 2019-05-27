@@ -27,3 +27,7 @@ menu:
         label: 'Broker'
         icon: 'fas fa-business-time'
         route: 'broker_index'
+      WalletMenuItem:
+        label: 'Wallet'
+        icon: 'fas fa-wallet'
+        route: 'wallet_index'
