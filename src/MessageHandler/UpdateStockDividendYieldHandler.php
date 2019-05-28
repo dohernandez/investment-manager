@@ -38,6 +38,7 @@ class UpdateStockDividendYieldHandler implements MessageSubscriberInterface
      * @param StockDividendSaved $message
      *
      * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\Query\QueryException
      */
     public function stockDividendSaved(StockDividendSaved $message)
     {
@@ -104,6 +105,7 @@ class UpdateStockDividendYieldHandler implements MessageSubscriberInterface
      * @param StockDividendDeleted $message
      *
      * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\Query\QueryException
      */
     public function stockDividendDeleted(StockDividendDeleted $message)
     {
