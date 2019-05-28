@@ -22,12 +22,19 @@ class BrokerController extends BaseController
      * @Route("/", name="broker_list", methods={"GET"}, options={"expose"=true})
      *
      * @param BrokerRepository $repo
+     * @param Request $request
      *
      * @return JsonResponse
      */
-    public function all(BrokerRepository $repo): JsonResponse
+    public function all(BrokerRepository $repo, Request $request): JsonResponse
     {
-        $brokers = $repo->findAll();
+        $query = $request->query->get('q');
+
+        if ($query !== null) {
+            $brokers = $repo->findAllMatching($query);
+        } else {
+            $brokers = $repo->findAll();
+        }
 
         $apiBrokers = [];
 

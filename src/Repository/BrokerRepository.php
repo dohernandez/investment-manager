@@ -19,6 +19,26 @@ class BrokerRepository extends ServiceEntityRepository
         parent::__construct($registry, Broker::class);
     }
 
+    /**
+     * @param string $query
+     * @param int $limit
+     *
+     * @return Broker[]
+     */
+    public function findAllMatching(string $query, int $limit = 5)
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('a.accountNo LIKE :accountNo OR b.name LIKE :name')
+            ->leftJoin('b.account', 'a')
+            ->setParameter('accountNo', '%'.$query.'%')
+            ->setParameter('name', '%'.$query.'%')
+            ->orderBy('b.name', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     // /**
     //  * @return Broker[] Returns an array of Broker objects
     //  */

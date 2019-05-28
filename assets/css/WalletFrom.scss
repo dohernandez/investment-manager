@@ -1,0 +1,16 @@
+@import "~select2/dist/css/select2.css";
+
+.select2-container .select2-selection--single {
+    height: 34px;
+    text-align: left;
+    font-size: 14px;
+    padding-left: 4px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 30px;
+}
+
+.select2-results__option {
+    font-size: 14px;
+}

@@ -19,6 +19,9 @@ class WalletType extends AbstractType
                     'autocomplete' => "off",
                 ],
             ])
+            ->add('broker', BrokerChoiceType::class, [
+                'placeholder' => 'Choose a broker'
+            ])
         ;
     }
 
