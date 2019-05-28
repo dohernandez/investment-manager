@@ -14,6 +14,8 @@ class Wallet
 
     public $invested;
 
+    public $capital;
+
     public $title;
 
     static public function fromEntity(Entity\Wallet $wallet): self
@@ -24,6 +26,7 @@ class Wallet
         $self->name = $wallet->getName();
         $self->funds = $wallet->getFunds();
         $self->invested = $wallet->getInvested();
+        $self->capital = $wallet->getCapital();
 
         $self->title = (string) $wallet;
 
