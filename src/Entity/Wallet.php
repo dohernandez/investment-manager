@@ -153,4 +153,9 @@ class Wallet implements Entity
 
         return $this;
     }
+
+    public function getBenefits(): float
+    {
+        return $this->getCapital() + $this->getFunds() - $this->getInvested();
+    }
 }

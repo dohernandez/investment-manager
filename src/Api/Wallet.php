@@ -16,6 +16,10 @@ class Wallet
 
     public $capital;
 
+    public $benefits;
+
+    public $pBenefits;
+
     public $broker;
 
     public $title;
@@ -29,6 +33,10 @@ class Wallet
         $self->funds = $wallet->getFunds();
         $self->invested = $wallet->getInvested();
         $self->capital = $wallet->getCapital();
+
+        $self->benefits = $wallet->getBenefits();
+        $self->pBenefits = $self->benefits * 100 / $self->invested;
+
 
         $self->broker = Broker::fromEntity($wallet->getBroker());
 
