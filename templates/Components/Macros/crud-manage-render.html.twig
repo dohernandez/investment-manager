@@ -1,7 +1,9 @@
+{# field #}
 {% macro render_field(value) %}
     <%= {{ value }} %>
 {% endmacro render_field %}
 
+{# currency #}
 {% macro render_currency(value, currency) %}
     {% set _currency = currency |default('euro') %}
 
@@ -12,12 +14,14 @@
     {% endif %}
 {% endmacro render_currency %}
 
+{# date #}
 {% macro render_date(value, format) %}
     <% if ({{ value }} !== null) { %>
         <%= moment(new Date({{ value }})).format('{{ format }}') %>
     <% } %>
 {% endmacro render_date %}
 
+{# slice #}
 {% macro render_slice(value, truncate) %}
     {% if value|length > truncate %}
         {{ value|slice(0, truncate) ~ '...' }}
@@ -26,11 +30,17 @@
     {% endif %}
 {% endmacro render_slice %}
 
+{# account #}
 {% macro render_account(value) %}
     <strong><%= {{ value }}.name %></strong>
     <br>
     <small><%= {{ value }}.accountNo %></small>
 {% endmacro render_account %}
+
+{# broker #}
+{% macro render_broker(value) %}
+    <strong><%= {{ value }}.name %></strong>
+{% endmacro render_broker %}
 
 {% macro render_percentage(value) %}
     <% if ({{ value }} !== null && {{ value }} !== 0) { %>
@@ -44,6 +54,8 @@
     {% if field is defined %}
         {% if field.render is not defined %}
             {{ render.render_field(value) }}
+        {% elseif field.render == 'broker' %}
+            {{ render.render_broker(value) }}
         {% elseif field.render == 'account' %}
             {{ render.render_account(value) }}
         {% elseif field.render == 'currency' %}
