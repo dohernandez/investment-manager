@@ -43,7 +43,7 @@ class StockMarket implements Entity
     private $symbol;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Stock", mappedBy="market")
+     * @ORM\OneToMany(targetEntity="App\Entity\Stock", mappedBy="market", orphanRemoval=true)
      */
     private $stocks;
 
