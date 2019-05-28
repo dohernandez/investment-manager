@@ -113,4 +113,20 @@ class WalletController extends BaseController
             ]
         );
     }
+
+    /**
+     * @Route("/{id}", name="wallet_edit", methods={"PUT"}, options={"expose"=true})
+     *
+     * @param Entity\Wallet $wallet
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function edit(Entity\Wallet $wallet, EntityManagerInterface $em, Request $request): Response
+    {
+        $form = $this->createForm(WalletType::class, $wallet);
+
+        return $this->save($form, $em, $request);
+    }
 }

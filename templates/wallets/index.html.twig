@@ -19,12 +19,19 @@
                     titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
                     toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
                 },
+                update: {
+                    confirmButtonText: '{{ 'Update'|trans }}',
+                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was updated successfully.'|trans }}'
+                },
             };
 
             const form = new WalletForm(swalFormOptionsText);
 
             window.crudManager.withForm(form);
             window.crudManager.withCreateButton();
+            // add button edit
+            crudManager.withEditButton();
 
             window.crudManager.render();
         });
