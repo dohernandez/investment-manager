@@ -53,6 +53,16 @@ class Account implements Entity
      */
     private $broker;
 
+    /**
+     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
+     */
+    private $withdraw;
+
+    /**
+     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
+     */
+    private $deposit;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -129,5 +139,69 @@ class Account implements Entity
         }
 
         return $this;
+    }
+
+    public function getWithdraw(): ?float
+    {
+        return $this->withdraw;
+    }
+
+    public function setWithdraw(?float $withdraw): self
+    {
+        $this->withdraw = $withdraw;
+
+        return $this;
+    }
+
+    public function addWithdraw(?float $withdraw): self
+    {
+        $this->setWithdraw($this->getWithdraw() + $withdraw);
+
+        $broker = $this->getBroker();
+        if ($broker !== null) {
+            $wallet = $broker->getWallet();
+
+            if ($wallet !== null) {
+                $wallet->subtractFunds($withdraw);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getDeposit(): ?float
+    {
+        return $this->deposit;
+    }
+
+    public function setDeposit(?float $deposit): self
+    {
+        $this->deposit = $deposit;
+
+        return $this;
+    }
+
+    public function addDeposit(?float $deposit): self
+    {
+        $this->setDeposit($this->getDeposit() + $deposit);
+
+        $broker = $this->getBroker();
+        if ($broker !== null) {
+            $wallet = $broker->getWallet();
+
+            if ($wallet !== null) {
+                $wallet->addFunds($deposit);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getBalance(): ?float
+    {
+        $deposit = $this->getDeposit() ?? 0;
+        $withdraw = $this->getWithdraw() ?? 0;
+
+        return $deposit - $withdraw;
     }
 }

@@ -32,7 +32,15 @@ class WalletViewParameters extends AbstractViewParameters
     {
         return [
             [
-                'name' => 'name'
+                'name' => 'name',
+            ],
+            [
+                'name' => 'invested',
+                'render' => 'currency',
+            ],
+            [
+                'name' => 'funds',
+                'render' => 'currency',
             ],
         ];
     }

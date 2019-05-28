@@ -10,6 +10,9 @@ class Wallet
 
     public $name;
 
+    public $funds;
+
+    public $invested;
 
     public $title;
 
@@ -19,6 +22,8 @@ class Wallet
 
         $self->id = $wallet->getId();
         $self->name = $wallet->getName();
+        $self->funds = $wallet->getFunds();
+        $self->invested = $wallet->getInvested();
 
         $self->title = (string) $wallet;
 

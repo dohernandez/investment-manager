@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\Types\This;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StockInfoRepository")
@@ -15,6 +16,8 @@ class StockInfo implements Entity
     const TYPE = 'type';
     const SECTOR = 'sector';
     const INDUSTRY = 'industry';
+
+    use TimestampableEntity;
 
     /**
      * @ORM\Id()

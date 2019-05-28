@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -12,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Broker implements Entity
 {
+    use TimestampableEntity;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -38,14 +41,9 @@ class Broker implements Entity
     private $account;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Wallet", mappedBy="broker", orphanRemoval=true)
+     * @ORM\OneToOne(targetEntity="App\Entity\Wallet", mappedBy="broker")
      */
-    private $wallets;
-
-    public function __construct()
-    {
-        $this->wallets = new ArrayCollection();
-    }
+    private $wallet;
 
     public function getId(): ?int
     {
@@ -96,33 +94,14 @@ class Broker implements Entity
         return $this->getName();
     }
 
-    /**
-     * @return Collection|Wallet[]
-     */
-    public function getWallets(): Collection
+    public function getWallet(): ?Wallet
     {
-        return $this->wallets;
+        return $this->wallet;
     }
 
-    public function addWallet(Wallet $wallet): self
+    public function setWallet(?Wallet $wallet): self
     {
-        if (!$this->wallets->contains($wallet)) {
-            $this->wallets[] = $wallet;
-            $wallet->setBroker($this);
-        }
-
-        return $this;
-    }
-
-    public function removeWallet(Wallet $wallet): self
-    {
-        if ($this->wallets->contains($wallet)) {
-            $this->wallets->removeElement($wallet);
-            // set the owning side to null (unless already changed)
-            if ($wallet->getBroker() === $this) {
-                $wallet->setBroker(null);
-            }
-        }
+        $this->wallet = $wallet;
 
         return $this;
     }

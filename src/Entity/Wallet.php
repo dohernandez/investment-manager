@@ -4,12 +4,16 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\WalletRepository")
  */
 class Wallet implements Entity
 {
+
+    use TimestampableEntity;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -38,7 +42,7 @@ class Wallet implements Entity
     private $funds = 0;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Broker", inversedBy="wallets")
+     * @ORM\OneToOne(targetEntity="App\Entity\Broker", inversedBy="wallet")
      * @ORM\JoinColumn(nullable=false)
      */
     private $broker;
@@ -132,5 +136,21 @@ class Wallet implements Entity
     public function __toString(): string
     {
         return $this->getName();
+    }
+
+    public function addFunds(float $funds): self
+    {
+        $this->setCapital($this->getCapital() + $funds);
+        $this->setFunds($this->getFunds() + $funds);
+
+        return $this;
+    }
+
+    public function subtractFunds(float $funds): self
+    {
+        $this->setCapital($this->getCapital() - $funds);
+        $this->setFunds($this->getFunds() - $funds);
+
+        return $this;
     }
 }

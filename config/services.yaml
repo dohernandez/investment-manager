@@ -41,3 +41,12 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+
+    App\EventListener\PersistTransferListener:
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }
+
+    App\EventListener\PersistWalletListener:
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }
