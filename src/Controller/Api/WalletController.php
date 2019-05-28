@@ -129,4 +129,24 @@ class WalletController extends BaseController
 
         return $this->save($form, $em, $request);
     }
+
+    /**
+     * @Route("/{id}", name="wallet_delete", methods={"DELETE"}, options={"expose"=true})
+     *
+     * @param EntityManagerInterface $em
+     * @param Entity\Wallet $wallet
+     *
+     * @return Response
+     */
+    public function delete(EntityManagerInterface $em, Entity\Wallet $wallet): Response
+    {
+        if (!$wallet) {
+            return $this->createApiErrorResponse('Wallet not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $em->remove($wallet);
+        $em->flush();
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
 }
