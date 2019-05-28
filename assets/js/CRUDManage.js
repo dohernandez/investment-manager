@@ -151,6 +151,8 @@ class CRUDManage {
                     this.showPerPage = parseInt(perPage);
                     this.page = 1;
 
+                    this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
+
                     this._refreshPagination();
                 }
             );
