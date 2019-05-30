@@ -23,6 +23,7 @@
            },
        ]
     form => form object,
+    create_button_label => Different value for create button. Example Add operation
 #}
 
 {% import 'Components/Macros/crud-manage-render.html.twig' as render %}
@@ -30,7 +31,13 @@
 <!-- create button table manager template -->
 <script type="text/template" id="js-manager-create-button-template">
     <button class="js-entity-create btn btn-success pull-right">
-        <i class="fa-plus-circle fa" aria-hidden="true"></i> {{ 'Create new'|trans }} {{ entity_name|trans|lower }}</button>
+        <i class="fa-plus-circle fa" aria-hidden="true"></i>
+        {% if create_button_label is not defined %}
+            {{ 'Create new'|trans }} {{ entity_name|trans|lower }}
+        {% else  %}
+            {{ create_button_label }}
+        {% endif  %}
+    </button>
 </script>
 
 <!-- create search table manager template -->
@@ -59,6 +66,7 @@
         entries</label>
 </script>
 
+{% if fields is defined %}
 <!-- row table manager template -->
 <script type="text/template" id="js-manager-row-template">
     <tr data-id="<%= id %>" data-i="<%= index %>">
@@ -107,6 +115,7 @@
         </td>
     </tr>
 </script>
+{% endif %}
 
 <!--
     This two script exposes a global variable called Routing.
@@ -119,6 +128,7 @@
 <script src="{{ asset('build/vendors.js') }}"></script>
 <script src="{{ asset('build/crud_manager.js') }}"></script>
 
+{% if form is defined %}
 <!-- form table manager template -->
 <script type="text/template" id="js-manager-form-template">
     {% set _form_theme = form_theme|default('Components/Form/horizontal-theme-form.html.twig') %}
@@ -130,6 +140,7 @@
     </div>
     {{ form_end(form) }}
 </script>
+{% endif %}
 
 <script>
     // Set up swal confirm options

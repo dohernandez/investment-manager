@@ -5,6 +5,8 @@
 {% block stylesheets %}
     {{ parent() }}
 
+    {% include 'Components/ui/crud-manage-css.html.twig' %}
+
     <link rel="stylesheet" href="{{ asset('build/wallet_dashboard.css') }}">
 {% endblock %}
 
@@ -12,22 +14,59 @@
 
     {% include 'wallets/head-dashboard.html.twig' %}
 
-    <div class="box box-{{ box_type|default('info') }} js-wallet-dashboard">
-        <div class="box-header">
-        </div>
-        <!-- /.box-header -->
-        <div class="box-body">
-        </div>
-        <!-- /.box-body -->
-        <div class="box-footer">
-        </div>
-        <!-- /.box-footer -->
-    </div>
+    {% embed 'Components/ui/crud-manage-table.html.twig' with {
+        'entity_name': operation_entity_name,
+        'fields': wallet_items_fields,
+        'js_crud_manage_class': 'js-operation-crud-manage-row-box'
+    }%}
+    {% endembed %}
 
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
 
+    {% embed 'Components/ui/crud-manage-scripts.html.twig' with {
+        'entity_name': operation_entity_name,
+        'fields': wallet_items_fields,
+        'create_button_label': 'Add new'|trans ~ ' ' ~ operation_entity_name|trans|lower
+    }%}
+    {% endembed %}
+
     <script src="{{ asset('build/wallet_dashboard.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            let swalFormOperationOptionsText = {
+                create: {
+                    confirmButtonText: '{{ 'Create'|trans }}',
+                    titleText: '{{ 'Add new'|trans }} {{ operation_entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was added successfully.'|trans }}'
+                },
+            };
+
+            // Create page instance
+            let $crudManagerRowBox = $('.js-operation-crud-manage-row-box');
+
+            let contentWrapper = $crudManagerRowBox.closest('section');
+            let entityType = $crudManagerRowBox.data('entity-type');
+
+            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
+            let crudManager = new CRUDManage({
+                entityType: entityType,
+                wrapper: contentWrapper,
+                swalFormOptions: window.swalFormOptions,
+                swalConfirmOptions: window.swalConfirmOptions,
+                toastOptions: window.toastOptions,
+                pagination: true,
+            });
+
+            // const form = new WalletForm(swalFormOptionsText);
+
+            // crudManager.withForm(form);
+            crudManager.withCreateButton();
+
+            crudManager.render();
+        });
+    </script>
 {% endblock %}

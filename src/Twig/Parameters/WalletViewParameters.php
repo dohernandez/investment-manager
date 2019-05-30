@@ -83,6 +83,9 @@ class WalletViewParameters extends AbstractViewParameters
         return [
                 'wallet' => $wallet,
                 'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
+                'operation_entity_name' => 'operation',
+                'wallet_items_fields' => [],
+                'operation_form' => [],
             ] + $context;
     }
 
