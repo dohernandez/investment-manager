@@ -257,4 +257,41 @@ class BrokerController extends BaseController
             ]
         );
     }
+
+    /**
+     * @Route("/{id}/stocks/{stockId}", name="broker_stock_delete", methods={"DELETE"}, options={"expose"=true})
+     *
+     * @param Entity\Broker $broker
+     * @param StockRepository $stockRepo
+     * @param int $stockId
+     * @param EntityManagerInterface $em
+     *
+     * @return Response
+     */
+    public function removeStock(
+        Entity\Broker $broker,
+        StockRepository $stockRepo,
+        int $stockId,
+        EntityManagerInterface $em
+    ): Response {
+        if (!$broker) {
+            return $this->createApiErrorResponse('Broker not found', Response::HTTP_NOT_FOUND);
+        }
+
+        if ($stockId === '') {
+            return $this->createApiErrorResponse('Invalid stock. Stock can not be empty value.', Response::HTTP_BAD_REQUEST);
+        }
+
+        $stock = $stockRepo->find($stockId);
+        if ($stock === null) {
+            return $this->createApiErrorResponse('Stock not found', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $broker->removeStock($stock);
+
+        $em->persist($broker);
+        $em->flush();
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
 }

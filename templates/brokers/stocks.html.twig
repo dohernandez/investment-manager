@@ -98,6 +98,10 @@
 
                         break;
                     case 'delete':
+                        if (id) {
+                            param['stockId'] = id;
+                        }
+
                         route = Routing.generate(entityType + '_delete', param);
 
                         break;

@@ -135,7 +135,6 @@ class BrokerStockForm extends Form {
                 return false;
             })
             .then((result) => {
-                console.log(formOptions);
                 // Show popup with success message
                 if (result.item) {
                     this._showStatusMessage(formOptions.text.toastTitleText);
