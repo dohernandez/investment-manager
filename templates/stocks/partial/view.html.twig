@@ -1,0 +1,76 @@
+<div class="box no-border no-shadow">
+    <div class="box-header with-border">
+        {% embed 'Components/ui/stock-price.html.twig'%}
+        {% endembed %}
+    </div>
+    <div class="box-body">
+        <div class="row stock-price-row">
+            <div class="col-md-5">
+                {% embed 'Components/ui/table-simple-key-value.html.twig' with {
+                    'rows' : [
+                        {
+                            'key': 'Prev. Close',
+                            'value': 'preClose',
+                        },
+                        {
+                            'key': 'Open',
+                            'value': 'open',
+                        },
+                        {
+                            'key': 'PE Ratio (TTM)',
+                            'value': 'peRatio',
+                        },
+                        {
+                            'key': 'Forward Dividend & Yield',
+                            'value': 'forwardDividendYield',
+                        },
+                        {
+                            'key': 'Ex-Dividend Date',
+                            'value': 'open',
+                        },
+                    ],
+                    'tmpl': true,
+                } %}
+                {% endembed %}
+            </div>
+            <div class="col-md-7 stock-open-close-day-price-block pull-right">
+                {% embed 'Components/ui/range-slider-show.html.twig' with {
+                    'id': 'low-high-day-price',
+                    'min_price': 'dayLow',
+                    'max_price': 'dayHigh',
+                    'current_price': 'value',
+                    'type' : 'Day low/high'|trans|upper,
+                    'tmpl': true,
+                } %}
+                {% endembed %}
+                {% embed 'Components/ui/range-slider-show.html.twig' with {
+                    'id': 'low-high-52-week-price',
+                    'min_price': 'week52Low',
+                    'max_price': 'week52High',
+                    'current_price': 'value',
+                    'type' : '52 week low/high'|trans|upper,
+                    'tmpl': true,
+                } %}
+                {% endembed %}
+                {% embed 'Components/ui/table-simple-key-value.html.twig' with {
+                    'rows' : [
+                        {
+                            'key': 'Sector',
+                            'value': 'sector.title'
+                        },
+                        {
+                            'key': 'Industry',
+                            'value': 'industry.title'
+                        },
+                    ],
+                    'tmpl': true,
+                } %}
+                {% endembed %}
+            </div>
+        </div>
+        <div class="row stock-description-row">
+            <h4>{{ 'Description'|trans }}</h4>
+            <p><%= description %></p>
+        </div>
+    </div>
+</div>
