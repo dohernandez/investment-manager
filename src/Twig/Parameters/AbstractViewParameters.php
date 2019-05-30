@@ -28,12 +28,12 @@ abstract class AbstractViewParameters
     /**
      * @var FormFactoryInterface
      */
-    private $form;
+    protected $form;
 
     /**
      * @var RouterInterface
      */
-    private $router;
+    protected $router;
 
     public function __construct(FormFactoryInterface $form, RouterInterface $router)
     {

@@ -167,26 +167,7 @@ class CRUDManage {
         // render manage col with
         let $manageButtons = this.$wrapper.find(CRUDManage._selectors.manageButtons);
 
-        console.log($manageButtons.width());
-        console.log(this.buttonColWidth);
         $manageButtons.css( "width", this.buttonColWidth );
-        console.log($manageButtons.width());
-        //
-        // switch (this.totalButtons) {
-        //     case 1:
-        //         $manageButtons.css( "width", "54" );
-        //         break;
-        //     case 2:
-        //         $manageButtons.css( "width", "90" );
-        //         break;
-        //     case 3:
-        //         $manageButtons.css( "width", "128" );
-        //         break;
-        //     case 4:
-        //         $manageButtons.css( "width", "165" );
-        //         break;
-        //     default:
-        // }
 
         this.loadRows();
     }

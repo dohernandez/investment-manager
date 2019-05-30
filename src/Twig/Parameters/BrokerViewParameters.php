@@ -3,6 +3,7 @@
 namespace App\Twig\Parameters;
 
 use App\Entity\Broker;
+use App\Form\BrokerStockType;
 use App\Form\BrokerType;
 
 /**
@@ -19,6 +20,11 @@ class BrokerViewParameters extends AbstractViewParameters
      * {@inheritdoc}
      */
     protected $newFormTypeClass = BrokerType::class;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $newStockFormTypeClass = BrokerStockType::class;
 
     /**
      * {@inheritdoc}
@@ -50,5 +56,57 @@ class BrokerViewParameters extends AbstractViewParameters
                     ],
                 ],
             ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getStockFields(): array
+    {
+        return [
+            [
+                'name' => 'name'
+            ],
+            [
+                'name' => 'symbol',
+            ],
+            [
+                'name' => 'value',
+                'render' => 'currency',
+            ],
+            [
+                'name' => 'dividendYield',
+                'label' => 'D. Yield',
+                'render' => 'percentage',
+            ],
+            [
+                'name' => 'exDate',
+                'label' => 'Ex. Date',
+                'render' => 'date',
+                'date_format' => 'DD/MM/YYYY',
+                'class' => 'js-manager-table-extra-cell',
+            ],
+        ];
+    }
+
+    public function stocks(Broker $broker, array $context = []): array
+    {
+        $form = $this->form->create($this->newStockFormTypeClass);
+
+        return [
+                'broker' => $broker,
+                'fields' => $this->getStockFields(),
+                'entity_name' => 'broker_stock',
+                'form' => $form->createView(),
+            ] + $context + [
+                'buttons' => [
+                    [
+                        'type' => 'warning',
+                        'jsClass' => 'js-entity-edit-dividend-yield',
+                        'icon' => 'fas fa-donate',
+                    ],
+                ],
+                'create_button_label' => 'Add stock',
+            ];
     }
 }

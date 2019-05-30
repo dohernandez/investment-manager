@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Broker;
 use App\Repository\BrokerRepository;
+use App\Twig\Parameters\BrokerStockViewParameters;
 use App\Twig\Parameters\BrokerViewParameters;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,8 +20,7 @@ class BrokerController extends AbstractController
      */
     private $brokerViewParameters;
 
-    public function __construct(BrokerViewParameters $brokerViewParameters)
-    {
+    public function __construct(BrokerViewParameters $brokerViewParameters) {
         $this->brokerViewParameters = $brokerViewParameters;
     }
 
@@ -33,5 +34,17 @@ class BrokerController extends AbstractController
     public function index(BrokerRepository $repo): Response
     {
         return $this->render('brokers/index.html.twig', $this->brokerViewParameters->index());
+    }
+
+    /**
+     * @Route("/{id}/stocks", name="broker_stock_index", methods={"GET"}, options={"expose"=true})
+     *
+     * @param Broker $broker
+     *
+     * @return Response
+     */
+    public function stocks(Broker $broker): Response
+    {
+        return $this->render('brokers/stocks.html.twig', $this->brokerViewParameters->stocks($broker));
     }
 }

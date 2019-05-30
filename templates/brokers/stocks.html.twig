@@ -4,8 +4,6 @@
     {{ parent() }}
 
     {% include 'Components/ui/crud-manage-css.html.twig' %}
-
-    <link rel="stylesheet" href="{{ asset('build/broker_form.css') }}">
 {%  endblock %}
 
 {% block page_content %}
@@ -16,24 +14,16 @@
     {{ parent() }}
 
     {% include 'Components/ui/crud-manage-scripts.html.twig' %}
-
-    <script src="{{ asset('build/broker_form.js') }}"></script>
-
     <script>
         $(document).ready(function() {
             let swalFormOptionsText = {
                 create: {
-                    confirmButtonText: '{{ 'Create'|trans }}',
-                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
-                },
-                update: {
-                    confirmButtonText: '{{ 'Update'|trans }}',
-                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was updated successfully.'|trans }}'
+                    confirmButtonText: '{{ 'Add'|trans }}',
+                    titleText: '{{ 'Add new'|trans }} {{ entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was added successfully.'|trans }}'
                 },
                 delete: {
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was removed successfully.'|trans }}'
                 }
             };
 
@@ -53,13 +43,11 @@
                 pagination: true,
             });
 
-            const form = new BrokerForm(swalFormOptionsText);
+            // const form = new BrokerForm(swalFormOptionsText);
 
-            crudManager.withForm(form);
+            // crudManager.withForm(form);
             // add button create
             crudManager.withCreateButton();
-            // add button edit
-            crudManager.withEditButton();
             // add button delete
             crudManager.withDeleteButton();
 
@@ -67,18 +55,39 @@
             // Delegate selector for edit stock dividend
             $('.js-crud-manage-row-box').closest('section').on(
                 'click',
-                '.js-entity-edit-broker-stocks',
+                '.js-entity-edit-dividend-yield',
                 function (e) {
                     e.preventDefault();
 
                     const $row = $(e.currentTarget).closest('tr');
                     const id = $row.data('id');
 
-                    window.location = Routing.generate('broker_stock_index', {id})
+                    window.location = Routing.generate('stock_dividend_index', {'_id': id})
                 }
             );
-            // 2 is the extra width require to adjust the button col
-            crudManager.withExtraButton(2);
+            crudManager.withExtraButton();
+
+            crudManager.setRouteGenerating((entityType, endpoint, id = null) => {
+                let route = '';
+                let param = {
+                    'id': {{ broker.id }}
+                };
+
+                switch (endpoint) {
+                    case 'list':
+                        route = Routing.generate(entityType + '_list', param);
+
+                        break;
+                    case 'delete':
+                        route = Routing.generate(entityType + '_delete', param);
+
+                        break;
+                    default:
+                        throw 'Endpoint ' + endpoint + ' not supported';
+                }
+
+                return route
+            });
 
             crudManager.render();
         });

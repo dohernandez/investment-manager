@@ -177,4 +177,33 @@ class BrokerController extends BaseController
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
+
+    /**
+     * @Route("/{id}/stocks", name="broker_stock_list", methods={"GET"}, options={"expose"=true})
+     *
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @param Entity\Broker $broker
+     *
+     * @return Response
+     */
+    public function stocks(Entity\Broker $broker): Response
+    {
+        if (!$broker) {
+            return $this->createApiErrorResponse('Broker not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $apiStocks = [];
+
+        foreach ($broker->getStocks() as $stock) {
+            $apiStocks[] = Api\Stock::fromEntity($stock);
+        }
+
+        return $this->createApiResponse(
+            [
+                'total_count' => count($apiStocks),
+                'items' => $apiStocks,
+            ]
+        );
+    }
 }
