@@ -1,4 +1,4 @@
-{% extends 'Components/Layout/box.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block page_subtitle %}{{ wallet.name }}{% endblock %}
 
@@ -8,9 +8,22 @@
     <link rel="stylesheet" href="{{ asset('build/wallet_dashboard.css') }}">
 {% endblock %}
 
-{% block info_header %}
-    {% embed 'wallets/head-dashboard.html.twig' %}
-    {% endembed %}
+{% block page_content %}
+
+    {% include 'wallets/head-dashboard.html.twig' %}
+
+    <div class="box box-{{ box_type|default('info') }} js-wallet-dashboard">
+        <div class="box-header">
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+        </div>
+        <!-- /.box-footer -->
+    </div>
+
 {% endblock %}
 
 {% block javascripts %}
