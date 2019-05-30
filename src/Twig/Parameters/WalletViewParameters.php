@@ -2,6 +2,7 @@
 
 namespace App\Twig\Parameters;
 
+use App\Entity\Entity;
 use App\Entity\Wallet;
 use App\Form\WalletType;
 
@@ -57,4 +58,32 @@ class WalletViewParameters extends AbstractViewParameters
             ],
         ];
     }
+
+    public function index(array $entities = [], array $context = []): array
+    {
+        return parent::index($entities, $context + [
+            'buttons' => [
+                [
+                    'type' => 'info',
+                    'jsClass' => 'js-entity-dashboard-yield',
+                    'icon' => 'fas fa-book-open',
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * @param Wallet $wallet
+     * @param array $context
+     *
+     * @return array
+     */
+    public function dashboard(Wallet $wallet, array $context = []): array
+    {
+        return [
+                'wallet' => $wallet,
+                'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
+            ] + $context;
+    }
+
 }

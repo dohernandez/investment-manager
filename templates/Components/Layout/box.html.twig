@@ -1,6 +1,29 @@
-<div class="box {% if box_type %}box-{{ box_type|default('info') }}{% endif %}">
-    <div class="box-header with-border">
-        <h3 class="box-title">{{ block('box_title') }}</h3>
+{% extends 'base.html.twig' %}
+
+{% block page_content %}
+
+{% if block('info_header') is defined %}
+    {{ block('info_header') }}
+{% endif %}
+
+<div class="box box-{{ box_type|default('info') }} js-wallet-dashboard">
+    {% if block('box_header') is defined %}
+        <div class="box-header">
+            {{ block('box_header') }}
+        </div>
+    {% endif %}
+    <!-- /.box-header -->
+    {% if block('box_body') is defined %}
+        <div class="box-body">
+                {{ block('box_body') }}
+        </div>
+    {% endif %}
+    <!-- /.box-body -->
+    {% if block('box_footer') is defined %}
+    <div class="box-footer">
+        {{ block('box_footer') }}
     </div>
-    {% include 'Components/Layout/_box.html.twig' %}
+    {% endif %}
+    <!-- /.box-footer -->
 </div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'Components/Layout/box.html.twig' %}
+
+{% block page_subtitle %}{{ wallet.name }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link rel="stylesheet" href="{{ asset('build/wallet_dashboard.css') }}">
+{% endblock %}
+
+{% block info_header %}
+    {% embed 'wallets/head-dashboard.html.twig' %}
+    {% endembed %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('build/wallet_dashboard.js') }}"></script>
+{% endblock %}

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Wallet;
 use App\Repository\WalletRepository;
 use App\Twig\Parameters\WalletViewParameters;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,5 +36,17 @@ class WalletController extends AbstractController
         $wallets = $repo->findAll();
 
         return $this->render('wallets/index.html.twig', $this->walletViewParameters->index($wallets));
+    }
+
+    /**
+     * @Route("/{id}/dashboard", name="wallet_dashboard", methods={"GET"}, options={"expose"=true})
+     *
+     * @param Wallet $wallet
+     *
+     * @return Response
+     */
+    public function dashboard(Wallet $wallet): Response
+    {
+        return $this->render('wallets/dashboard.html.twig', $this->walletViewParameters->dashboard($wallet));
     }
 }

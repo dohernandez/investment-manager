@@ -1,0 +1,28 @@
+.js-wallet-info-header {
+
+  .info-box-icon {
+    width: 85px;
+    height: 105px;
+  }
+
+  .info-box {
+    min-height: 104px;
+
+    .info-box-content {
+      padding: 5px 10px 5px 10px;
+
+      .info-box-text {
+        font-size: 12px;
+      }
+
+      .row {
+        display: flow-root;
+      }
+
+      .separator {
+        height: 10px;
+      }
+    }
+  }
+}
+

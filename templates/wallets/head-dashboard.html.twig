@@ -1,0 +1,90 @@
+<div class="row js-wallet-info-header">
+    <!-- Invested -->
+    <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-yellow"><i class="fas fa-piggy-bank"></i></span>
+
+            <div class="info-box-content">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <span class="info-box-text">{{ 'Invested'|trans }}</span>
+                        <span class="info-box-number"><small>&euro;</small> {{ wallet.invested }}</span>
+                    </div>
+                </div>
+                <div class="row separator"></div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <span class="info-box-text">{{ 'Dividends'|trans }}</span>
+                        <span class="info-box-number"><small>&euro;</small> {{ wallet.invested }}</span>
+                    </div>
+                    <div class="col-xs-6">
+                        <span class="info-box-text">{{ 'Benefits'|trans }}</span>
+                        <span class="info-box-number"><small>&euro;</small> {{ wallet.benefits }}</span>
+                    </div>
+                </div>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- Capital -->
+    <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-aqua"><i class="fas fa-cash-register"></i></span>
+
+            <div class="info-box-content">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <span class="info-box-text">{{ 'Capital'|trans }}</span>
+                        <span class="info-box-number"><small>&euro;</small> {{ wallet.capital }}</span>
+                    </div>
+                    <div class="col-xs-6">
+                        <span class="info-box-text">{{ 'Net Capital'|trans }}</span>
+                        <span class="info-box-number"><small>&euro;</small> {{ wallet.capital }}</span>
+                    </div>
+                </div>
+                <div class="row separator"></div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <span class="info-box-text">{{ 'Margin'|trans }}</span>
+                        <span class="info-box-number"><small>&euro;</small> {{ wallet.capital }}</span>
+                    </div>
+                    <div class="col-xs-6">
+                        <span class="info-box-text">{{ 'Funds'|trans }}</span>
+                        <span class="info-box-number"><small>&euro;</small> {{ wallet.funds }}</span>
+                    </div>
+                </div>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- Funds -->
+    <div class="col-md-4 col-sm-6 col-xs-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-aqua"><i class="fas fa-book"></i></span>
+
+            <div class="info-box-content">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <span class="info-box-text">{{ 'Commissions'|trans }}</span>
+                        <span class="info-box-number"><small>&euro;</small> {{ wallet.capital }}</span>
+                    </div>
+                    <div class="col-xs-6">
+                        <span class="info-box-text">{{ 'Interest'|trans }}</span>
+                        <span class="info-box-number"><small>&euro;</small> {{ wallet.capital }}</span>
+                    </div>
+                </div>
+                <div class="row separator"></div>
+                <div class="row">
+                    <div class="col-xs-6 pull-right">
+                        <span class="info-box-text">{{ 'Connection'|trans }}</span>
+                        <span class="info-box-number"><small>&euro;</small> {{ wallet.funds }}</span>
+                    </div>
+                </div>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+</div>

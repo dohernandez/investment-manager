@@ -1,6 +1,6 @@
 {% extends 'Components/Layout/crud-manage.html.twig' %}
 
-{% block page_content %}
+{% block stylesheets %}
     {{ parent() }}
 
     <link rel="stylesheet" href="{{ asset('build/wallet_form.css') }}">
@@ -34,8 +34,27 @@
             crudManager.withEditButton();
             // add button delete
             crudManager.withDeleteButton();
+            // add button extra
+            crudManager.withExtraButton();
 
             window.crudManager.render();
+
+
+
+
+            // Delegate selector for edit stock dividend
+            $('.js-crud-manage-row-box').closest('section').on(
+                'click',
+                '.js-entity-dashboard-yield',
+                function (e) {
+                    e.preventDefault();
+
+                    const $row = $(e.currentTarget).closest('tr');
+                    const id = $row.data('id');
+
+                    window.location = Routing.generate('wallet_dashboard', {'id': id})
+                }
+            );
         });
     </script>
 {% endblock %}

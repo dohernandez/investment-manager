@@ -59,6 +59,7 @@ module.exports = {
         stock_dividend_form: './assets/js/StockDividendForm.js',
         broker_form: './assets/js/BrokerForm.js',
         wallet_form: './assets/js/WalletForm.js',
+        wallet_dashboard: './assets/js/WalletDashboard.js',
     },
     output: {
         path: path.resolve(__dirname, 'public', 'build'),
