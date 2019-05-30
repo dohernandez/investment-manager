@@ -26,14 +26,10 @@ class TransferController extends AbstractController
     /**
      * @Route("/", name="transfer_index", methods={"GET"})
      *
-     * @param TransferRepository $repo
-     *
      * @return Response
      */
-    public function index(TransferRepository $repo): Response
+    public function index(): Response
     {
-        $transfers = $repo->findAll();
-
-        return $this->render('transfer/index.html.twig', $this->transferViewParameters->index($transfers));
+        return $this->render('transfer/index.html.twig', $this->transferViewParameters->index());
     }
 }
