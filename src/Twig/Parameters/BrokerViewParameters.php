@@ -96,7 +96,7 @@ class BrokerViewParameters extends AbstractViewParameters
         return [
                 'broker' => $broker,
                 'fields' => $this->getStockFields(),
-                'entity_name' => 'broker_stock',
+                'entity_name' => 'Broker Stock',
                 'form' => $form->createView(),
             ] + $context + [
                 'buttons' => [

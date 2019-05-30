@@ -23,11 +23,12 @@
            },
        ]
     form => form object,
-    create_button_label => Different value for create button. Example Add operation
+    create_button_label => Different value for create button. Example "Add operation"
 #}
 
 {% import 'Components/Macros/crud-manage-render.html.twig' as render %}
 
+{% block create_button_template %}
 <!-- create button table manager template -->
 <script type="text/template" id="js-manager-create-button-template">
     <button class="js-entity-create btn btn-success pull-right">
@@ -39,6 +40,7 @@
         {% endif  %}
     </button>
 </script>
+{% endblock %}
 
 <!-- create search table manager template -->
 <script type="text/template" id="js-manager-search-template">

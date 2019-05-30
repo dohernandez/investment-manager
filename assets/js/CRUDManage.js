@@ -124,7 +124,7 @@ class CRUDManage {
         this.routing = routing.bind(this);
     }
 
-    render() {
+    render(extraRender) {
         // render create button
         if (this.createButton) {
             let $createButton = this._compileTemplate(CRUDManage._selectors.createButtonTemplate);
@@ -162,6 +162,10 @@ class CRUDManage {
             let $perPage = this._compileTemplate(CRUDManage._selectors.showPerPageTemplate);
             this.$wrapper.find(CRUDManage._selectors.perPageContainer)
                 .append($perPage);
+        }
+
+        if (extraRender) {
+            extraRender.call(this);
         }
 
         // render manage col with
@@ -402,14 +406,26 @@ class CRUDManage {
     /**
      * Enables a create button for the table and adds it handler function.
      */
-    withCreateButton() {
+    withCreateButton(selector, handler) {
         this.createButton = true;
+
+        let func = this.handleCreate;
+
+        if (handler) {
+            func = handler;
+        }
+
+        let sel = '.js-entity-create';
+
+        if (selector) {
+            sel = selector;
+        }
 
         // Delegate selector
         this.$wrapper.on(
             'click',
-            '.js-entity-create',
-            this.handleCreate.bind(this)
+            sel,
+            func.bind(this)
         );
     }
 
@@ -571,14 +587,20 @@ class CRUDManage {
     /**
      * Enables a edit button for the rows table and adds it handler function.
      */
-    withEditButton() {
+    withEditButton(selector) {
         this.editButton = true;
         this.withExtraButton();
+
+        let sel = '.js-entity-edit';
+
+        if (selector) {
+            sel = selector;
+        }
 
         // Delegate selector
         this.$wrapper.on(
             'click',
-            '.js-entity-edit',
+            sel,
             this.handleEdit.bind(this)
         );
     }
@@ -656,14 +678,20 @@ class CRUDManage {
     /**
      * Enables a delete button for the rows table and adds it handler function.
      */
-    withDeleteButton() {
+    withDeleteButton(selector) {
         this.deleteButton = true;
         this.withExtraButton();
+
+        let sel = '.js-entity-delete';
+
+        if (selector) {
+            sel = selector;
+        }
 
         // Delegate selector
         this.$wrapper.on(
             'click',
-            '.js-entity-delete',
+            sel,
             this.handlerDelete.bind(this)
         );
     }
@@ -876,16 +904,22 @@ class CRUDManage {
     /**
      * Enables a view button for the table and adds it handler function.
      */
-    withViewButton(swalViewOptions, viewTemplate) {
+    withViewButton(selector, swalViewOptions, viewTemplate) {
         this.viewButton = true;
         this.withExtraButton();
         this.swalViewOptions = swalViewOptions;
         this.viewTemplate = viewTemplate;
 
+        let sel = '.js-entity-view';
+
+        if (selector) {
+            sel = selector;
+        }
+
         // Delegate selector
         this.$wrapper.on(
             'click',
-            '.js-entity-view',
+            sel,
             this.handleView.bind(this)
         );
     }

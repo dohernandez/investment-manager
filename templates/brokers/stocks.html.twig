@@ -4,6 +4,8 @@
     {{ parent() }}
 
     {% include 'Components/ui/crud-manage-css.html.twig' %}
+
+    <link rel="stylesheet" href="{{ asset('build/broker_stock_form.css') }}">
 {%  endblock %}
 
 {% block page_content %}
@@ -13,13 +15,30 @@
 {% block javascripts %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-scripts.html.twig' %}
+    <script src="{{ asset('build/broker_stock_form.js') }}"></script>
+
+    {% embed 'Components/ui/crud-manage-scripts.html.twig' %}
+        {% block create_button_template %}
+            <!-- create button table manager template -->
+            <script type="text/template" id="js-manager-create-button-template">
+                <form method="post" id="add-stock-form" class="form-horizontal js-entity-add-stock-from">
+                    <button class="js-add-stock-create btn btn-success pull-right">
+                        <i class="fa-plus-circle fa" aria-hidden="true"></i>
+                        {{ create_button_label }}
+                    </button>
+                    <select id="brokerStock" name="brokerStock" required="required" style="width: 30%; margin-right: 10px;"
+                            class="js-broker-stock-autocomplete form-control pull-right"
+                            data-autocomplete-url="{{ path('stock_list') }}">
+                        <option value="" selected="selected">Choose an stock</option>
+                    </select>
+                </form>
+            </script>
+        {% endblock %}
+    {% endembed %}
     <script>
         $(document).ready(function() {
             let swalFormOptionsText = {
                 create: {
-                    confirmButtonText: '{{ 'Add'|trans }}',
-                    titleText: '{{ 'Add new'|trans }} {{ entity_name|trans|title }}',
                     toastTitleText: '{{ entity_name|trans|title }} {{ 'was added successfully.'|trans }}'
                 },
                 delete: {
@@ -43,11 +62,11 @@
                 pagination: true,
             });
 
-            // const form = new BrokerForm(swalFormOptionsText);
+            const form = new BrokerStockForm(swalFormOptionsText);
 
-            // crudManager.withForm(form);
+            crudManager.withForm(form);
             // add button create
-            crudManager.withCreateButton();
+            crudManager.withCreateButton('.js-add-stock-create');
             // add button delete
             crudManager.withDeleteButton();
 
@@ -89,7 +108,7 @@
                 return route
             });
 
-            crudManager.render();
+            crudManager.render(form.render);
         });
     </script>
 
