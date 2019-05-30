@@ -74,6 +74,27 @@
                 pagination: true,
             });
 
+            // add search input function
+            crudManager.withSearch(function (stocks, search) {
+                if (search.length >= 2) {
+                    let $matches = [];
+
+                    search = search.toUpperCase();
+
+                    $.each(stocks, function (index, stock) {
+                        if (stock.name.toUpperCase().indexOf(search) > -1 ||
+                            stock.symbol.toUpperCase().indexOf(search) > -1 ) {
+
+                            $matches.push(stock);
+                        }
+                    });
+
+                    return $matches;
+                }
+
+                return null;
+            });
+
             const form = new BrokerStockForm(swalFormOptionsText);
 
             crudManager.withForm(form);
