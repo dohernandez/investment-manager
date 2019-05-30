@@ -38,4 +38,17 @@ class BrokerViewParameters extends AbstractViewParameters
             ],
         ];
     }
+
+    public function index(array $entities = [], array $context = []): array
+    {
+        return parent::index($entities, $context + [
+                'buttons' => [
+                    [
+                        'type' => 'warning',
+                        'jsClass' => 'js-entity-edit-broker-stocks',
+                        'icon' => 'fas fa-money-bill',
+                    ],
+                ],
+            ]);
+    }
 }

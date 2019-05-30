@@ -32,8 +32,6 @@ class BrokerController extends AbstractController
      */
     public function index(BrokerRepository $repo): Response
     {
-        $brokers = $repo->findAll();
-
-        return $this->render('brokers/index.html.twig', $this->brokerViewParameters->index($brokers));
+        return $this->render('brokers/index.html.twig', $this->brokerViewParameters->index());
     }
 }

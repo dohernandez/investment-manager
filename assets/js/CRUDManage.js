@@ -37,6 +37,7 @@ class CRUDManage {
             editButton: false,
             deleteButton: false,
             totalButtons: 0,
+            buttonColWidth: 0,
             swalViewOptions: null,
             viewTemplate: '',
         });
@@ -60,7 +61,8 @@ class CRUDManage {
         this.swalViewOptions = _options.swalViewOptions;
         this.viewTemplate = _options.viewTemplate;
 
-        this.totalButtons = 0;
+        this.totalButtons = _options.totalButtons;
+        this.buttonColWidth = _options.buttonColWidth;
 
         // The total records object of array.
         this.records = [];
@@ -166,22 +168,25 @@ class CRUDManage {
         let $manageButtons = this.$wrapper.find(CRUDManage._selectors.manageButtons);
 
         console.log($manageButtons.width());
-        switch (this.totalButtons) {
-            case 1:
-                $manageButtons.css( "width", "54" );
-                break;
-            case 2:
-                $manageButtons.css( "width", "90" );
-                break;
-            case 3:
-                $manageButtons.css( "width", "128" );
-                break;
-            case 4:
-                $manageButtons.css( "width", "165" );
-                break;
-            default:
-        }
+        console.log(this.buttonColWidth);
+        $manageButtons.css( "width", this.buttonColWidth );
         console.log($manageButtons.width());
+        //
+        // switch (this.totalButtons) {
+        //     case 1:
+        //         $manageButtons.css( "width", "54" );
+        //         break;
+        //     case 2:
+        //         $manageButtons.css( "width", "90" );
+        //         break;
+        //     case 3:
+        //         $manageButtons.css( "width", "128" );
+        //         break;
+        //     case 4:
+        //         $manageButtons.css( "width", "165" );
+        //         break;
+        //     default:
+        // }
 
         this.loadRows();
     }
@@ -587,7 +592,7 @@ class CRUDManage {
      */
     withEditButton() {
         this.editButton = true;
-        this.totalButtons++;
+        this.withExtraButton();
 
         // Delegate selector
         this.$wrapper.on(
@@ -672,7 +677,7 @@ class CRUDManage {
      */
     withDeleteButton() {
         this.deleteButton = true;
-        this.totalButtons++;
+        this.withExtraButton();
 
         // Delegate selector
         this.$wrapper.on(
@@ -892,7 +897,7 @@ class CRUDManage {
      */
     withViewButton(swalViewOptions, viewTemplate) {
         this.viewButton = true;
-        this.totalButtons++;
+        this.withExtraButton();
         this.swalViewOptions = swalViewOptions;
         this.viewTemplate = viewTemplate;
 
@@ -950,8 +955,18 @@ class CRUDManage {
     /**
      * Enables a view button for the table and adds it handler function.
      */
-    withExtraButton() {
+    withExtraButton(extraWith) {
         this.totalButtons++;
+
+        if (extraWith) {
+            this.buttonColWidth += extraWith;
+        }
+
+        if (this.totalButtons !== 1) {
+            this.buttonColWidth += 37;
+        } else {
+            this.buttonColWidth = 54;
+        }
     }
 }
 

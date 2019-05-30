@@ -56,9 +56,29 @@
             const form = new BrokerForm(swalFormOptionsText);
 
             crudManager.withForm(form);
+            // add button create
             crudManager.withCreateButton();
+            // add button edit
             crudManager.withEditButton();
+            // add button delete
             crudManager.withDeleteButton();
+
+            // add button extra
+            // Delegate selector for edit stock dividend
+            $('.js-crud-manage-row-box').closest('section').on(
+                'click',
+                '.js-entity-edit-broker-stocks',
+                function (e) {
+                    e.preventDefault();
+
+                    const $row = $(e.currentTarget).closest('tr');
+                    const id = $row.data('id');
+
+                    window.location = Routing.generate('stock_dividend_index', {'_id': id})
+                }
+            );
+            // 2 is the extra width require to adjust the button col
+            crudManager.withExtraButton(2);
 
             crudManager.render();
         });
