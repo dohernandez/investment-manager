@@ -1,13 +1,21 @@
-{% extends 'Components/Layout/crud-manage.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block page_subtitle %}{{ stock|trans|title }}{% endblock %}
 
-{% block page_content %}
+{% block stylesheets %}
     {{ parent() }}
+
+    {% include 'Components/ui/crud-manage-css.html.twig' %}
+{%  endblock %}
+
+{% block page_content %}
+    {% include 'Components/ui/crud-manage-table.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
+
+    {% include 'Components/ui/crud-manage-scripts.html.twig' %}
 
     <script src="{{ asset('build/stock_dividend_form.js') }}"></script>
 
@@ -30,9 +38,25 @@
                 {#}#}
             };
 
+            // Create page instance
+            let $crudManagerRowBox = $('.{{ js_crud_manage_class|default('js-crud-manage-row-box') }}');
+
+            let contentWrapper = $crudManagerRowBox.closest('section');
+            let entityType = $crudManagerRowBox.data('entity-type');
+
+            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
+            let crudManager = new CRUDManage({
+                entityType: entityType,
+                wrapper: contentWrapper,
+                swalFormOptions: window.swalFormOptions,
+                swalConfirmOptions: window.swalConfirmOptions,
+                toastOptions: window.toastOptions,
+                pagination: true,
+            });
+
             const form = new StockDividendForm(swalFormOptionsText);
 
-            window.crudManager.setRouteGenerating((entityType, endpoint, id = null) => {
+            crudManager.setRouteGenerating((entityType, endpoint, id = null) => {
                 let route = '';
                 let param = {
                     '_id': {{ stock.id }}
@@ -70,12 +94,12 @@
                 return route
             });
 
-            window.crudManager.withForm(form);
-            window.crudManager.withCreateButton();
-            window.crudManager.withEditButton();
-            window.crudManager.withDeleteButton();
+            crudManager.withForm(form);
+            crudManager.withCreateButton();
+            crudManager.withEditButton();
+            crudManager.withDeleteButton();
 
-            window.crudManager.render();
+            crudManager.render();
         });
     </script>
 {% endblock %}
