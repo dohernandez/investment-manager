@@ -70,7 +70,7 @@ class BrokerStockForm extends Form {
                     data: (params) => {
                         return {
                             q: params.term, // search term
-                            page: params.page
+                            page: params.page,
                         };
                     },
                     processResults: (data, params)=> {
@@ -80,10 +80,29 @@ class BrokerStockForm extends Form {
                         // scrolling can be used
                         params.page = params.page || 1;
 
+                        let results = [];
+                        let total = 0;
+
+                        $.each(data.items, function (key, stock) {
+                            let found = false;
+                            for (let i = 0; i < crudManager.records.length; i++) {
+                                if (crudManager.records[i].id === stock.id) {
+                                    found = true;
+
+                                    break;
+                                }
+                            }
+
+                            if (!found) {
+                                results.push(stock);
+                                total++;
+                            }
+                        });
+
                         return {
-                            results: data.items,
+                            results,
                             pagination: {
-                                more: (params.page * 30) < data.total_count
+                                more: (params.page * 30) < total
                             }
                         };
                     },
