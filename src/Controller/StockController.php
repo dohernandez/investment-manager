@@ -30,14 +30,6 @@ class StockController extends AbstractController
      */
     public function index(): Response
     {
-        return $this->render('stocks/index.html.twig', $this->stockViewParameters->index([], [
-            'buttons' => [
-                [
-                    'type' => 'warning',
-                    'jsClass' => 'js-entity-edit-dividend-yield',
-                    'icon' => 'fas fa-donate',
-                ],
-            ],
-        ]));
+        return $this->render('stocks/index.html.twig', $this->stockViewParameters->index());
     }
 }

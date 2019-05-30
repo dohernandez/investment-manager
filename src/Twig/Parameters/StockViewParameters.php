@@ -50,4 +50,17 @@ class StockViewParameters extends AbstractViewParameters
             ],
         ];
     }
+
+    public function index(array $entities = [], array $context = []): array
+    {
+        return parent::index($entities, $context + [
+                'buttons' => [
+                    [
+                        'type' => 'warning',
+                        'jsClass' => 'js-entity-edit-dividend-yield',
+                        'icon' => 'fas fa-donate',
+                    ],
+                ],
+            ]);
+    }
 }
