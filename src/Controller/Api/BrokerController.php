@@ -6,6 +6,7 @@ use App\Api;
 use App\Entity;
 use App\Form\BrokerType;
 use App\Repository\BrokerRepository;
+use App\Repository\StockRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -181,8 +182,6 @@ class BrokerController extends BaseController
     /**
      * @Route("/{id}/stocks", name="broker_stock_list", methods={"GET"}, options={"expose"=true})
      *
-     * @param EntityManagerInterface $em
-     * @param Request $request
      * @param Entity\Broker $broker
      *
      * @return Response
@@ -203,6 +202,58 @@ class BrokerController extends BaseController
             [
                 'total_count' => count($apiStocks),
                 'items' => $apiStocks,
+            ]
+        );
+    }
+
+    /**
+     * @Route("/{id}/stocks", name="broker_stock_add", methods={"POST"}, options={"expose"=true})
+     *
+     * @param Entity\Broker $broker
+     * @param Request $request
+     * @param StockRepository $stockRepo
+     * @param EntityManagerInterface $em
+     *
+     * @return Response
+     */
+    public function addStock(
+        Entity\Broker $broker,
+        Request $request,
+        StockRepository $stockRepo,
+        EntityManagerInterface $em
+    ): Response {
+        if (!$broker) {
+            return $this->createApiErrorResponse('Broker not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if ($data === null) {
+            return $this->json(
+                [
+                    'message' => 'Invalid JSON',
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $stockId = $data['stock'];
+        if ($stockId === '') {
+            return $this->createApiErrorResponse('Invalid stock. Stock can not be empty value.', Response::HTTP_BAD_REQUEST);
+        }
+
+        $stock = $stockRepo->find($stockId);
+        if ($stock === null) {
+            return $this->createApiErrorResponse('Stock not found', Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $broker->addStock($stock);
+
+        $em->persist($broker);
+        $em->flush();
+
+        return $this->createApiResponse(
+            [
+                'item' => Api\Stock::fromEntity($stock),
             ]
         );
     }

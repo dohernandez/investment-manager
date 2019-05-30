@@ -3,7 +3,6 @@
 namespace App\Twig\Parameters;
 
 use App\Entity\Broker;
-use App\Form\BrokerStockType;
 use App\Form\BrokerType;
 
 /**
@@ -20,11 +19,6 @@ class BrokerViewParameters extends AbstractViewParameters
      * {@inheritdoc}
      */
     protected $newFormTypeClass = BrokerType::class;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $newStockFormTypeClass = BrokerStockType::class;
 
     /**
      * {@inheritdoc}
@@ -91,13 +85,10 @@ class BrokerViewParameters extends AbstractViewParameters
 
     public function stocks(Broker $broker, array $context = []): array
     {
-        $form = $this->form->create($this->newStockFormTypeClass);
-
         return [
                 'broker' => $broker,
                 'fields' => $this->getStockFields(),
                 'entity_name' => 'Broker Stock',
-                'form' => $form->createView(),
             ] + $context + [
                 'buttons' => [
                     [

@@ -443,13 +443,7 @@ class CRUDManage {
                 if (result.value) {
                     let entity = result.value.item;
 
-                    this.records.push(entity);
-                    this.totalRecords++;
-                    this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
-
-                    this._refreshPagination();
-
-                    this.form.onCreated(entity);
+                    this._addEntity(entity);
                 }
             });
     }
@@ -582,6 +576,22 @@ class CRUDManage {
             type: 'success',
             titleText
         });
+    }
+
+    /**
+     * Add entity.
+     *
+     * @param {Object} entity
+     * @private
+     */
+    _addEntity(entity) {
+        this.records.push(entity);
+        this.totalRecords++;
+        this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
+
+        this._refreshPagination();
+
+        this.form.onCreated(entity);
     }
 
     /**
