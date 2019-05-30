@@ -35,6 +35,18 @@
             </script>
         {% endblock %}
     {% endembed %}
+
+    <!-- view title manager template -->
+    <script type="text/template" id="js-view-title-template">
+        <div><%= name %> (<%= symbol %>)</div>
+        <div class="small"><%= market.symbol %> - <%= market.name %></div>
+    </script>
+
+    <!-- view manager template -->
+    <script type="text/template" id="js-view-template">
+        {% include 'stocks/partial/view.html.twig' %}
+    </script>
+
     <script>
         $(document).ready(function() {
             let swalFormOptionsText = {
@@ -67,6 +79,25 @@
             crudManager.withForm(form);
             // add button create
             crudManager.withCreateButton('.js-add-stock-create', form.addStock);
+
+            // Set up swal confirm options
+            let swalViewOptions = {
+                customClass: {
+                    title: 'swal2-form-title',
+                    content: 'swal2-form-content',
+                },
+                showConfirmButton: false,
+                buttonsStyling: false,
+                width: 700,
+                allowEscapeKey: true,
+                allowOutsideClick: true,
+                showCloseButton: true,
+                position: 'top'
+            };
+
+            // add button view
+            crudManager.withViewButton('.js-entity-view', swalViewOptions, '#js-view-template');
+
             // add button delete
             crudManager.withDeleteButton();
 

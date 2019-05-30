@@ -65,6 +65,10 @@ class BrokerViewParameters extends AbstractViewParameters
                 'name' => 'symbol',
             ],
             [
+                'name' => 'market.symbol',
+                'label' => 'Market',
+            ],
+            [
                 'name' => 'value',
                 'render' => 'currency',
             ],

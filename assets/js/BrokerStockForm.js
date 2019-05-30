@@ -3,10 +3,12 @@
 import Form from "./Components/Form";
 import Select2StockTemplate from './Components/Select2StockTemplate';
 import $ from 'jquery';
+import Slider from 'bootstrap-slider';
 
 import 'select2';
 
 import './../css/BrokerStockForm.scss';
+import './../css/StockView.scss';
 
 /**
  * Form manage how the form should be build when a crud manager invokes a create or an update action.
@@ -153,6 +155,22 @@ class BrokerStockForm extends Form {
                     this._addEntity(entity);
                 }
             });
+    }
+
+    /**
+     * Callback function when data is preview
+     *
+     * This method should overwritten by the child class in case the form requires to do an action after data is preview.
+     *
+     * @param {Object} data
+     */
+    onPreview(data) {
+        let sliderDay = new Slider('#low-high-day-price', {
+            precision: 3
+        });
+        let sliderWeek = new Slider('#low-high-52-week-price', {
+            precision: 3
+        });
     }
 }
 

@@ -22,12 +22,15 @@ class StockController extends BaseController
      * @Route("/", name="stock_list", methods={"GET"}, options={"expose"=true})
      *
      * @param StockRepository $repo
+     * @param Request $request
      *
      * @return JsonResponse
      */
-    public function all(StockRepository $repo): JsonResponse
+    public function all(StockRepository $repo, Request $request): JsonResponse
     {
-        $stocks = $repo->findAll();
+        $query = $request->query->get('q');
+
+        $stocks = $repo->findAllMatchingOrAll($query);
 
         $apiStocks = [];
 

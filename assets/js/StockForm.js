@@ -9,6 +9,7 @@ import Slider from 'bootstrap-slider';
 import 'select2';
 
 import './../css/StockForm.scss';
+import './../css/StockView.scss';
 
 /**
  * Form manage how the stock form should be build when a crud manager invokes a create or an update action.
