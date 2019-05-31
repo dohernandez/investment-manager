@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -52,6 +54,16 @@ class Wallet implements Entity
      * @Gedmo\Slug(fields={"name"})
      */
     private $slug;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Trade", mappedBy="wallet")
+     */
+    private $trades;
+
+    public function __construct()
+    {
+        $this->trades = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -157,5 +169,36 @@ class Wallet implements Entity
     public function getBenefits(): float
     {
         return $this->getCapital() + $this->getFunds() - $this->getInvested();
+    }
+
+    /**
+     * @return Collection|Trade[]
+     */
+    public function getTrades(): Collection
+    {
+        return $this->trades;
+    }
+
+    public function addTrade(Trade $trade): self
+    {
+        if (!$this->trades->contains($trade)) {
+            $this->trades[] = $trade;
+            $trade->setWallet($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTrade(Trade $trade): self
+    {
+        if ($this->trades->contains($trade)) {
+            $this->trades->removeElement($trade);
+            // set the owning side to null (unless already changed)
+            if ($trade->getWallet() === $this) {
+                $trade->setWallet(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -125,9 +125,15 @@ class Stock implements Entity
      */
     private $week52High;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Trade", mappedBy="stock")
+     */
+    private $trades;
+
     public function __construct()
     {
         $this->dividends = new ArrayCollection();
+        $this->trades = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -425,6 +431,37 @@ class Stock implements Entity
     public function setWeek52High(?float $week52High): self
     {
         $this->week52High = $week52High;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Trade[]
+     */
+    public function getTrades(): Collection
+    {
+        return $this->trades;
+    }
+
+    public function addTrade(Trade $trade): self
+    {
+        if (!$this->trades->contains($trade)) {
+            $this->trades[] = $trade;
+            $trade->setStock($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTrade(Trade $trade): self
+    {
+        if ($this->trades->contains($trade)) {
+            $this->trades->removeElement($trade);
+            // set the owning side to null (unless already changed)
+            if ($trade->getStock() === $this) {
+                $trade->setStock(null);
+            }
+        }
 
         return $this;
     }
