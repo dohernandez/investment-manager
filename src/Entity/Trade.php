@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -99,6 +101,16 @@ class Trade implements Entity
      * @ORM\Column(type="decimal", precision=11, scale=2)
      */
     private $net;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Operation", mappedBy="trade")
+     */
+    private $operations;
+
+    public function __construct()
+    {
+        $this->operations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -285,5 +297,36 @@ class Trade implements Entity
             $this->getStock()->getMarket()->getSymbol(),
             $this->amount
         );
+    }
+
+    /**
+     * @return Collection|Operation[]
+     */
+    public function getOperations(): Collection
+    {
+        return $this->operations;
+    }
+
+    public function addOperation(Operation $operation): self
+    {
+        if (!$this->operations->contains($operation)) {
+            $this->operations[] = $operation;
+            $operation->setTrade($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOperation(Operation $operation): self
+    {
+        if ($this->operations->contains($operation)) {
+            $this->operations->removeElement($operation);
+            // set the owning side to null (unless already changed)
+            if ($operation->getTrade() === $this) {
+                $operation->setTrade(null);
+            }
+        }
+
+        return $this;
     }
 }
