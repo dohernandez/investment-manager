@@ -80,9 +80,15 @@ class Wallet implements Entity
      */
     private $interest = 0;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Operation", mappedBy="wallet")
+     */
+    private $operations;
+
     public function __construct()
     {
         $this->trades = new ArrayCollection();
+        $this->operations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -266,6 +272,37 @@ class Wallet implements Entity
     public function setInterest(float $interest): self
     {
         $this->interest = $interest;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Operation[]
+     */
+    public function getOperations(): Collection
+    {
+        return $this->operations;
+    }
+
+    public function addOperation(Operation $operation): self
+    {
+        if (!$this->operations->contains($operation)) {
+            $this->operations[] = $operation;
+            $operation->setWallet($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOperation(Operation $operation): self
+    {
+        if ($this->operations->contains($operation)) {
+            $this->operations->removeElement($operation);
+            // set the owning side to null (unless already changed)
+            if ($operation->getWallet() === $this) {
+                $operation->setWallet(null);
+            }
+        }
 
         return $this;
     }

@@ -72,9 +72,15 @@ class Operation
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Trade", inversedBy="operations")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $trade;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Wallet", inversedBy="operations")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $wallet;
 
     public function getId(): ?int
     {
@@ -197,6 +203,18 @@ class Operation
     public function setTrade(?Trade $trade): self
     {
         $this->trade = $trade;
+
+        return $this;
+    }
+
+    public function getWallet(): ?Wallet
+    {
+        return $this->wallet;
+    }
+
+    public function setWallet(?Wallet $wallet): self
+    {
+        $this->wallet = $wallet;
 
         return $this;
     }
