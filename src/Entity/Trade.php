@@ -51,6 +51,7 @@ class Trade implements Entity
     private $buyAmount;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
      */
     private $buyPaid;
@@ -61,6 +62,7 @@ class Trade implements Entity
     private $sellAmount;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
      */
     private $sellPaid;
@@ -76,11 +78,13 @@ class Trade implements Entity
     private $amount;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(type="decimal", precision=11, scale=2)
      */
     private $capital;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
      */
     private $dividend;
@@ -98,6 +102,7 @@ class Trade implements Entity
     private $status;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(type="decimal", precision=11, scale=2)
      */
     private $net;

@@ -39,6 +39,7 @@ class Stock implements Entity
     /**
      * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
      * @Assert\NotBlank(message="Please enter the value")
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      */
     private $value;
 
@@ -86,6 +87,7 @@ class Stock implements Entity
     private $industry;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\OneToMany(targetEntity="App\Entity\StockDividend", mappedBy="stock", orphanRemoval=true)
      */
     private $dividends;
@@ -96,31 +98,37 @@ class Stock implements Entity
     private $peRatio;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
      */
     private $preClose;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
      */
     private $open;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
      */
     private $dayLow;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
      */
     private $dayHigh;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(name="week_52_low", type="decimal", precision=10, scale=3, nullable=true)
      */
     private $week52Low;
 
     /**
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\Column(name="week_52_high", type="decimal", precision=10, scale=3, nullable=true)
      */
     private $week52High;
