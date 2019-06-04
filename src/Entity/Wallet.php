@@ -60,6 +60,26 @@ class Wallet implements Entity
      */
     private $trades;
 
+    /**
+     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $dividend = 0;
+
+    /**
+     * @ORM\Column(type="decimal", precision=11, scale=4, nullable=false)
+     */
+    private $commissions = 0;
+
+    /**
+     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $connection = 0;
+
+    /**
+     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=false)
+     */
+    private $interest = 0;
+
     public function __construct()
     {
         $this->trades = new ArrayCollection();
@@ -198,6 +218,54 @@ class Wallet implements Entity
                 $trade->setWallet(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getDividend(): float
+    {
+        return $this->dividend;
+    }
+
+    public function setDividend(float $dividend): self
+    {
+        $this->dividend = $dividend;
+
+        return $this;
+    }
+
+    public function getCommissions(): float
+    {
+        return $this->commissions;
+    }
+
+    public function setCommissions(float $commissions): self
+    {
+        $this->commissions = $commissions;
+
+        return $this;
+    }
+
+    public function getConnection(): float
+    {
+        return $this->connection;
+    }
+
+    public function setConnection(float $connection): self
+    {
+        $this->connection = $connection;
+
+        return $this;
+    }
+
+    public function getInterest(): float
+    {
+        return $this->interest;
+    }
+
+    public function setInterest(float $interest): self
+    {
+        $this->interest = $interest;
 
         return $this;
     }

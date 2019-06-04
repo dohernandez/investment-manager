@@ -24,6 +24,14 @@ class Wallet
 
     public $title;
 
+    public $dividend;
+
+    public $commissions;
+
+    public $connection;
+
+    public $interest;
+
     static public function fromEntity(Entity\Wallet $wallet): self
     {
         $self = new static();
@@ -36,6 +44,11 @@ class Wallet
 
         $self->benefits = $wallet->getBenefits();
         $self->pBenefits = $self->benefits * 100 / $self->invested;
+
+        $self->dividend = $wallet->getDividend();
+        $self->commissions = $wallet->getCommissions();
+        $self->connection = $wallet->getConnection();
+        $self->interest = $wallet->getInterest();
 
 
         $self->broker = Broker::fromEntity($wallet->getBroker());
