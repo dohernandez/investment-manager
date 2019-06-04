@@ -11,7 +11,7 @@ class TransferFixtures extends BaseFixtures implements DependentFixtureInterface
 {
     public function loadData(ObjectManager $manager)
     {
-        $this->createMany($manager, Transfer::class, 8, function (ObjectManager $manager, Transfer $transfer) {
+        $this->createMany($manager, Transfer::class, 15, function (ObjectManager $manager, Transfer $transfer) {
 
             $beneficiaryParty = $this->getRandomReference(Account::class);
             $deborParty = $this->getRandomReference(Account::class, [$beneficiaryParty]);

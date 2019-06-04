@@ -120,6 +120,20 @@ class Wallet implements Entity
         return $this;
     }
 
+    public function increaseInvested(float $invested): self
+    {
+        $this->setInvested($this->getInvested() + $invested);
+
+        return $this;
+    }
+
+    public function decreaseInvested(float $invested): self
+    {
+        $this->setInvested($this->getInvested() - $invested);
+
+        return $this;
+    }
+
     public function getCapital(): float
     {
         return $this->capital;
@@ -128,6 +142,20 @@ class Wallet implements Entity
     public function setCapital(float $capital): self
     {
         $this->capital = $capital;
+
+        return $this;
+    }
+
+    public function increaseCapital(float $capital): self
+    {
+        $this->setCapital($this->getCapital() + $capital);
+
+        return $this;
+    }
+
+    public function decreaseCapital(float $capital): self
+    {
+        $this->setCapital($this->getCapital() - $capital);
 
         return $this;
     }
@@ -178,15 +206,30 @@ class Wallet implements Entity
 
     public function addFunds(float $funds): self
     {
-        $this->setCapital($this->getCapital() + $funds);
-        $this->setFunds($this->getFunds() + $funds);
+        $this->increaseInvested($funds)
+            ->increaseFunds($funds)
+        ;
 
         return $this;
     }
 
     public function subtractFunds(float $funds): self
     {
-        $this->setCapital($this->getCapital() - $funds);
+        $this->decreaseInvested($funds)
+            ->decreaseFunds($funds);
+
+        return $this;
+    }
+
+    public function increaseFunds(float $funds): self
+    {
+        $this->setFunds($this->getFunds() + $funds);
+
+        return $this;
+    }
+
+    public function decreaseFunds(float $funds): self
+    {
         $this->setFunds($this->getFunds() - $funds);
 
         return $this;
@@ -240,6 +283,13 @@ class Wallet implements Entity
         return $this;
     }
 
+    public function increaseDividend(float $dividend): self
+    {
+        $this->setDividend( $this->getDividend() + $dividend);
+
+        return $this;
+    }
+
     public function getCommissions(): float
     {
         return $this->commissions;
@@ -248,6 +298,13 @@ class Wallet implements Entity
     public function setCommissions(float $commissions): self
     {
         $this->commissions = $commissions;
+
+        return $this;
+    }
+
+    public function increaseCommissions(float $commissions): self
+    {
+        $this->setCommissions($this->getCommissions() + $commissions);
 
         return $this;
     }
@@ -264,6 +321,13 @@ class Wallet implements Entity
         return $this;
     }
 
+    public function increaseConnection(float $connection): self
+    {
+        $this->setConnection( $this->getConnection() + $connection);
+
+        return $this;
+    }
+
     public function getInterest(): float
     {
         return $this->interest;
@@ -272,6 +336,29 @@ class Wallet implements Entity
     public function setInterest(float $interest): self
     {
         $this->interest = $interest;
+
+        return $this;
+    }
+
+    public function increaseInterest(float $interest): self
+    {
+        $this->setInterest( $this->getInterest() + $interest);
+
+        return $this;
+    }
+
+    public function addExpenses(float $expenses, string $type): self
+    {
+        switch ($type){
+            case Operation::TYPE_CONNECTIVITY:
+                $this->increaseConnection($expenses);
+                break;
+            case Operation::TYPE_INTEREST:
+                $this->increaseInterest($expenses);
+                break;
+            default:
+                throw new \LogicException(sprintf('expenses "%s" not supported.', $type));
+        }
 
         return $this;
     }
@@ -287,6 +374,34 @@ class Wallet implements Entity
     public function addOperation(Operation $operation): self
     {
         if (!$this->operations->contains($operation)) {
+
+            switch ($operation->getType()) {
+                case Operation::TYPE_BUY:
+                        $this->increaseCapital($operation->getCapital());
+                        $this->decreaseFunds($operation->getNetValue());
+                        $this->increaseCommissions($operation->getFinalCommissionPaid());
+                    break;
+                case Operation::TYPE_SELL:
+                        $this->decreaseCapital($operation->getCapital());
+                        $this->increaseFunds($operation->getNetValue());
+                        $this->increaseCommissions($operation->getFinalCommissionPaid());
+                    break;
+                case Operation::TYPE_DIVIDEND:
+                        $this->increaseFunds($operation->getNetValue());
+                        $this->increaseDividend($operation->getNetValue());
+                    break;
+                case Operation::TYPE_INTEREST:
+                        $this->decreaseFunds($operation->getNetValue());
+                        $this->increaseInterest($operation->getNetValue());
+                    break;
+                case Operation::TYPE_CONNECTIVITY:
+                        $this->decreaseFunds($operation->getNetValue());
+                        $this->increaseConnection($operation->getNetValue());
+                    break;
+                default:
+                    throw new \LogicException(sprintf('operation "%s" not supported.', $operation->getType()));
+            }
+
             $this->operations[] = $operation;
             $operation->setWallet($this);
         }

@@ -8,8 +8,22 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\OperationRepository")
  */
-class Operation
+class Operation implements Entity
 {
+    const TYPE_BUY = 'buy';
+    const TYPE_SELL = 'sell';
+    const TYPE_CONNECTIVITY = 'connectivity';
+    const TYPE_DIVIDEND = 'dividend';
+    const TYPE_INTEREST = 'interest';
+
+    const TYPES = [
+        self::TYPE_BUY,
+        self::TYPE_SELL,
+        self::TYPE_CONNECTIVITY,
+        self::TYPE_DIVIDEND,
+        self::TYPE_INTEREST,
+    ];
+
     use TimestampableEntity;
 
     /**
@@ -71,7 +85,7 @@ class Operation
     private $amount;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Trade", inversedBy="operations")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Trade", inversedBy="operations", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
     private $trade;
@@ -217,5 +231,46 @@ class Operation
         $this->wallet = $wallet;
 
         return $this;
+    }
+
+    /**
+     * @return string Entity string
+     */
+    public function __toString(): string
+    {
+        return sprintf(
+            '%d - %s [%.2f] ',
+            $this->getStock()->getSymbol(),
+            $this->getAmount(),
+            $this->get()
+        );
+    }
+
+    public function getNetValue(): float
+    {
+        if ($this->getType() === self::TYPE_BUY) {
+            return $this->getFinalCommissionPaid() + $this->getValue();
+        }
+
+        if ($this->getType() === self::TYPE_SELL) {
+            return $this->getValue() - $this->getFinalCommissionPaid();
+        }
+
+        return $this->getValue();
+    }
+
+    public function getFinalCommissionPaid(): float
+    {
+        return $this->getCommission() + $this->getPriceChangeCommission();
+    }
+
+    public function getCapital(): float
+    {
+        $stock = $this->getStock();
+        if ($stock === null) {
+            return 0;
+        }
+
+        return $this->getAmount() * $stock->getValue();
     }
 }

@@ -28,12 +28,6 @@ class Trade implements Entity
     private $id;
 
     /**
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $number;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Stock", inversedBy="trades")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -78,10 +72,12 @@ class Trade implements Entity
     private $amount;
 
     /**
+     * Final capital returns
      * Price in dollar. TODO In the future it should be extracted using the money pattern.
+     *
      * @ORM\Column(type="decimal", precision=11, scale=2)
      */
-    private $capital;
+    private $capital = 0;
 
     /**
      * Price in dollar. TODO In the future it should be extracted using the money pattern.
@@ -102,10 +98,12 @@ class Trade implements Entity
     private $status;
 
     /**
+     * Final benefits returns
      * Price in dollar. TODO In the future it should be extracted using the money pattern.
+     *
      * @ORM\Column(type="decimal", precision=11, scale=2)
      */
-    private $net;
+    private $net = 0;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Operation", mappedBy="trade")
@@ -167,6 +165,9 @@ class Trade implements Entity
     {
         $this->buyAmount = $buyAmount;
 
+        $amount = $this->getAmount() + $buyAmount;
+        $this->setAmount($amount);
+
         return $this;
     }
 
@@ -178,6 +179,9 @@ class Trade implements Entity
     public function setBuyPaid(?float $buyPaid): self
     {
         $this->buyPaid = $buyPaid;
+
+        $capital = $this->getCapital() + $buyPaid;
+        $this->setCapital($capital);
 
         return $this;
     }
@@ -191,6 +195,9 @@ class Trade implements Entity
     {
         $this->sellAmount = $sellAmount;
 
+        $amount = $this->getAmount() - $sellAmount;
+        $this->setAmount($amount);
+
         return $this;
     }
 
@@ -202,6 +209,9 @@ class Trade implements Entity
     public function setSellPaid(?float $sellPaid): self
     {
         $this->sellPaid = $sellPaid;
+
+        $capital = $this->getCapital() - $sellPaid;
+        $this->setCapital($capital);
 
         return $this;
     }
@@ -250,6 +260,13 @@ class Trade implements Entity
     public function setDividend(?float $dividend): self
     {
         $this->dividend = $dividend;
+
+        return $this;
+    }
+
+    public function increaseDividend(?float $dividend): self
+    {
+        $this->dividend += $dividend;
 
         return $this;
     }

@@ -85,7 +85,7 @@ class StockFixtures extends BaseFixtures implements DependentFixtureInterface
     }
 
     private function bindStockTradingPrice(Stock $stock) {
-        $value = $this->faker->randomFloat(2, 0, 3000);
+        $value = $this->faker->randomFloat(2, 0, 100);
 
         $week52HighInPercentage = $this->faker->randomFloat(2, 0, 100);
         $week52LowInPercentage = $this->faker->randomFloat(2, 0, $week52HighInPercentage);

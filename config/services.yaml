@@ -50,3 +50,7 @@ services:
     App\EventListener\PersistWalletListener:
         tags:
             - { name: doctrine.event_listener, event: prePersist }
+
+    App\EventListener\PersistOperationListener:
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }

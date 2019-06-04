@@ -43,7 +43,7 @@ class Wallet
         $self->capital = $wallet->getCapital();
 
         $self->benefits = $wallet->getBenefits();
-        $self->pBenefits = $self->benefits * 100 / $self->invested;
+        $self->pBenefits = $self->invested ? $self->benefits * 100 / $self->invested : 0;
 
         $self->dividend = $wallet->getDividend();
         $self->commissions = $wallet->getCommissions();
