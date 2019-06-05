@@ -35,7 +35,7 @@
                 </div>
             </div>
             <div class="box-body table-responsive no-padding">
-                <table id="{{ entity_name|lower|trim(' ') }}s" class="table table-bordered table-striped js-manager-table">
+                <table id="{{ entity_name|lower|replace({' ': '_'}) }}s" class="table table-bordered table-striped js-manager-table">
                     <thead>
                     <tr>
                         <th width="60" class="text-center" scope="col">#</th>
@@ -66,11 +66,11 @@
             <div class="box-footer with-border js-manage-footer">
                 <div class="col-md-12">
                     <div class="pull-left col-sm-6">
-                        <span class="js-manage-pagination-info" id="{{ entity_name|lower|trim(' ') }}s-pagination-info" role="status" aria-live="polite"
-                           data-text="{{ 'Showing :from to :to of :of'|trans }} {{ entity_name|lower|trim(' ') }}s"></span>
+                        <span class="js-manage-pagination-info" id="{{ entity_name|lower|replace({' ': '_'}) }}s-pagination-info" role="status" aria-live="polite"
+                           data-text="{{ 'Showing :from to :to of :of'|trans }} {{ entity_name|lower|replace({' ': '_'}) }}s"></span>
                     </div>
                     <div class="pull-right col-sm-6">
-                        <ul id="{{ entity_name|lower|trim(' ') }}s-pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>
+                        <ul id="{{ entity_name|lower|replace({' ': '_'}) }}s-pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>
                     </div>
                 </div>
             </div>

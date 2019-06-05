@@ -71,10 +71,10 @@
                 toastOptions: toastOptions,
                 pagination: true,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ operation_entity_name|lower|trim(' ') }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ operation_entity_name|lower|trim(' ') }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ operation_entity_name|lower|trim(' ') }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ operation_entity_name|lower|trim(' ') }}-row-template',
+                    createButtonTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
+                    searchTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
             });
 
@@ -112,7 +112,7 @@
                 return route
             });
 
-            // const form = new WalletForm(swalFormOptionsText, 'js-manager-{{ operation_entity_name|lower|trim(' ') }}-form-template');
+            // const form = new WalletForm(swalFormOptionsText, 'js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-form-template');
 
             // crudManager.withForm(form);
             operationCrudManager.withCreateButton();
@@ -139,10 +139,10 @@
                 toastOptions: window.toastOptions,
                 pagination: true,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ position_entity_name|lower|trim(' ') }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ position_entity_name|lower|trim(' ') }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ position_entity_name|lower|trim(' ') }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ position_entity_name|lower|trim(' ') }}-row-template',
+                    createButtonTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
+                    searchTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
             });
 

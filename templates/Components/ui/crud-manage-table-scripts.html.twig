@@ -30,7 +30,7 @@
 
 {% block create_button_template %}
 <!-- create button table manager template -->
-<script type="text/template" id="js-manager-{{ entity_name|lower|trim(' ') }}-create-button-template">
+<script type="text/template" id="js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-create-button-template">
     <button class="js-entity-create btn btn-success pull-right">
         <i class="fa-plus-circle fa" aria-hidden="true"></i>
         {% if create_button_label is not defined %}
@@ -43,7 +43,7 @@
 {% endblock %}
 
 <!-- create search table manager template -->
-<script type="text/template" id="js-manager-{{ entity_name|lower|trim(' ') }}-search-template">
+<script type="text/template" id="js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-search-template">
     <label class="pull-right">Search:
         <div class="btn-group">
             <input type="search" class="form-control js-manage-search" placeholder="Search" aria-controls="search"
@@ -55,9 +55,9 @@
 </script>
 
 <!-- create search table manager template -->
-<script type="text/template" id="js-manager-{{ entity_name|lower|trim(' ') }}-show-per-page-template">
+<script type="text/template" id="js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template">
     <label>{{ 'Show'|trans }}
-        <select id="show-{{ entity_name|lower|trim(' ') }}s-per-page" name="manage-per-page" aria-controls="per page"
+        <select id="show-{{ entity_name|lower|replace({' ': '_'}) }}s-per-page" name="manage-per-page" aria-controls="per page"
                 class="form-control input-sm js-manage-show-per-page"
                 style="width: 75px; display: inline-block;">
             <option value="10">10</option>
@@ -70,7 +70,7 @@
 
 {% if fields is defined %}
 <!-- row table manager template -->
-<script type="text/template" id="js-manager-{{ entity_name|lower|trim(' ') }}-row-template">
+<script type="text/template" id="js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-row-template">
     <tr data-id="<%= id %>" data-i="<%= index %>">
         <th style="vertical-align: middle;" scope="row" class="text-center js-manager-row-index"><%= index %></th>
         {% for field in fields %}
@@ -121,7 +121,7 @@
 
 {% if form is defined %}
     <!-- form table manager template -->
-    <script type="text/template" id="js-manager-{{ entity_name|lower|trim(' ') }}-form-template">
+    <script type="text/template" id="js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template">
         {% set _form_theme = form_theme|default('Components/Form/horizontal-theme-form.html.twig') %}
     {% form_theme form _form_theme %}
 

@@ -15,12 +15,14 @@
 {% block javascripts %}
     {{ parent() }}
 
+    {% include 'Components/ui/crud-manage-scripts.html.twig' %}
+
     <script src="{{ asset('build/broker_stock_form.js') }}"></script>
 
-    {% embed 'Components/ui/crud-manage-scripts.html.twig' %}
+    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' %}
         {% block create_button_template %}
             <!-- create button table manager template -->
-            <script type="text/template" id="js-manager-create-button-template">
+            <script type="text/template" id="js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-create-button-template">
                 <form method="post" id="add-stock-form" class="form-horizontal js-entity-add-stock-from">
                     <button class="js-add-stock-create btn btn-success pull-right">
                         <i class="fa-plus-circle fa" aria-hidden="true"></i>
@@ -72,6 +74,12 @@
                 swalConfirmOptions: window.swalConfirmOptions,
                 toastOptions: window.toastOptions,
                 pagination: true,
+                selectors: {
+                    createButtonTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-create-button-template',
+                    searchTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
+                },
             });
 
             // add search input function

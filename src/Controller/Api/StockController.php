@@ -30,7 +30,11 @@ class StockController extends BaseController
     {
         $query = $request->query->get('q');
 
-        $stocks = $repo->findAllMatchingOrAll($query);
+        if ($query !== null ) {
+            $stocks = $repo->findAllMatching($query);
+        } else {
+            $stocks = $repo->findAll();
+        }
 
         $apiStocks = [];
 

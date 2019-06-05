@@ -14,6 +14,7 @@
     {{ parent() }}
 
     {% include 'Components/ui/crud-manage-scripts.html.twig' %}
+    {% include 'Components/ui/crud-manage-table-scripts.html.twig' %}
 
     <script src="{{ asset('build/account_from.js') }}"></script>
 
@@ -49,6 +50,12 @@
                 swalConfirmOptions: window.swalConfirmOptions,
                 toastOptions: window.toastOptions,
                 pagination: true,
+                selectors: {
+                    createButtonTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-create-button-template',
+                    searchTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
+                },
             });
 
             const form = new AccountForm(swalFormOptionsText);

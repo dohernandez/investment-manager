@@ -40,21 +40,6 @@ class StockRepository extends ServiceEntityRepository
      *
      * @return Stock[]
      */
-    public function findAllMatchingOrAll(string $query = null, int $limit = 5): array
-    {
-        if ($query !== null ) {
-                return $this->findAllMatching($query, $limit);
-        }
-
-        return $this->findAll($limit);
-    }
-
-    /**
-     * @param string $query
-     * @param int $limit
-     *
-     * @return Stock[]
-     */
     public function findAllMatching(string $query, int $limit = 5): array
     {
         return $this->createQueryBuilder('s')
