@@ -44,7 +44,7 @@
 
 {% macro render_percentage(value) %}
     <% if ({{ value }} !== null && {{ value }} !== 0) { %>
-        <%= {{ value }} %><small>%</small>
+        <%= {{ value }}.toFixed(2).toString().replace(/\./g, ",") %><small>%</small>
     <% } %>
 {% endmacro render_percentage %}
 

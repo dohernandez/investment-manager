@@ -84,9 +84,39 @@ class WalletViewParameters extends AbstractViewParameters
                 'wallet' => $wallet,
                 'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
                 'operation_entity_name' => 'operation',
-                'wallet_items_fields' => [],
+                'wallet_items_fields' => $this->getOperationFields(),
                 'operation_form' => [],
             ] + $context;
+    }/**
+ * {@inheritdoc}
+ */
+    protected function getOperationFields(): array
+    {
+        return [
+            [
+                'name' => 'stock.name',
+                'label' => 'Stock',
+            ],
+            [
+                'name' => 'stock.symbol',
+                'label' => 'Symbol',
+            ],
+            [
+                'name' => 'stock.market.symbol',
+                'label' => 'Market',
+            ],
+            [
+                'name' => 'amount',
+                'label' => 'Amt',
+            ],
+            [
+                'name' => 'type',
+            ],
+            [
+                'name' => 'invested',
+                'render' => 'currency',
+            ],
+        ];
     }
 
 }

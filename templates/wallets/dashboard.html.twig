@@ -46,27 +46,65 @@
             };
 
             // Create page instance
-            let $crudManagerRowBox = $('.js-operation-crud-manage-row-box');
+            let $operationCrudManagerRowBox = $('.js-operation-crud-manage-row-box');
 
-            let contentWrapper = $crudManagerRowBox.closest('section');
-            let entityType = $crudManagerRowBox.data('entity-type');
+            let operationContentWrapper = $operationCrudManagerRowBox.closest('section');
+            let operationEntityType = $operationCrudManagerRowBox.data('entity-type');
 
             // Create CRUDManage instance @see public/assets/js/CRUDManage.js
-            let crudManager = new CRUDManage({
-                entityType: entityType,
-                wrapper: contentWrapper,
+            let operationCrudManager = new CRUDManage({
+                entityType: operationEntityType,
+                wrapper: operationContentWrapper,
                 swalFormOptions: window.swalFormOptions,
                 swalConfirmOptions: window.swalConfirmOptions,
                 toastOptions: window.toastOptions,
                 pagination: true,
             });
 
+            operationCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
+                let route = '';
+                let param = {
+                    '_id': {{ wallet.id }}
+                };
+
+                if (id) {
+                    param['id'] = id;
+                }
+
+                switch (endpoint) {
+                    case 'list':
+                        route = Routing.generate('wallet_' + entityType + '_list', param);
+
+                        break;
+                    case 'new':
+                        route = Routing.generate('wallet_' + entityType + '_new', param);
+
+                        break;
+                    case 'get':
+                        route = Routing.generate('wallet_' + entityType + '_get', param);
+
+                        break;
+                    case 'edit':
+                        route = Routing.generate('wallet_' + entityType + '_edit', param);
+
+                        break;
+                    case 'delete':
+                        route = Routing.generate('wallet_' + entityType + '_delete', param);
+
+                        break;
+                    default:
+                        throw 'Endpoint wallet_' + endpoint + ' not supported';
+                }
+
+                return route
+            });
+
             // const form = new WalletForm(swalFormOptionsText);
 
             // crudManager.withForm(form);
-            crudManager.withCreateButton();
+            operationCrudManager.withCreateButton();
 
-            crudManager.render();
+            operationCrudManager.render();
         });
     </script>
 {% endblock %}

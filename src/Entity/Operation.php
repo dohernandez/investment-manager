@@ -239,10 +239,11 @@ class Operation implements Entity
     public function __toString(): string
     {
         return sprintf(
-            '%d - %s [%.2f] ',
+            '%s:%s - %d [%.2f] ',
+            $this->getStock()->getMarket()->getSymbol(),
             $this->getStock()->getSymbol(),
             $this->getAmount(),
-            $this->get()
+            $this->getCapital()
         );
     }
 
