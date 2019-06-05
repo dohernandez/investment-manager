@@ -72,7 +72,13 @@ class Trade implements Entity
     private $amount;
 
     /**
-     * Final capital returns
+     * Price in dollar. TODO In the future it should be extracted using the money pattern.
+     *
+     * @ORM\Column(type="decimal", precision=11, scale=2)
+     */
+    private $invested = 0;
+
+    /**
      * Price in dollar. TODO In the future it should be extracted using the money pattern.
      *
      * @ORM\Column(type="decimal", precision=11, scale=2)
@@ -120,18 +126,6 @@ class Trade implements Entity
         return $this->id;
     }
 
-    public function getNumber(): ?int
-    {
-        return $this->number;
-    }
-
-    public function setNumber(int $number): self
-    {
-        $this->number = $number;
-
-        return $this;
-    }
-
     public function getStock(): ?Stock
     {
         return $this->stock;
@@ -165,8 +159,12 @@ class Trade implements Entity
     {
         $this->buyAmount = $buyAmount;
 
-        $amount = $this->getAmount() + $buyAmount;
-        $this->setAmount($amount);
+        return $this;
+    }
+
+    public function increaseBuyAmount(?float $buyAmount): self
+    {
+        $this->buyAmount += $buyAmount;
 
         return $this;
     }
@@ -180,8 +178,21 @@ class Trade implements Entity
     {
         $this->buyPaid = $buyPaid;
 
-        $capital = $this->getCapital() + $buyPaid;
-        $this->setCapital($capital);
+        return $this;
+    }
+
+    public function increaseBuyPaid(float $buyPaid): self
+    {
+        $this->buyPaid += $buyPaid;
+
+        return $this;
+    }
+
+    public function addBuy(float $amount, float $paid): self
+    {
+        $this->increaseBuyPaid($paid);
+        $this->increaseBuyAmount($amount);
+        $this->increaseAmount($amount);
 
         return $this;
     }
@@ -195,8 +206,12 @@ class Trade implements Entity
     {
         $this->sellAmount = $sellAmount;
 
-        $amount = $this->getAmount() - $sellAmount;
-        $this->setAmount($amount);
+        return $this;
+    }
+
+    public function increaseSellAmount(float $sellAmount): self
+    {
+        $this->sellAmount += $sellAmount;
 
         return $this;
     }
@@ -210,8 +225,21 @@ class Trade implements Entity
     {
         $this->sellPaid = $sellPaid;
 
-        $capital = $this->getCapital() - $sellPaid;
-        $this->setCapital($capital);
+        return $this;
+    }
+
+    public function increaseSellPaid(float $sellPaid): self
+    {
+        $this->sellPaid += $sellPaid;
+
+        return $this;
+    }
+
+    public function addSell(float $amount, float $paid): self
+    {
+        $this->increaseSellPaid($paid);
+        $this->increaseSellAmount($amount);
+        $this->decreaseAmount($amount);
 
         return $this;
     }
@@ -240,9 +268,28 @@ class Trade implements Entity
         return $this;
     }
 
-    public function getCapital(): ?float
+    public function increaseAmount(float $amount): self
     {
-        return $this->capital;
+        $this->amount += $amount;
+
+        return $this;
+    }
+
+    public function decreaseAmount(float $amount): self
+    {
+        $this->amount -= $amount;
+
+        return $this;
+    }
+
+    public function getCapital(): float
+    {
+        $stock = $this->getStock();
+        if ($stock === null) {
+            return 0;
+        }
+
+        return $this->getAmount() * $stock->getValue();
     }
 
     public function setCapital(?float $capital): self
@@ -264,9 +311,16 @@ class Trade implements Entity
         return $this;
     }
 
-    public function increaseDividend(?float $dividend): self
+    public function increaseDividend(float $dividend): self
     {
         $this->dividend += $dividend;
+
+        return $this;
+    }
+
+    public function addDividend(float $dividend): self
+    {
+        $this->increaseDividend($dividend);
 
         return $this;
     }
@@ -332,6 +386,16 @@ class Trade implements Entity
     public function addOperation(Operation $operation): self
     {
         if (!$this->operations->contains($operation)) {
+
+            switch ($operation->getType()) {
+                case Operation::TYPE_BUY:
+                    $this->addBuy($operation->getAmount(), $operation->getNetValue());
+                    break;
+                case Operation::TYPE_SELL:
+                    $this->addSell($operation->getAmount(), $operation->getNetValue());
+                    break;
+            }
+
             $this->operations[] = $operation;
             $operation->setTrade($this);
         }

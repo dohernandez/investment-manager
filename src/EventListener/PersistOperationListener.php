@@ -39,24 +39,12 @@ class PersistOperationListener
                 ->setWallet($operation->getWallet())
             ;
 
-            $operation->setTrade($trade);
         }
 
-        switch ($type) {
-            case Operation::TYPE_BUY:
-                $trade->setBuyAmount($operation->getAmount())
-                    ->setBuyPaid($operation->getNetValue())
-                    ;
-                break;
-            case Operation::TYPE_SELL:
-                $trade->setSellAmount($operation->getAmount())
-                    ->setSellPaid($operation->getNetValue())
-                    ;
-                break;
-            case Operation::TYPE_DIVIDEND:
-                $trade->increaseDividend($operation->getNetValue())
-                    ;
-                break;
+        $trade->addOperation($operation);
+
+        if ($type === Operation::TYPE_DIVIDEND) {
+            // TODO dividend should be added to all trades opens with for the given stock
         }
     }
 }

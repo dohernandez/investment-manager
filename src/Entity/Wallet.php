@@ -290,6 +290,20 @@ class Wallet implements Entity
         return $this;
     }
 
+    /**
+     * Alias of increaseDividend
+     *
+     * @param float $dividend
+     *
+     * @return Wallet
+     */
+    public function addDividend(float $dividend): self
+    {
+        $this->increaseDividend( $dividend);
+
+        return $this;
+    }
+
     public function getCommissions(): float
     {
         return $this->commissions;
