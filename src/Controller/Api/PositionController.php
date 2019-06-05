@@ -4,9 +4,9 @@ namespace App\Controller\Api;
 
 use App\Api;
 use App\Entity;
-//use App\Form\OperationType;
-//use App\Message\OperationDeleted;
-//use App\Message\OperationSaved;
+//use App\Form\PositionType;
+//use App\Message\PositionDeleted;
+//use App\Message\PositionSaved;
 use App\Repository\WalletRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Form;
@@ -17,9 +17,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/v1/wallets/{_id}/operations")
+ * @Route("/v1/wallets/{_id}/positions")
  */
-class OperationController extends BaseController
+class PositionController extends BaseController
 {
     /**
      * @var WalletRepository
@@ -32,7 +32,7 @@ class OperationController extends BaseController
     }
 
     /**
-     * @Route("/", name="wallet_operation_list", methods={"GET"}, options={"expose"=true})
+     * @Route("/", name="wallet_position_list", methods={"GET"}, options={"expose"=true})
      *
      * @param int $_id
      *
@@ -42,24 +42,24 @@ class OperationController extends BaseController
     {
         $wallet = $this->walletRepository->find($_id);
 
-        $apiOperations = [];
+        $apiPositions = [];
 
         // get a new ArrayIterator
-        $iterator = $wallet->getOperations()->getIterator();
+        $iterator = $wallet->getPositions()->getIterator();
 
         // define ordering closure, using preferred comparison method/field
         $iterator->uasort(function ($first, $second) {
             return $first->getStock()->getName() < $second->getStock()->getName() ? 1 : -1;
         });
 
-        foreach ($iterator as $Operation) {
-            $apiOperations[] = Api\Operation::fromEntity($Operation);
+        foreach ($iterator as $position) {
+            $apiPositions[] = Api\Position::fromEntity($position);
         }
 
         return $this->createApiResponse(
             [
-                'total_count' => count($apiOperations),
-                'items'       => $apiOperations,
+                'total_count' => count($apiPositions),
+                'items'       => $apiPositions,
             ]
         );
     }

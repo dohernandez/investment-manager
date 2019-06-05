@@ -85,10 +85,16 @@ class Wallet implements Entity
      */
     private $operations;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Position", mappedBy="wallet")
+     */
+    private $positions;
+
     public function __construct()
     {
         $this->trades = new ArrayCollection();
         $this->operations = new ArrayCollection();
+        $this->positions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -385,6 +391,12 @@ class Wallet implements Entity
         return $this->operations;
     }
 
+    /**
+     * Add an operation to the collection and update the wallet based on the operation type.
+     * @param Operation $operation
+     *
+     * @return Wallet
+     */
     public function addOperation(Operation $operation): self
     {
         if (!$this->operations->contains($operation)) {
@@ -430,6 +442,37 @@ class Wallet implements Entity
             // set the owning side to null (unless already changed)
             if ($operation->getWallet() === $this) {
                 $operation->setWallet(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Position[]
+     */
+    public function getPositions(): Collection
+    {
+        return $this->positions;
+    }
+
+    public function addPosition(Position $position): self
+    {
+        if (!$this->positions->contains($position)) {
+            $this->positions[] = $position;
+            $position->setWallet($this);
+        }
+
+        return $this;
+    }
+
+    public function removePosition(Position $position): self
+    {
+        if ($this->positions->contains($position)) {
+            $this->positions->removeElement($position);
+            // set the owning side to null (unless already changed)
+            if ($position->getWallet() === $this) {
+                $position->setWallet(null);
             }
         }
 

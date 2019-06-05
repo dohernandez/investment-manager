@@ -13,6 +13,7 @@
 {% block page_content %}
 
     {% include 'wallets/head-dashboard.html.twig' %}
+    {% include 'wallets/position-box.html.twig' %}
     {% include 'wallets/operation-box.html.twig' %}
 
 {% endblock %}
@@ -20,15 +21,24 @@
 {% block javascripts %}
     {{ parent() }}
 
-    {% embed 'Components/ui/crud-manage-scripts.html.twig' with {
+    {% include 'Components/ui/crud-manage-scripts.html.twig' %}
+
+    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
         'entity_name': operation_entity_name,
-        'fields': wallet_items_fields,
+        'fields': wallet_operation_fields,
         'create_button_label': 'Add new'|trans ~ ' ' ~ operation_entity_name|trans|lower
+    }%}
+    {% endembed %}
+
+    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
+        'entity_name': position_entity_name,
+        'fields': wallet_position_fields,
     }%}
     {% endembed %}
 
     <script src="{{ asset('build/wallet_dashboard.js') }}"></script>
 
+    <!-- operationCrudManager -->
     <script>
         $(document).ready(function() {
             let swalFormOperationOptionsText = {
@@ -42,17 +52,30 @@
             // Create page instance
             let $operationCrudManagerRowBox = $('.js-operation-crud-manage-row-box');
 
-            let operationContentWrapper = $operationCrudManagerRowBox.closest('section');
+            let operationContentWrapper = $operationCrudManagerRowBox.closest('div');
             let operationEntityType = $operationCrudManagerRowBox.data('entity-type');
+
+            let swalConfirmOptions = window.swalFormOptions;
+            swalConfirmOptions.titleText = '{{ 'Delete'|trans }} {{ entity_name|trans|title }}';
+            swalConfirmOptions.text = '{{ 'Do you want to delete the'|trans }} {{ entity_name|trans|title|lower }} {0}?';
+
+            let toastOptions = window.toastOptions;
+            toastOptions.titleText = '{{ entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}';
 
             // Create CRUDManage instance @see public/assets/js/CRUDManage.js
             let operationCrudManager = new CRUDManage({
                 entityType: operationEntityType,
                 wrapper: operationContentWrapper,
                 swalFormOptions: window.swalFormOptions,
-                swalConfirmOptions: window.swalConfirmOptions,
-                toastOptions: window.toastOptions,
+                swalConfirmOptions: swalConfirmOptions,
+                toastOptions: toastOptions,
                 pagination: true,
+                selectors: {
+                    createButtonTemplate: '#js-manager-{{ operation_entity_name|lower|trim(' ') }}-create-button-template',
+                    searchTemplate: '#js-manager-{{ operation_entity_name|lower|trim(' ') }}-search-template',
+                    showPerPageTemplate: '#js-manager-{{ operation_entity_name|lower|trim(' ') }}-show-per-page-template',
+                    rowTemplate: '#js-manager-{{ operation_entity_name|lower|trim(' ') }}-row-template',
+                },
             });
 
             operationCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
@@ -74,10 +97,6 @@
                         route = Routing.generate('wallet_' + entityType + '_new', param);
 
                         break;
-                    case 'get':
-                        route = Routing.generate('wallet_' + entityType + '_get', param);
-
-                        break;
                     case 'edit':
                         route = Routing.generate('wallet_' + entityType + '_edit', param);
 
@@ -93,12 +112,57 @@
                 return route
             });
 
-            // const form = new WalletForm(swalFormOptionsText);
+            // const form = new WalletForm(swalFormOptionsText, 'js-manager-{{ operation_entity_name|lower|trim(' ') }}-form-template');
 
             // crudManager.withForm(form);
             operationCrudManager.withCreateButton();
 
             operationCrudManager.render();
+        });
+    </script>
+
+    <!-- operationCrudManager -->
+    <script>
+        $(document).ready(function() {
+            // Create page instance
+            let $positionCrudManagerRowBox = $('.js-position-crud-manage-row-box');
+
+            let positionContentWrapper = $positionCrudManagerRowBox.closest('div');
+            let positionEntityType = $positionCrudManagerRowBox.data('entity-type');
+
+            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
+            let positionCrudManager = new CRUDManage({
+                entityType: positionEntityType,
+                wrapper: positionContentWrapper,
+                swalFormOptions: window.swalFormOptions,
+                swalConfirmOptions: window.swalConfirmOptions,
+                toastOptions: window.toastOptions,
+                pagination: true,
+                selectors: {
+                    createButtonTemplate: '#js-manager-{{ position_entity_name|lower|trim(' ') }}-create-button-template',
+                    searchTemplate: '#js-manager-{{ position_entity_name|lower|trim(' ') }}-search-template',
+                    showPerPageTemplate: '#js-manager-{{ position_entity_name|lower|trim(' ') }}-show-per-page-template',
+                    rowTemplate: '#js-manager-{{ position_entity_name|lower|trim(' ') }}-row-template',
+                },
+            });
+
+            positionCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
+                let param = {
+                    '_id': {{ wallet.id }}
+                };
+
+                if (id) {
+                    param['id'] = id;
+                }
+
+                if (endpoint === 'list') {
+                    return Routing.generate('wallet_' + entityType + '_list', param);
+                }
+
+                throw 'Endpoint wallet_' + endpoint + ' not supported';
+            });
+
+            positionCrudManager.render();
         });
     </script>
 {% endblock %}

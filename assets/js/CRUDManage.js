@@ -40,9 +40,12 @@ class CRUDManage {
             buttonColWidth: 0,
             swalViewOptions: null,
             viewTemplate: '',
+            selectors: CRUDManage._selectors,
         });
 
         this.entityType = _options.entityType;
+
+        this.selectors = _.defaults(_options.selectors || {}, CRUDManage._selectors);
 
         // Start binding functions for $wrapper
         this.$wrapper = _options.wrapper;
@@ -127,15 +130,15 @@ class CRUDManage {
     render(extraRender) {
         // render create button
         if (this.createButton) {
-            let $createButton = this._compileTemplate(CRUDManage._selectors.createButtonTemplate);
-            this.$wrapper.find(CRUDManage._selectors.createButtonContainer)
+            let $createButton = this._compileTemplate(this.selectors.createButtonTemplate);
+            this.$wrapper.find(this.selectors.createButtonContainer)
                 .append($createButton);
         }
 
         // render search input
         if (this.searchFunc !== null) {
-            let $search = this._compileTemplate(CRUDManage._selectors.searchTemplate);
-            this.$wrapper.find(CRUDManage._selectors.searchContainer)
+            let $search = this._compileTemplate(this.selectors.searchTemplate);
+            this.$wrapper.find(this.selectors.searchContainer)
                 .append($search);
         }
 
@@ -145,7 +148,7 @@ class CRUDManage {
             // add on change for show per page
             this.$wrapper.on(
                 'change',
-                CRUDManage._selectors.showPerPage,
+                this.selectors.showPerPage,
                 (e) => {
                     e.preventDefault();
 
@@ -159,8 +162,8 @@ class CRUDManage {
                 }
             );
 
-            let $perPage = this._compileTemplate(CRUDManage._selectors.showPerPageTemplate);
-            this.$wrapper.find(CRUDManage._selectors.perPageContainer)
+            let $perPage = this._compileTemplate(this.selectors.showPerPageTemplate);
+            this.$wrapper.find(this.selectors.perPageContainer)
                 .append($perPage);
         }
 
@@ -169,7 +172,7 @@ class CRUDManage {
         }
 
         // render manage col with
-        let $manageButtons = this.$wrapper.find(CRUDManage._selectors.manageButtons);
+        let $manageButtons = this.$wrapper.find(this.selectors.manageButtons);
 
         $manageButtons.css( "width", this.buttonColWidth );
 
@@ -209,7 +212,7 @@ class CRUDManage {
 
                 this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
-                let $pagination = this.$wrapper.find($(CRUDManage._selectors.pagination));
+                let $pagination = this.$wrapper.find($(this.selectors.pagination));
                 $pagination.each((index, ul) => {
                     let $ul = $(ul);
                     this._showPagination($ul);
@@ -265,7 +268,7 @@ class CRUDManage {
     }
 
     _removePagination(){
-        let $pagination = this.$wrapper.find($(CRUDManage._selectors.pagination));
+        let $pagination = this.$wrapper.find($(this.selectors.pagination));
         let $parent = $pagination.parent();
 
         $pagination.remove();
@@ -290,7 +293,7 @@ class CRUDManage {
         let totalRecords = _options.totalRecords;
 
         // tweak pagination info
-        let $paginationInfo = this.$wrapper.find($(CRUDManage._selectors.paginationInfo));
+        let $paginationInfo = this.$wrapper.find($(this.selectors.paginationInfo));
         $paginationInfo.parent().css('margin', '24px 0');
 
         self = this;
@@ -336,7 +339,7 @@ class CRUDManage {
      * Clean the rows from the table.
      */
     cleanRows() {
-        const $table = this.$wrapper.find(CRUDManage._selectors.table);
+        const $table = this.$wrapper.find(this.selectors.table);
 
         $table.find('tbody').html('');
     }
@@ -354,7 +357,7 @@ class CRUDManage {
      * @param {int} index
      */
     addRow(entity, index) {
-        const $table = this.$wrapper.find(CRUDManage._selectors.table);
+        const $table = this.$wrapper.find(this.selectors.table);
 
         let data = entity;
         data.index = index + 1;
@@ -363,8 +366,8 @@ class CRUDManage {
         $table.find('tbody').append(row);
 
         if (this.expanded) {
-            let $cell = $table.find(CRUDManage._selectors.extraCell);
-            $cell.addClass(CRUDManage._selectors.extraCellShown.slice(1));
+            let $cell = $table.find(this.selectors.extraCell);
+            $cell.addClass(this.selectors.extraCellShown.slice(1));
         }
     }
 
@@ -391,7 +394,7 @@ class CRUDManage {
         compile.deleteButton = this.deleteButton;
         compile.viewButton = this.viewButton;
 
-        return this._compileTemplate(CRUDManage._selectors.rowTemplate, compile);
+        return this._compileTemplate(this.selectors.rowTemplate, compile);
     }
 
     /**
@@ -776,13 +779,13 @@ class CRUDManage {
 
         this.$wrapper.on(
             'click',
-            CRUDManage._selectors.searchClear,
+            this.selectors.searchClear,
             this.handlerSearchClear.bind(this)
         );
 
         this.$wrapper.on(
             'keyup',
-            CRUDManage._selectors.search,
+            this.selectors.search,
             this.handlerSearch.bind(this)
         );
     }
@@ -795,7 +798,7 @@ class CRUDManage {
         e.preventDefault();
 
         let $searchClear = $(e.currentTarget);
-        let $search = this.$wrapper.find(CRUDManage._selectors.search);
+        let $search = this.$wrapper.find(this.selectors.search);
 
         $search.val('');
         $searchClear.hide();
@@ -824,7 +827,7 @@ class CRUDManage {
         e.preventDefault();
 
         let $search = $(e.currentTarget);
-        let $searchClear = this.$wrapper.find(CRUDManage._selectors.searchClear);
+        let $searchClear = this.$wrapper.find(this.selectors.searchClear);
 
         let search = $search.val();
         if (search == '') {
@@ -875,7 +878,7 @@ class CRUDManage {
                 page: 1,
             });
         } catch (err) {
-            let $paginationInfo = this.$wrapper.find($(CRUDManage._selectors.paginationInfo));
+            let $paginationInfo = this.$wrapper.find($(this.selectors.paginationInfo));
 
             $paginationInfo.html('');
 
@@ -894,19 +897,21 @@ class CRUDManage {
     toggleExpanded() {
         this.setExpanded(!this.expanded);
 
-        const $table = this.$wrapper.find(CRUDManage._selectors.table);
+        const $table = this.$wrapper.find(this.selectors.table);
+
+        let self = this;
 
         if (this.expanded) {
-            let $cell = $table.find(CRUDManage._selectors.extraCell);
+            let $cell = $table.find(self.selectors.extraCell);
 
             $cell.fadeIn('fast', function () {
-                $cell.addClass(CRUDManage._selectors.extraCellShown.slice(1));
+                $cell.addClass(self.selectors.extraCellShown.slice(1));
             });
         } else {
-            let $cell = $table.find(CRUDManage._selectors.extraCell);
+            let $cell = $table.find(self.selectors.extraCell);
 
             $cell.fadeOut('fast', function () {
-                $cell.removeClass(CRUDManage._selectors.extraCellShown.slice(1));
+                $cell.removeClass(self.selectors.extraCellShown.slice(1));
             });
         }
     }

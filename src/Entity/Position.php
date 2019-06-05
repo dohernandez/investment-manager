@@ -80,6 +80,12 @@ class Position implements Entity
      */
     private $status;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Wallet", inversedBy="positions")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $wallet;
+
     public function __construct()
     {
         $this->operations = new ArrayCollection();
@@ -348,5 +354,27 @@ class Position implements Entity
     public function __toString(): string
     {
         return $this->getId();
+    }
+
+    public function getCapital(): float
+    {
+        $stock = $this->getStock();
+        if ($stock === null) {
+            return 0;
+        }
+
+        return $this->getAmount() * $stock->getValue();
+    }
+
+    public function getWallet(): ?Wallet
+    {
+        return $this->wallet;
+    }
+
+    public function setWallet(?Wallet $wallet): self
+    {
+        $this->wallet = $wallet;
+
+        return $this;
     }
 }

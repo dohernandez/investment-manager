@@ -30,6 +30,8 @@ class PersistOperationListener
             return;
         }
 
+        $wallet = $operation->getWallet();
+
         $type = $operation->getType();
         // only act on "Operation::TYPE_BUY", "Operation::TYPE_SELL" and "Operation::TYPE_DIVIDEND"
         if (!in_array($type, [
@@ -37,7 +39,7 @@ class PersistOperationListener
                 Operation::TYPE_SELL,
                 Operation::TYPE_DIVIDEND,
             ])) {
-            $operation->getWallet()->addExpenses($operation->getNetValue(), $type);
+            $wallet->addExpenses($operation->getNetValue(), $type);
 
             return;
         }
@@ -50,6 +52,8 @@ class PersistOperationListener
             $position->setStock($stock)
                 ->setStatus(Position::STATUS_OPEN)
                 ;
+
+            $wallet->addPosition($position);
         }
 
         $position->addOperation($operation);

@@ -17,7 +17,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/v1/stocks/{_id}/dividend")
+ * @Route("/v1/stocks/{_id}/dividends")
  */
 class StockDividendController extends BaseController
 {

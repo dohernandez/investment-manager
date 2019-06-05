@@ -84,12 +84,16 @@ class WalletViewParameters extends AbstractViewParameters
                 'wallet' => $wallet,
                 'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
                 'operation_entity_name' => 'operation',
-                'wallet_items_fields' => $this->getOperationFields(),
+                'wallet_operation_fields' => $this->getOperationFields(),
                 'operation_form' => [],
+                'position_entity_name' => 'position',
+                'wallet_position_fields' => $this->getPositionFields(),
             ] + $context;
-    }/**
- * {@inheritdoc}
- */
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getOperationFields(): array
     {
         return [
@@ -121,6 +125,39 @@ class WalletViewParameters extends AbstractViewParameters
                 'label' => 'Date',
                 'render' => 'date',
                 'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
+            ],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getPositionFields(): array
+    {
+        return [
+            [
+                'name' => 'stock.name',
+                'label' => 'Stock',
+            ],
+            [
+                'name' => 'stock.symbol',
+                'label' => 'Symbol',
+            ],
+            [
+                'name' => 'stock.market.symbol',
+                'label' => 'Market',
+            ],
+            [
+                'name' => 'amount',
+                'label' => 'Amt',
+            ],
+            [
+                'name' => 'capital',
+                'render' => 'currency',
+            ],
+            [
+                'name' => 'invested',
+                'render' => 'currency',
             ],
         ];
     }

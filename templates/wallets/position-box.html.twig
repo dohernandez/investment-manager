@@ -2,7 +2,7 @@
     <div class="col-md-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title">{{ 'Operations'|trans }}</h3>
+                <h3 class="box-title">{{ 'Positions'|trans }}</h3>
 
                 <div class="box-tools pull-right">
                     <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -13,9 +13,9 @@
             <!-- /.box-header -->
             <div class="box-body">
                 {% embed 'Components/ui/crud-manage-table.html.twig' with {
-                    'entity_name': operation_entity_name,
-                    'fields': wallet_operation_fields,
-                    'js_crud_manage_class': 'js-operation-crud-manage-row-box',
+                    'entity_name': position_entity_name,
+                    'fields': wallet_position_fields,
+                    'js_crud_manage_class': 'js-position-crud-manage-row-box',
                     'border': 0
                 }%}
                 {% endembed %}
