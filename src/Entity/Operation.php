@@ -96,6 +96,11 @@ class Operation implements Entity
      */
     private $wallet;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Position", inversedBy="operations", cascade={"persist"})
+     */
+    private $position;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -273,5 +278,17 @@ class Operation implements Entity
         }
 
         return $this->getAmount() * $stock->getValue();
+    }
+
+    public function getPosition(): ?Position
+    {
+        return $this->position;
+    }
+
+    public function setPosition(?Position $position): self
+    {
+        $this->position = $position;
+
+        return $this;
     }
 }

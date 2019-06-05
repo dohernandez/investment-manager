@@ -116,6 +116,12 @@ class Trade implements Entity
      */
     private $operations;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Position", inversedBy="trades")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $position;
+
     public function __construct()
     {
         $this->operations = new ArrayCollection();
@@ -383,6 +389,12 @@ class Trade implements Entity
         return $this->operations;
     }
 
+    /**
+     * Add an operation to the collection and update the trade based on the operation type.
+     * @param Operation $operation
+     *
+     * @return Trade
+     */
     public function addOperation(Operation $operation): self
     {
         if (!$this->operations->contains($operation)) {
@@ -412,6 +424,18 @@ class Trade implements Entity
                 $operation->setTrade(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPosition(): ?Position
+    {
+        return $this->position;
+    }
+
+    public function setPosition(?Position $position): self
+    {
+        $this->position = $position;
 
         return $this;
     }

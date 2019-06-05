@@ -143,11 +143,17 @@ class Stock implements Entity
      */
     private $operations;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Position", mappedBy="stock")
+     */
+    private $positions;
+
     public function __construct()
     {
         $this->dividends = new ArrayCollection();
         $this->trades = new ArrayCollection();
         $this->operations = new ArrayCollection();
+        $this->positions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -505,6 +511,37 @@ class Stock implements Entity
             // set the owning side to null (unless already changed)
             if ($operation->getStock() === $this) {
                 $operation->setStock(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Position[]
+     */
+    public function getPositions(): Collection
+    {
+        return $this->positions;
+    }
+
+    public function addPosition(Position $position): self
+    {
+        if (!$this->positions->contains($position)) {
+            $this->positions[] = $position;
+            $position->setStock($this);
+        }
+
+        return $this;
+    }
+
+    public function removePosition(Position $position): self
+    {
+        if ($this->positions->contains($position)) {
+            $this->positions->removeElement($position);
+            // set the owning side to null (unless already changed)
+            if ($position->getStock() === $this) {
+                $position->setStock(null);
             }
         }
 
