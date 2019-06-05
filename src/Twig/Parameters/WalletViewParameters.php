@@ -113,8 +113,14 @@ class WalletViewParameters extends AbstractViewParameters
                 'name' => 'type',
             ],
             [
-                'name' => 'invested',
+                'name' => 'value',
                 'render' => 'currency',
+            ],
+            [
+                'name' => 'dateAt',
+                'label' => 'Date',
+                'render' => 'date',
+                'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
             ],
         ];
     }

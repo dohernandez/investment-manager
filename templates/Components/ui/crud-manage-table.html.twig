@@ -20,7 +20,7 @@
 
 <div class="row {{ js_crud_manage_class|default('js-crud-manage-row-box') }}" data-entity-type="{{ entity_name|snake }}">
     <div class="col-md-12">
-        <div class="box">
+        <div class="box {% if border is defined and border == 0 %}no-border{% endif %}">
             <div class="box-header with-border js-manage-header">
                 <div class="col-md-12 js-manage-header-create-button-container">
                     <!-- create button table manager template -->

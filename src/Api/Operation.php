@@ -14,9 +14,11 @@ class Operation
 
     public $capital;
 
-    public $invested;
+    public $value;
 
     public $type;
+
+    public $dateAt;
 
     public $title;
 
@@ -28,8 +30,9 @@ class Operation
         $self->stock = Stock::fromEntity($operation->getStock());
         $self->amount = $operation->getAmount();
         $self->capital = $operation->getCapital();
-        $self->invested = $operation->getNetValue();
+        $self->value = $operation->getNetValue();
         $self->type = $operation->getType();
+        $self->dateAt = $operation->getDateAt();
 
         $self->title = (string) $operation;
 
