@@ -156,6 +156,9 @@
     "knplabs/knp-menu-bundle": {
         "version": "v2.2.1"
     },
+    "league/csv": {
+        "version": "9.2.0"
+    },
     "monolog/monolog": {
         "version": "1.24.0"
     },
