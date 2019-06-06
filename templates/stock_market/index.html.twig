@@ -60,13 +60,15 @@
                 },
             });
 
-            const form = new StockMarketForm(swalFormOptionsText);
+            const form = new StockMarketForm(
+                swalFormOptionsText,
+                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+            );
 
             crudManager.withForm(form);
             // add button create
             crudManager.withCreateButton();
             // add button edit
-            crudManager.withViewButton();
             crudManager.withEditButton();
             // add button delete
             crudManager.withDeleteButton();
