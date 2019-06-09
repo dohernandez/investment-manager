@@ -9,7 +9,13 @@
     {% for row in rows %}
         <tr>
             <td scope="key">{{ row.key|trans }}</td>
-            <td scope="value">{{ row.value|compile_tmpl(compile) }}</td>
+            <td scope="value">
+                {% if row.render is defined and row.render == 'decimal' %}
+                    {{ row.value|compile_decimal_tmpl(compile) }}
+                {% else %}
+                    {{ row.value|compile_tmpl(compile) }}
+                {% endif %}
+            </td>
         </tr>
     {% endfor %}
     </tbody>

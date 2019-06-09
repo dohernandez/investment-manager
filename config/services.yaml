@@ -54,3 +54,6 @@ services:
     App\EventListener\PersistOperationListener:
         tags:
             - { name: doctrine.event_listener, event: prePersist }
+
+
+    Goutte\Client: ~

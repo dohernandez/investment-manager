@@ -8,9 +8,13 @@
     {% set _currency = currency |default('euro') %}
 
     {% if _currency == 'euro' %}
-        &euro; <%= {{ value }}.toFixed(2).toString().replace(/\./g, ",") %>
+        <% if ({{ value }} ) { %>
+            &euro; <%= {{ value }}.toFixed(2).toString().replace(/\./g, ",") %>
+        <% } %>
     {% elseif _currency == '$' %}
-        <%= {{ value }}.toFixed(2).toString().replace(/\./g, ",") %> $
+        <% if ({{ value }} ) { %>
+            <%= {{ value }}.toFixed(2).toString().replace(/\./g, ",") %> $
+        <% } %>
     {% endif %}
 {% endmacro render_currency %}
 

@@ -16,6 +16,7 @@ class AppExtension extends AbstractExtension
             // Reference: https://twig.symfony.com/doc/2.x/advanced.html#automatic-escaping
             new TwigFilter('snake', [$this, 'snake']),
             new TwigFilter('compile_tmpl', [$this, 'compile'], ['is_safe' => ['html']]),
+            new TwigFilter('compile_decimal_tmpl', [$this, 'compileDecimal'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -24,6 +25,7 @@ class AppExtension extends AbstractExtension
         return [
             new TwigFunction('snake', [$this, 'snake']),
             new TwigFunction('compile_tmpl', [$this, 'compile']),
+            new TwigFunction('compile_decimal_tmpl', [$this, 'compileDecimal']),
         ];
     }
 
@@ -38,6 +40,15 @@ class AppExtension extends AbstractExtension
     {
         if ($tmpl) {
             return "<%= $value %>";
+        }
+
+        return $value;
+    }
+
+    public function compileDecimal($value, $tmpl = false)
+    {
+        if ($tmpl) {
+            return "<% if (!isNaN($value) && $value) { %><%= $value.toFixed(2).toString().replace(/\./g, \",\") %><% } else { %><%= $value %><% } %>";
         }
 
         return $value;

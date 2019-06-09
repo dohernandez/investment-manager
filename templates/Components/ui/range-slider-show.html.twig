@@ -5,11 +5,11 @@
 {% endif %}
 
 <div class="col-xs-12 no-padding stock-open-close-day-price-slider">
-    <b>{{ min_price|compile_tmpl(compile) }}</b>
+    <b>{{ min_price|compile_decimal_tmpl(compile) }}</b>
     <input id="{{ id }}" type="text"
            data-slider-min="{{ min_price|compile_tmpl(compile) }}" data-slider-max="{{ max_price|compile_tmpl(compile) }}"
            data-slider-value="{{ current_price|compile_tmpl(compile) }}" data-slider-enabled="false"/>
-    <b>{{ max_price|compile_tmpl(compile) }}</b>
+    <b>{{ max_price|compile_decimal_tmpl(compile) }}</b>
 </div>
 <div class="col-xs-12 no-padding stock-open-close-day-price-slider-type">
     <span>{{ type }}</span>

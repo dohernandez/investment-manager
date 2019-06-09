@@ -1,6 +1,8 @@
 <div class="box no-border no-shadow">
     <div class="box-header with-border">
-        {% embed 'Components/ui/stock-price.html.twig'%}
+        {% embed 'Components/ui/stock-price.html.twig' with {
+            'tmpl': true,
+        }%}
         {% endembed %}
     </div>
     <div class="box-body">
@@ -11,18 +13,22 @@
                         {
                             'key': 'Prev. Close',
                             'value': 'preClose',
+                            'render': 'decimal',
                         },
                         {
                             'key': 'Open',
                             'value': 'open',
+                            'render': 'decimal',
                         },
                         {
                             'key': 'PE Ratio (TTM)',
                             'value': 'peRatio',
+                            'render': 'decimal',
                         },
                         {
                             'key': 'Forward Dividend & Yield',
                             'value': 'forwardDividendYield',
+                            'render': 'decimal',
                         },
                         {
                             'key': 'Ex-Dividend Date',

@@ -82,7 +82,10 @@
                 }
             };
 
-            const form = new StockForm(swalFormOptionsText);
+            const form = new StockForm(
+                swalFormOptionsText,
+                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+            );
 
             crudManager.withForm(form);
             // add button create

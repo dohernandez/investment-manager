@@ -407,7 +407,7 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getDayLow()
+    public function getDayLow(): ?float
     {
         return $this->dayLow;
     }
@@ -419,7 +419,7 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getDayHigh()
+    public function getDayHigh(): ?float
     {
         return $this->dayHigh;
     }
