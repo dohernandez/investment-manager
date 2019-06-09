@@ -33,6 +33,10 @@ class StockViewParameters extends AbstractViewParameters
                 'name' => 'symbol',
             ],
             [
+                'name' => 'market.symbol',
+                'label' => 'market',
+            ],
+            [
                 'name' => 'value',
                 'render' => 'currency',
             ],

@@ -261,7 +261,7 @@ class CRUDManage {
     _refreshPagination(options) {
         let $parent = this._removePagination();
 
-        let $pagination = new $('<ul id="pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>')
+        let $pagination = new $('<ul id="pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>');
         $parent.append($pagination);
 
         this._showPagination($pagination, options);
