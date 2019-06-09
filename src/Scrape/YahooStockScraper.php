@@ -54,8 +54,11 @@ class YahooStockScraper
      * Scrape yahoo page to find current price and update the stock.
      *
      * @param Stock $stock
+     *
+     * @return YahooStockScraper
      */
-    public function updateFromQuote(Stock $stock) {
+    public function updateFromQuote(Stock $stock): self
+    {
         $crawler = $this->client->request('GET', sprintf('%1$s/%2$s?p=%2$s', self::YAHOO_FINANCE_QUOTE_URI, $stock->getSymbol()));
 
         $quoteHeaderInfoNode = $crawler->filter(self::SELECTORS['quote_change'])->getNode(0);
@@ -144,6 +147,8 @@ class YahooStockScraper
                     }
                 }
             });
+
+        return $this;
     }
 
     /**
@@ -152,8 +157,11 @@ class YahooStockScraper
      *
      * @param Stock $stock
      * @param ArrayCollection|null $stockInfos
+     *
+     * @return YahooStockScraper
      */
-    public function updateFromProfile(Stock $stock, ?ArrayCollection $stockInfos = null) {
+    public function updateFromProfile(Stock $stock, ?ArrayCollection $stockInfos = null): self
+    {
         $crawler = $this->client->request('GET', sprintf('%1$s/%2$s/profile?p=%2$s', self::YAHOO_FINANCE_QUOTE_URI, $stock->getSymbol()));
 
         $profileNode = $crawler->filter(self::SELECTORS['profile'])->eq(0);
@@ -162,7 +170,7 @@ class YahooStockScraper
         $stock->setDescription($descNode->extract('_text')[0]);
 
         if ($stock->getSector() !== null && $stock->getIndustry() !== null) {
-            return;
+            return  $this;
         }
 
         $infoNodes = $profileNode->filter('div.asset-profile-container p span');
@@ -190,6 +198,8 @@ class YahooStockScraper
                 continue;
             }
         }
+
+        return $this;
     }
 
     protected function findOrCreateStockInfo(string $type, string $name, ?ArrayCollection $stockInfos): StockInfo

@@ -112,7 +112,8 @@ class ImportStockCommand extends Command
             // Update stock price, description and sector or industry if missing
             // values from yahoo sources.
             try {
-                $this->scraper->update($stock, $stockInfos);
+                $this->scraper->updateFromQuote($stock)
+                    ->updateFromProfile($stock, $stockInfos);
             } catch (\Exception $e) {
                 $io->error(sprintf(
                     'failed scraper update stock %s, error: %s',
