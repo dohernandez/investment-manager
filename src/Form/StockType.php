@@ -4,6 +4,9 @@ namespace App\Form;
 
 use App\Entity\Stock;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ButtonType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -14,8 +17,14 @@ class StockType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('market', StockMarketChoiceType::class, [
-                'placeholder' => 'Choose a market'
+            ->add('symbol', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'Enter symbol',
+                    'autocomplete' => "off",
+                ],
+            ])
+            ->add('yahoo_scrape', ButtonType::class, [
+                'label' => 'Load finance.yahoo.com',
             ])
             ->add('name', TextType::class, [
                 'attr' => [
@@ -23,11 +32,8 @@ class StockType extends AbstractType
                     'autocomplete' => "off",
                 ],
             ])
-            ->add('symbol', TextType::class, [
-                'attr' => [
-                    'placeholder' => 'Enter symbol',
-                    'autocomplete' => "off",
-                ],
+            ->add('market', StockMarketChoiceType::class, [
+                'placeholder' => 'Choose a market'
             ])
             ->add('value', TextType::class, [
                 'attr' => [
@@ -54,6 +60,31 @@ class StockType extends AbstractType
             ->add('industry', StockInfoChoiceType::class, [
                 'placeholder' => 'Choose industry',
                 'type' => 'industry',
+                'required' => false,
+            ])
+            // hidden inputs
+            ->add('lastChangePrice', HiddenType::class, [
+                'required' => false,
+            ])
+            ->add('peRatio', HiddenType::class, [
+                'required' => false,
+            ])
+            ->add('preClose', HiddenType::class, [
+                'required' => false,
+            ])
+            ->add('open', HiddenType::class, [
+                'required' => false,
+            ])
+            ->add('dayLow', HiddenType::class, [
+                'required' => false,
+            ])
+            ->add('dayHigh', HiddenType::class, [
+                'required' => false,
+            ])
+            ->add('week52Low', HiddenType::class, [
+                'required' => false,
+            ])
+            ->add('week52High', HiddenType::class, [
                 'required' => false,
             ])
         ;

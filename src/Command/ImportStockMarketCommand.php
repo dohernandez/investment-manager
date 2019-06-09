@@ -53,6 +53,7 @@ class ImportStockMarketCommand extends Command
             $stockMarket->setName($record[0])
                 ->setSymbol($record[1])
                 ->setCountry($record[2])
+                ->setYahooSymbol($record[3])
                 ;
 
             $this->em->persist($stockMarket);

@@ -5,6 +5,7 @@ namespace App\Scrape;
 use App\Entity\Stock;
 use App\Entity\StockInfo;
 use App\Repository\StockInfoRepository;
+use App\Repository\StockMarketRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Goutte\Client;
 use Symfony\Component\DomCrawler\Crawler;
@@ -34,10 +35,19 @@ class YahooStockScraper
      */
     private $stockInfoRepository;
 
-    public function __construct(Client $client, StockInfoRepository $stockInfoRepository)
-    {
+    /**
+     * @var StockMarketRepository
+     */
+    private $stockMarketRepository;
+
+    public function __construct(
+        Client $client,
+        StockInfoRepository $stockInfoRepository,
+        StockMarketRepository $stockMarketRepository
+    ) {
         $this->client = $client;
         $this->stockInfoRepository = $stockInfoRepository;
+        $this->stockMarketRepository = $stockMarketRepository;
     }
 
     /**
@@ -48,7 +58,44 @@ class YahooStockScraper
     public function updateFromQuote(Stock $stock) {
         $crawler = $this->client->request('GET', sprintf('%1$s/%2$s?p=%2$s', self::YAHOO_FINANCE_QUOTE_URI, $stock->getSymbol()));
 
-        $crawler->filter(self::SELECTORS['quote_change']. ' span')
+        $quoteHeaderInfoNode = $crawler->filter(self::SELECTORS['quote_change'])->getNode(0);
+
+        if (empty($stock->getName())) {
+            // update name
+            (new Crawler($quoteHeaderInfoNode->childNodes->item(1)->childNodes->item(0)))
+                ->filter('h1')
+                ->each(function ($node) use ($stock) {
+                    /** @var Crawler $node */
+
+                    if (preg_match('/^.* - (.*)/', $node->extract('_text')[0], $matches) !== false) {
+                        $stock->setName($matches[1]);
+                    }
+                });
+
+        }
+
+        if (empty($stock->getMarket())) {
+            // update market
+            (new Crawler($quoteHeaderInfoNode->childNodes->item(1)->childNodes->item(0)))
+                ->filter('span')
+                ->each(function ($node) use ($stock) {
+                    /** @var Crawler $node */
+
+                    if (preg_match('/^(.*) - .*/', $node->extract('_text')[0], $matches) !== false) {
+
+                        $market = $this->stockMarketRepository->findOneBy([
+                            'yahoo_symbol' => $matches[1]
+                        ]);
+
+                        $stock->setMarket($market);
+                    }
+                });
+
+        }
+
+        // update preClose, open, peRatio, dayLow and dayHigh, Week52Low and Week52High
+        (new Crawler($quoteHeaderInfoNode->childNodes->item(2)))
+            ->filter('span')
             ->each(function ($node) use ($stock) {
                 /** @var Crawler $node */
 
@@ -64,6 +111,7 @@ class YahooStockScraper
                 }
             });
 
+        // update preClose, open, peRatio, dayLow and dayHigh, Week52Low and Week52High
         $crawler->filter(self::SELECTORS['quote_summary']. ' tr')
             ->each(function ($node) use ($stock) {
                 /** @var Crawler $node */
@@ -105,7 +153,7 @@ class YahooStockScraper
      * @param Stock $stock
      * @param ArrayCollection|null $stockInfos
      */
-    public function updateFromProfile(Stock $stock, ?ArrayCollection $stockInfos) {
+    public function updateFromProfile(Stock $stock, ?ArrayCollection $stockInfos = null) {
         $crawler = $this->client->request('GET', sprintf('%1$s/%2$s/profile?p=%2$s', self::YAHOO_FINANCE_QUOTE_URI, $stock->getSymbol()));
 
         $profileNode = $crawler->filter(self::SELECTORS['profile'])->eq(0);
@@ -120,7 +168,7 @@ class YahooStockScraper
         $infoNodes = $profileNode->filter('div.asset-profile-container p span');
         for ($i = 0; $i < $infoNodes->count(); $i += 2) {
 
-            if ($stock->getSector() !== null && $infoNodes->eq($i)->extract('_text')[0] == 'Sector') {
+            if ($stock->getSector() === null && $infoNodes->eq($i)->extract('_text')[0] == 'Sector') {
                 $stockInfo = $this->findOrCreateStockInfo(
                     StockInfo::SECTOR,
                     strtoupper($infoNodes->eq($i+1)->extract('_text')[0]),
@@ -131,7 +179,7 @@ class YahooStockScraper
                 continue;
             }
 
-            if ($stock->getIndustry() !== null && $infoNodes->eq($i)->extract('_text')[0] == 'Industry') {
+            if ($stock->getIndustry() === null && $infoNodes->eq($i)->extract('_text')[0] == 'Industry') {
                 $stockInfo = $this->findOrCreateStockInfo(
                     StockInfo::INDUSTRY,
                     strtoupper($infoNodes->eq($i+1)->extract('_text')[0]),

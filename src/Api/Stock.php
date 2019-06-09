@@ -63,7 +63,7 @@ class Stock
         $self->dividendYield = $stock->getDividendYield();
         $self->exDate = $stock->getExDate();
 
-        $self->market = Api\StockMarket::fromEntity($stock->getMarket());
+        $self->market = $stock->getMarket() ? Api\StockMarket::fromEntity($stock->getMarket()) : null;
 
         $self->type = $stock->getType() ? Api\StockInfo::fromEntity($stock->getType()) : null;
         $self->sector = $stock->getSector() ? Api\StockInfo::fromEntity($stock->getSector()) : null;

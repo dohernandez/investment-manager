@@ -38,9 +38,15 @@ class StockMarket implements Entity
 
     /**
      * @ORM\Column(type="string", length=10, unique=true)
-     * @Assert\NotBlank(message="Symbol is not defined")
+     * @Assert\NotBlank(message="Please enter the symbol")
      */
     private $symbol;
+
+    /**
+     * @ORM\Column(type="string", length=10, unique=true)
+     * @Assert\NotBlank(message="Please enter the yahoo symbol")
+     */
+    private $yahoo_symbol;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Stock", mappedBy="market", orphanRemoval=true)
@@ -133,6 +139,18 @@ class StockMarket implements Entity
                 $stock->setMarket(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getYahooSymbol(): ?string
+    {
+        return $this->yahoo_symbol;
+    }
+
+    public function setYahooSymbol(?string $yahoo_symbol): self
+    {
+        $this->yahoo_symbol = $yahoo_symbol;
 
         return $this;
     }

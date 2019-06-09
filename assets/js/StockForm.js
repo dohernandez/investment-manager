@@ -5,6 +5,7 @@ import Select2StockMarketTemplate from './Components/Select2StockMarketTemplate'
 import Select2StockInfoTemplate from './Components/Select2StockInfoTemplate';
 import $ from 'jquery';
 import Slider from 'bootstrap-slider';
+import Routing from './Components/Routing';
 
 import 'select2';
 
@@ -23,6 +24,7 @@ class StockForm extends Form {
         this.Select2StockInfoTypeTemplate = new Select2StockInfoTemplate('type');
         this.Select2StockInfoSectorTemplate = new Select2StockInfoTemplate('sector');
         this.Select2StockInfoIndustryTemplate = new Select2StockInfoTemplate('industry');
+
     }
 
     /**
@@ -32,35 +34,13 @@ class StockForm extends Form {
      * @param $wrapper
      */
     onBeforeOpen(data, $wrapper) {
+        // Form use to set data and to read symbol to load values from external sources.
+        let $form = $wrapper.find(this.selector);
+
         // start set data to the form
         if (data) {
             // edition mode
-            let $form = $wrapper.find(this.selector);
-            for (const property in data) {
-                let $input = $form.find('#' + property);
-
-                if (property === 'market') {
-                    let inputData = data[property];
-                    $input.append(new Option(inputData.symbol + " - " + inputData.name, inputData.id));
-
-                    $input.val(inputData.id);
-
-                    continue;
-                }
-
-                if (property === 'type' || property === 'sector' || property === 'industry') {
-                    let inputData = data[property];
-                    if (inputData !== null) {
-                        $input.append(new Option(inputData.title, inputData.id));
-
-                        $input.val(inputData.id);
-                    }
-
-                    continue;
-                }
-
-                $input.val(data[property]);
-            }
+            this._setData($form, data);
         }
         // end set data to the form
 
@@ -169,6 +149,99 @@ class StockForm extends Form {
                 tags: true,
             });
         });
+
+        // Load finance.yahoo.com button
+        $wrapper.find('button#yahoo_scrape').on(
+            'click',
+            function (e) {
+                e.preventDefault();
+
+                // disable button
+                let $button = $(e.currentTarget);
+                $button.attr("disabled", true);
+
+                // set button to loading
+                let $buttonHtml = $button.html();
+                console.log($buttonHtml);
+                $button.html('<i class="fas fa-circle-notch fa-spin"></i> Loading...');
+
+                let $symbol = $form.find('input[name="symbol"]');
+                let formData = {
+                    symbol: $symbol.val()
+                };
+
+                new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: Routing.generate('stock_yahoo_scraper'),
+                        method: 'GET',
+                        data: formData
+                    }).then((data, textStatus, jqXHR) => {
+                        resolve(data);
+                    }).catch((jqXHR) => {
+                        if (jqXHR.status =! 400) {
+                            reject(jqXHR);
+
+                            return;
+                        }
+
+                        const errorData = JSON.parse(jqXHR.responseText);
+
+                        reject(errorData);
+                    });
+                }).then((result) => {
+                    console.log(result);
+
+                    let stock = result.item;
+                    this._setData($form, stock);
+
+                    $button.attr("disabled", false);
+                    $button.html($buttonHtml);
+                }).catch((errorsData) => {
+                    console.log(errorsData);
+
+                    $button.attr("disabled", false);
+                    $button.html($buttonHtml);
+                });
+            }.bind(this)
+        );
+    }
+
+    /**
+     * Set data into form inputs
+     *
+     * @param $form
+     * @param data
+     * @private
+     */
+    _setData($form, data) {
+        for (const property in data) {
+            let $input = $form.find('#' + property);
+
+            if (property === 'market') {
+                let inputData = data[property];
+                $input.append(new Option(inputData.symbol + " - " + inputData.name, inputData.id));
+
+                $input.val(inputData.id);
+
+                continue;
+            }
+
+            if (property === 'type' || property === 'sector' || property === 'industry') {
+                let inputData = data[property];
+                console.log($input, inputData);
+                if (inputData !== null) {
+                    let id = inputData.id ? inputData.id : inputData.title;
+
+                    $input.append(new Option(inputData.title, id));
+
+                    $input.val(id);
+                }
+
+                continue;
+            }
+
+            $input.val(data[property]);
+        }
     }
 
     /**

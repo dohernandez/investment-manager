@@ -6,6 +6,7 @@ use App\Api;
 use App\Entity;
 use App\Form\StockType;
 use App\Repository\StockRepository;
+use App\Scrape\YahooStockScraper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,7 +52,7 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="stock_get", methods={"GET"}, options={"expose"=true})
+     * @Route("/{id}", name="stock_get", methods={"GET"}, options={"expose"=true}, requirements={"id":"\d+"})
      *
      * @param Entity\Stock $stock
      *
@@ -175,5 +176,38 @@ class StockController extends BaseController
         $em->flush();
 
         return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @Route("/quote", name="stock_yahoo_scraper", methods={"GET"}, options={"expose"=true})
+     *
+     * @param YahooStockScraper $scraper
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function loadYahooQuote(YahooStockScraper $scraper, Request $request): Response
+    {
+        $symbol = $request->query->get('symbol');
+        if ($symbol === '') {
+            return $this->json(
+                [
+                    'message' =>'symbol should not be empty',
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        $stock = new Entity\Stock();
+        $stock->setSymbol($symbol);
+
+        $scraper->updateFromQuote($stock);
+        $scraper->updateFromProfile($stock);
+
+        return $this->createApiResponse(
+            [
+                'item' => Api\Stock::fromEntity($stock),
+            ]
+        );
     }
 }

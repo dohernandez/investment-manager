@@ -246,7 +246,7 @@ class Stock implements Entity
         return $this->market;
     }
 
-    public function setMarket(StockMarket $market): self
+    public function setMarket(?StockMarket $market): self
     {
         $this->market = $market;
 

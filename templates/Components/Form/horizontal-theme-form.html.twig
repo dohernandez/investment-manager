@@ -60,3 +60,9 @@
         </div>
     {% endif %}
 {%- endblock date_widget -%}
+
+{%- block hidden_widget -%}
+    {%- set type = type|default('hidden') -%}
+    {%- set wrapper = false -%}
+    {{ block('form_widget_simple') }}
+{%- endblock hidden_widget -%}

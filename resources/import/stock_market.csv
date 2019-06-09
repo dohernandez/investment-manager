@@ -1,6 +1,6 @@
-NASDAQ COMPOSITE,NASDAQ,US
-New York Stock Exchange,NYSE,US
-Bolsas y Mercados Españoles,BME,ES
-Frankfurter Wertpapierbörse,FRA,DE
-Borsa Italiana S.p. A,BIT,IT
-Toronto Stock Exchange,TSX,CA
+NASDAQ COMPOSITE,NASDAQ,US,NasdaqGS
+New York Stock Exchange,NYSE,US,NYSE
+Bolsas y Mercados Españoles,BME,ES,MCE
+Frankfurter Wertpapierbörse,FRA,DE,Frankfurt
+Borsa Italiana S.p. A,BIT,IT,Milan
+Toronto Stock Exchange,TSX,CA,Toronto
