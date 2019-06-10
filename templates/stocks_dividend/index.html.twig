@@ -60,15 +60,10 @@
                     rowTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
                 sort: function (aStockDividend, bStockDividend) {
-                    if (aStockDividend.exDate > bStockDividend.exDate) {
-                        return -1;
-                    }
+                    let a = new Date(aStockDividend);
+                    let b = new Date(bStockDividend);
 
-                    if (aStockDividend.exDate < bStockDividend.exDate) {
-                        return -1;
-                    }
-
-                    return 0;
+                    return a > b ? -1 : a < b ? 1 : 0;
                 }
             });
 

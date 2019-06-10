@@ -5,8 +5,6 @@ namespace App\Controller\Api;
 use App\Api;
 use App\Entity;
 use App\Form\StockDividendType;
-use App\Message\StockDividendDeleted;
-use App\Message\StockDividendSaved;
 use App\Message\StockDividendsUpdated;
 use App\Repository\StockRepository;
 use App\Scrape\NasdaqDividendScraper;
@@ -169,10 +167,10 @@ class StockDividendController extends BaseController
         $stockDividend = $form->getData();
         $stockDividend->setStock($stock);
 
-        $bus->dispatch(new StockDividendSaved($stockDividend));
-
         $em->persist($stockDividend);
         $em->flush();
+
+        $bus->dispatch(new StockDividendsUpdated($stock));
 
         return $this->createApiResponse(
             [
@@ -247,10 +245,11 @@ class StockDividendController extends BaseController
         }
 
         $stockDividend->setStock($stock);
-        $bus->dispatch(new StockDividendDeleted($stockDividend));
 
         $em->remove($stockDividend);
         $em->flush();
+
+        $bus->dispatch(new StockDividendsUpdated($stock));
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
@@ -278,10 +277,10 @@ class StockDividendController extends BaseController
 
         $scraper->updateHistoricalDividend($stock);
 
-        $bus->dispatch(new StockDividendsUpdated($stock));
-
         $em->persist($stock);
         $em->flush();
+
+        $bus->dispatch(new StockDividendsUpdated($stock));
 
         $apiStockDividends = [];
         foreach ($stock->getDividends() as $StockDividend) {

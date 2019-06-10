@@ -4,6 +4,7 @@ namespace App\MessageHandler;
 
 use App\Entity\StockDividend;
 use App\Message\StockDividendsUpdated;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
@@ -14,9 +15,15 @@ class StockDividendsUpdatedHandler implements MessageSubscriberInterface
      */
     private $logger;
 
-    public function __construct(LoggerInterface $logger)
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
+
+    public function __construct(EntityManagerInterface $em, LoggerInterface $logger)
     {
         $this->logger = $logger;
+        $this->em = $em;
     }
 
     public static function getHandledMessages(): iterable
@@ -60,5 +67,8 @@ class StockDividendsUpdatedHandler implements MessageSubscriberInterface
         }
 
         $stock->setDividendYield($dividendYield);
+
+        $this->em->persist($stock);
+        $this->em->flush();
     }
 }
