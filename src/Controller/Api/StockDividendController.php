@@ -258,11 +258,12 @@ class StockDividendController extends BaseController
      * @Route("/sync", name="stock_dividend_sync", methods={"GET"}, options={"expose"=true})
      *
      * @param NasdaqDividendScraper $scraper
+     * @param EntityManagerInterface $em
      * @param int $_id
      *
      * @return JsonResponse
      */
-    public function sync(NasdaqDividendScraper $scraper, int $_id): JsonResponse
+    public function sync(NasdaqDividendScraper $scraper, EntityManagerInterface $em, int $_id): JsonResponse
     {
         $stock = $this->stockRepository->find($_id);
         if (!$stock) {
@@ -272,6 +273,9 @@ class StockDividendController extends BaseController
         $apiStockDividends = [];
 
         $scraper->updateFromQuote($stock);
+
+        $em->persist($stock);
+        $em->flush();
 
         foreach ($stock->getDividends() as $StockDividend) {
             $apiStockDividends[] = Api\StockDividend::fromEntity($StockDividend);

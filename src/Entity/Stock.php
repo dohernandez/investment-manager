@@ -88,7 +88,7 @@ class Stock implements Entity
 
     /**
      * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\OneToMany(targetEntity="App\Entity\StockDividend", mappedBy="stock", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\StockDividend", mappedBy="stock", orphanRemoval=true, cascade={"persist"})
      */
     private $dividends;
 
