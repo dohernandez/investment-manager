@@ -58,7 +58,10 @@
                 },
             });
 
-            const form = new AccountForm(swalFormOptionsText);
+            const form = new AccountForm(
+                swalFormOptionsText,
+                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+            );
 
             crudManager.withForm(form);
             crudManager.withCreateButton();

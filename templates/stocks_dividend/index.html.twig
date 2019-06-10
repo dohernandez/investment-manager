@@ -61,7 +61,10 @@
                 },
             });
 
-            const form = new StockDividendForm(swalFormOptionsText);
+            const form = new StockDividendForm(
+                swalFormOptionsText,
+                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+            );
 
             crudManager.setRouteGenerating((entityType, endpoint, id = null) => {
                 let route = '';

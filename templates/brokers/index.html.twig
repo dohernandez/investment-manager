@@ -60,7 +60,10 @@
                 },
             });
 
-            const form = new BrokerForm(swalFormOptionsText);
+            const form = new BrokerForm(
+                swalFormOptionsText,
+                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+            );
 
             crudManager.withForm(form);
             // add button create

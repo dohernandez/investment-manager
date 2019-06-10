@@ -60,7 +60,10 @@
                 },
             });
 
-            const form = new TransferForm(swalFormOptionsText);
+            const form = new TransferForm(
+                swalFormOptionsText,
+                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+            );
 
             crudManager.withForm(form);
             crudManager.withCreateButton();

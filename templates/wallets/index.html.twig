@@ -57,7 +57,10 @@
                 },
             });
 
-            const form = new WalletForm(swalFormOptionsText);
+            const form = new WalletForm(
+                swalFormOptionsText,
+                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+            );
 
             crudManager.withForm(form);
             crudManager.withCreateButton();
