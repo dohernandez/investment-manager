@@ -5,6 +5,7 @@ namespace App\Scrape;
 use App\Entity\Stock;
 use App\Entity\StockDividend;
 use Goutte\Client;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
 class NasdaqDividendScraper
@@ -16,11 +17,18 @@ class NasdaqDividendScraper
      */
     private $client;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
-        Client $client
+        Client $client,
+        LoggerInterface $logger
     ) {
 
         $this->client = $client;
+        $this->logger = $logger;
     }
 
     public function updateHistoricalDividend(Stock $stock): self
@@ -35,35 +43,42 @@ class NasdaqDividendScraper
                 /** @var Crawler $trNode */
                 $spanNodes = $trNode->filter('span');
 
-                $stockDividend = new StockDividend();
-                $stockDividend->setStatus(StockDividend::STATUS_ANNOUNCED);
+                try {
+                    $stockDividend = new StockDividend();
+                    $stockDividend->setStatus(StockDividend::STATUS_ANNOUNCED);
 
-                // Ex/Eff Date
-                $stockDividend->setExDate(new \DateTimeImmutable(
-                    $spanNodes->eq(0)->extract('_text')[0]
-                ));
+                    // Ex/Eff Date
+                    $stockDividend->setExDate(new \DateTimeImmutable(
+                        $spanNodes->eq(0)->extract('_text')[0]
+                    ));
 
-                // Cash Amount
-                $stockDividend->setValue(floatval(
-                    $spanNodes->eq(1)->extract('_text')[0]
-                ));
+                    // Cash Amount
+                    $stockDividend->setValue(floatval(
+                        $spanNodes->eq(1)->extract('_text')[0]
+                    ));
 
-                // Record Date
-                $stockDividend->setRecordDate(new \DateTimeImmutable(
-                    $spanNodes->eq(3)->extract('_text')[0]
-                ));
+                    // Record Date
+                    $stockDividend->setRecordDate(new \DateTimeImmutable(
+                        $spanNodes->eq(3)->extract('_text')[0]
+                    ));
 
-                // Payment Date
-                $stockDividend->setPaymentDate(new \DateTimeImmutable(
-                    $spanNodes->eq(4)->extract('_text')[0]
-                ));
+                    // Payment Date
+                    $stockDividend->setPaymentDate(new \DateTimeImmutable(
+                        $spanNodes->eq(4)->extract('_text')[0]
+                    ));
 
-                $now = new \DateTimeImmutable();
-                if ($stockDividend->getPaymentDate() < $now) {
-                    $stockDividend->setStatus(StockDividend::STATUS_PAYED);
+                    $now = new \DateTimeImmutable();
+                    if ($stockDividend->getPaymentDate() < $now) {
+                        $stockDividend->setStatus(StockDividend::STATUS_PAYED);
+                    }
+
+                    $stock->addDividend($stockDividend);
+                } catch (\Exception $e) {
+                    $this->logger->warning('Failed parsing row dividend', [
+                        'exception' => $e->getMessage(),
+                        'node' => $trNode,
+                    ]);
                 }
-
-                $stock->addDividend($stockDividend);
             });
 
         return $this;
