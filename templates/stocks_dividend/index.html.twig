@@ -61,11 +61,13 @@
                 },
             });
 
+            // Create form use in crudManager
             const form = new StockDividendForm(
                 swalFormOptionsText,
                 '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
             );
 
+            // Overwrite the default routing strategy. Default routing strategy only consider single id
             crudManager.setRouteGenerating((entityType, endpoint, id = null) => {
                 let route = '';
                 let param = {
@@ -109,7 +111,51 @@
             crudManager.withEditButton();
             crudManager.withDeleteButton();
 
-            crudManager.render();
+            crudManager.render(function () {
+                // add sync button to the table
+                // Delegate selector
+                this.$wrapper.on(
+                    'click',
+                    '.js-entity-sync',
+                    function (e) {
+                        e.preventDefault();
+
+                        // disable button
+                        let $button = $(e.currentTarget);
+
+                        $button.attr("disabled", true);
+                        $button.find('i').addClass('fa-spin');
+
+                        this._sendRPC(
+                            Routing.generate(entityType + '_sync', {'_id': {{ stock.id }}}),
+                            'GET'
+                        ).then((result) => {
+                            this.setData(result);
+
+                            $button.attr("disabled", false);
+                            $button.find('i').removeClass('fa-spin');
+                        }).catch((errorsData) => {
+                            console.log(errorsData);
+
+                            $button.attr("disabled", false);
+                            $button.find('i').removeClass('fa-spin');
+                        });
+
+                    }.bind(this)
+                );
+
+                let $syncButton = this._compileTemplate("#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-sync-button-template");
+                this.$wrapper.find(this.selectors.createButtonContainer)
+                    .prepend($syncButton);
+            });
         });
+    </script>
+
+    <!-- sync button table manager template -->
+    <script type="text/template" id="js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-sync-button-template">
+        <button class="js-entity-sync btn btn-warning pull-right" style="margin-left: 8px;">
+            <i class="fa-sync fas" aria-hidden="true"></i>
+            {{ 'Sync'|trans }} {{ entity_name|trans|lower }}
+        </button>
     </script>
 {% endblock %}

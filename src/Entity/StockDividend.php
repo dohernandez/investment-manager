@@ -140,7 +140,7 @@ class StockDividend implements Entity
         return $this->value;
     }
 
-    public function setValue($value): self
+    public function setValue(?float $value): self
     {
         $this->value = $value;
 

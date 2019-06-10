@@ -8,6 +8,7 @@ use App\Form\StockDividendType;
 use App\Message\StockDividendDeleted;
 use App\Message\StockDividendSaved;
 use App\Repository\StockRepository;
+use App\Scrape\NasdaqDividendScraper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -65,7 +66,7 @@ class StockDividendController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="stock_dividend_get", methods={"GET"}, options={"expose"=true})
+     * @Route("/{id}", name="stock_dividend_get", methods={"GET"}, options={"expose"=true}, requirements={"id":"\d+"})
      *
      * @param int $_id
      * @param Entity\StockDividend $stockDividend
@@ -251,5 +252,36 @@ class StockDividendController extends BaseController
         $em->flush();
 
         return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @Route("/sync", name="stock_dividend_sync", methods={"GET"}, options={"expose"=true})
+     *
+     * @param NasdaqDividendScraper $scraper
+     * @param int $_id
+     *
+     * @return JsonResponse
+     */
+    public function sync(NasdaqDividendScraper $scraper, int $_id): JsonResponse
+    {
+        $stock = $this->stockRepository->find($_id);
+        if (!$stock) {
+            return $this->createApiErrorResponse('Stock not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $apiStockDividends = [];
+
+        $scraper->updateFromQuote($stock);
+
+        foreach ($stock->getDividends() as $StockDividend) {
+            $apiStockDividends[] = Api\StockDividend::fromEntity($StockDividend);
+        }
+
+        return $this->createApiResponse(
+            [
+                'total_count' => $stock->getDividends()->count(),
+                'items'       => $apiStockDividends,
+            ]
+        );
     }
 }

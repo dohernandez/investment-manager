@@ -199,26 +199,29 @@ class CRUDManage {
         $.ajax({
             url: this.routing(this.entityType, 'list'),
             success: (data) => {
-                this.records = data.items;
-                this.totalRecords = data.items.length;
-
-                if (!this.pagination) {
-                    $.each(this.records, (index, entity) => {
-                        this.addRow(entity, index);
-                    });
-
-                    return;
-                }
-
-                this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
-
-                let $pagination = this.$wrapper.find($(this.selectors.pagination));
-                $pagination.each((index, ul) => {
-                    let $ul = $(ul);
-                    this._showPagination($ul);
-                });
-
+                this.setData(data);
             }
+        });
+    }
+
+    setData(data) {
+        this.records = data.items;
+        this.totalRecords = data.items.length;
+
+        if (!this.pagination) {
+            $.each(this.records, (index, entity) => {
+                this.addRow(entity, index);
+            });
+
+            return;
+        }
+
+        this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
+
+        let $pagination = this.$wrapper.find($(this.selectors.pagination));
+        $pagination.each((index, ul) => {
+            let $ul = $(ul);
+            this._showPagination($ul);
         });
     }
 
