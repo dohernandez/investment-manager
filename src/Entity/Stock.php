@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\Criteria\StockDividendByExDateCriteria;
+use App\Repository\Criteria\StockDividendByCriteria;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -333,7 +333,15 @@ class Stock implements Entity
 
     public function addDividend(StockDividend $dividend): self
     {
-        if (!$this->dividends->contains($dividend)) {
+        if (!$this->dividends->exists(function ($key, StockDividend $d) use ($dividend) {
+            if ($d->getExDate() == $dividend->getExDate()) {
+                return true;
+            }
+
+            return false;
+        } )) {
+            // TODO update
+
             $this->dividends[] = $dividend;
             $dividend->setStock($this);
         }
@@ -344,6 +352,8 @@ class Stock implements Entity
     public function removeDividend(StockDividend $dividend): self
     {
         if ($this->dividends->contains($dividend)) {
+            // TODO remove
+
             $this->dividends->removeElement($dividend);
             // set the owning side to null (unless already changed)
             if ($dividend->getStock() === $this) {
@@ -354,7 +364,13 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getExDate()
+    /**
+     * Returns the next dividend after "now"
+     *
+     * @return StockDividend|null
+     * @throws \Exception
+     */
+    public function nextDividend(): ?StockDividend
     {
         $now = new \DateTime();
 
@@ -362,13 +378,37 @@ class Stock implements Entity
          * @psalm-var Collection<TKey,StockDividend>
          * @var Collection $matches
          */
-        $matches = $this->dividends->matching(StockDividendByExDateCriteria::createWithExDate($now));
+        $matches = $this->dividends->matching(StockDividendByCriteria::nextExDate($now));
 
         if ($matches->isEmpty()){
             return null;
         }
 
-        return $matches->first()->getExDate();
+        return $matches->first();
+    }
+
+    /**
+     * Returns the last dividend before "now".
+     * Use in most case when nextDividend is null.
+     *
+     * @return StockDividend|null
+     * @throws \Exception
+     */
+    public function preDividend(): ?StockDividend
+    {
+        $now = new \DateTime();
+
+        /**
+         * @psalm-var Collection<TKey,StockDividend>
+         * @var Collection $matches
+         */
+        $matches = $this->dividends->matching(StockDividendByCriteria::lastExDate($now));
+
+        if ($matches->isEmpty()){
+            return null;
+        }
+
+        return $matches->first();
     }
 
     public function getPeRatio(): ?float

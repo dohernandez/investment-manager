@@ -7,6 +7,7 @@ use App\Entity;
 use App\Form\StockDividendType;
 use App\Message\StockDividendDeleted;
 use App\Message\StockDividendSaved;
+use App\Message\StockDividendsUpdated;
 use App\Repository\StockRepository;
 use App\Scrape\NasdaqDividendScraper;
 use Doctrine\ORM\EntityManagerInterface;
@@ -259,24 +260,30 @@ class StockDividendController extends BaseController
      *
      * @param NasdaqDividendScraper $scraper
      * @param EntityManagerInterface $em
+     * @param MessageBusInterface $bus
      * @param int $_id
      *
      * @return JsonResponse
      */
-    public function sync(NasdaqDividendScraper $scraper, EntityManagerInterface $em, int $_id): JsonResponse
-    {
+    public function sync(
+        NasdaqDividendScraper $scraper,
+        EntityManagerInterface $em,
+        MessageBusInterface $bus,
+        int $_id
+    ): JsonResponse {
         $stock = $this->stockRepository->find($_id);
         if (!$stock) {
             return $this->createApiErrorResponse('Stock not found', Response::HTTP_NOT_FOUND);
         }
 
-        $apiStockDividends = [];
+        $scraper->updateHistoricalDividend($stock);
 
-        $scraper->updateFromQuote($stock);
+        $bus->dispatch(new StockDividendsUpdated($stock));
 
         $em->persist($stock);
         $em->flush();
 
+        $apiStockDividends = [];
         foreach ($stock->getDividends() as $StockDividend) {
             $apiStockDividends[] = Api\StockDividend::fromEntity($StockDividend);
         }

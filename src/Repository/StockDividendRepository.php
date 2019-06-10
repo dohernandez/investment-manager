@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Stock;
 use App\Entity\StockDividend;
-use App\Repository\Criteria\StockDividendByExDateCriteria;
+use App\Repository\Criteria\StockDividendByCriteria;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -37,11 +37,10 @@ class StockDividendRepository extends ServiceEntityRepository
             $exDate = new \DateTime();
         }
 
-
         return $this->createQueryBuilder('sd')
             ->andWhere('sd.stock = :stock')
             ->setParameter('stock', $stock)
-            ->addCriteria(StockDividendByExDateCriteria::createWithExDate($exDate))
+            ->addCriteria(StockDividendByCriteria::nextExDate($exDate))
             ->orderBy('sd.exDate', 'ASC')
             ->setMaxResults(1)
             ->getQuery()

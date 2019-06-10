@@ -23,7 +23,7 @@ class NasdaqDividendScraper
         $this->client = $client;
     }
 
-    public function updateFromQuote(Stock $stock): self
+    public function updateHistoricalDividend(Stock $stock): self
     {
         $crawler = $this->client->request(
             'GET',

@@ -556,7 +556,7 @@ class CRUDManage {
             }).then((data, textStatus, jqXHR) => {
                 resolve(data);
             }).catch((jqXHR) => {
-                if (jqXHR.status =! 400) {
+                if (jqXHR.status != 400 || jqXHR.status != 500) {
                     reject(jqXHR);
 
                     return;
