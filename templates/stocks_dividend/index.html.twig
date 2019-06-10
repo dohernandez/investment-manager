@@ -59,6 +59,17 @@
                     showPerPageTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
                     rowTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
+                sort: function (aStockDividend, bStockDividend) {
+                    if (aStockDividend.exDate > bStockDividend.exDate) {
+                        return -1;
+                    }
+
+                    if (aStockDividend.exDate < bStockDividend.exDate) {
+                        return -1;
+                    }
+
+                    return 0;
+                }
             });
 
             // Create form use in crudManager

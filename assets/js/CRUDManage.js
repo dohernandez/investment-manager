@@ -41,6 +41,7 @@ class CRUDManage {
             swalViewOptions: null,
             viewTemplate: '',
             selectors: CRUDManage._selectors,
+            sort: null,
         });
 
         this.entityType = _options.entityType;
@@ -80,6 +81,8 @@ class CRUDManage {
         this.page = 1;
         // The total pages based on records.
         this.totalPages = 0;
+
+        this.sort = _options.sort;
 
         // set whether the table is shows all it cols
         this.expanded = 0;
@@ -290,7 +293,7 @@ class CRUDManage {
         });
 
         let showPerPage = _options.showPerPage;
-        let records = _options.records;
+        let records = this.sort ? _options.records.sort(this.sort) : _options.records;
         let totalPages = _options.totalPages;
         let currentPage = _options.page;
         let totalRecords = _options.totalRecords;
