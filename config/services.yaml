@@ -55,5 +55,9 @@ services:
         tags:
             - { name: doctrine.event_listener, event: prePersist }
 
+    App\EventListener\FlushStockListener:
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
     # Classes
     Goutte\Client: ~
