@@ -4,7 +4,8 @@ namespace App\EventListener;
 
 use App\Entity\Stock;
 use App\Entity\StockDividend;
-use Doctrine\ORM\Event\OnFlushEventArgs;
+use App\Message\StockDividendsUpdated;
+use Doctrine\ORM\Event\PreFlushEventArgs;
 use Psr\Log\LoggerInterface;
 
 class FlushStockListener
@@ -19,37 +20,57 @@ class FlushStockListener
         $this->logger = $logger;
     }
 
-    public function onFlush(OnFlushEventArgs $args)
+    public function preFlush(PreFlushEventArgs $args)
     {
+
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 
-        foreach ($uow->getScheduledEntityInsertions() as $stock) {
+        $this->logger->info('preFlush');
+
+        foreach ($uow->getIdentityMap() as $class => $entities) {
+            $this->logger->debug('getIdentityMap', [
+                'class' => $class,
+            ]);
+
             // only act on "Stock" entity
-            if (!$stock instanceof Stock) {
+            if ($class !== Stock::class) {
                 return;
             }
 
-            $this->logger->debug('updating dividend yield', [
-                'schedule' => 'insertions',
-                'symbol' => $stock->getSymbol(),
-            ]);
+            foreach ($entities as $entity) {
+                $this->updateNextDividend($entity);
+                $this->updateDividendYield($entity);
 
-            $this->updateDividendYield($stock);
+                $em->persist($entity);
+            }
         }
+    }
 
-        foreach ($uow->getScheduledEntityUpdates() as $stock) {
-            // only act on "Stock" entity
-            if (!$stock instanceof Stock) {
-                return;
+    public function updateNextDividend(Stock $stock)
+    {
+        $nextDividend = $stock->nextDividend();
+
+        if ($nextDividend === null) {
+            $preDividend = $stock->preDividend();
+
+            if ($preDividend !== null && $preDividend->getExDate() > new \DateTime('-3 months')) {
+                $exDate = clone $preDividend->getExDate();
+                $exDate = $exDate->add(new \DateInterval('P3M'));
+
+                $nextDividend = new StockDividend();
+                $nextDividend->setStatus(StockDividend::STATUS_PROJECTED)
+                    ->setExDate($exDate)
+                    ->setValue($preDividend->getValue())
+                ;
+
+                $stock->addDividend($nextDividend);
+
+                $this->logger->debug('added next dividend', [
+                    'symbol' => $stock->getSymbol(),
+                    'next_dividend' => $nextDividend,
+                ]);
             }
-
-            $this->logger->debug('updating dividend yield', [
-                'schedule' => 'updates',
-                'symbol' => $stock->getSymbol(),
-            ]);
-
-            $this->updateDividendYield($stock);
         }
     }
 

@@ -340,8 +340,6 @@ class Stock implements Entity
 
             return false;
         } )) {
-            // TODO update
-
             $this->dividends[] = $dividend;
             $dividend->setStock($this);
         }
