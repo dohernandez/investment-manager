@@ -10,8 +10,12 @@
         <tr>
             <td scope="key">{{ row.key|trans }}</td>
             <td scope="value">
-                {% if row.render is defined and row.render == 'decimal' %}
-                    {{ row.value|compile_decimal_tmpl(compile) }}
+                {% if row.render is defined %}
+                    {% if row.render == 'decimal' %}
+                        {{ row.value|compile_decimal_tmpl(compile) }}
+                    {% elseif row.render == 'date' %}
+                        {{ row.value|compile_date_tmpl(compile) }}
+                    {% endif %}
                 {% else %}
                     {{ row.value|compile_tmpl(compile) }}
                 {% endif %}

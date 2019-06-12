@@ -64,7 +64,12 @@ class Stock
 
         $nextDividend = $stock->nextDividend();
         if ($nextDividend) {
-            $self->exDate = $nextDividend ? $nextDividend->getExDate() : null;
+            $self->exDate = $nextDividend->getExDate();
+            $self->forwardDividendYield = sprintf(
+                '%.2f (%.2f%%)',
+                $nextDividend->getValue() * 4,
+                $self->dividendYield
+            );
         }
 
         $self->market = $stock->getMarket() ? Api\StockMarket::fromEntity($stock->getMarket()) : null;

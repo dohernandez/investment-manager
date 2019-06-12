@@ -17,6 +17,7 @@ class AppExtension extends AbstractExtension
             new TwigFilter('snake', [$this, 'snake']),
             new TwigFilter('compile_tmpl', [$this, 'compile'], ['is_safe' => ['html']]),
             new TwigFilter('compile_decimal_tmpl', [$this, 'compileDecimal'], ['is_safe' => ['html']]),
+            new TwigFilter('compile_date_tmpl', [$this, 'compileDate'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -26,6 +27,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('snake', [$this, 'snake']),
             new TwigFunction('compile_tmpl', [$this, 'compile']),
             new TwigFunction('compile_decimal_tmpl', [$this, 'compileDecimal']),
+            new TwigFunction('compile_date_tmpl', [$this, 'compileDate']),
         ];
     }
 
@@ -49,6 +51,15 @@ class AppExtension extends AbstractExtension
     {
         if ($tmpl) {
             return "<% if (!isNaN($value) && $value) { %><%= $value.toFixed(2).toString().replace(/\./g, \",\") %><% } else { %><%= $value %><% } %>";
+        }
+
+        return $value;
+    }
+
+    public function compileDate($value, $tmpl = false)
+    {
+        if ($tmpl) {
+            return "<% if ($value) { %><%= moment(new Date($value)).format('DD/MM/YYYY') %><% } %>";
         }
 
         return $value;
