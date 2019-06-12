@@ -77,6 +77,7 @@ class StockDividend implements Entity
     private $prior12MonthsYield;
 
     /**
+     * @var Stock
      * @ORM\ManyToOne(targetEntity="App\Entity\Stock", inversedBy="dividends")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -144,6 +145,13 @@ class StockDividend implements Entity
     {
         $this->value = $value;
 
+        if ($this->stock) {
+            $nextDividend = $this->stock->nextDividend();
+            if ($nextDividend === $this) {
+                $this->stock->updateDividendYield($this);
+            }
+        }
+
         return $this;
     }
 
@@ -190,7 +198,33 @@ class StockDividend implements Entity
 
     public function setStock(?Stock $stock): self
     {
-        $this->stock = $stock;
+        if ($this->stock !== $stock) {
+
+            // Updating dividend of old stock
+            if ($this->stock) {
+                $nextDividend = $this->stock->nextDividend();
+                if ($nextDividend === $this) {
+                    $this->stock->updateDividendYield($this->stock->nextDividend(
+                        (clone $this->getExDate())->add(new \DateInterval('P1D'))
+                            ->format('Y-m-d')
+                    ));
+                }
+            }
+
+            $this->stock = $stock;
+
+            // Updating dividend of new stock
+            if ($this->stock) {
+                $nextDividend = $this->stock->nextDividend();
+                if ($this->getExDate() > new \DateTime()) {
+                    // if there is no next dividend or this is lte than next dividend
+                    if (!$nextDividend || $this->getExDate() < $nextDividend->getExDate()) {
+                        $this->stock->updateDividendYield($this);
+                    }
+                }
+
+            }
+        }
 
         return $this;
     }

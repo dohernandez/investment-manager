@@ -10,7 +10,7 @@ class StockDividendByCriteria extends Criteria
     {
         return Criteria::create()
             ->andWhere(Criteria::expr()->gte('exDate', $exDate))
-            ->orderBy(['exDate' => 'DESC']);
+            ->orderBy(['exDate' => 'ASC']);
             ;
     }
 

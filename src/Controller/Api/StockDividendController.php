@@ -170,8 +170,6 @@ class StockDividendController extends BaseController
         $em->persist($stockDividend);
         $em->flush();
 
-        $bus->dispatch(new StockDividendsUpdated($stock));
-
         return $this->createApiResponse(
             [
                 'item' => Api\StockDividend::fromEntity($stockDividend),
@@ -244,12 +242,10 @@ class StockDividendController extends BaseController
             );
         }
 
-        $stockDividend->setStock($stock);
+        $stockDividend->setStock(null);
 
         $em->remove($stockDividend);
         $em->flush();
-
-        $bus->dispatch(new StockDividendsUpdated($stock));
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
@@ -267,7 +263,6 @@ class StockDividendController extends BaseController
     public function sync(
         NasdaqDividendScraper $scraper,
         EntityManagerInterface $em,
-        MessageBusInterface $bus,
         int $_id
     ): JsonResponse {
         $stock = $this->stockRepository->find($_id);
@@ -279,8 +274,6 @@ class StockDividendController extends BaseController
 
         $em->persist($stock);
         $em->flush();
-
-        $bus->dispatch(new StockDividendsUpdated($stock));
 
         $apiStockDividends = [];
         foreach ($stock->getDividends() as $StockDividend) {

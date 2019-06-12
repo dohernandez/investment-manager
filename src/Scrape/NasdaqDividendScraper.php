@@ -74,12 +74,39 @@ class NasdaqDividendScraper
 
                     $stock->addDividend($stockDividend);
                 } catch (\Exception $e) {
-                    $this->logger->warning('Failed parsing row dividend', [
+                    $this->logger->debug('Failed parsing row dividend', [
                         'exception' => $e->getMessage(),
                         'node' => $trNode,
                     ]);
                 }
             });
+
+        // Adding projected dividend if the last dividend ex date has passed.
+        $nextDividend = $stock->nextDividend();
+
+        if ($nextDividend === null) {
+            $preDividend = $stock->preDividend();
+
+            if ($preDividend !== null && $preDividend->getExDate() > new \DateTime('-3 months')) {
+                $exDate = (clone $preDividend->getExDate())
+                    ->add(new \DateInterval('P3M'));
+
+                $nextDividend = new StockDividend();
+                $nextDividend
+                    ->setStatus(StockDividend::STATUS_PROJECTED)
+                    ->setExDate($exDate)
+                    ->setValue($preDividend->getValue());
+
+                $stock->addDividend($nextDividend);
+
+                $this->logger->debug('added next dividend', [
+                    'symbol'        => $stock->getSymbol(),
+                    'exDate' => $nextDividend->getExDate(),
+                    'value' => $nextDividend->getValue(),
+                    'status' => $nextDividend->getStatus(),
+                ]);
+            }
+        }
 
         return $this;
     }

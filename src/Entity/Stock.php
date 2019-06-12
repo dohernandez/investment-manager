@@ -194,6 +194,21 @@ class Stock implements Entity
     {
         $this->value = $value;
 
+        $this->updateDividendYield($this->nextDividend());
+
+        return $this;
+    }
+
+    public function updateDividendYield(?StockDividend $nextDividend = null): self
+    {
+        $dividendYield = null;
+
+        if ($nextDividend !== null) {
+            $dividendYield = $nextDividend->getValue() * 4 / $this->getValue() * 100;
+        }
+
+        $this->setDividendYield($dividendYield);
+
         return $this;
     }
 
@@ -340,8 +355,8 @@ class Stock implements Entity
 
             return false;
         } )) {
-            $this->dividends[] = $dividend;
             $dividend->setStock($this);
+            $this->dividends[] = $dividend;
         }
 
         return $this;
@@ -363,20 +378,22 @@ class Stock implements Entity
     }
 
     /**
-     * Returns the next dividend after "now"
+     * Returns the next dividend after time.
+     *
+     * @param string $time
      *
      * @return StockDividend|null
      * @throws \Exception
      */
-    public function nextDividend(): ?StockDividend
+    public function nextDividend($time='now'): ?StockDividend
     {
-        $now = new \DateTime();
+        $nextDate = new \DateTime($time);
 
         /**
          * @psalm-var Collection<TKey,StockDividend>
          * @var Collection $matches
          */
-        $matches = $this->dividends->matching(StockDividendByCriteria::nextExDate($now));
+        $matches = $this->dividends->matching(StockDividendByCriteria::nextExDate($nextDate));
 
         if ($matches->isEmpty()){
             return null;
@@ -386,21 +403,23 @@ class Stock implements Entity
     }
 
     /**
-     * Returns the last dividend before "now".
+     * Returns the last dividend before time.
      * Use in most case when nextDividend is null.
+     *
+     * @param string $time
      *
      * @return StockDividend|null
      * @throws \Exception
      */
-    public function preDividend(): ?StockDividend
+    public function preDividend($time='now'): ?StockDividend
     {
-        $now = new \DateTime();
+        $preDate = new \DateTime($time);
 
         /**
          * @psalm-var Collection<TKey,StockDividend>
          * @var Collection $matches
          */
-        $matches = $this->dividends->matching(StockDividendByCriteria::lastExDate($now));
+        $matches = $this->dividends->matching(StockDividendByCriteria::lastExDate($preDate));
 
         if ($matches->isEmpty()){
             return null;
