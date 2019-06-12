@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\Account;
 use App\Entity\StockMarket;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
@@ -12,8 +13,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ImportStockMarketCommand extends Command
+class ImportAccountCommand extends Command
 {
+    protected static $defaultName = 'app:import-account';
+
     /**
      * @var EntityManagerInterface
      */
@@ -26,12 +29,10 @@ class ImportStockMarketCommand extends Command
         $this->em = $em;
     }
 
-    protected static $defaultName = 'app:import-stock-market';
-
     protected function configure()
     {
         $this
-            ->setDescription('Import stock markets from csv file')
+            ->setDescription('Import accounts from csv file')
             ->addArgument('filepath', InputArgument::REQUIRED, 'csv file to import')
         ;
     }
@@ -49,14 +50,14 @@ class ImportStockMarketCommand extends Command
         $io->progressStart($count);
 
         foreach ($records as $offset => $record) {
-            $stockMarket = new StockMarket();
-            $stockMarket->setName($record[0])
-                ->setSymbol($record[1])
-                ->setCountry($record[2])
-                ->setYahooSymbol($record[3])
-                ;
+            $account = new Account();
+            $account->setName($record[0])
+                ->setAccountNo($record[1])
+                ->setAlias($record[2])
+                ->setType($record[3])
+            ;
 
-            $this->em->persist($stockMarket);
+            $this->em->persist($account);
 
             $io->progressAdvance();
         }
