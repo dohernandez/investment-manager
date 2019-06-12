@@ -2,7 +2,8 @@
 
 namespace App\Command;
 
-use App\Entity\Account;
+use App\Entity\Transfer;
+use App\Repository\AccountRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
 use Symfony\Component\Console\Command\Command;
@@ -11,26 +12,32 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ImportAccountCommand extends Command
+class ImportTransferCommand extends Command
 {
-    protected static $defaultName = 'app:import-account';
+    protected static $defaultName = 'app:import-transfer';
 
     /**
      * @var EntityManagerInterface
      */
     private $em;
 
-    public function __construct(EntityManagerInterface $em)
+    /**
+     * @var AccountRepository
+     */
+    private $accountRepository;
+
+    public function __construct(EntityManagerInterface $em, AccountRepository $accountRepository)
     {
         parent::__construct();
 
         $this->em = $em;
+        $this->accountRepository = $accountRepository;
     }
 
     protected function configure()
     {
         $this
-            ->setDescription('Import accounts from csv file')
+            ->setDescription('Import transfers from csv file')
             ->addArgument('filepath', InputArgument::REQUIRED, 'csv file to import')
         ;
     }
@@ -48,14 +55,23 @@ class ImportAccountCommand extends Command
         $io->progressStart($count);
 
         foreach ($records as $offset => $record) {
-            $account = new Account();
-            $account->setName($record[0])
-                ->setAccountNo($record[1])
-                ->setAlias($record[2])
-                ->setType($record[3])
+            $beneficiary = $this->accountRepository->findOneBy([
+                'alias' => $record[2]
+            ]);
+            $debtor = $this->accountRepository->findOneBy([
+                'alias' => $record[1]
+            ]);
+
+
+            $transfer = new Transfer();
+            $transfer
+                ->setDate(\DateTime::createFromFormat('d/m/Y', $record[0]))
+                ->setBeneficiaryParty($beneficiary)
+                ->setDebtorParty($debtor)
+                ->setAmount(floatval($record[3]))
             ;
 
-            $this->em->persist($account);
+            $this->em->persist($transfer);
 
             $io->progressAdvance();
         }
