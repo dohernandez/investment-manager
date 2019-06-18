@@ -35,7 +35,7 @@ class Operation implements Entity
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Stock", inversedBy="operations")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $stock;
 
@@ -51,7 +51,7 @@ class Operation implements Entity
 
     /**
      * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=11, scale=2)
+     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
      */
     private $price;
 
@@ -80,7 +80,7 @@ class Operation implements Entity
     private $commission;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     private $amount;
 
@@ -98,6 +98,7 @@ class Operation implements Entity
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Position", inversedBy="operations", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=true)
      */
     private $position;
 
@@ -142,12 +143,12 @@ class Operation implements Entity
         return $this;
     }
 
-    public function getPrice(): float
+    public function getPrice(): ?float
     {
         return $this->price;
     }
 
-    public function setPrice(float $price): self
+    public function setPrice(?float $price): self
     {
         $this->price = $price;
 
@@ -178,7 +179,7 @@ class Operation implements Entity
         return $this;
     }
 
-    public function getValue(): float
+    public function getValue(): ?float
     {
         return $this->value;
     }
@@ -233,7 +234,15 @@ class Operation implements Entity
 
     public function setWallet(?Wallet $wallet): self
     {
-        $this->wallet = $wallet;
+        if ($this->wallet !== $wallet) {
+
+            $this->wallet = $wallet;
+
+            // Updating dividend of new stock
+            if ($this->wallet) {
+                $this->wallet->addOperation($this);
+            }
+        }
 
         return $this;
     }
@@ -243,8 +252,20 @@ class Operation implements Entity
      */
     public function __toString(): string
     {
+        if (in_array($this->getType(), [
+            self::TYPE_CONNECTIVITY,
+            self::TYPE_INTEREST
+        ])) {
+            return sprintf(
+                '%s [%.2f]',
+                $this->getType(),
+                $this->getNetValue()
+            );
+        }
+
         return sprintf(
-            '%s:%s - %d [%.2f] ',
+            '%s %s:%s - %d [%.2f]',
+            $this->getType(),
             $this->getStock()->getMarket()->getSymbol(),
             $this->getStock()->getSymbol(),
             $this->getAmount(),

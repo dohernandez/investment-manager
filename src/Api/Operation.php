@@ -27,7 +27,7 @@ class Operation
         $self = new static();
 
         $self->id = $operation->getId();
-        $self->stock = Stock::fromEntity($operation->getStock());
+        $self->stock = $operation->getStock() ? Stock::fromEntity($operation->getStock()) : null;
         $self->amount = $operation->getAmount();
         $self->capital = $operation->getCapital();
         $self->value = $operation->getNetValue();

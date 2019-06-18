@@ -3,16 +3,23 @@
     <%= {{ value }} %>
 {% endmacro render_field %}
 
+{# check #}
+{% macro render_check(value, check) %}
+    <% if ({{ check }} !== null) { %>
+        <%= {{ value }} %>
+    <% } %>
+{% endmacro render_check %}
+
 {# currency #}
 {% macro render_currency(value, currency) %}
     {% set _currency = currency |default('euro') %}
 
     {% if _currency == 'euro' %}
-        <% if ({{ value }} ) { %>
+        <% if ({{ value }}) { %>
             &euro; <%= {{ value }}.toFixed(2).toString().replace(/\./g, ",") %>
         <% } %>
     {% elseif _currency == '$' %}
-        <% if ({{ value }} ) { %>
+        <% if ({{ value }}) { %>
             <%= {{ value }}.toFixed(2).toString().replace(/\./g, ",") %> $
         <% } %>
     {% endif %}
@@ -41,16 +48,19 @@
     <small><%= {{ value }}.accountNo %></small>
 {% endmacro render_account %}
 
-{# broker #}
-{% macro render_broker(value) %}
-    <strong><%= {{ value }}.name %></strong>
-{% endmacro render_broker %}
-
+{# percentage #}
 {% macro render_percentage(value) %}
     <% if ({{ value }} !== null && {{ value }} !== 0) { %>
         <%= {{ value }}.toFixed(2).toString().replace(/\./g, ",") %><small>%</small>
     <% } %>
 {% endmacro render_percentage %}
+
+{# broker #}
+{% macro render_broker(value) %}
+    <strong><%= {{ value }}.name %></strong>
+    <br />
+    <a href="<%= {{ value }}.site %>"><%= {{ value }}.site %></a>
+{% endmacro render_broker %}
 
 {% macro field(value, field) %}
     {% import _self as render %}
@@ -68,6 +78,8 @@
             {{ render.render_date(value, field.date_format) }}
         {% elseif field.render == 'percentage' %}
             {{ render.render_percentage(value) }}
+        {% elseif field.render == 'check' %}
+            {{ render.render_check(value, field.check) }}
         {% else %}
             {{ render.render_field(value) }}
         {% endif %}

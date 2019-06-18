@@ -4,16 +4,13 @@ namespace App\Controller\Api;
 
 use App\Api;
 use App\Entity;
-//use App\Form\OperationType;
-//use App\Message\OperationDeleted;
-//use App\Message\OperationSaved;
+use App\Form\OperationType;
 use App\Repository\WalletRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -49,7 +46,7 @@ class OperationController extends BaseController
 
         // define ordering closure, using preferred comparison method/field
         $iterator->uasort(function ($first, $second) {
-            return $first->getStock()->getName() < $second->getStock()->getName() ? 1 : -1;
+            return $first->getStock() && $first->getStock()->getName() < $second->getStock()->getName() ? 1 : -1;
         });
 
         foreach ($iterator as $Operation) {
@@ -60,6 +57,83 @@ class OperationController extends BaseController
             [
                 'total_count' => count($apiOperations),
                 'items'       => $apiOperations,
+            ]
+        );
+    }
+
+    /**
+     * @Route("/", name="wallet_operation_new", methods={"POST"}, options={"expose"=true})
+     *
+     * @param int $_id
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function new(int $_id, EntityManagerInterface $em, Request $request): Response
+    {
+        $wallet = $this->walletRepository->find($_id);
+
+        $operation = new Entity\Operation();
+
+        /** @var Form $form */
+        $form = $this->createForm(OperationType::class, $operation);
+
+        return $this->save($wallet, $form, $em, $request);
+    }
+
+    /**
+     * @param Entity\Wallet $wallet
+     * @param Form $form
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     *
+     * @return Response
+     */
+    protected function save(Entity\Wallet $wallet, Form $form, EntityManagerInterface $em, Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        if ($data === null) {
+            return $this->json(
+                [
+                    'message' => 'Invalid JSON',
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        try {
+            $form->submit($data);
+        } catch (\Exception $e) {
+            return $this->json(
+                [
+                    'message' => $e->getMessage(),
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        if (!$form->isValid()) {
+            $errors = $this->getErrorsFromForm($form);
+
+            return $this->createApiResponse(
+                [
+                    'errors' => $errors
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        /** @var Entity\Operation $operation */
+        $operation = $form->getData();
+        $operation->setWallet($wallet);
+
+        $em->persist($operation);
+        $em->flush();
+
+        return $this->createApiResponse(
+            [
+                'item' => Api\Operation::fromEntity($operation),
             ]
         );
     }

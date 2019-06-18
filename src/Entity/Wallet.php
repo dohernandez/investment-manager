@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\Criteria\PositionByCriteria;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -448,11 +449,12 @@ class Wallet implements Entity
         return $this;
     }
 
-    /**
-     * @return Collection|Position[]
-     */
-    public function getPositions(): Collection
+    public function getPositions(string $status = null): Collection
     {
+        if ($status !== null && $status !== '') {
+            return $this->positions->matching(PositionByCriteria::byStatus($status));
+        }
+
         return $this->positions;
     }
 

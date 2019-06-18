@@ -25,14 +25,14 @@ class Select2StockTemplate {
             return stock.text;
         }
 
+        let text = stock.text;
+
         if (stock.title) {
-            return "<div class='select2-result-stock clearfix'>" +
-                stock.title +
-                "</div>";
+            text = stock.title;
         }
 
         return "<div class='select2-result-stock clearfix'>" +
-            stock.text +
+            text +
             "</div>";
     }
 

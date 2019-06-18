@@ -22,30 +22,76 @@
     {{ parent() }}
 
     {% include 'Components/ui/crud-manage-scripts.html.twig' %}
+    <script src="{{ asset('build/wallet_dashboard.js') }}"></script>
 
-    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
-        'entity_name': operation_entity_name,
-        'fields': wallet_operation_fields,
-        'create_button_label': 'Add new'|trans ~ ' ' ~ operation_entity_name|trans|lower
-    }%}
-    {% endembed %}
-
+    <!-- positionCrudManager -->
     {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
         'entity_name': position_entity_name,
         'fields': wallet_position_fields,
     }%}
     {% endembed %}
 
-    <script src="{{ asset('build/wallet_dashboard.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            // Create page instance
+            let $positionCrudManagerRowBox = $('.js-position-crud-manage-row-box');
+
+            let positionContentWrapper = $positionCrudManagerRowBox.closest('div');
+            let positionEntityType = $positionCrudManagerRowBox.data('entity-type');
+
+            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
+            let positionCrudManager = new CRUDManage({
+                entityType: positionEntityType,
+                wrapper: positionContentWrapper,
+                swalFormOptions: window.swalFormOptions,
+                swalConfirmOptions: window.swalConfirmOptions,
+                toastOptions: window.toastOptions,
+                pagination: true,
+                selectors: {
+                    createButtonTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
+                    searchTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-row-template',
+                },
+            });
+
+            positionCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
+                let param = {
+                    '_id': {{ wallet.id }},
+                    's': 'open'
+                };
+
+                if (id) {
+                    param['id'] = id;
+                }
+
+                if (endpoint === 'list') {
+                    return Routing.generate('wallet_' + entityType + '_list', param);
+                }
+
+                throw 'Endpoint wallet_' + endpoint + ' not supported';
+            });
+
+            positionCrudManager.render();
+        });
+    </script>
 
     <!-- operationCrudManager -->
+    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
+        'entity_name': operation_entity_name,
+        'fields': wallet_operation_fields,
+        'create_button_label': 'Add new'|trans ~ ' ' ~ operation_entity_name|trans|lower,
+        'form': waller_operation_form,
+    }%}
+    {% endembed %}
+
     <script>
         $(document).ready(function() {
             let swalFormOperationOptionsText = {
                 create: {
                     confirmButtonText: '{{ 'Create'|trans }}',
                     titleText: '{{ 'Add new'|trans }} {{ operation_entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was added successfully.'|trans }}'
+                    toastTitleText: '{{ operation_entity_name|trans|title }} {{ 'was added successfully.'|trans }}'
                 },
             };
 
@@ -56,11 +102,11 @@
             let operationEntityType = $operationCrudManagerRowBox.data('entity-type');
 
             let swalConfirmOptions = window.swalFormOptions;
-            swalConfirmOptions.titleText = '{{ 'Delete'|trans }} {{ entity_name|trans|title }}';
-            swalConfirmOptions.text = '{{ 'Do you want to delete the'|trans }} {{ entity_name|trans|title|lower }} {0}?';
+            swalConfirmOptions.titleText = '{{ 'Delete'|trans }} {{ operation_entity_name|trans|title }}';
+            swalConfirmOptions.text = '{{ 'Do you want to delete the'|trans }} {{ operation_entity_name|trans|title|lower }} {0}?';
 
             let toastOptions = window.toastOptions;
-            toastOptions.titleText = '{{ entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}';
+            toastOptions.titleText = '{{ operation_entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}';
 
             // Create CRUDManage instance @see public/assets/js/CRUDManage.js
             let operationCrudManager = new CRUDManage({
@@ -112,57 +158,31 @@
                 return route
             });
 
-            // const form = new WalletForm(swalFormOptionsText, 'js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-form-template');
+            let swalFormOptionsText = {
+                create: {
+                    confirmButtonText: '{{ 'Create'|trans }}',
+                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
+                },
+                update: {
+                    confirmButtonText: '{{ 'Update'|trans }}',
+                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}',
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was updated successfully.'|trans }}'
+                },
+                delete: {
+                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'
+                }
+            };
 
-            // crudManager.withForm(form);
+            const form = new OperationForm(
+                swalFormOptionsText,
+                '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-form-template',
+            );
+
+            operationCrudManager.withForm(form);
             operationCrudManager.withCreateButton();
 
             operationCrudManager.render();
-        });
-    </script>
-
-    <!-- operationCrudManager -->
-    <script>
-        $(document).ready(function() {
-            // Create page instance
-            let $positionCrudManagerRowBox = $('.js-position-crud-manage-row-box');
-
-            let positionContentWrapper = $positionCrudManagerRowBox.closest('div');
-            let positionEntityType = $positionCrudManagerRowBox.data('entity-type');
-
-            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
-            let positionCrudManager = new CRUDManage({
-                entityType: positionEntityType,
-                wrapper: positionContentWrapper,
-                swalFormOptions: window.swalFormOptions,
-                swalConfirmOptions: window.swalConfirmOptions,
-                toastOptions: window.toastOptions,
-                pagination: true,
-                selectors: {
-                    createButtonTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-row-template',
-                },
-            });
-
-            positionCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
-                let param = {
-                    '_id': {{ wallet.id }}
-                };
-
-                if (id) {
-                    param['id'] = id;
-                }
-
-                if (endpoint === 'list') {
-                    return Routing.generate('wallet_' + entityType + '_list', param);
-                }
-
-                throw 'Endpoint wallet_' + endpoint + ' not supported';
-            });
-
-            positionCrudManager.render();
         });
     </script>
 {% endblock %}

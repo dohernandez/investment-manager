@@ -35,17 +35,20 @@ class PositionController extends BaseController
      * @Route("/", name="wallet_position_list", methods={"GET"}, options={"expose"=true})
      *
      * @param int $_id
+     * @param Request $request
      *
      * @return JsonResponse
      */
-    public function all(int $_id): JsonResponse
+    public function all(int $_id, Request $request): JsonResponse
     {
         $wallet = $this->walletRepository->find($_id);
 
         $apiPositions = [];
 
+        $status = $request->query->get('s');
+
         // get a new ArrayIterator
-        $iterator = $wallet->getPositions()->getIterator();
+        $iterator = $wallet->getPositions($status)->getIterator();
 
         // define ordering closure, using preferred comparison method/field
         $iterator->uasort(function ($first, $second) {

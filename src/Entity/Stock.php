@@ -253,7 +253,12 @@ class Stock implements Entity
      */
     public function __toString(): string
     {
-        return $this->getName() . ' ('. $this->getSymbol() .')';
+        return sprintf(
+            '%s (%s:%s)',
+            $this->getName(),
+            $this->getSymbol(),
+            $this->getMarket()->getSymbol()
+        );
     }
 
     public function getMarket(): ?StockMarket

@@ -39,7 +39,6 @@ class PersistOperationListener
                 Operation::TYPE_SELL,
                 Operation::TYPE_DIVIDEND,
             ])) {
-            $wallet->addExpenses($operation->getNetValue(), $type);
 
             return;
         }
@@ -67,13 +66,14 @@ class PersistOperationListener
                 ->setWallet($operation->getWallet())
             ;
 
-            $trade->addOperation($operation);
+            $position->addTrade($trade);
         }
 
         if ($type === Operation::TYPE_DIVIDEND) {
             // TODO dividend should be added to all trades opens with for the given stock
         }
 
-        $position->addTrade($trade);
+        $trade->addOperation($operation);
+
     }
 }

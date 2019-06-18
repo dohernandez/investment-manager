@@ -2,13 +2,15 @@
     entity_name => entity name
     fields => {
                 'render': {
-                    base: <value>, default(text) -> How to render the field. Render type [text, currency, date, slice]
+                    base:   <value>, default(text) -> How to render the field.
+                            Render type [text, currency, date, slice, check]
                     option: <value>
 
                         1. base 'text' option should not be defined.
                         2. base 'truncate' option value is the slice until the truncate value.
                         3. base 'date' option value is the format date.
                         4. base 'currency' option value is the format currency.
+                        5. base 'check' option value is the object to check whether is null or not.
                 },
                 'name': <value>, # required -> Column name
                 'label': <value>, -> Column name label. When label is not defined then name is used instead.

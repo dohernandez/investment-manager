@@ -4,6 +4,7 @@ namespace App\Twig\Parameters;
 
 use App\Entity\Entity;
 use App\Entity\Wallet;
+use App\Form\OperationType;
 use App\Form\WalletType;
 
 /**
@@ -80,12 +81,14 @@ class WalletViewParameters extends AbstractViewParameters
      */
     public function dashboard(Wallet $wallet, array $context = []): array
     {
+        $walletOperationForm = $this->form->create(OperationType::class);
+
         return [
                 'wallet' => $wallet,
                 'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
                 'operation_entity_name' => 'operation',
                 'wallet_operation_fields' => $this->getOperationFields(),
-                'operation_form' => [],
+                'waller_operation_form' => $walletOperationForm->createView(),
                 'position_entity_name' => 'position',
                 'wallet_position_fields' => $this->getPositionFields(),
             ] + $context;
@@ -98,33 +101,39 @@ class WalletViewParameters extends AbstractViewParameters
     {
         return [
             [
+                'name' => 'dateAt',
+                'label' => 'Date',
+                'render' => 'date',
+                'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
+            ],
+            [
+                'name' => 'type',
+            ],
+            [
                 'name' => 'stock.name',
                 'label' => 'Stock',
+                'render' => 'check',
+                'check' => 'stock',
             ],
             [
                 'name' => 'stock.symbol',
                 'label' => 'Symbol',
+                'render' => 'check',
+                'check' => 'stock',
             ],
             [
                 'name' => 'stock.market.symbol',
                 'label' => 'Market',
+                'render' => 'check',
+                'check' => 'stock',
             ],
             [
                 'name' => 'amount',
                 'label' => 'Amt',
             ],
             [
-                'name' => 'type',
-            ],
-            [
                 'name' => 'value',
                 'render' => 'currency',
-            ],
-            [
-                'name' => 'dateAt',
-                'label' => 'Date',
-                'render' => 'date',
-                'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
             ],
         ];
     }
