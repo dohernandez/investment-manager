@@ -73,6 +73,8 @@
             });
 
             positionCrudManager.render();
+
+            window.positionCrudManager = positionCrudManager;
         });
     </script>
 
@@ -175,6 +177,7 @@
             };
 
             const form = new OperationForm(
+                window.positionCrudManager,
                 swalFormOptionsText,
                 '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-form-template',
             );

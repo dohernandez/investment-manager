@@ -161,7 +161,7 @@ class CRUDManage {
 
                     this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
-                    this._refreshPagination();
+                    this.refreshPagination();
                 }
             );
 
@@ -224,7 +224,7 @@ class CRUDManage {
         let $pagination = this.$wrapper.find($(this.selectors.pagination));
         $pagination.each((index, ul) => {
             let $ul = $(ul);
-            this._showPagination($ul);
+            this.refreshPagination($ul);
         });
     }
 
@@ -264,25 +264,23 @@ class CRUDManage {
         return route
     }
 
-    _refreshPagination(options) {
-        let $parent = this._removePagination();
-
-        let $pagination = new $('<ul id="pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>');
-        $parent.append($pagination);
-
-        this._showPagination($pagination, options);
-    }
-
-    _removePagination(){
+    /**
+     * Create/update the pagination. Due to the way pagination works, this function destroy the current
+     * pagination if exists and create new pagination.
+     *
+     * @param options
+     */
+    refreshPagination(options) {
+        // remove pagination
         let $pagination = this.$wrapper.find($(this.selectors.pagination));
         let $parent = $pagination.parent();
-
         $pagination.remove();
 
-        return $parent;
-    }
+        // recreate the pagination
+        $pagination = new $('<ul id="pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>');
+        $parent.append($pagination);
 
-    _showPagination($pagination, options) {
+        // show pagination
         // init all the pagination variables
         let _options = _.defaults(options || {}, {
             totalPages: this.totalPages,
@@ -598,7 +596,7 @@ class CRUDManage {
         this.totalRecords++;
         this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
-        this._refreshPagination();
+        this.refreshPagination();
 
         this.form.onCreated(entity);
     }
@@ -763,7 +761,7 @@ class CRUDManage {
                             this.totalPages = newTotalPages;
                         }
 
-                        this._refreshPagination();
+                        this.refreshPagination();
                     });
             }
         }).then((result) => {
@@ -821,7 +819,7 @@ class CRUDManage {
         }
 
         this.page = 1;
-        this._refreshPagination();
+        this.refreshPagination();
     }
 
     /**
@@ -858,7 +856,7 @@ class CRUDManage {
             }
 
             this.page = 1;
-            this._refreshPagination();
+            this.refreshPagination();
 
             return;
         }
@@ -877,7 +875,7 @@ class CRUDManage {
         let totalRecords = matches.length;
 
         try {
-            this._refreshPagination({
+            this.refreshPagination({
                 records: matches,
                 totalRecords: totalRecords,
                 totalPages: Math.ceil(totalRecords / this.showPerPage),

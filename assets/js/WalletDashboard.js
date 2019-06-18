@@ -3,20 +3,22 @@
 import Form from './Components/Form';
 import Select2StockTemplate from './Components/Select2StockTemplate';
 import $ from 'jquery';
+import moment from 'moment';
 
 import 'select2';
 import 'eonasdan-bootstrap-datetimepicker';
 
 import './../css/Select2.scss';
 import './../css/WalletDashboard.scss';
-import moment from "./TransferForm";
 
 /**
  * Form manage how the operation form should be build when a crud manager invokes a create or an update action.
  */
 class OperationForm extends Form {
-    constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
+    constructor(positionCrudManager, swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
         super(swalFormOptionsText, template, selector);
+
+        this.positionCrudManager = positionCrudManager;
 
         this.select2StockTemplate = new Select2StockTemplate();
 
@@ -34,10 +36,7 @@ class OperationForm extends Form {
     }
 
     /**
-     * Defines how inputs inside the form must be parser.
-     *
-     * @param {Object} data
-     * @param $wrapper
+     * @inheritDoc
      */
     onBeforeOpen(data, $wrapper) {
         $('[data-datepickerenable="on"]').datetimepicker();
@@ -134,6 +133,14 @@ class OperationForm extends Form {
                 }
             }
         }.bind(this));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    onCreated(data) {
+        // refresh position table.
+        this.positionCrudManager.loadRows();
     }
 }
 
