@@ -4,6 +4,8 @@ import Form from './Components/Form';
 import Select2StockTemplate from './Components/Select2StockTemplate';
 import $ from 'jquery';
 import moment from 'moment';
+import Routing from './Components/Routing';
+import InvestmentManagerClient from './Components/InvestmentManagerClient';
 
 import 'select2';
 import 'eonasdan-bootstrap-datetimepicker';
@@ -15,9 +17,16 @@ import './../css/WalletDashboard.scss';
  * Form manage how the operation form should be build when a crud manager invokes a create or an update action.
  */
 class OperationForm extends Form {
-    constructor(positionCrudManager, swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
+    constructor(
+        positionCrudManager,
+        walletInfo,
+        swalFormOptionsText,
+        template = '#js-manager-form-template',
+        selector = '.js-entity-create-from'
+    ) {
         super(swalFormOptionsText, template, selector);
 
+        this.walletInfo = walletInfo;
         this.positionCrudManager = positionCrudManager;
 
         this.select2StockTemplate = new Select2StockTemplate();
@@ -141,7 +150,64 @@ class OperationForm extends Form {
     onCreated(data) {
         // refresh position table.
         this.positionCrudManager.loadRows();
+
+        this.walletInfo.load();
     }
 }
 
 global.OperationForm = OperationForm;
+
+class WalletInfo {
+    constructor(walletId) {
+        this.walletId = walletId;
+    }
+
+    /**
+     * Load wallet from server and update header dashboard info.
+     */
+    load() {
+        InvestmentManagerClient.sendRPC(
+            Routing.generate('wallet_get', {'id': this.walletId}),
+            'GET'
+        ).then((result) => {
+            console.log(result.item);
+
+            let wallet = result.item;
+
+            $('.js-wallet-invested').each(function (index, span) {
+                $(span).html('<small>&euro;</small> ' + wallet.invested.toFixed(2) + '</span>')
+            });
+            $('.js-wallet-net-capital').each(function (index, span) {
+                $(span).html('<small>&euro;</small> ' + wallet.netCapital.toFixed(2) + '</span>')
+            });
+            $('.js-wallet-dividend').each(function (index, span) {
+                $(span).html('<small>&euro;</small> ' + wallet.dividend.toFixed(2) + '</span>')
+            });
+            $('.js-wallet-benefits').each(function (index, span) {
+                $(span).html('<small>&euro;</small> ' + wallet.benefits.toFixed(2) + '</span>')
+            });
+            $('.js-wallet-capital').each(function (index, span) {
+                $(span).html('<small>&euro;</small> ' + wallet.capital.toFixed(2) + '</span>')
+            });
+            $('.js-wallet-margin').each(function (index, span) {
+                $(span).html('<small>&euro;</small> ' + wallet.capital.toFixed(2) + '</span>')
+            });
+            $('.js-wallet-funds').each(function (index, span) {
+                $(span).html('<small>&euro;</small> ' + wallet.funds.toFixed(2) + '</span>')
+            });
+            $('.js-wallet-commissions').each(function (index, span) {
+                $(span).html('<small>&euro;</small> ' + wallet.commissions.toFixed(2) + '</span>')
+            });
+            $('.js-wallet-interest').each(function (index, span) {
+                $(span).html('<small>&euro;</small> ' + wallet.interest.toFixed(2) + '</span>')
+            });
+            $('.js-wallet-connection').each(function (index, span) {
+                $(span).html('<small>&euro;</small> ' + wallet.connection.toFixed(2) + '</span>')
+            });
+        }).catch((errorsData) => {
+            console.log(errorsData);
+        });
+    }
+}
+
+global.WalletInfo = WalletInfo;

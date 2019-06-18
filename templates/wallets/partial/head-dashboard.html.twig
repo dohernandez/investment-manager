@@ -1,3 +1,7 @@
+{#
+    Values are setted via ajax in javascript.
+    @see WalletDashboard.js
+#}
 <div class="row js-wallet-info-header">
     <!-- Invested -->
     <div class="col-md-4 col-sm-6 col-xs-12">
@@ -8,18 +12,22 @@
                 <div class="row">
                     <div class="col-xs-6">
                         <span class="info-box-text">{{ 'Invested'|trans }}</span>
-                        <span class="info-box-number"><small>&euro;</small> {{ wallet.invested|round(2) }}</span>
+                        <span class="info-box-number js-wallet-invested"><small>&euro;</small> 0.00</span>
+                    </div>
+                    <div class="col-xs-6">
+                        <span class="info-box-text">{{ 'Net Capital'|trans }}</span>
+                        <span class="info-box-number js-wallet-net-capital"><small>&euro;</small> 0.00</span>
                     </div>
                 </div>
                 <div class="row separator"></div>
                 <div class="row">
                     <div class="col-xs-6">
                         <span class="info-box-text">{{ 'Dividends'|trans }}</span>
-                        <span class="info-box-number"><small>&euro;</small> {{ wallet.dividend|round(2) }}</span>
+                        <span class="info-box-number js-wallet-dividend"><small>&euro;</small> 0.00</span>
                     </div>
                     <div class="col-xs-6">
                         <span class="info-box-text">{{ 'Benefits'|trans }}</span>
-                        <span class="info-box-number"><small>&euro;</small> {{ wallet.benefits|round(2) }}</span>
+                        <span class="info-box-number js-wallet-benefits"><small>&euro;</small> 0.00</span>
                     </div>
                 </div>
             </div>
@@ -36,22 +44,18 @@
                 <div class="row">
                     <div class="col-xs-6">
                         <span class="info-box-text">{{ 'Capital'|trans }}</span>
-                        <span class="info-box-number"><small>&euro;</small> {{ wallet.capital|round(2) }}</span>
-                    </div>
-                    <div class="col-xs-6">
-                        <span class="info-box-text">{{ 'Net Capital'|trans }}</span>
-                        <span class="info-box-number"><small>&euro;</small> {{ wallet.capital|round(2) }}</span>
+                        <span class="info-box-number js-wallet-capital"><small>&euro;</small> 0.00</span>
                     </div>
                 </div>
                 <div class="row separator"></div>
                 <div class="row">
                     <div class="col-xs-6">
                         <span class="info-box-text">{{ 'Margin'|trans }}</span>
-                        <span class="info-box-number"><small>&euro;</small> {{ wallet.capital|round(2) }}</span>
+                        <span class="info-box-number js-wallet-margin"><small>&euro;</small> 0.00</span>
                     </div>
                     <div class="col-xs-6">
                         <span class="info-box-text">{{ 'Funds'|trans }}</span>
-                        <span class="info-box-number"><small>&euro;</small> {{ wallet.funds|round(2) }}</span>
+                        <span class="info-box-number js-wallet-funds"><small>&euro;</small> 0.00</span>
                     </div>
                 </div>
             </div>
@@ -68,18 +72,18 @@
                 <div class="row">
                     <div class="col-xs-6">
                         <span class="info-box-text">{{ 'Commissions'|trans }}</span>
-                        <span class="info-box-number"><small>&euro;</small> {{ wallet.commissions|round(2) }}</span>
+                        <span class="info-box-number js-wallet-commissions"><small>&euro;</small> 0.00</span>
                     </div>
                     <div class="col-xs-6">
                         <span class="info-box-text">{{ 'Interest'|trans }}</span>
-                        <span class="info-box-number"><small>&euro;</small> {{ wallet.interest|round(2) }}</span>
+                        <span class="info-box-number js-wallet-interest"><small>&euro;</small> 0.00</span>
                     </div>
                 </div>
                 <div class="row separator"></div>
                 <div class="row">
                     <div class="col-xs-6 pull-right">
                         <span class="info-box-text">{{ 'Connection'|trans }}</span>
-                        <span class="info-box-number"><small>&euro;</small> {{ wallet.connection|round(2) }}</span>
+                        <span class="info-box-number js-wallet-connection"><small>&euro;</small> 0.00</span>
                     </div>
                 </div>
             </div>

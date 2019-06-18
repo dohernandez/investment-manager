@@ -153,6 +153,11 @@ class Wallet implements Entity
         return $this;
     }
 
+    public function getNetCapital(): float
+    {
+        return $this->getCapital() + $this->getFunds();
+    }
+
     public function increaseCapital(float $capital): self
     {
         $this->setCapital($this->getCapital() + $capital);

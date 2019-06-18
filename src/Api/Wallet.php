@@ -16,6 +16,8 @@ class Wallet
 
     public $capital;
 
+    public $netCapital;
+
     public $benefits;
 
     public $pBenefits;
@@ -41,6 +43,7 @@ class Wallet
         $self->funds = $wallet->getFunds();
         $self->invested = $wallet->getInvested();
         $self->capital = $wallet->getCapital();
+        $self->netCapital = $wallet->getNetCapital();
 
         $self->benefits = $wallet->getBenefits();
         $self->pBenefits = $self->invested ? $self->benefits * 100 / $self->invested : 0;

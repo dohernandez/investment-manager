@@ -24,6 +24,14 @@
     {% include 'Components/ui/crud-manage-scripts.html.twig' %}
     <script src="{{ asset('build/wallet_dashboard.js') }}"></script>
 
+    <script>
+        $(document).ready(function() {
+            window.walletInfo = new WalletInfo({{ wallet.id }});
+
+            window.walletInfo.load();
+        });
+    </script>
+
     <!-- positionCrudManager -->
     {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
         'entity_name': position_entity_name,
@@ -89,14 +97,6 @@
 
     <script>
         $(document).ready(function() {
-            let swalFormOperationOptionsText = {
-                create: {
-                    confirmButtonText: '{{ 'Create'|trans }}',
-                    titleText: '{{ 'Add new'|trans }} {{ operation_entity_name|trans|title }}',
-                    toastTitleText: '{{ operation_entity_name|trans|title }} {{ 'was added successfully.'|trans }}'
-                },
-            };
-
             // Create page instance
             let $operationCrudManagerRowBox = $('.js-operation-crud-manage-row-box');
 
@@ -178,6 +178,7 @@
 
             const form = new OperationForm(
                 window.positionCrudManager,
+                window.walletInfo,
                 swalFormOptionsText,
                 '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-form-template',
             );

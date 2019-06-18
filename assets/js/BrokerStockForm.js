@@ -4,6 +4,7 @@ import Form from "./Components/Form";
 import Select2StockTemplate from './Components/Select2StockTemplate';
 import $ from 'jquery';
 import Slider from 'bootstrap-slider';
+import InvestmentManagerClient from './Components/InvestmentManagerClient';
 
 import 'select2';
 
@@ -134,7 +135,7 @@ class BrokerStockForm extends Form {
         // The options use to show the form inside the modal and how to parser the inputs.
         const formOptions = this.form.formOptions('add');
 
-        this._sendRPC(url, 'POST', formData)
+        InvestmentManagerClient.sendRPC(url, 'POST', formData)
         // Catches response error
             .catch((errorsData) => {
                 // $('#swal2-validation-message').empty();

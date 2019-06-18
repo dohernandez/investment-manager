@@ -132,7 +132,7 @@
                         $button.attr("disabled", true);
                         $button.find('i').addClass('fa-spin');
 
-                        this._sendRPC(
+                        InvestmentManagerClient.sendRPC(
                             Routing.generate(entityType + '_sync', {'_id': {{ stock.id }}}),
                             'GET'
                         ).then((result) => {

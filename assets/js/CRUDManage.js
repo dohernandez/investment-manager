@@ -4,6 +4,7 @@ import Form from './Components/Form';
 import $ from 'jquery';
 import Swal from 'sweetalert2';
 import Routing from './Components/Routing';
+import InvestmentManagerClient from './Components/InvestmentManagerClient';
 import _ from 'underscore';
 
 import 'twbs-pagination';
@@ -506,7 +507,7 @@ class CRUDManage {
                     method = 'PUT';
                 }
 
-                return this._sendRPC(url, method, formData)
+                return InvestmentManagerClient.sendRPC(url, method, formData)
                     // Catches response error
                     .catch((errorsData) => {
                         $('#swal2-validation-message').empty();
@@ -536,37 +537,6 @@ class CRUDManage {
         }).catch((arg) => {
             // canceling is cool!
             console.log(arg)
-        });
-    }
-
-    /**
-     * Send a remote procedure call to the server.
-     *
-     * @param url
-     * @param method
-     * @param formData
-     * @return {Promise<any>}
-     * @private
-     */
-    _sendRPC(url, method, formData = null) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url,
-                method,
-                data: formData ? JSON.stringify(formData) : ''
-            }).then((data, textStatus, jqXHR) => {
-                resolve(data);
-            }).catch((jqXHR) => {
-                if (jqXHR.status != 400 || jqXHR.status != 500) {
-                    reject(jqXHR);
-
-                    return;
-                }
-
-                const errorData = JSON.parse(jqXHR.responseText);
-
-                reject(errorData);
-            });
         });
     }
 
@@ -655,7 +625,7 @@ class CRUDManage {
         if (entity === null) {
             let getUrl = this.routing(this.entityType, 'get', id);
 
-            this._sendRPC(getUrl, 'GET')
+            InvestmentManagerClient.sendRPC(getUrl, 'GET')
                 .then((data) => {
                     this._createFrom(data.item)
                     // update the row by creating a new row base on the row template and
@@ -738,7 +708,7 @@ class CRUDManage {
         swalConfirm.fire({
             text,
             preConfirm: () => {
-                return this._sendRPC(this.routing(this.entityType, 'delete', id), 'DELETE')
+                return InvestmentManagerClient.sendRPC(this.routing(this.entityType, 'delete', id), 'DELETE')
                     // Remove the row from the table.
                     .then(() => {
                         for( let i = 0; i < this.records.length; i++){

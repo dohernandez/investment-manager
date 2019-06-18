@@ -149,4 +149,24 @@ class WalletController extends BaseController
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
+
+    /**
+     * @Route("/{id}", name="wallet_get", methods={"GET"}, options={"expose"=true})
+     *
+     * @param Entity\Wallet $wallet
+     *
+     * @return JsonResponse
+     */
+    public function one(Entity\Wallet $wallet): JsonResponse
+    {
+        if (!$wallet) {
+            return $this->createApiErrorResponse('Wallet not found', Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->createApiResponse(
+            [
+                'item' => Api\Wallet::fromEntity($wallet),
+            ]
+        );
+    }
 }
