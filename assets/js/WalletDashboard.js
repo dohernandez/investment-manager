@@ -186,6 +186,9 @@ class WalletInfo {
             $('.js-wallet-benefits').each(function (index, span) {
                 $(span).html('<small>&euro;</small> ' + wallet.benefits.toFixed(2) + '</span>')
             });
+            $('.js-wallet-pbenefits').each(function (index, span) {
+                $(span).html(wallet.pBenefits.toFixed(2) + '%')
+            });
             $('.js-wallet-capital').each(function (index, span) {
                 $(span).html('<small>&euro;</small> ' + wallet.capital.toFixed(2) + '</span>')
             });
