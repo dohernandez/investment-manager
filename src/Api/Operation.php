@@ -20,6 +20,8 @@ class Operation
 
     public $dateAt;
 
+    public $commissions;
+
     public $title;
 
     static public function fromEntity(Entity\Operation $operation): self
@@ -33,6 +35,7 @@ class Operation
         $self->value = $operation->getNetValue();
         $self->type = $operation->getType();
         $self->dateAt = $operation->getDateAt();
+        $self->commissions = $operation->getFinalCommissionPaid();
 
         $self->title = (string) $operation;
 
