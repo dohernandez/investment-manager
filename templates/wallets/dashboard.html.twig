@@ -36,6 +36,7 @@
     {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
         'entity_name': position_entity_name,
         'fields': wallet_position_fields,
+        'buttons': position_buttons,
     }%}
     {% endembed %}
 
@@ -80,6 +81,10 @@
                 throw 'Endpoint wallet_' + endpoint + ' not supported';
             });
 
+            positionCrudManager.withViewButton();
+            positionCrudManager.withExtraButton();
+            positionCrudManager.withExtraButton();
+            positionCrudManager.withExtraButton();
             positionCrudManager.render();
 
             window.positionCrudManager = positionCrudManager;
@@ -187,6 +192,8 @@
             operationCrudManager.withCreateButton();
 
             operationCrudManager.render();
+
+            window.positionCrudManager.withForm(form);
         });
     </script>
 {% endblock %}

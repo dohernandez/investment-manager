@@ -170,8 +170,6 @@ class WalletInfo {
             Routing.generate('wallet_get', {'id': this.walletId}),
             'GET'
         ).then((result) => {
-            console.log(result.item);
-
             let wallet = result.item;
 
             $('.js-wallet-invested').each(function (index, span) {

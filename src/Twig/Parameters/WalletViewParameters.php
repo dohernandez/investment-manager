@@ -91,6 +91,23 @@ class WalletViewParameters extends AbstractViewParameters
                 'waller_operation_form' => $walletOperationForm->createView(),
                 'position_entity_name' => 'position',
                 'wallet_position_fields' => $this->getPositionFields(),
+                'position_buttons' => [
+                    [
+                        'type' => 'warning',
+                        'jsClass' => 'js-position-dividend',
+                        'icon' => 'fas fa-donate',
+                    ],
+                    [
+                        'type' => 'success',
+                        'jsClass' => 'js-position-buy',
+                        'icon' => 'fas fa-bold',
+                    ],
+                    [
+                        'type' => 'danger',
+                        'jsClass' => 'js-position-sell',
+                        'icon' => 'fab fa-stripe-s',
+                    ],
+                ],
             ] + $context;
     }
 
