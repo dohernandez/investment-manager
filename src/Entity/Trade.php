@@ -112,11 +112,6 @@ class Trade implements Entity
     private $net = 0;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Operation", mappedBy="trade")
-     */
-    private $operations;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Position", inversedBy="trades")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -373,59 +368,11 @@ class Trade implements Entity
     public function __toString(): string
     {
         return sprintf(
-            '%d. %s:%s - %d',
-            $this->number,
+            '%s:%s - %d',
             $this->getStock()->getSymbol(),
             $this->getStock()->getMarket()->getSymbol(),
             $this->amount
         );
-    }
-
-    /**
-     * @return Collection|Operation[]
-     */
-    public function getOperations(): Collection
-    {
-        return $this->operations;
-    }
-
-    /**
-     * Add an operation to the collection and update the trade based on the operation type.
-     * @param Operation $operation
-     *
-     * @return Trade
-     */
-    public function addOperation(Operation $operation): self
-    {
-        if (!$this->operations->contains($operation)) {
-
-            switch ($operation->getType()) {
-                case Operation::TYPE_BUY:
-                    $this->addBuy($operation->getAmount(), $operation->getNetValue());
-                    break;
-                case Operation::TYPE_SELL:
-                    $this->addSell($operation->getAmount(), $operation->getNetValue());
-                    break;
-            }
-
-            $this->operations[] = $operation;
-            $operation->setTrade($this);
-        }
-
-        return $this;
-    }
-
-    public function removeOperation(Operation $operation): self
-    {
-        if ($this->operations->contains($operation)) {
-            $this->operations->removeElement($operation);
-            // set the owning side to null (unless already changed)
-            if ($operation->getTrade() === $this) {
-                $operation->setTrade(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getPosition(): ?Position
@@ -438,5 +385,24 @@ class Trade implements Entity
         $this->position = $position;
 
         return $this;
+    }
+
+    /**
+     * Calc the percentage the trade represent from the position.
+     *
+     * @param Operation $operation
+     *
+     * @return float|int
+     */
+    public function getPercentageRepresent(Operation $operation): float
+    {
+        // Calc position amount, at this point, the amount of the operation was already
+        // subtract from the position, therefore to get the real actual position to calculate
+        // the percentage above, we need to sum back the amount subtracted by the operation.
+        $aPosition = ($this->position->getAmount() + $operation->getAmount());
+
+        // Calc how much in percentage represents the amount of stocks in the trade
+        // compare against the whole position
+        return $this->getAmount() * 100 / $aPosition;
     }
 }

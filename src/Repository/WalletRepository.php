@@ -19,6 +19,16 @@ class WalletRepository extends ServiceEntityRepository
         parent::__construct($registry, Wallet::class);
     }
 
+    public function findOneBySlug(string $slug): ?Wallet
+    {
+        return $this->createQueryBuilder('w')
+            ->andWhere('w.slug = :slug')
+            ->setParameter('slug', $slug)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
     // /**
     //  * @return Wallet[] Returns an array of Wallet objects
     //  */

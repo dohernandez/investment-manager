@@ -65,7 +65,7 @@ class Position implements Entity
     private $operations;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Trade", mappedBy="position")
+     * @ORM\OneToMany(targetEntity="App\Entity\Trade", mappedBy="position", cascade={"persist"})
      */
     private $trades;
 
@@ -86,6 +86,16 @@ class Position implements Entity
      * @ORM\JoinColumn(nullable=false)
      */
     private $wallet;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $openedAt;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $closedAt;
 
     public function __construct()
     {
@@ -295,17 +305,30 @@ class Position implements Entity
     }
 
     /**
-     * @param string|null $status
+     * @return Collection|Trade[]
+     */
+    public function getTrades(): Collection
+    {
+        return $this->trades;
+    }
+
+    /**
+     * @return Collection|Trade[]
+     */
+    public function getOpenTrades(): Collection
+    {
+        return $this->trades->matching(TradeByCriteria::byStatus(self::STATUS_OPEN));
+    }
+
+    /**
+     * @param Stock $stock
+     * @param \DateTimeInterface $dateAt
      *
      * @return Collection|Trade[]
      */
-    public function getTrades(string $status = null): Collection
+    public function getTradesApplyDividend(Stock $stock, \DateTimeInterface $dateAt): Collection
     {
-        if ($status !== null && $status !== '') {
-            return $this->trades->matching(TradeByCriteria::byStatus($status));
-        }
-
-        return $this->trades;
+        return $this->trades->matching(TradeByCriteria::applyDividend($stock, $dateAt));
     }
 
     public function addTrade(Trade $trade): self
@@ -381,6 +404,30 @@ class Position implements Entity
     public function setWallet(?Wallet $wallet): self
     {
         $this->wallet = $wallet;
+
+        return $this;
+    }
+
+    public function getOpenedAt(): ?\DateTimeInterface
+    {
+        return $this->openedAt;
+    }
+
+    public function setOpenedAt(\DateTimeInterface $openedAt): self
+    {
+        $this->openedAt = $openedAt;
+
+        return $this;
+    }
+
+    public function getClosedAt(): ?\DateTimeInterface
+    {
+        return $this->closedAt;
+    }
+
+    public function setClosedAt(?\DateTimeInterface $closedAt): self
+    {
+        $this->closedAt = $closedAt;
 
         return $this;
     }

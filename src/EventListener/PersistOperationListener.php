@@ -57,11 +57,12 @@ class PersistOperationListener
 
         $stock = $operation->getStock();
 
-        $position = $this->positionRepository->findOneByStockOpen($operation->getStock());
+        $position = $this->positionRepository->findOneByStockOpenOrDateAtOpen($operation->getStock());
         if ($position === null) {
             $position = new Position();
             $position->setStock($stock)
                 ->setStatus(Position::STATUS_OPEN)
+                ->setOpenedAt($operation->getDateAt())
                 ;
 
             $wallet->addPosition($position);
@@ -70,90 +71,72 @@ class PersistOperationListener
         $position->addOperation($operation);
 
         if ($type === Operation::TYPE_DIVIDEND) {
-            // TODO dividend should be added to all trades opens with for the given stock
+            $trades = $position->getTradesApplyDividend($stock, $operation->getDateAt());
+
+            foreach ($trades as $trade) {
+                // Calc how much in percentage represents the amount of stocks in the trade
+                // compare against the whole position
+                $pr = $trade->getAmount() * 100 / $position->getAmount();
+
+                // this operation can drive into a diff of 0.01 cents
+                $tradeDividend = round($operation->getValue() * $pr / 100, 2);
+                $trade->increaseDividend($tradeDividend);
+            }
 
             return;
         }
 
-        $trade = $operation->getTrade();
-        if ($trade === null){
-            if ($type === Operation::TYPE_BUY) {
-                $trade = new Trade();
-                $trade->setStock($stock)
-                    ->setStatus(Trade::STATUS_OPEN)
-                    ->setOpenedAt($operation->getDateAt())
-                    ->setWallet($operation->getWallet())
-                ;
+        if ($type === Operation::TYPE_BUY) {
+            $trade = new Trade();
+            $trade->setStock($stock)
+                ->setStatus(Trade::STATUS_OPEN)
+                ->setOpenedAt($operation->getDateAt())
+                ->setWallet($operation->getWallet())
+            ;
 
-                $position->addTrade($trade);
+            $trade->addBuy($operation->getAmount(), $operation->getNetValue());
 
-                $trade->addOperation($operation);
-            } else {
-                $trades = $position->getTrades(Trade::STATUS_OPEN);
-                $closePosition = false;
+            $position->addTrade($trade);
+        } else {
+            $trades = $position->getOpenTrades();
+            $netValue = $operation->getNetValue();
+            // Calc position amount, at this point, the amount of the operation was already
+            // subtract from the position, therefore to get the real actual position to calculate
+            // the percentage above, we need to sum back the amount subtracted by the operation.
+            $aPosition = ($position->getAmount() + $operation->getAmount());
+            $aOperation = $operation->getAmount();
 
-                foreach ($trades as $trade) {
-                    if ($operation->getAmount() - $trade->getAmount() <= 0) {
-                        $trade->addOperation($operation);
+            foreach ($trades as $trade) {
+                if ($aOperation - $trade->getAmount() <= 0) {
+                    $trade->addSell($operation->getAmount(), $netValue);
 
-                        if (!$trade->getAmount()) {
-                            $trade->setStatus(Position::STATUS_CLOSE);
-                            $trade->setClosedAt($operation->getDateAt());
+                    if (!$trade->getAmount()) {
+                        $trade->setStatus(Trade::STATUS_CLOSE)
+                            ->setClosedAt($operation->getDateAt())
+                        ;
 
-                            $closePosition = true;
-                        }
-
-                        break;
+                        $position->setStatus(Position::STATUS_CLOSE)
+                            ->setClosedAt($operation->getDateAt())
+                        ;
                     }
 
-                    $op = new Operation();
-                    $op->setType($operation->getType())
-                        ->setWallet($operation->getWallet())
-                        ->setDateAt($operation->getDateAt())
-                        ->setStock($operation->getStock())
-                        ->setAmount($trade->getAmount())
-                        ->setPrice($operation->getPrice())
-                        ->setPriceChange($operation->getPriceChange())
-                    ;
-
-                    // Calc position amount, at this point, the amount of the operation was already
-                    // subtract from the position, therefore to get the real actual position to calculate
-                    // the percentage above, we need to sum back the amount subtracted by the operation.
-                    $aPosition = ($position->getAmount() + $operation->getAmount());
-
-                    // Calc how much in percentage represents the amount of stocks in the trade
-                    // compare against the whole position
-                    $pr = $trade->getAmount() * 100 / $aPosition;
-                    $priceChangeCommission = round($operation->getPriceChangeCommission() * $pr / 100, 2);
-                    $commission = round($operation->getCommission() * $pr / 100, 2);
-                    $value = round($operation->getValue() * $pr / 100, 2);
-
-                    // Allocate the change commission price, commission and value to the new operation based on the portion
-                    // of the position the trade represent
-                    $op->setPriceChangeCommission($priceChangeCommission);
-                    $op->setCommission($commission);
-                    $op->setValue($value);
-
-                    $trade->addOperation($operation);
-                    $trade->setStatus(Trade::STATUS_CLOSE);
-                    $trade->setClosedAt($operation->getDateAt());
-
-                    // subtract the change commission price, commission, value and the amount allocated into the trade
-                    $operation->setPriceChangeCommission($operation->getPriceChangeCommission() - $op->getPriceChangeCommission());
-                    $operation->setCommission($operation->getCommission() - $op->getCommission());
-                    $operation->setAmount($operation->getAmount() - $op->getAmount());
-                    $operation->setValue($operation->getValue() - $op->getValue());
-
-                    // add new operation to the operations created by this class
-                    $this->operationCreated->add($op);
+                    break;
                 }
 
-                if ($closePosition) {
-                    $position->setStatus(Position::STATUS_CLOSE);
-                }
+                // Calc how much in percentage represents the amount of stocks in the trade
+                // compare against the whole position
+                $pr = $trade->getAmount() * 100 / $aPosition;
+
+                $prNetValue = round($operation->getNetValue() * $pr / 100, 2);
+
+                $trade->addSell($trade->getAmount(), $prNetValue)
+                    ->setStatus(Trade::STATUS_CLOSE)
+                    ->setClosedAt($operation->getDateAt())
+                ;
+
+                $aOperation -= $trade->getAmount();
+                $netValue -= $prNetValue;
             }
-        } else {
-            $trade->addOperation($operation);
         }
     }
 }

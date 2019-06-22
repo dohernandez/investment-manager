@@ -85,12 +85,6 @@ class Operation implements Entity
     private $amount;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Trade", inversedBy="operations", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private $trade;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Wallet", inversedBy="operations")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -211,18 +205,6 @@ class Operation implements Entity
     public function setAmount(int $amount): self
     {
         $this->amount = $amount;
-
-        return $this;
-    }
-
-    public function getTrade(): ?Trade
-    {
-        return $this->trade;
-    }
-
-    public function setTrade(?Trade $trade): self
-    {
-        $this->trade = $trade;
 
         return $this;
     }

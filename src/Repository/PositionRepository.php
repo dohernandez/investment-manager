@@ -20,7 +20,7 @@ class PositionRepository extends ServiceEntityRepository
         parent::__construct($registry, Position::class);
     }
 
-    public function findOneByStockOpen(Stock $stock)
+    public function findOneByStockOpenOrDateAtOpen(Stock $stock)
     {
         return $this->createQueryBuilder('p')
             ->andWhere('p.stock = :stock')
