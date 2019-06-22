@@ -46,7 +46,7 @@ class OperationController extends BaseController
 
         // define ordering closure, using preferred comparison method/field
         $iterator->uasort(function ($first, $second) {
-            return $first->getStock() && $first->getStock()->getName() < $second->getStock()->getName() ? 1 : -1;
+            return $first->getStock() && $first->getDateAt() < $second->getDateAt() ? 1 : -1;
         });
 
         foreach ($iterator as $Operation) {

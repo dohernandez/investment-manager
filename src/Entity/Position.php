@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\Criteria\TradeByCriteria;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -294,10 +295,16 @@ class Position implements Entity
     }
 
     /**
+     * @param string|null $status
+     *
      * @return Collection|Trade[]
      */
-    public function getTrades(): Collection
+    public function getTrades(string $status = null): Collection
     {
+        if ($status !== null && $status !== '') {
+            return $this->trades->matching(TradeByCriteria::byStatus($status));
+        }
+
         return $this->trades;
     }
 

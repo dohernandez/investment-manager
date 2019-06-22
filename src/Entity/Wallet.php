@@ -82,7 +82,7 @@ class Wallet implements Entity
     private $interest = 0;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Operation", mappedBy="wallet")
+     * @ORM\OneToMany(targetEntity="App\Entity\Operation", mappedBy="wallet", cascade={"persist"})
      */
     private $operations;
 
