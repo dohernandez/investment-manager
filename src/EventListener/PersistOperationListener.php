@@ -72,6 +72,7 @@ class PersistOperationListener
 
         if ($type === Operation::TYPE_DIVIDEND) {
             $trades = $position->getTradesApplyDividend($stock, $operation->getDateAt());
+            dump($trades);
 
             foreach ($trades as $trade) {
                 // Calc how much in percentage represents the amount of stocks in the trade

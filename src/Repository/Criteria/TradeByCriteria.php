@@ -19,8 +19,8 @@ class TradeByCriteria
     {
         return Criteria::create()
             ->andWhere(Criteria::expr()->eq('stock', $stock))
-            ->andWhere(Criteria::expr()->gte('openAt', $dateAt))
-            ->andWhere(Criteria::expr()->lte('closeAt', $dateAt))
+            ->andWhere(Criteria::expr()->gte('openedAt', $dateAt))
+            ->andWhere(Criteria::expr()->lte('closedAt', $dateAt))
             ;
         ;
     }

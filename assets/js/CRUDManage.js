@@ -343,7 +343,6 @@ class CRUDManage {
      */
     cleanRows() {
         const $table = this.$wrapper.find(this.selectors.table);
-        console.log($table);
 
         $table.find('tbody').html('');
     }

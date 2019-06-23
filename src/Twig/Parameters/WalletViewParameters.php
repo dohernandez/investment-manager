@@ -190,6 +190,26 @@ class WalletViewParameters extends AbstractViewParameters
                 'name' => 'invested',
                 'render' => 'currency',
             ],
+            [
+                'name' => 'dividend',
+                'render' => 'currency',
+            ],
+            [
+                'name' => 'benefits',
+                'render' => 'currency',
+                'class' => 'js-manager-table-extra-cell',
+            ],
+            [
+                'name' => 'pBenefits',
+                'label' => '% Benefits',
+                'render' => 'percentage',
+                'class' => 'js-manager-table-extra-cell',
+            ],
+            [
+                'name' => 'change',
+                'render' => 'currency',
+                'class' => 'js-manager-table-extra-cell',
+            ],
         ];
     }
 

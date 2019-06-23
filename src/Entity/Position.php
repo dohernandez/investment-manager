@@ -431,4 +431,32 @@ class Position implements Entity
 
         return $this;
     }
+
+    public function getCommissions(): ?float
+    {
+        $commissions = 0;
+
+        foreach ($this->getOperations() as $operation) {
+            $commissions += $operation->getFinalCommissionPaid();
+        }
+
+        return $commissions;
+    }
+
+    public function getBenefits(): ?float
+    {
+        return $this->getCapital() + $this->getSell() + $this->getDividend() - $this->getBuy();
+    }
+
+    public function getPercentageBenefits(): ?float
+    {
+        $percentage =  $this->getBenefits() * 100 / $this->getBuy();
+
+        return $percentage;
+    }
+
+    public function getChange(): ?float
+    {
+        return $this->getAmount() * $this->getStock()->getLastChangePrice();
+    }
 }

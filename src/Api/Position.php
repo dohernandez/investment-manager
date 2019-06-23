@@ -18,6 +18,12 @@ class Position
 
     public $dividend;
 
+    public $benefits;
+
+    public $pBenefits;
+
+    public $change;
+
     public $title;
 
     static public function fromEntity(Entity\Position $position): self
@@ -29,6 +35,11 @@ class Position
         $self->amount = $position->getAmount();
         $self->capital = $position->getCapital();
         $self->invested = $position->getInvested();
+        $self->dividend = $position->getDividend();
+
+        $self->benefits = $position->getBenefits();
+        $self->pBenefits = $position->getPercentageBenefits();
+        $self->change = $position->getChange();
 
         $self->title = (string) $position;
 
