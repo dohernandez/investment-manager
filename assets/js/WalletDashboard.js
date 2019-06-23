@@ -52,9 +52,38 @@ class OperationForm extends Form {
 
         let $form = $wrapper.find(this.selector);
 
+        let $type = $form.find('#type');
+        let $inputs = $form.find(':input');
+
+        $type.on('change', function(e) {
+            e.preventDefault();
+
+            $inputs.each((index, input) => {
+                $(input).prop('disabled', false);
+            });
+
+            let selected = $type.val();
+
+            if (selected in this.operations) {
+                let operation = this.operations[selected];
+
+                for (let i = 0; i < operation.length; i++) {
+                    let $input = $form.find('#' + operation[i]);
+                    $input.prop('disabled', true);
+                }
+            }
+        }.bind(this));
+
         if (data) {
             for (const property in data) {
                 let $input = $form.find('#' + property);
+
+                // setting date pickerenable property
+                if (property === 'type') {
+                    $input.val(data[property]).change();
+
+                    continue;
+                }
 
                 // setting date pickerenable property
                 if (property === 'dateAt') {
@@ -120,28 +149,6 @@ class OperationForm extends Form {
                 templateSelection: this.select2StockTemplate.templateSelection
             });
         });
-
-        let $type = $form.find('#type');
-        let $inputs = $form.find(':input');
-
-        $type.on('change', function(e) {
-            e.preventDefault();
-
-            $inputs.each((index, input) => {
-                $(input).prop('disabled', false);
-            });
-
-            let selected = $type.val();
-
-            if (selected in this.operations) {
-                let operation = this.operations[selected];
-
-                for (let i = 0; i < operation.length; i++) {
-                    let $input = $form.find('#' + operation[i]);
-                    $input.prop('disabled', true);
-                }
-            }
-        }.bind(this));
     }
 
     /**

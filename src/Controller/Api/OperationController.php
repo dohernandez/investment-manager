@@ -44,11 +44,6 @@ class OperationController extends BaseController
         // get a new ArrayIterator
         $iterator = $wallet->getOperations()->getIterator();
 
-        // define ordering closure, using preferred comparison method/field
-        $iterator->uasort(function ($first, $second) {
-            return $first->getDateAt() < $second->getDateAt() ? 1 : -1;
-        });
-
         foreach ($iterator as $Operation) {
             $apiOperations[] = Api\Operation::fromEntity($Operation);
         }

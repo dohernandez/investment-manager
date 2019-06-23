@@ -172,7 +172,7 @@ class BrokerStockForm extends Form {
                 if (result.item) {
                     let entity = result.item;
 
-                    this._addEntity(entity);
+                    this.addEntity(entity);
                 }
             });
     }

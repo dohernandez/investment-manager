@@ -301,8 +301,6 @@ class CRUDManage {
         let $paginationInfo = this.$wrapper.find($(this.selectors.paginationInfo));
         $paginationInfo.parent().css('margin', '24px 0');
 
-        self = this;
-
         // init pagination object
         $pagination.twbsPagination({
             totalPages: totalPages,
@@ -313,11 +311,11 @@ class CRUDManage {
 
                 let displayRecords = records.slice(displayRecordsIndex, endRec);
 
-                self.cleanRows();
+                this.cleanRows();
 
                 // create the rows of the table based on the records to display
                 $.each(displayRecords, (index, entity) => {
-                    self.addRow(entity, displayRecordsIndex + index);
+                    this.addRow(entity, displayRecordsIndex + index);
                 });
 
                 // update pagination text
@@ -330,8 +328,8 @@ class CRUDManage {
                 $paginationInfo.html(pageInfo);
 
                 // to keep the current page
-                self.page = page
-            },
+                this.page = page
+            }.bind(this),
             startPage: currentPage
         });
 
@@ -345,6 +343,7 @@ class CRUDManage {
      */
     cleanRows() {
         const $table = this.$wrapper.find(this.selectors.table);
+        console.log($table);
 
         $table.find('tbody').html('');
     }
@@ -446,12 +445,12 @@ class CRUDManage {
     handleCreate(e) {
         e.preventDefault();
 
-        this._createFrom()
+        this.createFrom()
             .then((result) => {
                 if (result.value) {
                     let entity = result.value.item;
 
-                    this._addEntity(entity);
+                    this.addEntity(entity);
                 }
             });
     }
@@ -460,14 +459,17 @@ class CRUDManage {
      * Create a form to create or edit entity.
      *
      * @param {Object} data Use to pre populate the from.
+     * @param {string} force Use to for an action.
      *
      * @return {*|Promise|Promise<T | never>}
-     *
-     * @private
      */
-    _createFrom(data = null) {
+    createFrom(data = null, force = '') {
         // Set the action to performance.
         let action = data === null ? 'create' : 'update';
+
+        if (force == 'create' || force == 'update') {
+            action = force;
+        }
 
         // Build form html base on the template.
         const html = this.form.html();
@@ -559,9 +561,8 @@ class CRUDManage {
      * Add entity.
      *
      * @param {Object} entity
-     * @private
      */
-    _addEntity(entity) {
+    addEntity(entity) {
         this.records.push(entity);
         this.totalRecords++;
         this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
@@ -606,18 +607,8 @@ class CRUDManage {
         const $row = $(e.currentTarget).closest('tr');
         const id = $row.data('id');
 
-        let entity = null;
-        let recordIndex = 0;
-        for (let i = 0; i < this.records.length; i++) {
-            let record = this.records[i];
-
-            if (record.id === id) {
-                entity = record;
-                recordIndex = i;
-
-                break;
-            }
-        }
+        let recordIndex = this.indexOfById(id);
+        let entity = recordIndex !== null ? this.records[recordIndex] : null;
 
         // fetch the entity from the server because it is not loaded yet.
         // So far there is not clear use case where the application hit this scope, but we will like to
@@ -627,7 +618,7 @@ class CRUDManage {
 
             InvestmentManagerClient.sendRPC(getUrl, 'GET')
                 .then((data) => {
-                    this._createFrom(data.item)
+                    this.createFrom(data.item)
                     // update the row by creating a new row base on the row template and
                     // replace the old row
                         .then((result) => {
@@ -645,7 +636,7 @@ class CRUDManage {
             return
         }
 
-        this._createFrom(entity)
+        this.createFrom(entity)
         // update the row by creating a new row base on the row template and
         // replace the old row
             .then((result) => {
@@ -660,6 +651,22 @@ class CRUDManage {
                     });
                 }
             });
+    }
+
+    /**
+     * @param id
+     * @return {null|number}
+     */
+    indexOfById(id) {
+        for (let i = 0; i < this.records.length; i++) {
+            let record = this.records[i];
+
+            if (record.id === id) {
+                return i;
+            }
+        }
+
+        return null
     }
 
     /**
@@ -927,18 +934,8 @@ class CRUDManage {
         const $row = $(e.currentTarget).closest('tr');
         const id = $row.data('id');
 
-        let entity = null;
-        let recordIndex = 0;
-        for (let i = 0; i < this.records.length; i++) {
-            let record = this.records[i];
-
-            if (record.id === id) {
-                entity = record;
-                recordIndex = i;
-
-                break;
-            }
-        }
+        let recordIndex = this.indexOfById(id);
+        let entity = recordIndex !== null ? this.records[recordIndex] : null;
 
         // Build form html base on the template.
         const html = this._compileTemplate(this.viewTemplate, entity);

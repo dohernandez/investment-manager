@@ -61,7 +61,7 @@
                     searchTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-search-template',
                     showPerPageTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
                     rowTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-row-template',
-                },
+                }
             });
 
             positionCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
@@ -85,6 +85,7 @@
             positionCrudManager.withExtraButton();
             positionCrudManager.withExtraButton();
             positionCrudManager.withExtraButton();
+
             positionCrudManager.render();
 
             window.positionCrudManager = positionCrudManager;
@@ -128,6 +129,12 @@
                     searchTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-search-template',
                     showPerPageTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
                     rowTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-row-template',
+                },
+                sort: function (aOperation, bOperation) {
+                    let a = new Date(aOperation.dateAt);
+                    let b = new Date(bOperation.dateAt);
+
+                    return a > b ? -1 : a < b ? 1 : 0;
                 },
             });
 
@@ -194,6 +201,93 @@
             operationCrudManager.render();
 
             window.positionCrudManager.withForm(form);
+
+            // Delegate selector for buy button
+            window.positionCrudManager.$wrapper.on(
+                'click',
+                '.js-position-buy',
+                function (e) {
+                    e.preventDefault();
+
+                    // find entity to edit
+                    const $row = $(e.currentTarget).closest('tr');
+                    const id = $row.data('id');
+
+                    let recordIndex = this.indexOfById(id);
+                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
+
+                    entity.type = 'buy';
+                    // forcing to be a create action
+                    operationCrudManager.createFrom(entity, 'create')
+                    // update the row by creating a new row base on the row template and
+                    // replace the old row
+                        .then((result) => {
+                            if (result.value) {
+                                let entity = result.value.item;
+
+                                operationCrudManager.addEntity(entity);
+                            }
+                        });
+                }.bind(window.positionCrudManager)
+            );
+
+            // Delegate selector for sell button
+            window.positionCrudManager.$wrapper.on(
+                'click',
+                '.js-position-sell',
+                function (e) {
+                    e.preventDefault();
+
+                    // find entity to edit
+                    const $row = $(e.currentTarget).closest('tr');
+                    const id = $row.data('id');
+
+                    let recordIndex = this.indexOfById(id);
+                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
+
+                    entity.type = 'sell';
+                    // forcing to be a create action
+                    operationCrudManager.createFrom(entity, 'create')
+                    // update the row by creating a new row base on the row template and
+                    // replace the old row
+                        .then((result) => {
+                            if (result.value) {
+                                let entity = result.value.item;
+
+                                operationCrudManager.addEntity(entity);
+                            }
+                        });
+                }.bind(window.positionCrudManager)
+            );
+
+            // Delegate selector for dividend button
+            window.positionCrudManager.$wrapper.on(
+                'click',
+                '.js-position-dividend',
+                function (e) {
+                    e.preventDefault();
+
+                    // find entity to edit
+                    const $row = $(e.currentTarget).closest('tr');
+                    const id = $row.data('id');
+
+                    let recordIndex = this.indexOfById(id);
+                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
+
+                    entity.type = 'dividend';
+                    // forcing to be a create action
+                    operationCrudManager.createFrom(entity, 'create')
+                    // update the row by creating a new row base on the row template and
+                    // replace the old row
+                        .then((result) => {
+                            if (result.value) {
+                                let entity = result.value.item;
+
+                                operationCrudManager.addEntity(entity);
+                            }
+                        });
+                }.bind(window.positionCrudManager)
+            );
         });
     </script>
 {% endblock %}
