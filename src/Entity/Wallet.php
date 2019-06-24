@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\Criteria\PositionByCriteria;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -461,6 +462,26 @@ class Wallet implements Entity
         }
 
         return $this->positions;
+    }
+
+    public function findPositionByStockAndOpen(Stock $stock): ?Position
+    {
+        $matching = $this->positions->matching(PositionByCriteria::ByStockAndOpen($stock));
+        if ($matching->isEmpty()) {
+            return null;
+        }
+
+        return $matching->first();
+    }
+
+    public function findPositionByStockOpenDateAt(Stock $stock, \DateTimeInterface $datedAt): ?Position
+    {
+        $matching = $this->positions->matching(PositionByCriteria::ByStockOpenDateAt($stock, $datedAt));
+        if ($matching->isEmpty()) {
+            return null;
+        }
+
+        return $matching->first();
     }
 
     public function addPosition(Position $position): self

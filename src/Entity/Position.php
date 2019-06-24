@@ -326,9 +326,9 @@ class Position implements Entity
      *
      * @return Collection|Trade[]
      */
-    public function getTradesApplyDividend(Stock $stock, \DateTimeInterface $dateAt): Collection
+    public function getTradesApplyDividend(\DateTimeInterface $dateAt): Collection
     {
-        return $this->trades->matching(TradeByCriteria::applyDividend($stock, $dateAt));
+        return $this->trades->matching(TradeByCriteria::applyDividend($this->getStock(), $dateAt));
     }
 
     public function addTrade(Trade $trade): self

@@ -12,18 +12,12 @@ use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 class PersistOperationListener
 {
     /**
-     * @var PositionRepository
-     */
-    private $positionRepository;
-
-    /**
      * @var ArrayCollection
      */
     private $operationCreated;
 
-    public function __construct(PositionRepository $positionRepository)
+    public function __construct()
     {
-        $this->positionRepository = $positionRepository;
         $this->operationCreated = new ArrayCollection();
     }
 
@@ -57,22 +51,13 @@ class PersistOperationListener
 
         $stock = $operation->getStock();
 
-        $position = $this->positionRepository->findOneByStockOpenOrDateAtOpen($operation->getStock());
-        if ($position === null) {
-            $position = new Position();
-            $position->setStock($stock)
-                ->setStatus(Position::STATUS_OPEN)
-                ->setOpenedAt($operation->getDateAt())
-                ;
-
-            $wallet->addPosition($position);
-        }
-
-        $position->addOperation($operation);
-
         if ($type === Operation::TYPE_DIVIDEND) {
-            $trades = $position->getTradesApplyDividend($stock, $operation->getDateAt());
-            dump($trades);
+            $dateAt = $operation->getDateAt();
+
+            $position = $wallet->findPositionByStockOpenDateAt($stock, $dateAt);
+            $position->addOperation($operation);
+
+            $trades = $position->getTradesApplyDividend($dateAt);
 
             foreach ($trades as $trade) {
                 // Calc how much in percentage represents the amount of stocks in the trade
@@ -86,6 +71,19 @@ class PersistOperationListener
 
             return;
         }
+
+        $position = $wallet->findPositionByStockAndOpen($stock);
+        if ($position === null) {
+            $position = new Position();
+            $position->setStock($stock)
+                ->setStatus(Position::STATUS_OPEN)
+                ->setOpenedAt($operation->getDateAt())
+                ;
+
+            $wallet->addPosition($position);
+        }
+
+        $position->addOperation($operation);
 
         if ($type === Operation::TYPE_BUY) {
             $trade = new Trade();
@@ -108,15 +106,13 @@ class PersistOperationListener
             $aOperation = $operation->getAmount();
 
             foreach ($trades as $trade) {
-                if ($aOperation - $trade->getAmount() <= 0) {
-                    $trade->addSell($operation->getAmount(), $netValue);
+                $tAmount = $trade->getAmount();
+
+                if ($aOperation <= $trade->getAmount()) {
+                    $trade->addSell($aOperation, $netValue);
 
                     if (!$trade->getAmount()) {
                         $trade->setStatus(Trade::STATUS_CLOSE)
-                            ->setClosedAt($operation->getDateAt())
-                        ;
-
-                        $position->setStatus(Position::STATUS_CLOSE)
                             ->setClosedAt($operation->getDateAt())
                         ;
                     }
@@ -127,16 +123,23 @@ class PersistOperationListener
                 // Calc how much in percentage represents the amount of stocks in the trade
                 // compare against the whole position
                 $pr = $trade->getAmount() * 100 / $aPosition;
-
                 $prNetValue = round($operation->getNetValue() * $pr / 100, 2);
 
-                $trade->addSell($trade->getAmount(), $prNetValue)
-                    ->setStatus(Trade::STATUS_CLOSE)
+                $trade->addSell($tAmount, $prNetValue);
+
+                if (!$trade->getAmount()) {
+                    $trade->setStatus(Trade::STATUS_CLOSE)
+                        ->setClosedAt($operation->getDateAt());
+                }
+
+                $aOperation -= $tAmount;
+                $netValue -= $prNetValue;
+            }
+
+            if (!$position->getAmount()) {
+                $position->setStatus(Position::STATUS_CLOSE)
                     ->setClosedAt($operation->getDateAt())
                 ;
-
-                $aOperation -= $trade->getAmount();
-                $netValue -= $prNetValue;
             }
         }
     }

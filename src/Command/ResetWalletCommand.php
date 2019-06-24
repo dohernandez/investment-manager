@@ -56,17 +56,6 @@ class ResetWalletCommand extends Command
 
         $this->em->transactional(function ($em) use($wallet) {
             $query = $em->createQueryBuilder()
-                ->update(Operation::class, 'o')
-                ->set('o.trade', ':trade')
-                ->where('o.wallet = :wallet')
-                ->setParameter('trade', null)
-                ->setParameter('wallet', $wallet->getId())
-                ->getQuery()
-            ;
-
-            $query->execute();
-
-            $query = $em->createQueryBuilder()
                 ->delete(Trade::class, 't')
                 ->where('t.wallet = :wallet')
                 ->setParameter('wallet', $wallet->getId())
