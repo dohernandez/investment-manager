@@ -3,12 +3,14 @@
 namespace App\Command;
 
 use App\Entity\Position;
+use App\Entity\Wallet;
 use App\Repository\StockRepository;
 use App\Repository\WalletRepository;
 use App\Scrape\YahooStockScraper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -54,12 +56,19 @@ class UpdateStockPriceCommand extends Command
     {
         $this
             ->setDescription('Update all stocks price value based on the yahoo website.')
+            ->addOption('EUR_USD', null, InputOption::VALUE_OPTIONAL, 'rate exchange $ to €')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
+
+        if (!$eurUSD = $input->getOption('EUR_USD')) {
+            $io->error('must define rate exchange EUR_USD');
+
+            return;
+        }
 
         $stocks = $this->stockRepository->findAll();
 
@@ -83,7 +92,9 @@ class UpdateStockPriceCommand extends Command
             $io->progressAdvance();
         }
 
-        $this->updateWalletsCapital();
+        $rateExchange[Wallet::RATE_EXCHANGE_EUR_USD] = $eurUSD;
+
+        $this->updateWalletsCapital($rateExchange);
 
         $this->em->flush();
 
@@ -92,12 +103,13 @@ class UpdateStockPriceCommand extends Command
         $io->success('Price updated successfully.');
     }
 
-    private function updateWalletsCapital()
+    private function updateWalletsCapital(array $rateExchange)
     {
         $wallets = $this->walletRepository->findAll();
 
         foreach ($wallets as $wallet) {
             $capital = 0;
+            $wallet->setRateExchange($rateExchange);
 
             /** @var Position $position */
             foreach ($wallet->getPositions(Position::STATUS_OPEN) as $position) {

@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\Criteria\PositionByCriteria;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -15,6 +14,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  */
 class Wallet implements Entity
 {
+    const RATE_EXCHANGE_EUR_USD = 'EUR_USD';
 
     use TimestampableEntity;
 
@@ -91,6 +91,11 @@ class Wallet implements Entity
      * @ORM\OneToMany(targetEntity="App\Entity\Position", mappedBy="wallet")
      */
     private $positions;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $rateExchange = [];
 
     public function __construct()
     {
@@ -503,6 +508,18 @@ class Wallet implements Entity
                 $position->setWallet(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getRateExchange(): array
+    {
+        return $this->rateExchange;
+    }
+
+    public function setRateExchange(array $rateExchange): self
+    {
+        $this->rateExchange = $rateExchange;
 
         return $this;
     }
