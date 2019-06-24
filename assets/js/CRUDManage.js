@@ -169,6 +169,9 @@ class CRUDManage {
             let $perPage = this._compileTemplate(this.selectors.showPerPageTemplate);
             this.$wrapper.find(this.selectors.perPageContainer)
                 .append($perPage);
+
+            let $showPerPage = this.$wrapper.find(this.selectors.showPerPage);
+            $showPerPage.val(this.showPerPage);
         }
 
         if (extraRender) {

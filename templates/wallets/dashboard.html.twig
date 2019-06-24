@@ -61,7 +61,8 @@
                     searchTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-search-template',
                     showPerPageTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
                     rowTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-row-template',
-                }
+                },
+                showPerPage: 25,
             });
 
             positionCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
