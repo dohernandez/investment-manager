@@ -2,7 +2,9 @@
 
 namespace App\Command;
 
+use App\Entity\Position;
 use App\Repository\StockRepository;
+use App\Repository\WalletRepository;
 use App\Scrape\YahooStockScraper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -29,13 +31,23 @@ class UpdateStockPriceCommand extends Command
      */
     private $scraper;
 
-    public function __construct(YahooStockScraper $scraper, EntityManagerInterface $em, StockRepository $stockRepository)
-    {
+    /**
+     * @var WalletRepository
+     */
+    private $walletRepository;
+
+    public function __construct(
+        YahooStockScraper $scraper,
+        EntityManagerInterface $em,
+        StockRepository $stockRepository,
+        WalletRepository $walletRepository
+    ) {
         parent::__construct();
 
         $this->em = $em;
         $this->stockRepository = $stockRepository;
         $this->scraper = $scraper;
+        $this->walletRepository = $walletRepository;
     }
 
     protected function configure()
@@ -71,10 +83,30 @@ class UpdateStockPriceCommand extends Command
             $io->progressAdvance();
         }
 
+        $this->updateWalletsCapital();
+
         $this->em->flush();
 
         $io->progressFinish();
 
         $io->success('Price updated successfully.');
+    }
+
+    private function updateWalletsCapital()
+    {
+        $wallets = $this->walletRepository->findAll();
+
+        foreach ($wallets as $wallet) {
+            $capital = 0;
+
+            /** @var Position $position */
+            foreach ($wallet->getPositions(Position::STATUS_OPEN) as $position) {
+                $capital += $position->getCapital();
+            }
+
+            $wallet->setCapital($capital);
+
+            $this->em->persist($wallet);
+        }
     }
 }

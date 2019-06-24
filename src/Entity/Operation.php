@@ -280,6 +280,11 @@ class Operation implements Entity
             return 0;
         }
 
+        // Calc the capital based on the convention rate
+        if ($this->getPriceChange()) {
+            return $this->getAmount() * ($stock->getValue() / $this->getPriceChange());
+        }
+
         return $this->getAmount() * $stock->getValue();
     }
 

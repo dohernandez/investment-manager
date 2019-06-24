@@ -393,6 +393,15 @@ class Position implements Entity
             return 0;
         }
 
+        if (in_array($stock->getMarket()->getSymbol(), [
+            "NASDAQ",
+            "NYSE",
+            "TSX",
+        ])) {
+            // TODO load the price of the exchange from dollar to euro
+            return $this->getAmount() * ($stock->getValue() / 1.1393);
+		}
+
         return $this->getAmount() * $stock->getValue();
     }
 
