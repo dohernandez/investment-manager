@@ -1,0 +1,89 @@
+<div class="row">
+    <div class="col-md-8">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">{{ 'Dividends'|trans }}</h3>
+
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                {% embed 'Components/ui/crud-manage-table.html.twig' with {
+                    'entity_name': wallet_position_dividend_entity_name,
+                    'fields': wallet_position_dividend_fields,
+                    'js_crud_manage_class': 'js-position-dividend-crud-manage-row-box',
+                    'border': 0
+                }%}
+                {% endembed %}
+            </div>
+            <!-- /.box-body -->
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="info-box bg-yellow-active">
+            <span class="info-box-icon"><i class="fas fa-donate"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text" style="margin-bottom: 12px;">{{ 'Dividend Projected'|trans }}</span>
+                <span class="info-box-number">€ 5,200</span>
+
+                <div class="progress">
+                    <div class="progress-bar" style="width: 50%"></div>
+                </div>
+                <span class="progress-description">
+                    50% Increase from last year
+                  </span>
+                <br>
+                <table class="table dividend-two-year">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th style="text-align: center;"><span class="info-box-text">2019</span></th>
+                        <th style="text-align: center;"><span class="info-box-text">2018</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <span class="info-box-text">{{ 'June'|trans }}</span>
+                        </td>
+                        <td>
+                            <span class="info-box-number">€ 5,200</span>
+                        </td>
+                        <td>
+                            <span class="info-box-number">€ 5,200</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="info-box-text">{{ 'July'|trans }}</span>
+                        </td>
+                        <td>
+                            <span class="info-box-number">€ 5,200</span>
+                        </td>
+                        <td>
+                            <span class="info-box-number">€ 5,200</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="info-box-text">{{ 'August'|trans }}</span>
+                        </td>
+                        <td>
+                            <span class="info-box-number">€ 5,200</span>
+                        </td>
+                        <td>
+                            <span class="info-box-number">€ 5,200</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+    </div>
+</div>
