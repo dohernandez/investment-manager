@@ -82,7 +82,7 @@ class BrokerViewParameters extends AbstractViewParameters
                 'label' => 'Ex. Date',
                 'render' => 'date',
                 'date_format' => 'DD/MM/YYYY',
-                'class' => 'js-manager-table-extra-cell',
+                'class' => 'js-manager-table-extra-cell-hide',
             ],
         ];
     }

@@ -14,6 +14,7 @@
 
     {% include 'wallets/partial/head-dashboard.html.twig' %}
     {% include 'wallets/partial/position-box.html.twig' %}
+    {% include 'wallets/partial/dividend-box.html.twig' %}
     {% include 'wallets/partial/operation-box.html.twig' %}
 
 {% endblock %}
@@ -34,9 +35,9 @@
 
     <!-- positionCrudManager -->
     {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
-        'entity_name': position_entity_name,
+        'entity_name': wallet_position_entity_name,
         'fields': wallet_position_fields,
-        'buttons': position_buttons,
+        'buttons': wallet_position_buttons,
     }%}
     {% endembed %}
 
@@ -57,12 +58,18 @@
                 toastOptions: window.toastOptions,
                 pagination: true,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ position_entity_name|lower|replace({' ': '_'}) }}-row-template',
+                    createButtonTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
+                    searchTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
                 showPerPage: 25,
+                sort: function (aPosition, bPosition) {
+                    let a = aPosition.stock.name;
+                    let b = bPosition.stock.name;
+
+                    return a < b ? -1 : a > b ? 1 : 0;
+                },
             });
 
             positionCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
@@ -105,12 +112,75 @@
         });
     </script>
 
+    <!-- positionDividendCrudManager -->
+    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
+        'entity_name': wallet_position_dividend_entity_name,
+        'fields': wallet_position_dividend_fields,
+    }%}
+    {% endembed %}
+
+    <script>
+        $(document).ready(function() {
+            // Create page instance
+            let $positionDividendCrudManagerRowBox = $('.js-position-dividend-crud-manage-row-box');
+
+            let positionDividendContentWrapper = $positionDividendCrudManagerRowBox.closest('div');
+            let positionDividendEntityType = $positionDividendCrudManagerRowBox.data('entity-type');
+
+            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
+            let positionDividendCrudManager = new CRUDManage({
+                entityType: positionDividendEntityType,
+                wrapper: positionDividendContentWrapper,
+                swalFormOptions: window.swalFormOptions,
+                swalConfirmOptions: window.swalConfirmOptions,
+                toastOptions: window.toastOptions,
+                pagination: true,
+                selectors: {
+                    createButtonTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
+                    searchTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-row-template',
+                },
+                showPerPage: 25,
+                sort: function (aPosition, bPosition) {
+                    let a = aPosition.stock.name;
+                    let b = bPosition.stock.name;
+
+                    return a < b ? -1 : a > b ? 1 : 0;
+                },
+            });
+
+            positionDividendCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
+                let param = {
+                    '_id': {{ wallet.id }},
+                    's': 'open'
+                };
+
+                if (id) {
+                    param['id'] = id;
+                }
+
+                entityType = entityType.replace('_dividend','');
+
+                if (endpoint === 'list') {
+                    return Routing.generate('wallet_' + entityType + '_list', param);
+                }
+
+                throw 'Endpoint wallet_' + endpoint + ' not supported';
+            });
+
+            positionDividendCrudManager.render();
+
+            window.positionDividendCrudManager = positionDividendCrudManager;
+        });
+    </script>
+
     <!-- operationCrudManager -->
     {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
-        'entity_name': operation_entity_name,
+        'entity_name': wallet_operation_entity_name,
         'fields': wallet_operation_fields,
-        'create_button_label': 'Add new'|trans ~ ' ' ~ operation_entity_name|trans|lower,
-        'form': waller_operation_form,
+        'create_button_label': 'Add new'|trans ~ ' ' ~ wallet_operation_entity_name|trans|lower,
+        'form': wallet_operation_form,
     }%}
     {% endembed %}
 
@@ -123,11 +193,11 @@
             let operationEntityType = $operationCrudManagerRowBox.data('entity-type');
 
             let swalConfirmOptions = window.swalFormOptions;
-            swalConfirmOptions.titleText = '{{ 'Delete'|trans }} {{ operation_entity_name|trans|title }}';
-            swalConfirmOptions.text = '{{ 'Do you want to delete the'|trans }} {{ operation_entity_name|trans|title|lower }} {0}?';
+            swalConfirmOptions.titleText = '{{ 'Delete'|trans }} {{ wallet_operation_entity_name|trans|title }}';
+            swalConfirmOptions.text = '{{ 'Do you want to delete the'|trans }} {{ wallet_operation_entity_name|trans|title|lower }} {0}?';
 
             let toastOptions = window.toastOptions;
-            toastOptions.titleText = '{{ operation_entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}';
+            toastOptions.titleText = '{{ wallet_operation_entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}';
 
             // Create CRUDManage instance @see public/assets/js/CRUDManage.js
             let operationCrudManager = new CRUDManage({
@@ -138,10 +208,10 @@
                 toastOptions: toastOptions,
                 pagination: true,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-row-template',
+                    createButtonTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
+                    searchTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
                 sort: function (aOperation, bOperation) {
                     let a = new Date(aOperation.dateAt);
@@ -205,7 +275,7 @@
                 window.positionCrudManager,
                 window.walletInfo,
                 swalFormOptionsText,
-                '#js-manager-{{ operation_entity_name|lower|replace({' ': '_'}) }}-form-template',
+                '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-form-template',
             );
 
             operationCrudManager.withForm(form);

@@ -609,4 +609,9 @@ class Stock implements Entity
 
         return $this;
     }
+
+    public function getChange(): ?float
+    {
+        return $this->value - $this->preClose;
+    }
 }

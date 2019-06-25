@@ -86,12 +86,12 @@ class WalletViewParameters extends AbstractViewParameters
         return [
                 'wallet' => $wallet,
                 'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
-                'operation_entity_name' => 'operation',
+                'wallet_operation_entity_name' => 'operation',
                 'wallet_operation_fields' => $this->getOperationFields(),
-                'waller_operation_form' => $walletOperationForm->createView(),
-                'position_entity_name' => 'position',
+                'wallet_operation_form' => $walletOperationForm->createView(),
+                'wallet_position_entity_name' => 'position',
                 'wallet_position_fields' => $this->getPositionFields(),
-                'position_buttons' => [
+                'wallet_position_buttons' => [
                     [
                         'type' => 'warning',
                         'jsClass' => 'js-position-dividend',
@@ -108,6 +108,8 @@ class WalletViewParameters extends AbstractViewParameters
                         'icon' => 'fab fa-stripe-s',
                     ],
                 ],
+                'wallet_position_dividend_entity_name' => 'position_dividend',
+                'wallet_position_dividend_fields' => $this->getPositionDividendFields(),
             ] + $context;
     }
 
@@ -169,6 +171,8 @@ class WalletViewParameters extends AbstractViewParameters
             [
                 'name' => 'stock.name',
                 'label' => 'Stock',
+                'col_with' => '264',
+                'class' => 'js-manager-table-extra-cell-show',
             ],
             [
                 'name' => 'stock.symbol',
@@ -195,22 +199,54 @@ class WalletViewParameters extends AbstractViewParameters
                 'render' => 'currency',
             ],
             [
-                'name' => 'benefits',
-                'render' => 'currency',
-                'class' => 'js-manager-table-extra-cell',
+                'name' => 'displayBenefits',
+                'label' => 'benefits',
+                'render' => 'quantity',
+                'quantity' => 'benefits',
+                'class' => 'js-manager-table-extra-cell-hide',
             ],
             [
-                'name' => 'pBenefits',
-                'label' => '% Benefits',
-                'render' => 'percentage',
-                'class' => 'js-manager-table-extra-cell',
-            ],
-            [
-                'name' => 'change',
-                'render' => 'currency',
-                'class' => 'js-manager-table-extra-cell',
+                'name' => 'displayChange',
+                'label' => 'Change',
+                'render' => 'quantity',
+                'quantity' => 'change',
+                'class' => 'js-manager-table-extra-cell-hide',
             ],
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    protected function getPositionDividendFields(): array
+    {
+        return [
+            [
+                'name' => 'stock.symbol',
+                'label' => 'Symbol',
+            ],
+            [
+                'name' => 'stock.market.symbol',
+                'label' => 'Market',
+            ],
+            [
+                'name' => 'invested',
+                'render' => 'currency',
+            ],
+            [
+                'name' => 'amount',
+                'label' => 'Amt',
+            ],
+            [
+                'name' => 'stock.displayDividendYield',
+                'label' => 'D. Yield',
+            ],
+            [
+                'name' => 'stock.exDate',
+                'label' => 'Ex. Date',
+                'render' => 'date',
+                'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
+            ],
+        ];
+    }
 }

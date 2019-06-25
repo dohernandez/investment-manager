@@ -21,7 +21,7 @@ class Stock
 
     public $dividendYield;
 
-    public $forwardDividendYield;
+    public $displayDividendYield;
 
     public $exDate;
 
@@ -65,7 +65,7 @@ class Stock
         $nextDividend = $stock->nextDividend();
         if ($nextDividend) {
             $self->exDate = $nextDividend->getExDate();
-            $self->forwardDividendYield = sprintf(
+            $self->displayDividendYield = sprintf(
                 '%.2f (%.2f%%)',
                 $nextDividend->getValue() * 4,
                 $self->dividendYield
@@ -86,7 +86,7 @@ class Stock
         $self->week52Low = $stock->getWeek52Low();
         $self->week52High = $stock->getWeek52High();
 
-        $self->change = round($self->value - $self->preClose, 3);
+        $self->change = round($stock->getChange(), 3);
         $self->changePercentage = $self->preClose
             ? round($self->change * 100 / $self->preClose, 3)
             : 0;

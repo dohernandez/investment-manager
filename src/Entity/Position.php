@@ -467,6 +467,11 @@ class Position implements Entity
 
     public function getChange(): ?float
     {
-        return $this->getAmount() * $this->getStock()->getLastChangePrice();
+        return $this->getAmount() * $this->getStock()->getChange();
+    }
+
+    public function getPreClose(): ?float
+    {
+        return $this->getAmount() * $this->getStock()->getPreClose();
     }
 }

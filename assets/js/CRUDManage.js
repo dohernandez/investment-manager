@@ -120,8 +120,8 @@ class CRUDManage {
             searchClear: '.js-manage-search-clear',
 
             // show/hide column
-            extraCell: '.js-manager-table-extra-cell',
             extraCellShown: '.js-manager-table-extra-cell-show',
+            extraCellHide: '.js-manager-table-extra-cell-hide',
 
             manageButtons: '.js-manage-buttons'
         };
@@ -372,9 +372,19 @@ class CRUDManage {
         $table.find('tbody').append(row);
 
         if (this.expanded) {
-            let $cell = $table.find(this.selectors.extraCell);
-            $cell.addClass(this.selectors.extraCellShown.slice(1));
+            this.toggleTableExtraCell($table);
         }
+    }
+
+    toggleTableExtraCell($table) {
+        let $cellShown = $table.find(this.selectors.extraCellShown);
+        let $cellHidden = $table.find(this.selectors.extraCellHide);
+
+        $cellShown.addClass(this.selectors.extraCellHide.slice(1));
+        $cellShown.removeClass(this.selectors.extraCellShown.slice(1));
+
+        $cellHidden.addClass(this.selectors.extraCellShown.slice(1));
+        $cellHidden.removeClass(this.selectors.extraCellHide.slice(1));
     }
 
     /**
@@ -882,20 +892,10 @@ class CRUDManage {
 
         const $table = this.$wrapper.find(this.selectors.table);
 
-        let self = this;
-
         if (this.expanded) {
-            let $cell = $table.find(self.selectors.extraCell);
-
-            $cell.fadeIn('fast', function () {
-                $cell.addClass(self.selectors.extraCellShown.slice(1));
-            });
+            this.toggleTableExtraCell($table);
         } else {
-            let $cell = $table.find(self.selectors.extraCell);
-
-            $cell.fadeOut('fast', function () {
-                $cell.removeClass(self.selectors.extraCellShown.slice(1));
-            });
+            this.toggleTableExtraCell($table);
         }
     }
 

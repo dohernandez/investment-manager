@@ -22,7 +22,11 @@ class Position
 
     public $pBenefits;
 
+    public $displayBenefits;
+
     public $change;
+
+    public $displayChange;
 
     public $title;
 
@@ -39,7 +43,18 @@ class Position
 
         $self->benefits = $position->getBenefits();
         $self->pBenefits = $position->getPercentageBenefits();
+        $self->displayBenefits = sprintf(
+            '€ %.2f (%.2f%%)',
+            $self->benefits,
+            $self->pBenefits
+        );
+
         $self->change = $position->getChange();
+        $self->displayChange = sprintf(
+            '€ %.2f (%.2f%%)',
+            $self->change,
+            round($self->change * 100 / $position->getPreClose(), 2)
+        );
 
         $self->title = (string) $position;
 

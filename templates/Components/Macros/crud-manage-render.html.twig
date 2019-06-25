@@ -62,6 +62,24 @@
     <a href="<%= {{ value }}.site %>"><%= {{ value }}.site %></a>
 {% endmacro render_broker %}
 
+{# quantity #}
+{% macro render_quantity(value, quantity) %}
+    <% if ({{ quantity }} !== null && {{ quantity }} !== 0) { %>
+        <% if ({{ quantity }} > 0) { %>
+            <span class="pull-right text-green"><i class="fa fa-angle-up"></i> <%= {{ value }} %></span>
+        <% } else { %>
+            <span class="pull-right text-red"><i class="fa fa-angle-down"></i> <%= {{ value }} %></span>
+        <% } %>
+    <% } else { %>
+        <span class="pull-right text-yellow"><i class="fa fa-angle-left"></i> <%= {{ value }} %></span>
+    <% } %>
+{% endmacro render_quantity %}
+
+{# custom #}
+{% macro render_custom(value) %}
+   {{ value|spaceless }}
+{% endmacro render_custom %}
+
 {% macro field(value, field) %}
     {% import _self as render %}
 
@@ -80,6 +98,10 @@
             {{ render.render_percentage(value) }}
         {% elseif field.render == 'check' %}
             {{ render.render_check(value, field.check) }}
+        {% elseif field.render == 'custom' %}
+            {{ render.render_custom(value) }}
+        {% elseif field.render == 'quantity' %}
+            {{ render.render_quantity(value, field.quantity) }}
         {% else %}
             {{ render.render_field(value) }}
         {% endif %}
