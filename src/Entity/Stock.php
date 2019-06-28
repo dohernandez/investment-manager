@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\Criteria\StockDividendByCriteria;
+use App\VO\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -37,9 +38,10 @@ class Stock implements Entity
     private $symbol;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
+     * @ORM\Column(type="money", nullable=true)
      * @Assert\NotBlank(message="Please enter the value")
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
+     *
+     * Money
      */
     private $value;
 
@@ -185,16 +187,16 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getValue(): ?float
+    public function getValue()
     {
         return $this->value;
     }
 
-    public function setValue(float $value): self
+    public function setValue($value): self
     {
         $this->value = $value;
 
-        $this->updateDividendYield($this->nextDividend());
+//        $this->updateDividendYield($this->nextDividend());
 
         return $this;
     }

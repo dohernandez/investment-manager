@@ -6,6 +6,7 @@ use App\Entity\Stock;
 use App\Entity\StockInfo;
 use App\Repository\StockInfoRepository;
 use App\Repository\StockMarketRepository;
+use App\VO\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Goutte\Client;
 use Symfony\Component\DomCrawler\Crawler;
@@ -104,7 +105,8 @@ class YahooStockScraper
 
                 $reactId = $node->extract('data-reactid')[0];
                 if ($reactId == '14') {
-                    $stock->setValue(floatval($node->extract('_text')[0]));
+                    $money = Money::fromUSDValue(floatval($node->extract('_text')[0]));
+                    $stock->setValue($money);
                 }
 
                 if ($reactId == '16') {
