@@ -57,6 +57,7 @@ class UpdateStockPriceCommand extends Command
         $this
             ->setDescription('Update all stocks price value based on the yahoo website.')
             ->addOption('EUR_USD', null, InputOption::VALUE_OPTIONAL, 'rate exchange $ to €')
+            ->addOption('symbol', 's', InputOption::VALUE_OPTIONAL, 'Stock symbol')
         ;
     }
 
@@ -70,7 +71,13 @@ class UpdateStockPriceCommand extends Command
             return;
         }
 
-        $stocks = $this->stockRepository->findAll();
+        if ($symbol = $input->getOption('symbol')) {
+            $stocks = $this->stockRepository->findBy([
+                'symbol' => $symbol,
+            ]);
+        } else {
+            $stocks = $this->stockRepository->findAll();
+        }
 
         $io->progressStart(count($stocks));
 
