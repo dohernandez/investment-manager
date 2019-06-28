@@ -523,4 +523,25 @@ class Wallet implements Entity
 
         return $this;
     }
+
+    public function dividendProjectedYear(): ?float
+    {
+        $dividendProjectedYear = 0;
+
+        $now = new \DateTime();
+        $year = intval($now->format('Y'));
+
+        /** @var Position $position */
+        foreach ($this->getPositions(Position::STATUS_OPEN) as $position) {
+            foreach ($position->getStock()->getDividends() as $stockDividend) {
+                if (intval($stockDividend->getExDate()->format('Y')) == $year) {
+//                $dividend = $stockDividend->
+                }
+            }
+        }
+
+        dd($year);
+
+        return $dividendProjectedYear;
+    }
 }

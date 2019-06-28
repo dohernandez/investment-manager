@@ -255,10 +255,10 @@ class StockDividendController extends BaseController
      *
      * @param NasdaqDividendScraper $scraper
      * @param EntityManagerInterface $em
-     * @param MessageBusInterface $bus
      * @param int $_id
      *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function sync(
         NasdaqDividendScraper $scraper,

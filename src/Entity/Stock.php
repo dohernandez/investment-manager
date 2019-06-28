@@ -614,4 +614,12 @@ class Stock implements Entity
     {
         return $this->value - $this->preClose;
     }
+
+    /**
+     * @return Collection|StockDividend[]
+     */
+    public function getProjectedAndAnnouncedDividends(): Collection
+    {
+        return $this->dividends->matching(StockDividendByCriteria::projectedAndAnnounced());
+    }
 }

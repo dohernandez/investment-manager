@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block page_subtitle %}{{ stock|trans|title }}{% endblock %}
+{% block page_subtitle %}{{ stock|trans|title|upper }}{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}

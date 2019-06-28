@@ -169,4 +169,24 @@ class WalletController extends BaseController
             ]
         );
     }
+
+    /**
+     * @Route("/{id}/dividend", name="wallet_dividend", methods={"GET"}, options={"expose"=true})
+     *
+     * @param Entity\Wallet $wallet
+     *
+     * @return JsonResponse
+     */
+    public function dividend(Entity\Wallet $wallet): JsonResponse
+    {
+        if (!$wallet) {
+            return $this->createApiErrorResponse('Wallet not found', Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->createApiResponse(
+            [
+                'item' => Api\WalletDividend::fromEntity($wallet),
+            ]
+        );
+    }
 }

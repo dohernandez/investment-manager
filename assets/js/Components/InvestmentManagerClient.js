@@ -34,3 +34,5 @@ class InvestmentManagerClient {
 }
 
 module.exports = InvestmentManagerClient;
+
+global.InvestmentManagerClient = InvestmentManagerClient;

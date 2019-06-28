@@ -4,6 +4,7 @@ namespace App\Scrape;
 
 use App\Entity\Stock;
 use App\Entity\StockDividend;
+use Doctrine\Common\Collections\Collection;
 use Goutte\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DomCrawler\Crawler;
@@ -31,15 +32,33 @@ class NasdaqDividendScraper
         $this->logger = $logger;
     }
 
+    /**
+     * Update the stock dividends.
+     * Remove all the dividends that aren't payed yet, and update again
+     * the list until the end of the year.
+     *
+     * @param Stock $stock
+     *
+     * @return NasdaqDividendScraper
+     * @throws \Exception
+     */
     public function updateHistoricalDividend(Stock $stock): self
     {
+        // Removing projected and announced dividends
+        foreach ($stock->getProjectedAndAnnouncedDividends() as $stockDividend) {
+            $stock->removeDividend($stockDividend);
+        }
+
         $crawler = $this->client->request(
             'GET',
             sprintf(self::NASDAQ_DIVIDEND_URI, strtolower($stock->getSymbol()))
         );
 
+        /** @var StockDividend $lastDividend */
+        $lastDividend = null;
+
         $crawler->filter('table#quotes_content_left_dividendhistoryGrid tbody tr')
-            ->each(function ($trNode) use ($stock) {
+            ->each(function ($trNode) use ($stock, &$lastDividend) {
                 /** @var Crawler $trNode */
                 $spanNodes = $trNode->filter('span');
 
@@ -73,6 +92,10 @@ class NasdaqDividendScraper
                     }
 
                     $stock->addDividend($stockDividend);
+
+                    if (!$lastDividend || $lastDividend->getExDate() < $stockDividend->getExDate()) {
+                        $lastDividend = $stockDividend;
+                    }
                 } catch (\Exception $e) {
                     $this->logger->debug('Failed parsing row dividend', [
                         'exception' => $e->getMessage(),
@@ -81,30 +104,27 @@ class NasdaqDividendScraper
                 }
             });
 
-        // Adding projected dividend if the last dividend ex date has passed.
-        $nextDividend = $stock->nextDividend();
+        if ($lastDividend !== null) {
+            // Adding projected dividend until the end of the year.
+            $now = new \DateTimeImmutable();
+            $year = $now->add(\DateInterval::createFromDateString('1 year'));
 
-        if ($nextDividend === null) {
-            $preDividend = $stock->preDividend();
+            if ($lastDividend->getExDate() > $now->add(\DateInterval::createFromDateString('-3 months'))) {
+                $exDate = (clone $lastDividend->getExDate())
+                    ->add(\DateInterval::createFromDateString('3 months'));
 
-            if ($preDividend !== null && $preDividend->getExDate() > new \DateTime('-3 months')) {
-                $exDate = (clone $preDividend->getExDate())
-                    ->add(new \DateInterval('P3M'));
+                while ($year >= $exDate) {
+                    $nextDividend = new StockDividend();
+                    $nextDividend
+                        ->setStatus(StockDividend::STATUS_PROJECTED)
+                        ->setExDate($exDate)
+                        ->setValue($lastDividend->getValue());
 
-                $nextDividend = new StockDividend();
-                $nextDividend
-                    ->setStatus(StockDividend::STATUS_PROJECTED)
-                    ->setExDate($exDate)
-                    ->setValue($preDividend->getValue());
+                    $stock->addDividend($nextDividend);
 
-                $stock->addDividend($nextDividend);
-
-                $this->logger->debug('added next dividend', [
-                    'symbol'        => $stock->getSymbol(),
-                    'exDate' => $nextDividend->getExDate(),
-                    'value' => $nextDividend->getValue(),
-                    'status' => $nextDividend->getStatus(),
-                ]);
+                    $exDate = (clone $exDate)
+                        ->add(\DateInterval::createFromDateString('3 months'));
+                }
             }
         }
 
