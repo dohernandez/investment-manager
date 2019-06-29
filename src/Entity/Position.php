@@ -395,15 +395,23 @@ class Position implements Entity
 
         $rateExchange = $this->getWallet()->getRateExchange();
 
-        if (in_array($stock->getMarket()->getSymbol(), [
-            "NASDAQ",
-            "NYSE",
-            "TSX",
-        ]) && isset($rateExchange[Wallet::RATE_EXCHANGE_EUR_USD])) {
-            return $this->getAmount() * ($stock->getValue() / $rateExchange[Wallet::RATE_EXCHANGE_EUR_USD]);
-		}
+        if (!$stock->getValue()) {
+            return 0;
+        }
 
-        return $this->getAmount() * $stock->getValue();
+        switch ($stock->getValue()->getCurrency()->getCurrencyCode()) {
+            case 'USD':
+                $exchangeKey = Wallet::RATE_EXCHANGE_EUR_USD;
+                break;
+            default:
+                $exchangeKey = 'EUR';
+        }
+
+        if (isset($rateExchange[$exchangeKey])) {
+            return $this->getAmount() * ($stock->getValue()->getValue() / $rateExchange[$exchangeKey]);
+        }
+
+        return $this->getAmount() * $stock->getValue()->getValue();
     }
 
     public function getWallet(): ?Wallet

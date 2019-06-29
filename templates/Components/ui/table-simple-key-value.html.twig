@@ -15,6 +15,8 @@
                         {{ row.value|compile_decimal_tmpl(compile) }}
                     {% elseif row.render == 'date' %}
                         {{ row.value|compile_date_tmpl(compile) }}
+                    {% elseif row.render == 'money' %}
+                        {{ row.value|compile_money_tmpl(compile) }}
                     {% endif %}
                 {% else %}
                     {{ row.value|compile_tmpl(compile) }}

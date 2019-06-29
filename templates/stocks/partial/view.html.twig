@@ -13,12 +13,12 @@
                         {
                             'key': 'Prev. Close',
                             'value': 'preClose',
-                            'render': 'decimal',
+                            'render': 'money',
                         },
                         {
                             'key': 'Open',
                             'value': 'open',
-                            'render': 'decimal',
+                            'render': 'money',
                         },
                         {
                             'key': 'PE Ratio (TTM)',
@@ -43,18 +43,18 @@
             <div class="col-md-7 stock-open-close-day-price-block pull-right">
                 {% embed 'Components/ui/range-slider-show.html.twig' with {
                     'id': 'low-high-day-price',
-                    'min_price': 'dayLow',
-                    'max_price': 'dayHigh',
-                    'current_price': 'value',
+                    'min_price': 'dayLow.value',
+                    'max_price': 'dayHigh.value',
+                    'current_price': 'value.value',
                     'type' : 'Day low/high'|trans|upper,
                     'tmpl': true,
                 } %}
                 {% endembed %}
                 {% embed 'Components/ui/range-slider-show.html.twig' with {
                     'id': 'low-high-52-week-price',
-                    'min_price': 'week52Low',
-                    'max_price': 'week52High',
-                    'current_price': 'value',
+                    'min_price': 'week52Low.value',
+                    'max_price': 'week52High.value',
+                    'current_price': 'value.value',
                     'type' : '52 week low/high'|trans|upper,
                     'tmpl': true,
                 } %}

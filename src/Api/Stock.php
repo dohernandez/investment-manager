@@ -86,10 +86,11 @@ class Stock
         $self->week52Low = $stock->getWeek52Low();
         $self->week52High = $stock->getWeek52High();
 
-        $self->change = round($stock->getChange(), 3);
-        $self->changePercentage = $self->preClose
-            ? round($self->change * 100 / $self->preClose, 3)
-            : 0;
+        $self->change = $stock->getChange();
+        $self->changePercentage = 0;
+        if ($self->preClose) {
+            $self->changePercentage = round($self->change->getValue() * 100 / $self->preClose->getValue(), 3);
+        }
 
         $self->title = (string) $stock;
 

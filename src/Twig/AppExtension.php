@@ -18,6 +18,7 @@ class AppExtension extends AbstractExtension
             new TwigFilter('compile_tmpl', [$this, 'compile'], ['is_safe' => ['html']]),
             new TwigFilter('compile_decimal_tmpl', [$this, 'compileDecimal'], ['is_safe' => ['html']]),
             new TwigFilter('compile_date_tmpl', [$this, 'compileDate'], ['is_safe' => ['html']]),
+            new TwigFilter('compile_money_tmpl', [$this, 'compileMoney'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -28,6 +29,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('compile_tmpl', [$this, 'compile']),
             new TwigFunction('compile_decimal_tmpl', [$this, 'compileDecimal']),
             new TwigFunction('compile_date_tmpl', [$this, 'compileDate']),
+            new TwigFunction('compile_money_tmpl', [$this, 'compileMoney']),
         ];
     }
 
@@ -60,6 +62,22 @@ class AppExtension extends AbstractExtension
     {
         if ($tmpl) {
             return "<% if ($value) { %><%= moment(new Date($value)).format('DD/MM/YYYY') %><% } %>";
+        }
+
+        return $value;
+    }
+
+    public function compileMoney($value, $tmpl = false)
+    {
+        if ($tmpl) {
+            return "
+                <% if ($value) { %> 
+                    <% if ($value.currency.currencyCode == 'USD') { %>
+                        <%= value.value.toFixed(2).toString().replace(/\./g, \",\") %> $
+                    <% } else { %>
+                        &euro; <%= $value.value.toFixed(2).toString().replace(/\./g, \",\") %>
+                    <% } %>
+                <% } %>";
         }
 
         return $value;

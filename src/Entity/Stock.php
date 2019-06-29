@@ -41,7 +41,7 @@ class Stock implements Entity
      * @ORM\Column(type="money", nullable=true)
      * @Assert\NotBlank(message="Please enter the value")
      *
-     * Money
+     * @var Money
      */
     private $value;
 
@@ -57,7 +57,9 @@ class Stock implements Entity
     private $lastPriceUpdate;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     * @ORM\Column(type="money", nullable=true)
+     *
+     * @var Money
      */
     private $lastChangePrice;
 
@@ -89,7 +91,6 @@ class Stock implements Entity
     private $industry;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
      * @ORM\OneToMany(targetEntity="App\Entity\StockDividend", mappedBy="stock", orphanRemoval=true, cascade={"persist"})
      */
     private $dividends;
@@ -100,38 +101,44 @@ class Stock implements Entity
     private $peRatio;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
+     * @ORM\Column(type="money", nullable=true)
+     *
+     * @var Money
      */
     private $preClose;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
+     * @ORM\Column(type="money", nullable=true)
+     *
+     * @var Money
      */
     private $open;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
+     * @ORM\Column(type="money", nullable=true)
+     *
+     * @var Money
      */
     private $dayLow;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=10, scale=3, nullable=true)
+     * @ORM\Column(type="money", nullable=true)
+     *
+     * @var Money
      */
     private $dayHigh;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(name="week_52_low", type="decimal", precision=10, scale=3, nullable=true)
+     * @ORM\Column(name="week_52_low", type="money", nullable=true)
+     *
+     * @var Money
      */
     private $week52Low;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(name="week_52_high", type="decimal", precision=10, scale=3, nullable=true)
+     * @ORM\Column(name="week_52_high", type="money", nullable=true)
+     *
+     * @var Money
      */
     private $week52High;
 
@@ -187,7 +194,7 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getValue()
+    public function getValue(): ?Money
     {
         return $this->value;
     }
@@ -196,7 +203,7 @@ class Stock implements Entity
     {
         $this->value = $value;
 
-//        $this->updateDividendYield($this->nextDividend());
+        $this->updateDividendYield($this->nextDividend());
 
         return $this;
     }
@@ -206,7 +213,7 @@ class Stock implements Entity
         $dividendYield = null;
 
         if ($nextDividend !== null) {
-            $dividendYield = $nextDividend->getValue() * 4 / $this->getValue() * 100;
+            $dividendYield = $nextDividend->getValue() * 4 / $this->getValue()->getValue() * 100;
         }
 
         $this->setDividendYield($dividendYield);
@@ -238,12 +245,12 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getLastChangePrice(): ?float
+    public function getLastChangePrice(): ?Money
     {
         return $this->lastChangePrice;
     }
 
-    public function setLastChangePrice(?float $lastChangePrice): self
+    public function setLastChangePrice(?Money $lastChangePrice): self
     {
         $this->lastChangePrice = $lastChangePrice;
 
@@ -447,72 +454,72 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getPreClose(): ?float
+    public function getPreClose(): ?Money
     {
         return $this->preClose;
     }
 
-    public function setPreClose(?float $preClose): self
+    public function setPreClose(?Money $preClose): self
     {
         $this->preClose = $preClose;
 
         return $this;
     }
 
-    public function getOpen(): ?float
+    public function getOpen(): ?Money
     {
         return $this->open;
     }
 
-    public function setOpen(?float $open): self
+    public function setOpen(?Money $open): self
     {
         $this->open = $open;
 
         return $this;
     }
 
-    public function getDayLow(): ?float
+    public function getDayLow(): ?Money
     {
         return $this->dayLow;
     }
 
-    public function setDayLow(?float $dayLow): self
+    public function setDayLow(?Money $dayLow): self
     {
         $this->dayLow = $dayLow;
 
         return $this;
     }
 
-    public function getDayHigh(): ?float
+    public function getDayHigh(): ?Money
     {
         return $this->dayHigh;
     }
 
-    public function setDayHigh(?float $dayHigh): self
+    public function setDayHigh(?Money $dayHigh): self
     {
         $this->dayHigh = $dayHigh;
 
         return $this;
     }
 
-    public function getWeek52Low(): ?float
+    public function getWeek52Low(): ?Money
     {
         return $this->week52Low;
     }
 
-    public function setWeek52Low(?float $week52Low): self
+    public function setWeek52Low(?Money $week52Low): self
     {
         $this->week52Low = $week52Low;
 
         return $this;
     }
 
-    public function getWeek52High(): ?float
+    public function getWeek52High(): ?Money
     {
         return $this->week52High;
     }
 
-    public function setWeek52High(?float $week52High): self
+    public function setWeek52High(?Money $week52High): self
     {
         $this->week52High = $week52High;
 
@@ -612,9 +619,13 @@ class Stock implements Entity
         return $this;
     }
 
-    public function getChange(): ?float
+    public function getChange(): ?Money
     {
-        return $this->value - $this->preClose;
+        if ($this->value === null) {
+            return null;
+        }
+
+        return $this->value->decrease($this->preClose);
     }
 
     /**

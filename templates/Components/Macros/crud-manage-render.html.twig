@@ -25,6 +25,17 @@
     {% endif %}
 {% endmacro render_currency %}
 
+{# money #}
+{% macro render_money(value) %}
+    <% if ({{ value }}) { %>
+        <% if ({{ value }}.currency.currencyCode == 'USD') { %>
+            <%= {{ value }}.value.toFixed(2).toString().replace(/\./g, ",") %> $
+        <% } else { %>
+            &euro; <%= {{ value }}.value.toFixed(2).toString().replace(/\./g, ",") %>
+        <% } %>
+    <% } %>
+{% endmacro render_money %}
+
 {# date #}
 {% macro render_date(value, format) %}
     <% if ({{ value }} !== null) { %>
@@ -92,6 +103,8 @@
             {{ render.render_account(value) }}
         {% elseif field.render == 'currency' %}
             {{ render.render_currency(value) }}
+        {% elseif field.render == 'money' %}
+            {{ render.render_money(value) }}
         {% elseif field.render == 'date' %}
             {{ render.render_date(value, field.date_format) }}
         {% elseif field.render == 'percentage' %}

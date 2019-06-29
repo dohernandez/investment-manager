@@ -105,15 +105,15 @@ class YahooStockScraper
 
                 $reactId = $node->extract('data-reactid')[0];
                 if ($reactId == '14') {
-                    $money = Money::fromUSDValue(floatval($node->extract('_text')[0]));
-                    $stock->setValue($money);
+                    $stock->setValue(Money::fromUSDValue(floatval($node->extract('_text')[0])));
                 }
 
                 if ($reactId == '16') {
                     if (preg_match('/^(.*) .*/', $node->extract('_text')[0], $matches) !== false) {
-                        $stock->setLastChangePrice(floatval($matches[1]));
+                        $stock->setLastChangePrice(Money::fromUSDValue(floatval($matches[1])));
                     }
                 }
+
             });
 
         // update preClose, open, peRatio, dayLow and dayHigh, Week52Low and Week52High
@@ -124,11 +124,11 @@ class YahooStockScraper
                 $tdNodes = $node->filter('td');
 
                 if ($tdNodes->eq(0)->extract('_text')[0] == 'Previous Close') {
-                    $stock->setPreClose(floatval($tdNodes->eq(1)->extract('_text')[0]));
+                    $stock->setPreClose(Money::fromUSDValue(floatval($tdNodes->eq(1)->extract('_text')[0])));
                 }
 
                 if ($tdNodes->eq(0)->extract('_text')[0] == 'Open') {
-                    $stock->setOpen(floatval($tdNodes->eq(1)->extract('_text')[0]));
+                    $stock->setOpen(Money::fromUSDValue(floatval($tdNodes->eq(1)->extract('_text')[0])));
                 }
 
                 if ($tdNodes->eq(0)->extract('_text')[0] == 'PE Ratio (TTM)') {
@@ -137,15 +137,15 @@ class YahooStockScraper
 
                 if ($tdNodes->eq(0)->extract('_text')[0] == 'Day\'s Range') {
                     if (preg_match('/^(.*) - (.*)$/', $tdNodes->eq(1)->extract('_text')[0], $matches) !== false) {
-                        $stock->setDayLow(floatval($matches[1]));
-                        $stock->setDayHigh(floatval($matches[2]));
+                        $stock->setDayLow(Money::fromUSDValue(floatval($matches[1])));
+                        $stock->setDayHigh(Money::fromUSDValue(floatval($matches[2])));
                     }
                 }
 
                 if ($tdNodes->eq(0)->extract('_text')[0] == '52 Week Range') {
                     if (preg_match('/^(.*) - (.*)$/', $tdNodes->eq(1)->extract('_text')[0], $matches) !== false) {
-                        $stock->setWeek52Low(floatval($matches[1]));
-                        $stock->setWeek52High(floatval($matches[2]));
+                        $stock->setWeek52Low(Money::fromUSDValue(floatval($matches[1])));
+                        $stock->setWeek52High(Money::fromUSDValue(floatval($matches[2])));
                     }
                 }
             });

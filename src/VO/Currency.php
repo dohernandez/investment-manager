@@ -62,4 +62,14 @@ final class Currency
 
         return $self;
     }
+
+    static public function eur(): self
+    {
+        $self = new static();
+
+        $self->setSymbol('€');
+        $self->setCurrencyCode('EUR');
+
+        return $self;
+    }
 }
