@@ -4,6 +4,7 @@ namespace App\Api;
 
 use App\Entity;
 use App\Api;
+use App\VO\Currency;
 
 class Stock
 {
@@ -65,9 +66,17 @@ class Stock
         $nextDividend = $stock->nextDividend();
         if ($nextDividend) {
             $self->exDate = $nextDividend->getExDate();
+
+            $money = $nextDividend->getValue();
+            $format = '%1$s %2$.2f (%3$.2f%%)';
+            if ($nextDividend->getValue()->getCurrency() == Currency::CURRENCY_CODE_EUR) {
+                $format = '%1$s %2$.2f (%3$.2f%%)';
+            }
+
             $self->displayDividendYield = sprintf(
-                '%.2f (%.2f%%)',
-                $nextDividend->getValue() * 4,
+                $format,
+                $money->getCurrency()->getSymbol(),
+                $money->getValue() * 4,
                 $self->dividendYield
             );
         }

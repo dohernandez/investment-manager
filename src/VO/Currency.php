@@ -7,6 +7,12 @@ final class Currency
     const FIELD_SYMBOL = 'symbol';
     const FIELD_CURRENCY_CODE = 'currency_code';
 
+    const CURRENCY_CODE_USD = 'USD';
+    const CURRENCY_SYMBOL_USD = '$';
+
+    const CURRENCY_CODE_EUR = 'EUR';
+    const CURRENCY_SYMBOL_EUR = '€';
+
     private $symbol;
 
     private $currencyCode;
@@ -57,8 +63,8 @@ final class Currency
     {
         $self = new static();
 
-        $self->setSymbol('$');
-        $self->setCurrencyCode('USD');
+        $self->setSymbol(self::CURRENCY_SYMBOL_USD);
+        $self->setCurrencyCode(self::CURRENCY_CODE_USD);
 
         return $self;
     }
@@ -67,8 +73,8 @@ final class Currency
     {
         $self = new static();
 
-        $self->setSymbol('€');
-        $self->setCurrencyCode('EUR');
+        $self->setSymbol(self::CURRENCY_SYMBOL_EUR);
+        $self->setCurrencyCode(self::CURRENCY_CODE_EUR);
 
         return $self;
     }

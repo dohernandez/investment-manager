@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\VO\Money;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -56,8 +57,10 @@ class StockDividend implements Entity
     private $status;
 
     /**
-     * @ORM\Column(type="decimal", precision=7, scale=4)
-     * @Assert\NotBlank(message="Please enter the value.")
+     * @ORM\Column(type="money")
+     * @Assert\NotBlank(message="Please enter the value")
+     *
+     * @var Money
      */
     private $value;
 
@@ -136,12 +139,12 @@ class StockDividend implements Entity
         return $this;
     }
 
-    public function getValue(): ?float
+    public function getValue(): ?Money
     {
         return $this->value;
     }
 
-    public function setValue(?float $value): self
+    public function setValue(?Money $value): self
     {
         $this->value = $value;
 
@@ -234,6 +237,6 @@ class StockDividend implements Entity
      */
     public function __toString(): string
     {
-        return $this->getValue() . '(' . $this->getStatus() . ')';
+        return $this->getValue()->getValue() . '(' . $this->getStatus() . ')';
     }
 }

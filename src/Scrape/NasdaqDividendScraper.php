@@ -4,6 +4,7 @@ namespace App\Scrape;
 
 use App\Entity\Stock;
 use App\Entity\StockDividend;
+use App\VO\Money;
 use Doctrine\Common\Collections\Collection;
 use Goutte\Client;
 use Psr\Log\LoggerInterface;
@@ -72,9 +73,9 @@ class NasdaqDividendScraper
                     ));
 
                     // Cash Amount
-                    $stockDividend->setValue(floatval(
+                    $stockDividend->setValue(Money::fromUSDValue(floatval(
                         $spanNodes->eq(1)->extract('_text')[0]
-                    ));
+                    )));
 
                     // Record Date
                     $stockDividend->setRecordDate(new \DateTimeImmutable(
@@ -99,7 +100,6 @@ class NasdaqDividendScraper
                 } catch (\Exception $e) {
                     $this->logger->debug('Failed parsing row dividend', [
                         'exception' => $e->getMessage(),
-                        'node' => $trNode,
                     ]);
                 }
             });
@@ -118,7 +118,7 @@ class NasdaqDividendScraper
                     $nextDividend
                         ->setStatus(StockDividend::STATUS_PROJECTED)
                         ->setExDate($exDate)
-                        ->setValue($lastDividend->getValue());
+                        ->setValue(clone $lastDividend->getValue());
 
                     $stock->addDividend($nextDividend);
 

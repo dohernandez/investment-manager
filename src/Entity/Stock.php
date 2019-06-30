@@ -212,8 +212,8 @@ class Stock implements Entity
     {
         $dividendYield = null;
 
-        if ($nextDividend !== null) {
-            $dividendYield = $nextDividend->getValue() * 4 / $this->getValue()->getValue() * 100;
+        if ($nextDividend !== null && $this->getValue() !== null) {
+            $dividendYield = $nextDividend->getValue()->getValue() * 4 / $this->getValue()->getValue() * 100;
         }
 
         $this->setDividendYield($dividendYield);
