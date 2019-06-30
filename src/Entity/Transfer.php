@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\VO\Money;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -38,9 +39,9 @@ class Transfer implements Entity
     private $debtorParty;
 
     /**
-     * @var float
+     * @var Money
      *
-     * @ORM\Column(type="decimal", scale=2, precision=7)
+     * @ORM\Column(type="money")
      * @Assert\NotBlank(message="Please enter the amount")
      */
     private $amount;
@@ -82,12 +83,12 @@ class Transfer implements Entity
         return $this;
     }
 
-    public function getAmount(): ?float
+    public function getAmount(): ?Money
     {
         return $this->amount;
     }
 
-    public function setAmount(float $amount): self
+    public function setAmount(?Money $amount): self
     {
         $this->amount = $amount;
 
@@ -111,6 +112,6 @@ class Transfer implements Entity
      */
     public function __toString(): string
     {
-        return sprintf('%s [%s]', $this->getDebtorParty(), $this->getAmount());
+        return sprintf('%s [%s]', $this->getDebtorParty(), $this->getAmount()->getValue());
     }
 }

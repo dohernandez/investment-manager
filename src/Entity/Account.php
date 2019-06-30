@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\VO\Money;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -153,9 +154,9 @@ class Account implements Entity
         return $this;
     }
 
-    public function addWithdraw(?float $withdraw): self
+    public function addWithdraw(?Money $withdraw): self
     {
-        $this->setWithdraw($this->getWithdraw() + $withdraw);
+        $this->setWithdraw($this->getWithdraw() + $withdraw->getValue());
 
         $broker = $this->getBroker();
         if ($broker !== null) {
@@ -181,9 +182,9 @@ class Account implements Entity
         return $this;
     }
 
-    public function addDeposit(?float $deposit): self
+    public function addDeposit(?Money $deposit): self
     {
-        $this->setDeposit($this->getDeposit() + $deposit);
+        $this->setDeposit($this->getDeposit() + $deposit->getValue());
 
         $broker = $this->getBroker();
         if ($broker !== null) {

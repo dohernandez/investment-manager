@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Entity\Transfer;
 use App\Repository\AccountRepository;
+use App\VO\Money;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
 use Symfony\Component\Console\Command\Command;
@@ -68,7 +69,7 @@ class ImportTransferCommand extends Command
                 ->setDate(\DateTime::createFromFormat('d/m/Y', $record[0]))
                 ->setBeneficiaryParty($beneficiary)
                 ->setDebtorParty($debtor)
-                ->setAmount(floatval($record[3]))
+                ->setAmount(Money::fromEURValue(floatval($record[3])))
             ;
 
             $this->em->persist($transfer);

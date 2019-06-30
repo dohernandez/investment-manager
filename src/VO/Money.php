@@ -67,6 +67,16 @@ final class Money
         return $self;
     }
 
+    static public function fromEURValue(?float $value): self
+    {
+        $self = new static();
+
+        $self->setCurrency(Currency::eur());
+        $self->setValue($value);
+
+        return $self;
+    }
+
     public function exchangeToEUR(?float $exchangeRate): self
     {
         $self = new static();

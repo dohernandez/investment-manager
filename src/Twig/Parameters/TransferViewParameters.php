@@ -52,7 +52,7 @@ class TransferViewParameters extends AbstractViewParameters
             [
                 'name' => 'amount',
                 'col_with' => '84',
-                'render' => 'currency',
+                'render' => 'money',
             ],
         ];
     }

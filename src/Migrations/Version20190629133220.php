@@ -22,7 +22,6 @@ final class Version20190629133220 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('UPDATE stock SET value = null, last_change_price = null, pre_close = null, open = null, day_low = null, day_high = null, week_52_low  = null, week_52_high  = null');
         $this->addSql('ALTER TABLE stock CHANGE value value JSON DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE last_change_price last_change_price JSON DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE pre_close pre_close JSON DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE open open JSON DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE day_low day_low JSON DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE day_high day_high JSON DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE week_52_low week_52_low JSON DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE week_52_high week_52_high JSON DEFAULT NULL COMMENT \'(DC2Type:json)\'');
     }
 

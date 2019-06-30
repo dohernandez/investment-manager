@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\Criteria\PositionByCriteria;
+use App\VO\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -133,16 +134,16 @@ class Wallet implements Entity
         return $this;
     }
 
-    public function increaseInvested(float $invested): self
+    public function increaseInvested(Money $invested): self
     {
-        $this->setInvested($this->getInvested() + $invested);
+        $this->setInvested($this->getInvested() + $invested->getValue());
 
         return $this;
     }
 
-    public function decreaseInvested(float $invested): self
+    public function decreaseInvested(Money $invested): self
     {
-        $this->setInvested($this->getInvested() - $invested);
+        $this->setInvested($this->getInvested() - $invested->getValue());
 
         return $this;
     }
@@ -222,7 +223,7 @@ class Wallet implements Entity
         return $this->getName();
     }
 
-    public function addFunds(float $funds): self
+    public function addFunds(Money $funds): self
     {
         $this->increaseInvested($funds)
             ->increaseFunds($funds)
@@ -231,7 +232,7 @@ class Wallet implements Entity
         return $this;
     }
 
-    public function subtractFunds(float $funds): self
+    public function subtractFunds(Money $funds): self
     {
         $this->decreaseInvested($funds)
             ->decreaseFunds($funds);
@@ -239,16 +240,16 @@ class Wallet implements Entity
         return $this;
     }
 
-    public function increaseFunds(float $funds): self
+    public function increaseFunds(Money $funds): self
     {
-        $this->setFunds($this->getFunds() + $funds);
+        $this->setFunds($this->getFunds() + $funds->getValue());
 
         return $this;
     }
 
-    public function decreaseFunds(float $funds): self
+    public function decreaseFunds(Money $funds): self
     {
-        $this->setFunds($this->getFunds() - $funds);
+        $this->setFunds($this->getFunds() - $funds->getValue());
 
         return $this;
     }

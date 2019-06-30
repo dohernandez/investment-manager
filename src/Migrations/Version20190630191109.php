@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190629162639 extends AbstractMigration
+final class Version20190630191109 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,7 +22,7 @@ final class Version20190629162639 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE stock_dividend CHANGE value value JSON NOT NULL COMMENT \'(DC2Type:json)\'');
+        $this->addSql('ALTER TABLE transfer CHANGE amount amount JSON NOT NULL COMMENT \'(DC2Type:json)\'');
     }
 
     public function down(Schema $schema) : void
@@ -30,6 +30,6 @@ final class Version20190629162639 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE stock_dividend CHANGE value value NUMERIC(7, 4) NOT NULL');
+        $this->addSql('ALTER TABLE transfer CHANGE amount amount NUMERIC(7, 2) NOT NULL');
     }
 }
