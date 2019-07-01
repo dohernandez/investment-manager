@@ -9,7 +9,7 @@ final class Money
 
     private $currency;
 
-    private $value;
+    private $value = 0;
 
     public function getCurrency(): ?Currency
     {
@@ -23,7 +23,7 @@ final class Money
         return $this;
     }
 
-    public function getValue(?int $precision = null): ?float
+    public function getValue(?int $precision = null): float
     {
         if (!$precision) {
             return $this->value;
@@ -34,7 +34,7 @@ final class Money
 
     public function setValue(?float $value): self
     {
-        $this->value = $value;
+        $this->value = $value ?? 0;
 
         return $this;
     }
@@ -87,16 +87,20 @@ final class Money
         return $self;
     }
 
-    public function increase(Money $value): self
+    public function increase(?Money $value): self
     {
-        if ($value->getCurrency()->getCurrencyCode() !== $this->getCurrency()->getCurrencyCode()) {
+        if (!$value) {
+            return $this;
+        }
+
+        if ($this->getCurrency()->getCurrencyCode() !== $value->getCurrency()->getCurrencyCode()) {
             throw new \LogicException('can not increase money value, currency are different');
         }
 
         $self = new static();
 
         $self->setCurrency($this->getCurrency());
-        $self->setValue($this->getValue() + $this->getValue());
+        $self->setValue($this->getValue() + $value->getValue());
 
         return $self;
     }

@@ -83,12 +83,12 @@ class Transfer implements Entity
         return $this;
     }
 
-    public function getAmount(): ?Money
+    public function getAmount(): Money
     {
         return $this->amount;
     }
 
-    public function setAmount(?Money $amount): self
+    public function setAmount(Money $amount): self
     {
         $this->amount = $amount;
 

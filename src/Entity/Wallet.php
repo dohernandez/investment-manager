@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\Criteria\PositionByCriteria;
+use App\VO\Currency;
 use App\VO\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -32,19 +33,25 @@ class Wallet implements Entity
     private $name;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=false)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=false)
      */
-    private $invested = 0;
+    private $invested;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=false)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=false)
      */
-    private $capital = 0;
+    private $capital;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=false)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=false)
      */
-    private $funds = 0;
+    private $funds;
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Broker", inversedBy="wallet")
@@ -64,24 +71,32 @@ class Wallet implements Entity
     private $trades;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=false)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=false)
      */
-    private $dividend = 0;
+    private $dividend;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=4, nullable=false)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=false)
      */
-    private $commissions = 0;
+    private $commissions;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=false)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=false)
      */
-    private $connection = 0;
+    private $connection;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=false)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=false)
      */
-    private $interest = 0;
+    private $interest;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Operation", mappedBy="wallet", cascade={"persist"})
@@ -100,6 +115,21 @@ class Wallet implements Entity
 
     public function __construct()
     {
+        $this->invested = (new Money())
+            ->setCurrency(Currency::eur());
+        $this->capital = (new Money())
+            ->setCurrency(Currency::eur());
+        $this->funds = (new Money())
+            ->setCurrency(Currency::eur());
+        $this->dividend = (new Money())
+            ->setCurrency(Currency::eur());
+        $this->commissions = (new Money())
+            ->setCurrency(Currency::eur());
+        $this->connection = (new Money())
+            ->setCurrency(Currency::eur());
+        $this->interest = (new Money())
+            ->setCurrency(Currency::eur());
+
         $this->trades = new ArrayCollection();
         $this->operations = new ArrayCollection();
         $this->positions = new ArrayCollection();
@@ -122,69 +152,85 @@ class Wallet implements Entity
         return $this;
     }
 
-    public function getInvested(): float
+    public function getInvested(): Money
     {
         return $this->invested;
     }
 
-    public function setInvested(float $invested): self
+    public function setInvested(Money $invested): self
     {
         $this->invested = $invested;
 
         return $this;
     }
 
-    public function increaseInvested(Money $invested): self
+    public function increaseInvested(?Money $invested): self
     {
-        $this->setInvested($this->getInvested() + $invested->getValue());
+        if (!$invested) {
+            return $this;
+        }
+
+        $this->setInvested($this->getInvested()->increase($invested));
 
         return $this;
     }
 
-    public function decreaseInvested(Money $invested): self
+    public function decreaseInvested(?Money $invested): self
     {
-        $this->setInvested($this->getInvested() - $invested->getValue());
+        if (!$invested) {
+            return $this;
+        }
+
+        $this->setInvested($this->getInvested()->decrease($invested));
 
         return $this;
     }
 
-    public function getCapital(): float
+    public function getCapital(): Money
     {
         return $this->capital;
     }
 
-    public function setCapital(float $capital): self
+    public function setCapital(Money $capital): self
     {
         $this->capital = $capital;
 
         return $this;
     }
 
-    public function getNetCapital(): float
+    public function getNetCapital(): Money
     {
-        return $this->getCapital() + $this->getFunds();
+        return $this->getCapital()->increase($this->getFunds());
     }
 
-    public function increaseCapital(float $capital): self
+    public function increaseCapital(?Money $capital): self
     {
+        if (!$capital) {
+            return $this;
+        }
+
         $this->setCapital($this->getCapital() + $capital);
 
         return $this;
     }
 
-    public function decreaseCapital(float $capital): self
+    public function decreaseCapital(?Money $capital): self
     {
-        $this->setCapital($this->getCapital() - $capital);
+        if (!$capital) {
+            return $this;
+        }
+
+        $this->setCapital($this->getCapital()->decrease($capital));
 
         return $this;
     }
 
-    public function getFunds(): float
+    public function getFunds(): Money
     {
         return $this->funds;
     }
 
-    public function setFunds(float $funds): self
+    public function setFunds(Money $funds): self
     {
         $this->funds = $funds;
 
@@ -240,23 +286,31 @@ class Wallet implements Entity
         return $this;
     }
 
-    public function increaseFunds(Money $funds): self
+    public function increaseFunds(?Money $funds): self
     {
-        $this->setFunds($this->getFunds() + $funds->getValue());
+        if (!$funds) {
+            return $this;
+        }
+
+        $this->setFunds($this->getFunds()->increase($funds));
 
         return $this;
     }
 
-    public function decreaseFunds(Money $funds): self
+    public function decreaseFunds(?Money $funds): self
     {
-        $this->setFunds($this->getFunds() - $funds->getValue());
+        if (!$funds) {
+            return $this;
+        }
+
+        $this->setFunds($this->getFunds()->decrease($funds));
 
         return $this;
     }
 
-    public function getBenefits(): float
+    public function getBenefits(): Money
     {
-        return $this->getCapital() + $this->getFunds() - $this->getInvested();
+        return $this->getCapital()->increase($this->getFunds())->decrease($this->getInvested());
     }
 
     /**
@@ -290,21 +344,21 @@ class Wallet implements Entity
         return $this;
     }
 
-    public function getDividend(): float
+    public function getDividend(): Money
     {
         return $this->dividend;
     }
 
-    public function setDividend(float $dividend): self
+    public function setDividend(Money $dividend): self
     {
         $this->dividend = $dividend;
 
         return $this;
     }
 
-    public function increaseDividend(float $dividend): self
+    public function increaseDividend(Money $dividend): self
     {
-        $this->setDividend( $this->getDividend() + $dividend);
+        $this->setDividend($this->getDividend()->increase($dividend));
 
         return $this;
     }
@@ -312,75 +366,75 @@ class Wallet implements Entity
     /**
      * Alias of increaseDividend
      *
-     * @param float $dividend
+     * @param Money $dividend
      *
      * @return Wallet
      */
-    public function addDividend(float $dividend): self
+    public function addDividend(Money $dividend): self
     {
-        $this->increaseDividend( $dividend);
+        $this->increaseDividend($dividend);
 
         return $this;
     }
 
-    public function getCommissions(): float
+    public function getCommissions(): Money
     {
         return $this->commissions;
     }
 
-    public function setCommissions(float $commissions): self
+    public function setCommissions(Money $commissions): self
     {
         $this->commissions = $commissions;
 
         return $this;
     }
 
-    public function increaseCommissions(float $commissions): self
+    public function increaseCommissions(Money $commissions): self
     {
-        $this->setCommissions($this->getCommissions() + $commissions);
+        $this->setCommissions($this->getCommissions()->increase($commissions));
 
         return $this;
     }
 
-    public function getConnection(): float
+    public function getConnection(): Money
     {
         return $this->connection;
     }
 
-    public function setConnection(float $connection): self
+    public function setConnection(Money $connection): self
     {
         $this->connection = $connection;
 
         return $this;
     }
 
-    public function increaseConnection(float $connection): self
+    public function increaseConnection(Money $connection): self
     {
-        $this->setConnection( $this->getConnection() + $connection);
+        $this->setConnection($this->getConnection()->increase($connection));
 
         return $this;
     }
 
-    public function getInterest(): float
+    public function getInterest(): Money
     {
         return $this->interest;
     }
 
-    public function setInterest(float $interest): self
+    public function setInterest(Money $interest): self
     {
         $this->interest = $interest;
 
         return $this;
     }
 
-    public function increaseInterest(float $interest): self
+    public function increaseInterest(Money $interest): self
     {
-        $this->setInterest( $this->getInterest() + $interest);
+        $this->setInterest($this->getInterest()->increase($interest));
 
         return $this;
     }
 
-    public function addExpenses(float $expenses, string $type): self
+    public function addExpenses(Money $expenses, string $type): self
     {
         switch ($type){
             case Operation::TYPE_CONNECTIVITY:

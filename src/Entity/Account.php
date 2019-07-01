@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\VO\Currency;
 use App\VO\Money;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -55,14 +56,26 @@ class Account implements Entity
     private $broker;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
      */
     private $withdraw;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
      */
     private $deposit;
+
+    public function __construct()
+    {
+        $this->deposit = (new Money())
+            ->setCurrency(Currency::eur());
+        $this->withdraw = (new Money())
+            ->setCurrency(Currency::eur());
+    }
 
     public function getId(): ?int
     {
@@ -142,13 +155,18 @@ class Account implements Entity
         return $this;
     }
 
-    public function getWithdraw(): ?float
+    public function getWithdraw(): Money
     {
         return $this->withdraw;
     }
 
-    public function setWithdraw(?float $withdraw): self
+    public function setWithdraw(?Money $withdraw): self
     {
+        if (!$withdraw) {
+            $withdraw = (new Money())
+                ->setCurrency(Currency::eur());
+        }
+
         $this->withdraw = $withdraw;
 
         return $this;
@@ -156,7 +174,11 @@ class Account implements Entity
 
     public function addWithdraw(?Money $withdraw): self
     {
-        $this->setWithdraw($this->getWithdraw() + $withdraw->getValue());
+        if (!$withdraw) {
+            return $this;
+        }
+
+        $this->setWithdraw($this->getWithdraw()->increase($withdraw));
 
         $broker = $this->getBroker();
         if ($broker !== null) {
@@ -170,13 +192,18 @@ class Account implements Entity
         return $this;
     }
 
-    public function getDeposit(): ?float
+    public function getDeposit(): Money
     {
         return $this->deposit;
     }
 
-    public function setDeposit(?float $deposit): self
+    public function setDeposit(?Money $deposit): self
     {
+        if (!$deposit) {
+            $deposit = (new Money())
+                ->setCurrency(Currency::eur());
+        }
+
         $this->deposit = $deposit;
 
         return $this;
@@ -184,7 +211,11 @@ class Account implements Entity
 
     public function addDeposit(?Money $deposit): self
     {
-        $this->setDeposit($this->getDeposit() + $deposit->getValue());
+        if (!$deposit) {
+            return $this;
+        }
+
+        $this->setDeposit($this->getDeposit()->increase($deposit));
 
         $broker = $this->getBroker();
         if ($broker !== null) {
@@ -198,11 +229,8 @@ class Account implements Entity
         return $this;
     }
 
-    public function getBalance(): ?float
+    public function getBalance(): ?Money
     {
-        $deposit = $this->getDeposit() ?? 0;
-        $withdraw = $this->getWithdraw() ?? 0;
-
-        return $deposit - $withdraw;
+        return $this->getDeposit()->decrease($this->getWithdraw());
     }
 }
