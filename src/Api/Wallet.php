@@ -3,6 +3,7 @@
 namespace App\Api;
 
 use App\Entity;
+use App\VO\Money;
 
 class Wallet
 {
@@ -46,7 +47,10 @@ class Wallet
         $self->netCapital = $wallet->getNetCapital();
 
         $self->benefits = $wallet->getBenefits();
-        $self->pBenefits = $self->invested ? $self->benefits * 100 / $self->invested : 0;
+
+        if ($self->invested->getCurrency()->equals($self->benefits->getCurrency())) {
+            $self->pBenefits = $self->invested->getValue() ? $self->benefits->getValue() * 100 / $self->invested->getValue() : 0;
+        }
 
         $self->dividend = $wallet->getDividend();
         $self->commissions = $wallet->getCommissions();

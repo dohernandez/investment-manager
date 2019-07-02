@@ -77,6 +77,15 @@ final class Money
         return $self;
     }
 
+    static public function fromCurrency(Currency $currency): self
+    {
+        $self = new static();
+
+        $self->setCurrency($currency);
+
+        return $self;
+    }
+
     public function exchangeToEUR(?float $exchangeRate): self
     {
         $self = new static();
@@ -93,7 +102,7 @@ final class Money
             return $this;
         }
 
-        if ($this->getCurrency()->getCurrencyCode() !== $value->getCurrency()->getCurrencyCode()) {
+        if (!$this->getCurrency()->equals($value->getCurrency())) {
             throw new \LogicException('can not increase money value, currency are different');
         }
 
@@ -111,7 +120,7 @@ final class Money
             return $this;
         }
 
-        if ($value->getCurrency()->getCurrencyCode() !== $this->getCurrency()->getCurrencyCode()) {
+        if (!$this->getCurrency()->equals($value->getCurrency())) {
             throw new \LogicException('can not increase money value, currency are different');
         }
 

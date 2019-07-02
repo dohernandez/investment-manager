@@ -38,15 +38,15 @@ class WalletViewParameters extends AbstractViewParameters
             ],
             [
                 'name' => 'invested',
-                'render' => 'currency',
+                'render' => 'money',
             ],
             [
                 'name' => 'capital',
-                'render' => 'currency',
+                'render' => 'money',
             ],
             [
                 'name' => 'funds',
-                'render' => 'currency',
+                'render' => 'money',
             ],
             [
                 'name' => 'pBenefits',
@@ -152,7 +152,7 @@ class WalletViewParameters extends AbstractViewParameters
             ],
             [
                 'name' => 'value',
-                'render' => 'currency',
+                'render' => 'money',
             ],
             [
                 'name' => 'commissions',
@@ -188,15 +188,15 @@ class WalletViewParameters extends AbstractViewParameters
             ],
             [
                 'name' => 'capital',
-                'render' => 'currency',
+                'render' => 'money',
             ],
             [
                 'name' => 'invested',
-                'render' => 'currency',
+                'render' => 'money',
             ],
             [
                 'name' => 'dividend',
-                'render' => 'currency',
+                'render' => 'money',
             ],
             [
                 'name' => 'displayBenefits',
@@ -231,7 +231,7 @@ class WalletViewParameters extends AbstractViewParameters
             ],
             [
                 'name' => 'invested',
-                'render' => 'currency',
+                'render' => 'money',
             ],
             [
                 'name' => 'amount',

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\Criteria\TradeByCriteria;
+use App\VO\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -40,22 +41,30 @@ class Position implements Entity
     private $amount;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2)
+     * @var Money
+     *
+     * @ORM\Column(type="money")
      */
     private $invested;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=4, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money")
      */
     private $dividend;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2)
+     * @var Money
+     *
+     * @ORM\Column(type="money")
      */
     private $buy;
 
     /**
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money")
      */
     private $sell;
 
@@ -70,6 +79,8 @@ class Position implements Entity
     private $trades;
 
     /**
+     * In percentage
+     *
      * @ORM\Column(type="decimal", precision=11, scale=4, nullable=true)
      */
     private $dividendRetention;
@@ -82,6 +93,8 @@ class Position implements Entity
     private $status;
 
     /**
+     * @var Wallet
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Wallet", inversedBy="positions")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -146,85 +159,121 @@ class Position implements Entity
         return $this;
     }
 
-    public function getInvested(): float
+    public function getInvested(): Money
     {
         return $this->invested;
     }
 
-    public function setInvested(float $invested): self
+    public function setInvested(?Money $invested): self
     {
+        if ($invested === null) {
+            $invested = Money::fromCurrency($this->getWallet()->getCurrency());
+        }
+
         $this->invested = $invested;
 
         return $this;
     }
 
-    public function increaseInvested(float $invested): self
+    public function increaseInvested(?Money $invested): self
     {
-        $this->invested += $invested;
+        if ($invested === null) {
+            return $this;
+        }
+
+        $this->setInvested($this->getInvested()->increase($invested));
 
         return $this;
     }
 
-    public function decreaseInvested(float $invested): self
+    public function decreaseInvested(?Money $invested): self
     {
-        $this->invested -= $invested;
+        if ($invested === null) {
+            return $this;
+        }
+
+        $this->setInvested($this->getInvested()->decrease($invested));
 
         return $this;
     }
 
-    public function getDividend(): ?float
+    public function getDividend(): Money
     {
         return $this->dividend;
     }
 
-    public function setDividend(?float $dividend): self
+    public function setDividend(?Money $dividend): self
     {
+        if ($dividend === null) {
+            $dividend = Money::fromCurrency($this->getWallet()->getCurrency());
+        }
+
         $this->dividend = $dividend;
 
         return $this;
     }
 
-    public function increaseDividend(float $dividend): self
+    public function increaseDividend(?Money $dividend): self
     {
-        $this->dividend += $dividend;
+        if ($dividend === null) {
+            return $this;
+        }
+
+        $this->setDividend($this->getDividend()->increase($dividend));
 
         return $this;
     }
 
-    public function getBuy(): ?float
+    public function getBuy(): Money
     {
         return $this->buy;
     }
 
-    public function setBuy(?float $buy): self
+    public function setBuy(?Money $buy): self
     {
+        if ($buy === null) {
+            $buy = Money::fromCurrency($this->getWallet()->getCurrency());
+        }
+
         $this->buy = $buy;
 
         return $this;
     }
 
-    public function increaseBuy(float $buy): self
+    public function increaseBuy(?Money $buy): self
     {
-        $this->buy += $buy;
+        if ($buy === null) {
+            return $this;
+        }
+
+        $this->setBuy($this->getBuy()->increase($buy));
 
         return $this;
     }
 
-    public function getSell(): ?float
+    public function getSell(): Money
     {
         return $this->sell;
     }
 
-    public function setSell(?float $sell): self
+    public function setSell(?Money $sell): self
     {
+        if ($sell === null) {
+            $sell = Money::fromCurrency($this->getWallet()->getCurrency());
+        }
+
         $this->sell = $sell;
 
         return $this;
     }
 
-    public function increaseSell(float $sell): self
+    public function increaseSell(?Money $sell): self
     {
-        $this->sell += $sell;
+        if ($sell === null) {
+            return $this;
+        }
+
+        $this->setSell($this->getSell()->increase($sell));
 
         return $this;
     }
@@ -246,16 +295,19 @@ class Position implements Entity
     public function addOperation(Operation $operation): self
     {
         if (!$this->operations->contains($operation)) {
+            $netValue = Money::fromCurrency($this->getWallet()->getCurrency())
+                ->setValue($operation->getNetValue())
+            ;
 
             switch ($operation->getType()) {
                 case Operation::TYPE_BUY:
-                    $this->addBuy($operation->getAmount(), $operation->getNetValue());
+                    $this->addBuy($operation->getAmount(), $netValue);
                     break;
                 case Operation::TYPE_SELL:
-                    $this->addSell($operation->getAmount(), $operation->getNetValue());
+                    $this->addSell($operation->getAmount(), $netValue);
                     break;
                 case Operation::TYPE_DIVIDEND:
-                    $this->addDividend($operation->getNetValue());
+                    $this->addDividend($netValue);
                     break;
             }
 
@@ -266,7 +318,7 @@ class Position implements Entity
         return $this;
     }
 
-    public function addBuy(float $amount, float $paid): self
+    public function addBuy(float $amount, Money $paid): self
     {
         $this->increaseInvested($paid);
         $this->increaseBuy($paid);
@@ -275,7 +327,7 @@ class Position implements Entity
         return $this;
     }
 
-    public function addSell(float $amount, float $paid): self
+    public function addSell(float $amount, Money $paid): self
     {
         $this->decreaseInvested($paid);
         $this->increaseSell($paid);
@@ -284,7 +336,14 @@ class Position implements Entity
         return $this;
     }
 
-    public function addDividend(float $dividend): self
+    /**
+     * Alias of increaseDividend
+     *
+     * @param Money|null $dividend
+     *
+     * @return Position
+     */
+    public function addDividend(?Money $dividend): self
     {
         $this->increaseDividend($dividend);
 
@@ -354,12 +413,12 @@ class Position implements Entity
         return $this;
     }
 
-    public function getDividendRetention()
+    public function getDividendRetention(): float
     {
         return $this->dividendRetention;
     }
 
-    public function setDividendRetention($dividendRetention): self
+    public function setDividendRetention(?float $dividendRetention): self
     {
         $this->dividendRetention = $dividendRetention;
 
@@ -386,17 +445,17 @@ class Position implements Entity
         return $this->getId();
     }
 
-    public function getCapital(): float
+    public function getCapital(): Money
     {
         $stock = $this->getStock();
         if ($stock === null) {
-            return 0;
+            return $this->getInvested();
         }
 
         $rateExchange = $this->getWallet()->getRateExchange();
 
         if (!$stock->getValue()) {
-            return 0;
+            return $this->getInvested();
         }
 
         switch ($stock->getValue()->getCurrency()->getCurrencyCode()) {
@@ -408,10 +467,14 @@ class Position implements Entity
         }
 
         if (isset($rateExchange[$exchangeKey])) {
-            return $this->getAmount() * ($stock->getValue()->getValue() / $rateExchange[$exchangeKey]);
+            $value =  $this->getAmount() * ($stock->getValue()->getValue() / $rateExchange[$exchangeKey]);
+        } else {
+            $value = $this->getAmount() * $stock->getValue()->getValue();
         }
 
-        return $this->getAmount() * $stock->getValue()->getValue();
+        return Money::fromCurrency($this->getWallet()->getCurrency())
+            ->setValue($value)
+        ;
     }
 
     public function getWallet(): ?Wallet
@@ -422,6 +485,13 @@ class Position implements Entity
     public function setWallet(?Wallet $wallet): self
     {
         $this->wallet = $wallet;
+
+        $currency = $this->getWallet()->getCurrency();
+
+        $this->setInvested(Money::fromCurrency($currency));
+        $this->setBuy(Money::fromCurrency($currency));
+        $this->setSell(Money::fromCurrency($currency));
+        $this->setDividend(Money::fromCurrency($currency));
 
         return $this;
     }
@@ -461,14 +531,18 @@ class Position implements Entity
         return $commissions;
     }
 
-    public function getBenefits(): ?float
+    public function getBenefits(): ?Money
     {
-        return $this->getCapital() + $this->getSell() + $this->getDividend() - $this->getBuy();
+        return $this->getCapital()
+                ->increase($this->getSell())
+                ->increase($this->getDividend())
+                ->decrease($this->getBuy())
+            ;
     }
 
     public function getPercentageBenefits(): ?float
     {
-        $percentage =  $this->getBenefits() * 100 / $this->getBuy();
+        $percentage = $this->getBenefits()->getValue() * 100 / $this->getBuy()->getValue();
 
         return $percentage;
     }

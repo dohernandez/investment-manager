@@ -113,22 +113,22 @@ class Wallet implements Entity
      */
     private $rateExchange = [];
 
+    /**
+     * @var Currency
+     */
+    private $currency;
+
     public function __construct()
     {
-        $this->invested = (new Money())
-            ->setCurrency(Currency::eur());
-        $this->capital = (new Money())
-            ->setCurrency(Currency::eur());
-        $this->funds = (new Money())
-            ->setCurrency(Currency::eur());
-        $this->dividend = (new Money())
-            ->setCurrency(Currency::eur());
-        $this->commissions = (new Money())
-            ->setCurrency(Currency::eur());
-        $this->connection = (new Money())
-            ->setCurrency(Currency::eur());
-        $this->interest = (new Money())
-            ->setCurrency(Currency::eur());
+        $this->currency = Currency::eur();
+
+        $this->invested = Money::fromCurrency($this->currency);
+        $this->capital = Money::fromCurrency($this->currency);
+        $this->funds = Money::fromCurrency($this->currency);
+        $this->dividend = Money::fromCurrency($this->currency);
+        $this->commissions = Money::fromCurrency($this->currency);
+        $this->connection = Money::fromCurrency($this->currency);
+        $this->interest = Money::fromCurrency($this->currency);
 
         $this->trades = new ArrayCollection();
         $this->operations = new ArrayCollection();
@@ -598,5 +598,13 @@ class Wallet implements Entity
         dd($year);
 
         return $dividendProjectedYear;
+    }
+
+    /**
+     * @return Currency
+     */
+    public function getCurrency(): Currency
+    {
+        return $this->currency;
     }
 }

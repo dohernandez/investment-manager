@@ -164,7 +164,7 @@ class Account implements Entity
     {
         if (!$withdraw) {
             $withdraw = (new Money())
-                ->setCurrency(Currency::eur());
+                ->setCurrency($this->withdraw->getCurrency());
         }
 
         $this->withdraw = $withdraw;
@@ -201,7 +201,7 @@ class Account implements Entity
     {
         if (!$deposit) {
             $deposit = (new Money())
-                ->setCurrency(Currency::eur());
+                ->setCurrency($this->deposit->getCurrency());
         }
 
         $this->deposit = $deposit;

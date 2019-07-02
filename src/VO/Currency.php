@@ -78,4 +78,9 @@ final class Currency
 
         return $self;
     }
+
+    public function equals(Currency $currency): bool
+    {
+        return $this->getCurrencyCode() === $currency->getCurrencyCode();
+    }
 }
