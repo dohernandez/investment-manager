@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\VO\Currency;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -52,6 +53,13 @@ class StockMarket implements Entity
      * @ORM\OneToMany(targetEntity="App\Entity\Stock", mappedBy="market", orphanRemoval=true)
      */
     private $stocks;
+
+    /**
+     * @var Currency
+     *
+     * @ORM\Column(type="currency", nullable=true)
+     */
+    private $currency;
 
     public function __construct()
     {
@@ -151,6 +159,18 @@ class StockMarket implements Entity
     public function setYahooSymbol(?string $yahoo_symbol): self
     {
         $this->yahoo_symbol = $yahoo_symbol;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): self
+    {
+        $this->currency = $currency;
 
         return $this;
     }
