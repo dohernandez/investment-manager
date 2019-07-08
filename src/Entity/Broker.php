@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\VO\Currency;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -49,6 +50,13 @@ class Broker implements Entity
      * @ORM\ManyToMany(targetEntity="App\Entity\Stock")
      */
     private $stocks;
+
+    /**
+     * @var Currency
+     *
+     * @ORM\Column(type="currency", nullable=true)
+     */
+    private $currency;
 
     public function __construct()
     {
@@ -138,6 +146,18 @@ class Broker implements Entity
         if ($this->stocks->contains($stock)) {
             $this->stocks->removeElement($stock);
         }
+
+        return $this;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): self
+    {
+        $this->currency = $currency;
 
         return $this;
     }
