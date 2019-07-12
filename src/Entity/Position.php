@@ -110,6 +110,13 @@ class Position implements Entity
      */
     private $closedAt;
 
+    /**
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
+     */
+    private $capital;
+
     public function __construct()
     {
         $this->operations = new ArrayCollection();
@@ -288,6 +295,7 @@ class Position implements Entity
 
     /**
      * Add an operation to the collection and update the position based on the operation type.
+     *
      * @param Operation $operation
      *
      * @return Position
@@ -295,9 +303,7 @@ class Position implements Entity
     public function addOperation(Operation $operation): self
     {
         if (!$this->operations->contains($operation)) {
-            $netValue = Money::fromCurrency($this->getWallet()->getCurrency())
-                ->setValue($operation->getNetValue())
-            ;
+            $netValue = $operation->getNetValue();
 
             switch ($operation->getType()) {
                 case Operation::TYPE_BUY:
@@ -380,7 +386,6 @@ class Position implements Entity
     }
 
     /**
-     * @param Stock $stock
      * @param \DateTimeInterface $dateAt
      *
      * @return Collection|Trade[]
@@ -443,38 +448,6 @@ class Position implements Entity
     public function __toString(): string
     {
         return $this->getId();
-    }
-
-    public function getCapital(): Money
-    {
-        $stock = $this->getStock();
-        if ($stock === null) {
-            return $this->getInvested();
-        }
-
-        $rateExchange = $this->getWallet()->getRateExchange();
-
-        if (!$stock->getValue()) {
-            return $this->getInvested();
-        }
-
-        switch ($stock->getValue()->getCurrency()->getCurrencyCode()) {
-            case 'USD':
-                $exchangeKey = Wallet::RATE_EXCHANGE_EUR_USD;
-                break;
-            default:
-                $exchangeKey = 'EUR';
-        }
-
-        if (isset($rateExchange[$exchangeKey])) {
-            $value =  $this->getAmount() * ($stock->getValue()->getValue() / $rateExchange[$exchangeKey]);
-        } else {
-            $value = $this->getAmount() * $stock->getValue()->getValue();
-        }
-
-        return Money::fromCurrency($this->getWallet()->getCurrency())
-            ->setValue($value)
-        ;
     }
 
     public function getWallet(): ?Wallet
@@ -555,5 +528,15 @@ class Position implements Entity
     public function getPreClose(): ?float
     {
         return $this->getAmount() * $this->getStock()->getPreClose();
+    }
+
+    public function getCapital(): Money
+    {
+        return $this->capital;
+    }
+
+    public function setCapital(Money $capital): void
+    {
+        $this->capital = $capital;
     }
 }

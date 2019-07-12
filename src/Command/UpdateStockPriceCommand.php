@@ -2,8 +2,7 @@
 
 namespace App\Command;
 
-use App\Entity\Position;
-use App\Entity\Wallet;
+use App\Message\UpdateWalletCapital;
 use App\Repository\StockRepository;
 use App\Repository\WalletRepository;
 use App\Scrape\YahooStockScraper;
@@ -13,6 +12,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class UpdateStockPriceCommand extends Command
 {
@@ -38,11 +39,17 @@ class UpdateStockPriceCommand extends Command
      */
     private $walletRepository;
 
+    /**
+     * @var MessageBusInterface
+     */
+    private $bus;
+
     public function __construct(
         YahooStockScraper $scraper,
         EntityManagerInterface $em,
         StockRepository $stockRepository,
-        WalletRepository $walletRepository
+        WalletRepository $walletRepository,
+        MessageBusInterface $bus
     ) {
         parent::__construct();
 
@@ -50,13 +57,13 @@ class UpdateStockPriceCommand extends Command
         $this->stockRepository = $stockRepository;
         $this->scraper = $scraper;
         $this->walletRepository = $walletRepository;
+        $this->bus = $bus;
     }
 
     protected function configure()
     {
         $this
             ->setDescription('Update all stocks price value based on the yahoo website.')
-            ->addOption('EUR_USD', null, InputOption::VALUE_OPTIONAL, 'rate exchange $ to €')
             ->addOption('symbol', 's', InputOption::VALUE_OPTIONAL, 'Stock symbol')
         ;
     }
@@ -64,12 +71,6 @@ class UpdateStockPriceCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-
-        if (!$eurUSD = $input->getOption('EUR_USD')) {
-            $io->error('must define rate exchange EUR_USD');
-
-            return;
-        }
 
         if ($symbol = $input->getOption('symbol')) {
             $stocks = $this->stockRepository->findBy([
@@ -99,33 +100,15 @@ class UpdateStockPriceCommand extends Command
             $io->progressAdvance();
         }
 
-        $rateExchange[Wallet::RATE_EXCHANGE_EUR_USD] = $eurUSD;
-
-        $this->updateWalletsCapital($rateExchange);
-
         $this->em->flush();
+
+        $wallets = $this->walletRepository->findAll();
+        foreach ($wallets as $wallet) {
+            $this->bus->dispatch(new UpdateWalletCapital($wallet));
+        }
 
         $io->progressFinish();
 
         $io->success('Price updated successfully.');
-    }
-
-    private function updateWalletsCapital(array $rateExchange)
-    {
-        $wallets = $this->walletRepository->findAll();
-
-        foreach ($wallets as $wallet) {
-            $capital = 0;
-            $wallet->setRateExchange($rateExchange);
-
-            /** @var Position $position */
-            foreach ($wallet->getPositions(Position::STATUS_OPEN) as $position) {
-                $capital += $position->getCapital();
-            }
-
-            $wallet->setCapital($capital);
-
-            $this->em->persist($wallet);
-        }
     }
 }

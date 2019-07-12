@@ -109,27 +109,14 @@ class Wallet implements Entity
     private $positions;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
-     */
-    private $rateExchange = [];
-
-    /**
      * @var Currency
+     *
+     * @ORM\Column(type="currency", nullable=false)
      */
     private $currency;
 
     public function __construct()
     {
-        $this->currency = Currency::eur();
-
-        $this->invested = Money::fromCurrency($this->currency);
-        $this->capital = Money::fromCurrency($this->currency);
-        $this->funds = Money::fromCurrency($this->currency);
-        $this->dividend = Money::fromCurrency($this->currency);
-        $this->commissions = Money::fromCurrency($this->currency);
-        $this->connection = Money::fromCurrency($this->currency);
-        $this->interest = Money::fromCurrency($this->currency);
-
         $this->trades = new ArrayCollection();
         $this->operations = new ArrayCollection();
         $this->positions = new ArrayCollection();
@@ -157,7 +144,7 @@ class Wallet implements Entity
         return $this->invested;
     }
 
-    public function setInvested(Money $invested): self
+    public function setInvested(?Money $invested): self
     {
         $this->invested = $invested;
 
@@ -191,8 +178,12 @@ class Wallet implements Entity
         return $this->capital;
     }
 
-    public function setCapital(Money $capital): self
+    public function setCapital(?Money $capital): self
     {
+        if ($capital === null) {
+            $capital = Money::fromCurrency($this->getCurrency());
+        }
+
         $this->capital = $capital;
 
         return $this;
@@ -230,8 +221,12 @@ class Wallet implements Entity
         return $this->funds;
     }
 
-    public function setFunds(Money $funds): self
+    public function setFunds(?Money $funds): self
     {
+        if ($funds === null) {
+            $funds = Money::fromCurrency($this->getCurrency());
+        }
+
         $this->funds = $funds;
 
         return $this;
@@ -245,6 +240,15 @@ class Wallet implements Entity
     public function setBroker(?Broker $broker): self
     {
         $this->broker = $broker;
+        $this->currency = $broker->getCurrency();
+
+        $this->setInvested(null);
+        $this->setCapital(null);
+        $this->setFunds(null);
+        $this->setDividend(null);
+        $this->setCommissions(null);
+        $this->setConnection(null);
+        $this->setInterest(null);
 
         return $this;
     }
@@ -349,8 +353,12 @@ class Wallet implements Entity
         return $this->dividend;
     }
 
-    public function setDividend(Money $dividend): self
+    public function setDividend(?Money $dividend): self
     {
+        if ($dividend === null) {
+            $dividend = Money::fromCurrency($this->getCurrency());
+        }
+
         $this->dividend = $dividend;
 
         return $this;
@@ -382,8 +390,12 @@ class Wallet implements Entity
         return $this->commissions;
     }
 
-    public function setCommissions(Money $commissions): self
+    public function setCommissions(?Money $commissions): self
     {
+        if ($commissions === null) {
+            $commissions = Money::fromCurrency($this->getCurrency());
+        }
+
         $this->commissions = $commissions;
 
         return $this;
@@ -401,8 +413,12 @@ class Wallet implements Entity
         return $this->connection;
     }
 
-    public function setConnection(Money $connection): self
+    public function setConnection(?Money $connection): self
     {
+        if ($connection === null) {
+            $connection = Money::fromCurrency($this->getCurrency());
+        }
+
         $this->connection = $connection;
 
         return $this;
@@ -420,8 +436,12 @@ class Wallet implements Entity
         return $this->interest;
     }
 
-    public function setInterest(Money $interest): self
+    public function setInterest(?Money $interest): self
     {
+        if ($interest === null) {
+            $interest = Money::fromCurrency($this->getCurrency());
+        }
+
         $this->interest = $interest;
 
         return $this;
@@ -563,18 +583,6 @@ class Wallet implements Entity
                 $position->setWallet(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getRateExchange(): array
-    {
-        return $this->rateExchange;
-    }
-
-    public function setRateExchange(array $rateExchange): self
-    {
-        $this->rateExchange = $rateExchange;
 
         return $this;
     }

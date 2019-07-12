@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\StockMarket;
+use App\VO\Currency;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
 use Symfony\Component\Console\Command\Command;
@@ -54,6 +55,7 @@ class ImportStockMarketCommand extends Command
                 ->setSymbol($record[1])
                 ->setCountry($record[2])
                 ->setYahooSymbol($record[3])
+                ->setCurrency(Currency::fromSymbol($record[4]))
                 ;
 
             $this->em->persist($stockMarket);

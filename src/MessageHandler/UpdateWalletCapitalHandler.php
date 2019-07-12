@@ -8,8 +8,9 @@ use App\Repository\ExchangeRepository;
 use App\VO\Money;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-class UpdateWalletCapitalHandler
+class UpdateWalletCapitalHandler implements MessageHandlerInterface
 {
     /**
      * @var LoggerInterface
@@ -41,7 +42,7 @@ class UpdateWalletCapitalHandler
         yield UpdateWalletCapital::class => 'updateWalletCapital';
     }
 
-    public function updateWalletCapital(UpdateWalletCapital $message)
+    public function __invoke(UpdateWalletCapital $message)
     {
         $this->logger->debug('Handling message UpdateWalletCapital', [
             'message' => $message

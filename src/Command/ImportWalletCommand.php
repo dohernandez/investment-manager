@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Entity\Broker;
 use App\Entity\Wallet;
 use App\Repository\AccountRepository;
+use App\VO\Currency;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
 use Symfony\Component\Console\Command\Command;
@@ -60,18 +61,18 @@ class ImportWalletCommand extends Command
                 'alias' => $record[1]
             ]);
 
-            $broker = new Broker();
-            $broker
+            $broker = (new Broker())
                 ->setName($record[1])
                 ->setSite($record[0])
                 ->setAccount($account)
+                ->setCurrency(Currency::fromSymbol($record[2]))
             ;
 
-            $wallet = new Wallet();
-            $wallet->setName($record[0]);
+            $wallet = (new Wallet())
+                ->setName($record[1])
+                ->setBroker($broker);
 
             $broker->setWallet($wallet);
-            $wallet->setBroker($broker);
 
             $this->em->persist($broker);
             $this->em->persist($wallet);

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\VO\Money;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
@@ -50,32 +51,37 @@ class Operation implements Entity
     private $type;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
      */
     private $price;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=11, scale=4, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
      */
     private $priceChange;
 
     /**
-     * Price in euro. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=11, scale=4, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
      */
     private $priceChangeCommission;
 
     /**
-     * Value of the operation in euro. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=11, scale=2)
+     * @var Money
+     *
+     * @ORM\Column(type="money")
      */
     private $value;
 
     /**
-     * Price in euro. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=11, scale=4, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
      */
     private $commission;
 
@@ -95,6 +101,13 @@ class Operation implements Entity
      * @ORM\JoinColumn(nullable=true)
      */
     private $position;
+
+    /**
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
+     */
+    private $capital;
 
     public function getId(): ?int
     {
@@ -137,60 +150,60 @@ class Operation implements Entity
         return $this;
     }
 
-    public function getPrice(): ?float
+    public function getPrice(): ?Money
     {
         return $this->price;
     }
 
-    public function setPrice(?float $price): self
+    public function setPrice(?Money $price): self
     {
         $this->price = $price;
 
         return $this;
     }
 
-    public function getPriceChange(): ?float
+    public function getPriceChange(): ?Money
     {
         return $this->priceChange;
     }
 
-    public function setPriceChange(?float $priceChange): self
+    public function setPriceChange(?Money $priceChange): self
     {
         $this->priceChange = $priceChange;
 
         return $this;
     }
 
-    public function getPriceChangeCommission(): ?float
+    public function getPriceChangeCommission(): ?Money
     {
         return $this->priceChangeCommission;
     }
 
-    public function setPriceChangeCommission(?float $priceChangeCommission): self
+    public function setPriceChangeCommission(?Money $priceChangeCommission): self
     {
         $this->priceChangeCommission = $priceChangeCommission;
 
         return $this;
     }
 
-    public function getValue(): ?float
+    public function getValue(): ?Money
     {
         return $this->value;
     }
 
-    public function setValue(float $value): self
+    public function setValue(Money $value): self
     {
         $this->value = $value;
 
         return $this;
     }
 
-    public function getCommission(): ?float
+    public function getCommission(): ?Money
     {
         return $this->commission;
     }
 
-    public function setCommission(?float $commission): self
+    public function setCommission(?Money $commission): self
     {
         $this->commission = $commission;
 
@@ -239,14 +252,14 @@ class Operation implements Entity
             self::TYPE_INTEREST
         ])) {
             return sprintf(
-                '%s [%.2f]',
+                '%s [%s]',
                 $this->getType(),
                 $this->getNetValue()
             );
         }
 
         return sprintf(
-            '%s %s:%s - %d [%.2f]',
+            '%s %s:%s - %d [%s]',
             $this->getType(),
             $this->getStock()->getMarket()->getSymbol(),
             $this->getStock()->getSymbol(),
@@ -255,37 +268,34 @@ class Operation implements Entity
         );
     }
 
-    public function getNetValue(): float
+    public function getNetValue(): Money
     {
         if ($this->getType() === self::TYPE_BUY) {
-            return $this->getFinalCommissionPaid() + $this->getValue();
+            return $this->getFinalCommissionPaid()->increase($this->getValue());
         }
 
         if ($this->getType() === self::TYPE_SELL) {
-            return $this->getValue() - $this->getFinalCommissionPaid();
+            return $this->getValue()->decrease($this->getFinalCommissionPaid());
         }
 
         return $this->getValue();
     }
 
-    public function getFinalCommissionPaid(): float
+    public function getFinalCommissionPaid(): Money
     {
-        return $this->getCommission() + $this->getPriceChangeCommission();
+        return $this->getCommission()->increase($this->getPriceChangeCommission());
     }
 
-    public function getCapital(): float
+    public function getCapital(): ?Money
     {
-        $stock = $this->getStock();
-        if ($stock === null) {
-            return 0;
-        }
+        return $this->capital;
+    }
 
-        // Calc the capital based on the convention rate
-        if ($this->getPriceChange()) {
-            return $this->getAmount() * ($stock->getValue() / $this->getPriceChange());
-        }
+    public function setCapital(?Money $capital): self
+    {
+        $this->capital = $capital;
 
-        return $this->getAmount() * $stock->getValue();
+        return $this;
     }
 
     public function getPosition(): ?Position

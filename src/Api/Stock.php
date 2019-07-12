@@ -67,16 +67,9 @@ class Stock
         if ($nextDividend) {
             $self->exDate = $nextDividend->getExDate();
 
-            $money = $nextDividend->getValue();
-            $format = '%1$s %2$.2f (%3$.2f%%)';
-            if ($nextDividend->getValue()->getCurrency() == Currency::CURRENCY_CODE_EUR) {
-                $format = '%1$s %2$.2f (%3$.2f%%)';
-            }
-
             $self->displayDividendYield = sprintf(
-                $format,
-                $money->getCurrency()->getSymbol(),
-                $money->getValue() * 4,
+                '%s (%.2f%%)',
+                $nextDividend->getValue(),
                 $self->dividendYield
             );
         }

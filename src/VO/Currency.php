@@ -13,6 +13,9 @@ final class Currency
     const CURRENCY_CODE_EUR = 'EUR';
     const CURRENCY_SYMBOL_EUR = '€';
 
+    const CURRENCY_CODE_CAD = 'CAD';
+    const CURRENCY_SYMBOL_CAD = 'C$';
+
     private $symbol;
 
     private $currencyCode;
@@ -59,6 +62,30 @@ final class Currency
         return $self;
     }
 
+    static public function fromSymbol(string $symbol): self
+    {
+        $self = new static();
+
+        switch ($symbol) {
+            case self::CURRENCY_CODE_USD:
+                $self->setSymbol(self::CURRENCY_SYMBOL_USD);
+                $self->setCurrencyCode(self::CURRENCY_CODE_USD);
+                break;
+            case self::CURRENCY_CODE_EUR:
+                $self->setSymbol(self::CURRENCY_SYMBOL_EUR);
+                $self->setCurrencyCode(self::CURRENCY_CODE_EUR);
+                break;
+            case self::CURRENCY_CODE_CAD:
+                $self->setSymbol(self::CURRENCY_SYMBOL_CAD);
+                $self->setCurrencyCode(self::CURRENCY_CODE_CAD);
+                break;
+            default:
+                throw new \LogicException('currency not supported');
+        }
+
+        return $self;
+    }
+
     static public function usd(): self
     {
         $self = new static();
@@ -82,5 +109,17 @@ final class Currency
     public function equals(Currency $currency): bool
     {
         return $this->getCurrencyCode() === $currency->getCurrencyCode();
+    }
+
+    /**
+     * Returns the key to used to get the rate of exchange.
+     *
+     * @param Currency $currency Currency wanna be exchanged.
+     *
+     * @return string
+     */
+    public function getPaarExchangeRate(Currency $currency): string
+    {
+        return $this->getCurrencyCode() . '_' . $currency->getCurrencyCode();
     }
 }

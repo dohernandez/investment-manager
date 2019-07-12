@@ -56,3 +56,4 @@ var/data
 
 
 resources/import/account.csv
+resources/import/01_degiro.csv

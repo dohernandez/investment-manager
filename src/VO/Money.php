@@ -47,6 +47,16 @@ final class Money
         ];
     }
 
+    static public function from(Currency $currency, float $value): self
+    {
+        $self = new static();
+
+        $self->setCurrency($currency);
+        $self->setValue($value);
+
+        return $self;
+    }
+
     static public function fromArray(array $money): self
     {
         $self = new static();
@@ -86,12 +96,19 @@ final class Money
         return $self;
     }
 
-    public function exchangeToEUR(?float $exchangeRate): self
+    public function exchange(Currency $currency, array $rateExchange): self
     {
+        $exchangeKey =  $currency->getPaarExchangeRate($this->getCurrency());
+
         $self = new static();
 
-        $self->setCurrency(Currency::eur());
-        $self->setValue($this->getValue() / $exchangeRate);
+        $self->setCurrency($currency);
+
+        if (isset($rateExchange[$exchangeKey])) {
+            $self->setValue($this->getValue() / $rateExchange[$exchangeKey]);
+        } else {
+            $self->setValue($this->getValue());
+        }
 
         return $self;
     }
@@ -131,4 +148,21 @@ final class Money
 
         return $self;
     }
+
+    public function __toString(): string
+    {
+        switch ($this->getCurrency()->getCurrencyCode()) {
+            case Currency::CURRENCY_CODE_USD: {
+                $toString = sprintf('%.2f %s', $this->getValue(2), $this->getCurrency()->getSymbol());
+
+                break;
+            }
+            default: {
+                $toString = sprintf('%s %.2f', $this->getCurrency()->getSymbol(), $this->getValue(2));
+            }
+        }
+
+        return $toString;
+    }
+
 }

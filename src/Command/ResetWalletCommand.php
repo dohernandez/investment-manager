@@ -50,43 +50,46 @@ class ResetWalletCommand extends Command
 
         $wallet = $this->walletRepository->findOneBySlug($name);
 
-        if (!$wallet) {
+        if ($wallet === null) {
             $io->error('wallet ' . $wallet . ' not found');
+
+            return;
         }
 
         $this->em->transactional(function ($em) use($wallet) {
+            // Delete wallet trades
             $query = $em->createQueryBuilder()
                 ->delete(Trade::class, 't')
                 ->where('t.wallet = :wallet')
                 ->setParameter('wallet', $wallet->getId())
                 ->getQuery()
             ;
-
             $query->execute();
 
+            // Delete wallet operations
             $query = $em->createQueryBuilder()
                 ->delete(Operation::class, 'o')
                 ->where('o.wallet = :wallet')
                 ->setParameter('wallet', $wallet->getId())
                 ->getQuery()
             ;
-
             $query->execute();
 
+            // Delete wallet positions
             $query = $em->createQueryBuilder()
                 ->delete(Position::class, 'p')
                 ->where('p.wallet = :wallet')
                 ->setParameter('wallet', $wallet->getId())
                 ->getQuery()
             ;
-
             $query->execute();
 
-            $wallet->setInterest(0);
-            $wallet->setConnection(0);
-            $wallet->setDividend(0);
-            $wallet->setCapital(0);
-            $wallet->setCommissions(0);
+            // Set wallet to init
+            $wallet->setInterest(null);
+            $wallet->setConnection(null);
+            $wallet->setDividend(null);
+            $wallet->setCapital(null);
+            $wallet->setCommissions(null);
             $wallet->setFunds($wallet->getInvested());
 
             $em->persist($wallet);
