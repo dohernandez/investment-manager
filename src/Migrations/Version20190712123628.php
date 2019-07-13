@@ -24,7 +24,6 @@ final class Version20190712123628 extends AbstractMigration
 
         $this->addSql('ALTER TABLE wallet DROP rate_exchange');
         $this->addSql('ALTER TABLE position ADD capital JSON DEFAULT NULL COMMENT \'(DC2Type:json)\'');
-        $this->addSql('ALTER TABLE operation ADD capital JSON DEFAULT NULL COMMENT \'(DC2Type:json)\'');
     }
 
     public function down(Schema $schema) : void
@@ -32,7 +31,6 @@ final class Version20190712123628 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE operation DROP capital');
         $this->addSql('ALTER TABLE position DROP capital');
         $this->addSql('ALTER TABLE wallet ADD rate_exchange JSON DEFAULT NULL COMMENT \'(DC2Type:json)\'');
     }

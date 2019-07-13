@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Entity\Operation;
 use App\Repository\StockRepository;
 use App\Repository\WalletRepository;
+use App\VO\Money;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
 use Symfony\Component\Console\Command\Command;
@@ -62,6 +63,8 @@ class ImportOperationCommand extends Command
 
         if (!$wallet) {
             $io->error('wallet ' . $wallet . ' not found');
+
+            return;
         }
 
         $filepath = $input->getArgument('filepath');
@@ -72,6 +75,7 @@ class ImportOperationCommand extends Command
 
         $io->progressStart($count);
 
+        $wCurrency = $wallet->getCurrency();
         foreach ($records as $offset => $record) {
             $operation = new Operation();
 
@@ -79,14 +83,13 @@ class ImportOperationCommand extends Command
                 ->setDateAt(\DateTime::createFromFormat('d/m/Y', $record[1]))
                 ->setType($this->parserType($record[3]))
                 ->setAmount(intval($record[4]))
-                ->setPrice(floatval($record[5]))
-                ->setPriceChange(floatval($record[6]))
-                ->setPriceChangeCommission(floatval($record[7]))
-                ->setValue(floatval($record[8]))
-                ->setCommission(floatval($record[9]))
+                ->setPriceChangeCommission(Money::from($wCurrency, floatval($record[7])))
+                ->setValue(Money::from($wCurrency, floatval($record[8])))
+                ->setCommission(Money::from($wCurrency, floatval($record[9])))
             ;
 
-            if (in_array($operation->getType(), [
+            $oType = $operation->getType();
+            if (in_array($oType, [
                 Operation::TYPE_BUY,
                 Operation::TYPE_SELL,
                 Operation::TYPE_DIVIDEND,
@@ -97,6 +100,16 @@ class ImportOperationCommand extends Command
 
                     $io->progressAdvance();
                     continue;
+                }
+
+                $sCurrency = $stock->getCurrency();
+
+                if (!empty(floatval($record[5]))) {
+                    $operation->setPrice(Money::from($sCurrency, floatval($record[5])));
+                }
+
+                if (!empty(floatval($record[6]))) {
+                    $operation->setPriceChange(Money::from($sCurrency, floatval($record[6])));
                 }
 
                 $operation->setStock($stock);

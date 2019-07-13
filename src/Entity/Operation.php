@@ -102,13 +102,6 @@ class Operation implements Entity
      */
     private $position;
 
-    /**
-     * @var Money
-     *
-     * @ORM\Column(type="money", nullable=true)
-     */
-    private $capital;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -284,18 +277,6 @@ class Operation implements Entity
     public function getFinalCommissionPaid(): Money
     {
         return $this->getCommission()->increase($this->getPriceChangeCommission());
-    }
-
-    public function getCapital(): ?Money
-    {
-        return $this->capital;
-    }
-
-    public function setCapital(?Money $capital): self
-    {
-        $this->capital = $capital;
-
-        return $this;
     }
 
     public function getPosition(): ?Position

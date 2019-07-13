@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\Criteria\StockDividendByCriteria;
+use App\VO\Currency;
 use App\VO\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -634,5 +635,10 @@ class Stock implements Entity
     public function getProjectedAndAnnouncedDividends(): Collection
     {
         return $this->dividends->matching(StockDividendByCriteria::projectedAndAnnounced());
+    }
+
+    public function getCurrency(): Currency
+    {
+        return $this->getMarket()->getCurrency();
     }
 }

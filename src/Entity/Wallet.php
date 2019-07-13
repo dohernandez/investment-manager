@@ -194,28 +194,6 @@ class Wallet implements Entity
         return $this->getCapital()->increase($this->getFunds());
     }
 
-    public function increaseCapital(?Money $capital): self
-    {
-        if (!$capital) {
-            return $this;
-        }
-
-        $this->setCapital($this->getCapital() + $capital);
-
-        return $this;
-    }
-
-    public function decreaseCapital(?Money $capital): self
-    {
-        if (!$capital) {
-            return $this;
-        }
-
-        $this->setCapital($this->getCapital()->decrease($capital));
-
-        return $this;
-    }
-
     public function getFunds(): Money
     {
         return $this->funds;
@@ -490,12 +468,10 @@ class Wallet implements Entity
 
             switch ($operation->getType()) {
                 case Operation::TYPE_BUY:
-                        $this->increaseCapital($operation->getCapital());
                         $this->decreaseFunds($operation->getNetValue());
                         $this->increaseCommissions($operation->getFinalCommissionPaid());
                     break;
                 case Operation::TYPE_SELL:
-                        $this->decreaseCapital($operation->getCapital());
                         $this->increaseFunds($operation->getNetValue());
                         $this->increaseCommissions($operation->getFinalCommissionPaid());
                     break;
