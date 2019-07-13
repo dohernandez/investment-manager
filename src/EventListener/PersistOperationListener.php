@@ -36,8 +36,6 @@ class PersistOperationListener
             return;
         }
 
-        $wallet = $operation->getWallet();
-
         $type = $operation->getType();
         // only act on "Operation::TYPE_BUY", "Operation::TYPE_SELL" and "Operation::TYPE_DIVIDEND"
         if (!in_array($type, [
@@ -49,6 +47,7 @@ class PersistOperationListener
             return;
         }
 
+        $wallet = $operation->getWallet();
         $stock = $operation->getStock();
 
         if ($type === Operation::TYPE_DIVIDEND) {
@@ -86,54 +85,56 @@ class PersistOperationListener
         $position->addOperation($operation);
 
         if ($type === Operation::TYPE_BUY) {
-            $trade = new Trade();
-            $trade->setStock($stock)
-                ->setStatus(Trade::STATUS_OPEN)
-                ->setOpenedAt($operation->getDateAt())
-                ->setWallet($operation->getWallet())
-            ;
+//            $trade = new Trade();
+//            $trade->setStock($stock)
+//                ->setStatus(Trade::STATUS_OPEN)
+//                ->setOpenedAt($operation->getDateAt())
+//                ->setWallet($operation->getWallet())
+//            ;
+//
+//            $trade->addBuy($operation->getAmount(), $operation->getNetValue());
 
-            $trade->addBuy($operation->getAmount(), $operation->getNetValue());
-
-            $position->addTrade($trade);
+//            $position->addTrade($trade);
         } else {
             $trades = $position->getOpenTrades();
-            $netValue = $operation->getNetValue();
-            // Calc position amount, at this point, the amount of the operation was already
-            // subtract from the position, therefore to get the real actual position to calculate
-            // the percentage above, we need to sum back the amount subtracted by the operation.
-            $aPosition = ($position->getAmount() + $operation->getAmount());
-            $aOperation = $operation->getAmount();
 
-            foreach ($trades as $trade) {
-                $tAmount = $trade->getAmount();
+            if (!empty($trades)) {
+                $netValue = $operation->getNetValue();
+                // Calc position amount, at this point, the amount of the operation was already
+                // subtract from the position, therefore to get the real actual position to calculate
+                // the percentage above, we need to sum back the amount subtracted by the operation.
+                $aPosition = ($position->getAmount() + $operation->getAmount());
+                $aOperation = $operation->getAmount();
 
-                if ($aOperation <= $trade->getAmount()) {
-                    $trade->addSell($aOperation, $netValue);
+                foreach ($trades as $trade) {
+                    $tAmount = $trade->getAmount();
+
+                    if ($aOperation <= $trade->getAmount()) {
+                        $trade->addSell($aOperation, $netValue);
+
+                        if (!$trade->getAmount()) {
+                            $trade->setStatus(Trade::STATUS_CLOSE)
+                                ->setClosedAt($operation->getDateAt());
+                        }
+
+                        break;
+                    }
+
+                    // Calc how much in percentage represents the amount of stocks in the trade
+                    // compare against the whole position
+                    $pr = $trade->getAmount() * 100 / $aPosition;
+                    $prNetValue = round($operation->getNetValue() * $pr / 100, 2);
+
+                    $trade->addSell($tAmount, $prNetValue);
 
                     if (!$trade->getAmount()) {
                         $trade->setStatus(Trade::STATUS_CLOSE)
-                            ->setClosedAt($operation->getDateAt())
-                        ;
+                            ->setClosedAt($operation->getDateAt());
                     }
 
-                    break;
+                    $aOperation -= $tAmount;
+                    $netValue -= $prNetValue;
                 }
-
-                // Calc how much in percentage represents the amount of stocks in the trade
-                // compare against the whole position
-                $pr = $trade->getAmount() * 100 / $aPosition;
-                $prNetValue = round($operation->getNetValue() * $pr / 100, 2);
-
-                $trade->addSell($tAmount, $prNetValue);
-
-                if (!$trade->getAmount()) {
-                    $trade->setStatus(Trade::STATUS_CLOSE)
-                        ->setClosedAt($operation->getDateAt());
-                }
-
-                $aOperation -= $tAmount;
-                $netValue -= $prNetValue;
             }
 
             if (!$position->getAmount()) {

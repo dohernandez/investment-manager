@@ -3,16 +3,19 @@
 namespace App\Command;
 
 use App\Entity\Operation;
+use App\Message\UpdateWalletCapital;
 use App\Repository\StockRepository;
 use App\Repository\WalletRepository;
 use App\VO\Money;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
+use function PHPSTORM_META\type;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class ImportOperationCommand extends Command
 {
@@ -33,16 +36,23 @@ class ImportOperationCommand extends Command
      */
     private $walletRepository;
 
+    /**
+     * @var MessageBusInterface
+     */
+    private $bus;
+
     public function __construct(
         EntityManagerInterface $em,
         StockRepository $stockRepository,
-        WalletRepository $walletRepository
+        WalletRepository $walletRepository,
+        MessageBusInterface $bus
     ) {
         parent::__construct();
 
         $this->em = $em;
         $this->stockRepository = $stockRepository;
         $this->walletRepository = $walletRepository;
+        $this->bus = $bus;
     }
 
     protected function configure()
@@ -75,7 +85,7 @@ class ImportOperationCommand extends Command
 
         $io->progressStart($count);
 
-        $wCurrency = $wallet->getCurrency();
+        $walletCurrency = $wallet->getCurrency();
         foreach ($records as $offset => $record) {
             $operation = new Operation();
 
@@ -83,13 +93,13 @@ class ImportOperationCommand extends Command
                 ->setDateAt(\DateTime::createFromFormat('d/m/Y', $record[1]))
                 ->setType($this->parserType($record[3]))
                 ->setAmount(intval($record[4]))
-                ->setPriceChangeCommission(Money::from($wCurrency, floatval($record[7])))
-                ->setValue(Money::from($wCurrency, floatval($record[8])))
-                ->setCommission(Money::from($wCurrency, floatval($record[9])))
+                ->setPriceChangeCommission(Money::from($walletCurrency, $this->parserPrice($record[7])))
+                ->setValue(Money::from($walletCurrency, $this->parserPrice($record[8])))
+                ->setCommission(Money::from($walletCurrency, $this->parserPrice($record[9])))
             ;
 
-            $oType = $operation->getType();
-            if (in_array($oType, [
+            $operationType = $operation->getType();
+            if (in_array($operationType, [
                 Operation::TYPE_BUY,
                 Operation::TYPE_SELL,
                 Operation::TYPE_DIVIDEND,
@@ -102,14 +112,18 @@ class ImportOperationCommand extends Command
                     continue;
                 }
 
-                $sCurrency = $stock->getCurrency();
+                if ($operationType != Operation::TYPE_DIVIDEND) {
+                    $stockCurrency = $stock->getCurrency();
 
-                if (!empty(floatval($record[5]))) {
-                    $operation->setPrice(Money::from($sCurrency, floatval($record[5])));
-                }
+                    $price = $this->parserPrice($record[5]);
+                    if (!empty($price)) {
+                        $operation->setPrice(Money::from($stockCurrency, $price));
+                    }
 
-                if (!empty(floatval($record[6]))) {
-                    $operation->setPriceChange(Money::from($sCurrency, floatval($record[6])));
+                    $priceChange = $this->parserPrice($record[6]);
+                    if (!empty($priceChange)) {
+                        $operation->setPriceChange(Money::from($stockCurrency, $priceChange));
+                    }
                 }
 
                 $operation->setStock($stock);
@@ -122,8 +136,10 @@ class ImportOperationCommand extends Command
         }
 
         $this->em->flush();
-        $io->progressFinish();
 
+        $this->bus->dispatch(new UpdateWalletCapital($wallet));
+
+        $io->progressFinish();
 
         $io->success($count. ' operations were imported successfully.');
     }
@@ -144,5 +160,12 @@ class ImportOperationCommand extends Command
         }
 
         throw new \LogicException('type ' . $type . ' not supported');
+    }
+
+    private function parserPrice(string $price): float
+    {
+        $price = str_replace(',', '.', $price);
+
+        return floatval($price);
     }
 }
