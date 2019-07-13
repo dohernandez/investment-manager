@@ -44,7 +44,7 @@ class Position
         $self->benefits = $position->getBenefits();
         $self->pBenefits = $position->getPercentageBenefits();
         $self->displayBenefits = sprintf(
-            '€ %.2f (%.2f%%)',
+            '%s (%.2f%%)',
             $self->benefits,
             $self->pBenefits
         );

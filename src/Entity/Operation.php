@@ -257,7 +257,7 @@ class Operation implements Entity
             $this->getStock()->getMarket()->getSymbol(),
             $this->getStock()->getSymbol(),
             $this->getAmount(),
-            $this->getCapital()
+            $this->getNetValue()
         );
     }
 

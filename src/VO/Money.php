@@ -2,6 +2,8 @@
 
 namespace App\VO;
 
+use App\Entity\Exchange;
+
 final class Money
 {
     const FIELD_CURRENCY = 'currency';
@@ -98,15 +100,24 @@ final class Money
 
     public function exchange(Currency $currency, array $rateExchange): self
     {
-        $exchangeKey =  $currency->getPaarExchangeRate($this->getCurrency());
+        $exchangePaar =  $currency->getPaarExchangeRate($this->getCurrency());
 
         $self = new static();
 
         $self->setCurrency($currency);
 
-        if (isset($rateExchange[$exchangeKey])) {
-            $self->setValue($this->getValue() / $rateExchange[$exchangeKey]);
-        } else {
+        $exists = false;
+        /** @var Exchange $value */
+        foreach ($rateExchange as $value) {
+            if ($value->getPaarCurrency() == $exchangePaar) {
+                $self->setValue($this->getValue() / $value->getRate());
+
+                $exists = true;
+                break;
+            }
+        }
+
+        if (!$exists) {
             $self->setValue($this->getValue());
         }
 

@@ -62,7 +62,7 @@ class UpdateWalletCapitalHandler implements MessageHandlerInterface
             } else {
                 $pCapital = Money::from(
                     $wallet->getCurrency(),
-                    $position->getAmount() * ($stock->getValue()->exchange($wallet->getCurrency(), $rateExchange)->getValue())
+                    $position->getAmount() * $stock->getValue()->exchange($wallet->getCurrency(), $rateExchange)->getValue()
                 );
             }
 

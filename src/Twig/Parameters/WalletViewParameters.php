@@ -156,7 +156,7 @@ class WalletViewParameters extends AbstractViewParameters
             ],
             [
                 'name' => 'commissions',
-                'render' => 'currency',
+                'render' => 'money',
                 'col_with' => '120',
             ],
         ];

@@ -4,14 +4,17 @@ namespace App\Command;
 
 use App\Client\CurrencyConverter;
 use App\Entity\Exchange;
+use App\Message\UpdateWalletCapital;
 use App\Repository\BrokerRepository;
 use App\Repository\ExchangeRepository;
 use App\Repository\StockMarketRepository;
+use App\Repository\WalletRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class UpdateExchangeRateCommand extends Command
 {
@@ -42,12 +45,24 @@ class UpdateExchangeRateCommand extends Command
      */
     private $exchangeRepository;
 
+    /**
+     * @var MessageBusInterface
+     */
+    private $bus;
+
+    /**
+     * @var WalletRepository
+     */
+    private $walletRepository;
+
     public function __construct(
         EntityManagerInterface $em,
         BrokerRepository $brokerRepository,
         StockMarketRepository $stockMarketRepository,
         ExchangeRepository $exchangeRepository,
-        CurrencyConverter $currencyConverter
+        CurrencyConverter $currencyConverter,
+        WalletRepository $walletRepository,
+        MessageBusInterface $bus
     ) {
         parent::__construct();
 
@@ -56,6 +71,8 @@ class UpdateExchangeRateCommand extends Command
         $this->em = $em;
         $this->currencyConverter = $currencyConverter;
         $this->exchangeRepository = $exchangeRepository;
+        $this->bus = $bus;
+        $this->walletRepository = $walletRepository;
     }
 
     protected function configure()
@@ -106,7 +123,10 @@ class UpdateExchangeRateCommand extends Command
 
         }
 
-        $this->em->flush();
+        $this->em->flush();$wallets = $this->walletRepository->findAll();
+        foreach ($wallets as $wallet) {
+            $this->bus->dispatch(new UpdateWalletCapital($wallet));
+        }
 
         $io->success('exchange rate updated successfully.');
     }

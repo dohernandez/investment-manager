@@ -31,7 +31,6 @@ class Operation
         $self->id = $operation->getId();
         $self->stock = $operation->getStock() ? Stock::fromEntity($operation->getStock()) : null;
         $self->amount = $operation->getAmount();
-        $self->capital = $operation->getCapital();
         $self->value = $operation->getNetValue();
         $self->type = $operation->getType();
         $self->dateAt = $operation->getDateAt();

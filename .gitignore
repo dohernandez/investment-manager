@@ -34,7 +34,6 @@ var/data
 
 ###> symfony/phpunit-bridge ###
 .phpunit
-/phpunit.xml
 ###< symfony/phpunit-bridge ###
 
 ###> symfony/framework-bundle ###
@@ -56,4 +55,4 @@ var/data
 
 
 resources/import/account.csv
-resources/import/01_degiro.csv
+resources/import/operation.csv
