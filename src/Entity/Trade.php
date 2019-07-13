@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\VO\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -45,8 +46,9 @@ class Trade implements Entity
     private $buyAmount;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
      */
     private $buyPaid;
 
@@ -56,8 +58,9 @@ class Trade implements Entity
     private $sellAmount;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
      */
     private $sellPaid;
 
@@ -72,22 +75,23 @@ class Trade implements Entity
     private $amount;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
+     * @var Money
      *
-     * @ORM\Column(type="decimal", precision=11, scale=2)
+     * @ORM\Column(type="money", nullable=true)
      */
-    private $invested = 0;
+    private $invested;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
+     * @var Money
      *
-     * @ORM\Column(type="decimal", precision=11, scale=2)
+     * @ORM\Column(type="money", nullable=true)
      */
-    private $capital = 0;
+    private $capital;
 
     /**
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
-     * @ORM\Column(type="decimal", precision=11, scale=2, nullable=true)
+     * @var Money
+     *
+     * @ORM\Column(type="money", nullable=true)
      */
     private $dividend;
 
@@ -105,22 +109,19 @@ class Trade implements Entity
 
     /**
      * Final benefits returns
-     * Price in dollar. TODO In the future it should be extracted using the money pattern.
+     * @var Money
      *
-     * @ORM\Column(type="decimal", precision=11, scale=2)
+     * @ORM\Column(type="money", nullable=true)
      */
     private $net = 0;
 
     /**
+     * @var Position
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Position", inversedBy="trades")
      * @ORM\JoinColumn(nullable=false)
      */
     private $position;
-
-    public function __construct()
-    {
-        $this->operations = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -175,21 +176,25 @@ class Trade implements Entity
         return $this->buyPaid;
     }
 
-    public function setBuyPaid(?float $buyPaid): self
+    public function setBuyPaid(?Money $buyPaid): self
     {
         $this->buyPaid = $buyPaid;
 
         return $this;
     }
 
-    public function increaseBuyPaid(float $buyPaid): self
+    public function increaseBuyPaid(Money $buyPaid): self
     {
-        $this->buyPaid += $buyPaid;
+        if ($this->buyPaid !== null) {
+            $this->buyPaid = $this->buyPaid->increase($buyPaid);
+        } else {
+            $this->buyPaid = $buyPaid;
+        }
 
         return $this;
     }
 
-    public function addBuy(float $amount, float $paid): self
+    public function addBuy(float $amount, Money $paid): self
     {
         $this->increaseBuyPaid($paid);
         $this->increaseBuyAmount($amount);
@@ -217,26 +222,30 @@ class Trade implements Entity
         return $this;
     }
 
-    public function getSellPaid(): ?float
+    public function getSellPaid(): ?Money
     {
         return $this->sellPaid;
     }
 
-    public function setSellPaid(?float $sellPaid): self
+    public function setSellPaid(?Money $sellPaid): self
     {
         $this->sellPaid = $sellPaid;
 
         return $this;
     }
 
-    public function increaseSellPaid(float $sellPaid): self
+    public function increaseSellPaid(Money $sellPaid): self
     {
-        $this->sellPaid += $sellPaid;
+        if ($this->sellPaid !== null) {
+            $this->sellPaid = $this->sellPaid->increase($sellPaid);
+        } else {
+            $this->sellPaid = $sellPaid;
+        }
 
         return $this;
     }
 
-    public function addSell(float $amount, float $paid): self
+    public function addSell(float $amount, Money $paid): self
     {
         $this->increaseSellPaid($paid);
         $this->increaseSellAmount($amount);
@@ -283,14 +292,9 @@ class Trade implements Entity
         return $this;
     }
 
-    public function getCapital(): float
+    public function getCapital(): ?Money
     {
-        $stock = $this->getStock();
-        if ($stock === null) {
-            return 0;
-        }
-
-        return $this->getAmount() * $stock->getValue();
+        return $this->capital;
     }
 
     public function setCapital(?float $capital): self
@@ -300,28 +304,25 @@ class Trade implements Entity
         return $this;
     }
 
-    public function getDividend(): ?float
+    public function getDividend(): ?Money
     {
         return $this->dividend;
     }
 
-    public function setDividend(?float $dividend): self
+    public function setDividend(?Money $dividend): self
     {
         $this->dividend = $dividend;
 
         return $this;
     }
 
-    public function increaseDividend(float $dividend): self
+    public function increaseDividend(Money $dividend): self
     {
-        $this->dividend += $dividend;
-
-        return $this;
-    }
-
-    public function addDividend(float $dividend): self
-    {
-        $this->increaseDividend($dividend);
+        if ($this->dividend !== null) {
+            $this->dividend = $this->dividend->increase($dividend);
+        } else {
+            $this->dividend = $dividend;
+        }
 
         return $this;
     }
@@ -350,12 +351,12 @@ class Trade implements Entity
         return $this;
     }
 
-    public function getNet(): ?float
+    public function getNet(): ?Money
     {
         return $this->net;
     }
 
-    public function setNet(?float $net): self
+    public function setNet(?Money $net): self
     {
         $this->net = $net;
 
@@ -368,10 +369,11 @@ class Trade implements Entity
     public function __toString(): string
     {
         return sprintf(
-            '%s:%s - %d',
+            '%s:%s - %d [%s]',
             $this->getStock()->getSymbol(),
             $this->getStock()->getMarket()->getSymbol(),
-            $this->amount
+            $this->getAmount(),
+            $this->getNet()
         );
     }
 

@@ -6,6 +6,7 @@ use App\Entity\Operation;
 use App\Entity\Position;
 use App\Entity\Trade;
 use App\Repository\PositionRepository;
+use App\VO\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 
@@ -85,16 +86,16 @@ class PersistOperationListener
         $position->addOperation($operation);
 
         if ($type === Operation::TYPE_BUY) {
-//            $trade = new Trade();
-//            $trade->setStock($stock)
-//                ->setStatus(Trade::STATUS_OPEN)
-//                ->setOpenedAt($operation->getDateAt())
-//                ->setWallet($operation->getWallet())
-//            ;
-//
-//            $trade->addBuy($operation->getAmount(), $operation->getNetValue());
+            $trade = new Trade();
+            $trade->setStock($stock)
+                ->setStatus(Trade::STATUS_OPEN)
+                ->setOpenedAt($operation->getDateAt())
+                ->setWallet($operation->getWallet())
+            ;
 
-//            $position->addTrade($trade);
+            $trade->addBuy($operation->getAmount(), $operation->getNetValue());
+
+            $position->addTrade($trade);
         } else {
             $trades = $position->getOpenTrades();
 
@@ -123,7 +124,11 @@ class PersistOperationListener
                     // Calc how much in percentage represents the amount of stocks in the trade
                     // compare against the whole position
                     $pr = $trade->getAmount() * 100 / $aPosition;
-                    $prNetValue = round($operation->getNetValue() * $pr / 100, 2);
+                    $oNetValue = $operation->getNetValue();
+                    $prNetValue = Money::from(
+                        $oNetValue->getCurrency(),
+                        round($oNetValue->getValue() * $pr / 100, 2)
+                    );
 
                     $trade->addSell($tAmount, $prNetValue);
 
@@ -133,7 +138,7 @@ class PersistOperationListener
                     }
 
                     $aOperation -= $tAmount;
-                    $netValue -= $prNetValue;
+                    $netValue = $netValue->decrease($prNetValue);
                 }
             }
 
