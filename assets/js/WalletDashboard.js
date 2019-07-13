@@ -180,37 +180,37 @@ class WalletInfo {
             let wallet = result.item;
 
             $('.js-wallet-invested').each(function (index, span) {
-                $(span).html('<small>' + wallet.invested.currency.symbol + '</small> ' + wallet.invested.value.toFixed(2) + '</span>')
+                $(span).html('<small>' + wallet.invested.currency.symbol + '</small> ' + wallet.invested.preciseValue.toFixed(2) + '</span>')
             });
             $('.js-wallet-net-capital').each(function (index, span) {
-                $(span).html('<small>' + wallet.netCapital.currency.symbol + '</small> ' + wallet.netCapital.value.toFixed(2) + '</span>')
+                $(span).html('<small>' + wallet.netCapital.currency.symbol + '</small> ' + wallet.netCapital.preciseValue.toFixed(2) + '</span>')
             });
             $('.js-wallet-dividend').each(function (index, span) {
-                $(span).html('<small>' + wallet.dividend.currency.symbol + '</small> ' + wallet.dividend.value.toFixed(2) + '</span>')
+                $(span).html('<small>' + wallet.dividend.currency.symbol + '</small> ' + wallet.dividend.preciseValue.toFixed(2) + '</span>')
             });
             $('.js-wallet-benefits').each(function (index, span) {
-                $(span).html('<small>' + wallet.benefits.currency.symbol + '</small> ' + wallet.benefits.value.toFixed(2) + '</span>')
+                $(span).html('<small>' + wallet.benefits.currency.symbol + '</small> ' + wallet.benefits.preciseValue.toFixed(2) + '</span>')
             });
             $('.js-wallet-pbenefits').each(function (index, span) {
                 $(span).html(wallet.pBenefits.toFixed(2) + '%')
             });
             $('.js-wallet-capital').each(function (index, span) {
-                $(span).html('<small>' + wallet.capital.currency.symbol + '</small> ' + wallet.capital.value.toFixed(2) + '</span>')
+                $(span).html('<small>' + wallet.capital.currency.symbol + '</small> ' + wallet.capital.preciseValue.toFixed(2) + '</span>')
             });
             $('.js-wallet-margin').each(function (index, span) {
-                $(span).html('<small>' + wallet.capital.currency.symbol + '</small> ' + wallet.capital.value.toFixed(2) + '</span>')
+                $(span).html('<small>' + wallet.capital.currency.symbol + '</small> ' + wallet.capital.preciseValue.toFixed(2) + '</span>')
             });
             $('.js-wallet-funds').each(function (index, span) {
-                $(span).html('<small>' + wallet.funds.currency.symbol + '</small> ' + wallet.funds.value.toFixed(2) + '</span>')
+                $(span).html('<small>' + wallet.funds.currency.symbol + '</small> ' + wallet.funds.preciseValue.toFixed(2) + '</span>')
             });
             $('.js-wallet-commissions').each(function (index, span) {
-                $(span).html('<small>' + wallet.commissions.currency.symbol + '</small> ' + wallet.commissions.value.toFixed(2) + '</span>')
+                $(span).html('<small>' + wallet.commissions.currency.symbol + '</small> ' + wallet.commissions.preciseValue.toFixed(2) + '</span>')
             });
             $('.js-wallet-interest').each(function (index, span) {
-                $(span).html('<small>' + wallet.interest.currency.symbol + '</small> ' + wallet.interest.value.toFixed(2) + '</span>')
+                $(span).html('<small>' + wallet.interest.currency.symbol + '</small> ' + wallet.interest.preciseValue.toFixed(2) + '</span>')
             });
             $('.js-wallet-connection').each(function (index, span) {
-                $(span).html('<small>' + wallet.connection.currency.symbol + '</small> ' + wallet.connection.value.toFixed(2) + '</span>')
+                $(span).html('<small>' + wallet.connection.currency.symbol + '</small> ' + wallet.connection.preciseValue.toFixed(2) + '</span>')
             });
         }).catch((errorsData) => {
             console.log(errorsData);

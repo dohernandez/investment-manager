@@ -69,7 +69,7 @@ class ImportTransferCommand extends Command
                 ->setDate(\DateTime::createFromFormat('d/m/Y', $record[0]))
                 ->setBeneficiaryParty($beneficiary)
                 ->setDebtorParty($debtor)
-                ->setAmount(Money::fromEURValue(floatval($record[3])))
+                ->setAmount(Money::fromEURValue(floatval($record[3]) * 100))
             ;
 
             $this->em->persist($transfer);

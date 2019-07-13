@@ -120,9 +120,9 @@ class ImportOperationCommand extends Command
                         $operation->setPrice(Money::from($stockCurrency, $price));
                     }
 
-                    $priceChange = $this->parserPrice($record[6]);
+                    $priceChange = $this->parserPrice($record[6], 10000);
                     if (!empty($priceChange)) {
-                        $operation->setPriceChange(Money::from($stockCurrency, $priceChange));
+                        $operation->setPriceChange(Money::from($stockCurrency, $priceChange), 4);
                     }
                 }
 
@@ -162,10 +162,10 @@ class ImportOperationCommand extends Command
         throw new \LogicException('type ' . $type . ' not supported');
     }
 
-    private function parserPrice(string $price): float
+    private function parserPrice(string $price, int $divisor = 100): int
     {
         $price = str_replace(',', '.', $price);
 
-        return floatval($price);
+        return floatval($price) * $divisor;
     }
 }

@@ -90,7 +90,7 @@ class Stock
 
         $self->change = $stock->getChange();
         $self->changePercentage = 0;
-        if ($self->preClose) {
+        if ($self->preClose && $self->preClose->getValue()) {
             $self->changePercentage = round($self->change->getValue() * 100 / $self->preClose->getValue(), 3);
         }
 

@@ -27,11 +27,11 @@
 
 {# money #}
 {% macro render_money(value) %}
-    <% if ({{ value }}) { %>
+    <% if ({{ value }} && {{ value }}.value) { %>
         <% if ({{ value }}.currency.currencyCode == 'USD') { %>
-            <%= {{ value }}.value.toFixed(2).toString().replace(/\./g, ",") %> $
+            <%= {{ value }}.preciseValue.toFixed({{ value }}.precision).toString().replace(/\./g, ",") %> $
         <% } else { %>
-            &euro; <%= {{ value }}.value.toFixed(2).toString().replace(/\./g, ",") %>
+            &euro; <%= {{ value }}.preciseValue.toFixed({{ value }}.precision).toString().replace(/\./g, ",") %>
         <% } %>
     <% } %>
 {% endmacro render_money %}

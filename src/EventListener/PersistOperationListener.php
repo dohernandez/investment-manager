@@ -127,7 +127,8 @@ class PersistOperationListener
                     $oNetValue = $operation->getNetValue();
                     $prNetValue = Money::from(
                         $oNetValue->getCurrency(),
-                        round($oNetValue->getValue() * $pr / 100, 2)
+                        round($oNetValue->getValue() * $pr / 100, 2) * 100,
+                        $oNetValue->getPrecision()
                     );
 
                     $trade->addSell($tAmount, $prNetValue);

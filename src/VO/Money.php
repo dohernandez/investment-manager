@@ -3,15 +3,19 @@
 namespace App\VO;
 
 use App\Entity\Exchange;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 final class Money
 {
     const FIELD_CURRENCY = 'currency';
     const FIELD_VALUE = 'value';
+    const FIELD_PRECISION = 'precision';
 
     private $currency;
 
     private $value = 0;
+
+    private $precision = 2;
 
     public function getCurrency(): ?Currency
     {
@@ -25,16 +29,29 @@ final class Money
         return $this;
     }
 
-    public function getValue(?int $precision = null): float
+    /**
+     * @SerializedName("preciseValue")
+     */
+    public function getPreciseValue(): float
     {
-        if (!$precision) {
-            return $this->value;
-        }
-
-        return round($this->value, $precision);
+        return $this->value / $this->getDivisorBy();
     }
 
-    public function setValue(?float $value): self
+    public function getDivisorBy(): int
+    {
+        if ($this->getPrecision() === 4) {
+            return 1000;
+        }
+
+        return 100;
+    }
+
+    public function getValue(): int
+    {
+        return $this->value;
+    }
+
+    public function setValue(?int $value): self
     {
         $this->value = $value ?? 0;
 
@@ -46,10 +63,11 @@ final class Money
         return [
             self::FIELD_CURRENCY => $this->getCurrency()->toArray(),
             self::FIELD_VALUE => $this->getValue(),
+            self::FIELD_PRECISION => $this->getPrecision(),
         ];
     }
 
-    static public function from(Currency $currency, float $value): self
+    static public function from(Currency $currency, int $value): self
     {
         $self = new static();
 
@@ -66,51 +84,60 @@ final class Money
         $self->setCurrency(Currency::fromArray($money[self::FIELD_CURRENCY]));
         $self->setValue($money[self::FIELD_VALUE]);
 
+        // supporting legacy data
+        if (isset($money[self::FIELD_PRECISION])) {
+            $self->setPrecision($money[self::FIELD_PRECISION]);
+        }
+
         return $self;
     }
 
-    static public function fromUSDValue(?float $value): self
+    static public function fromUSDValue(?float $value, int $precision = 2): self
     {
         $self = new static();
 
         $self->setCurrency(Currency::usd());
         $self->setValue($value);
+        $self->setPrecision($precision);
 
         return $self;
     }
 
-    static public function fromEURValue(?float $value): self
+    static public function fromEURValue(?float $value, int $precision = 2): self
     {
         $self = new static();
 
         $self->setCurrency(Currency::eur());
         $self->setValue($value);
+        $self->setPrecision($precision);
 
         return $self;
     }
 
-    static public function fromCurrency(Currency $currency): self
+    static public function fromCurrency(Currency $currency, int $precision = 2): self
     {
         $self = new static();
 
         $self->setCurrency($currency);
+        $self->setPrecision($precision);
 
         return $self;
     }
 
-    public function exchange(Currency $currency, array $rateExchange): self
+    public function exchange(Currency $currency, array $rateExchange, int $precision = 2): self
     {
         $exchangePaar =  $currency->getPaarExchangeRate($this->getCurrency());
 
         $self = new static();
 
         $self->setCurrency($currency);
+        $self->setPrecision($precision);
 
         $exists = false;
         /** @var Exchange $value */
         foreach ($rateExchange as $value) {
             if ($value->getPaarCurrency() == $exchangePaar) {
-                $self->setValue($this->getValue() / $value->getRate());
+                $self->setValue($this->getPreciseValue() / $value->getRate() * $this->getDivisorBy());
 
                 $exists = true;
                 break;
@@ -164,16 +191,34 @@ final class Money
     {
         switch ($this->getCurrency()->getCurrencyCode()) {
             case Currency::CURRENCY_CODE_USD: {
-                $toString = sprintf('%.2f %s', $this->getValue(2), $this->getCurrency()->getSymbol());
+                $toString = sprintf(
+                    '%.2f %s',
+                    $this->getPreciseValue(),
+                    $this->getCurrency()->getSymbol()
+                );
 
                 break;
             }
             default: {
-                $toString = sprintf('%s %.2f', $this->getCurrency()->getSymbol(), $this->getValue(2));
+                $toString = sprintf(
+                    '%s %.2f',
+                    $this->getCurrency()->getSymbol(),
+                    $this->getValue()
+                );
             }
         }
 
         return $toString;
+    }
+
+    public function getPrecision(): int
+    {
+        return $this->precision;
+    }
+
+    public function setPrecision(int $precision): void
+    {
+        $this->precision = $precision;
     }
 
 }

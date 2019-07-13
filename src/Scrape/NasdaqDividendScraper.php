@@ -73,7 +73,7 @@ class NasdaqDividendScraper
                     ));
 
                     // Cash Amount
-                    $stockDividend->setValue(Money::fromUSDValue(floatval(
+                    $stockDividend->setValue(Money::fromUSDValue($this->parserPrice(
                         $spanNodes->eq(1)->extract('_text')[0]
                     )));
 
@@ -129,5 +129,12 @@ class NasdaqDividendScraper
         }
 
         return $this;
+    }
+
+    private function parserPrice(string $price, int $divisor = 100): int
+    {
+        $price = str_replace(',', '.', $price);
+
+        return floatval($price) * $divisor;
     }
 }
