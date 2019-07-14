@@ -4,7 +4,6 @@ namespace App\MessageHandler;
 
 use App\Entity\Position;
 use App\Message\UpdateWalletCapital;
-use App\Repository\ExchangeRepository;
 use App\VO\Money;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -22,24 +21,12 @@ class UpdateWalletCapitalHandler implements MessageHandlerInterface
      */
     private $em;
 
-    /**
-     * @var ExchangeRepository
-     */
-    private $exchangeRepository;
-
     public function __construct(
         EntityManagerInterface $em,
-        ExchangeRepository $exchangeRepository,
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
         $this->em = $em;
-        $this->exchangeRepository = $exchangeRepository;
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        yield UpdateWalletCapital::class => 'updateWalletCapital';
     }
 
     public function __invoke(UpdateWalletCapital $message)
@@ -48,10 +35,11 @@ class UpdateWalletCapitalHandler implements MessageHandlerInterface
             'message' => $message
         ]);
 
-        $rateExchange = $this->exchangeRepository->findAll();
+        $exchangeRates = $message->getExchangeRates();
         $wallet = $message->getWallet();
 
         $capital = Money::fromCurrency($wallet->getCurrency());
+
         /** @var Position $position */
         foreach ($wallet->getPositions(Position::STATUS_OPEN) as $position) {
             $pCapital = null;
@@ -62,7 +50,10 @@ class UpdateWalletCapitalHandler implements MessageHandlerInterface
             } else {
                 $pCapital = Money::from(
                     $wallet->getCurrency(),
-                    $position->getAmount() * $stock->getValue()->exchange($wallet->getCurrency(), $rateExchange)->getValue()
+                    $position->getAmount() * $stock->getValue()->exchange(
+                        $wallet->getCurrency(),
+                        $exchangeRates
+                    )->getValue()
                 );
             }
 

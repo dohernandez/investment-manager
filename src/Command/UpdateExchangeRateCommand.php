@@ -4,11 +4,10 @@ namespace App\Command;
 
 use App\Client\CurrencyConverter;
 use App\Entity\Exchange;
-use App\Message\UpdateWalletCapital;
+use App\Message\ExchangeRateUpdated;
 use App\Repository\BrokerRepository;
 use App\Repository\ExchangeRepository;
 use App\Repository\StockMarketRepository;
-use App\Repository\WalletRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -50,18 +49,12 @@ class UpdateExchangeRateCommand extends Command
      */
     private $bus;
 
-    /**
-     * @var WalletRepository
-     */
-    private $walletRepository;
-
     public function __construct(
         EntityManagerInterface $em,
         BrokerRepository $brokerRepository,
         StockMarketRepository $stockMarketRepository,
         ExchangeRepository $exchangeRepository,
         CurrencyConverter $currencyConverter,
-        WalletRepository $walletRepository,
         MessageBusInterface $bus
     ) {
         parent::__construct();
@@ -72,7 +65,6 @@ class UpdateExchangeRateCommand extends Command
         $this->currencyConverter = $currencyConverter;
         $this->exchangeRepository = $exchangeRepository;
         $this->bus = $bus;
-        $this->walletRepository = $walletRepository;
     }
 
     protected function configure()
@@ -89,44 +81,40 @@ class UpdateExchangeRateCommand extends Command
         $brokers = $this->brokerRepository->findAll();
         $stockMarkets = $this->stockMarketRepository->findAll();
 
+        $exchangeRates = [];
         foreach ($brokers as $broker) {
-            $exchanges = [];
-
             foreach ($stockMarkets as $stockMarket) {
                 $k = $broker->getCurrency()->getCurrencyCode() . '_' . $stockMarket->getCurrency()->getCurrencyCode();
 
-                if (isset($exchanges[$k])) {
+                if (isset($exchangeRates[$k])) {
                     continue;
                 }
 
-                $exchange = $this->exchangeRepository->findOneBy([
+                $exchangeRate = $this->exchangeRepository->findOneBy([
                     'paarCurrency' => $k,
                 ]);
 
-
-                if ($exchange === null) {
-                    $exchange = (new Exchange())
+                if ($exchangeRate === null) {
+                    $exchangeRate = (new Exchange())
                         ->setFromCurrency($broker->getCurrency())
                         ->setToCurrency($stockMarket->getCurrency())
                         ->setPaarCurrency($k)
                     ;
                 }
 
-                $exchanges[$k] = $exchange;
+                $exchangeRates[$k] = $exchangeRate;
             }
-
-            $this->currencyConverter->updateRates($exchanges);
-
-            foreach ($exchanges as $exchange) {
-                $this->em->persist($exchange);
-            }
-
         }
 
-        $this->em->flush();$wallets = $this->walletRepository->findAll();
-        foreach ($wallets as $wallet) {
-            $this->bus->dispatch(new UpdateWalletCapital($wallet));
+        $this->currencyConverter->updateRates($exchangeRates);
+
+        foreach ($exchangeRates as $exchangeRate) {
+            $this->em->persist($exchangeRate);
         }
+
+        $this->em->flush();
+
+        $this->bus->dispatch(new ExchangeRateUpdated($exchangeRates));
 
         $io->success('exchange rate updated successfully.');
     }

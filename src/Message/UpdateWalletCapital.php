@@ -2,6 +2,7 @@
 
 namespace App\Message;
 
+use App\Entity\Exchange;
 use App\Entity\Wallet;
 
 final class UpdateWalletCapital
@@ -11,16 +12,27 @@ final class UpdateWalletCapital
      */
     private $wallet;
 
-    public function __construct(Wallet $wallet)
+    /**
+     * @var array
+     */
+    private $exchangeRates;
+
+    public function __construct(Wallet $wallet, array $exchangeRates)
     {
         $this->wallet = $wallet;
+        $this->exchangeRates = $exchangeRates;
     }
 
-    /**
-     * @return Wallet
-     */
     public function getWallet(): Wallet
     {
         return $this->wallet;
+    }
+
+    /**
+     * @return Exchange[]
+     */
+    public function getExchangeRates(): array
+    {
+        return $this->exchangeRates;
     }
 }

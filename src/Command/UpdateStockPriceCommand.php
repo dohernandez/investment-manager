@@ -2,9 +2,8 @@
 
 namespace App\Command;
 
-use App\Message\UpdateWalletCapital;
+use App\Message\StockPriceUpdated;
 use App\Repository\StockRepository;
-use App\Repository\WalletRepository;
 use App\Scrape\YahooStockScraper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -34,11 +33,6 @@ class UpdateStockPriceCommand extends Command
     private $scraper;
 
     /**
-     * @var WalletRepository
-     */
-    private $walletRepository;
-
-    /**
      * @var MessageBusInterface
      */
     private $bus;
@@ -47,7 +41,6 @@ class UpdateStockPriceCommand extends Command
         YahooStockScraper $scraper,
         EntityManagerInterface $em,
         StockRepository $stockRepository,
-        WalletRepository $walletRepository,
         MessageBusInterface $bus
     ) {
         parent::__construct();
@@ -55,7 +48,6 @@ class UpdateStockPriceCommand extends Command
         $this->em = $em;
         $this->stockRepository = $stockRepository;
         $this->scraper = $scraper;
-        $this->walletRepository = $walletRepository;
         $this->bus = $bus;
     }
 
@@ -101,10 +93,7 @@ class UpdateStockPriceCommand extends Command
 
         $this->em->flush();
 
-        $wallets = $this->walletRepository->findAll();
-        foreach ($wallets as $wallet) {
-            $this->bus->dispatch(new UpdateWalletCapital($wallet));
-        }
+        $this->bus->dispatch(new StockPriceUpdated());
 
         $io->progressFinish();
 

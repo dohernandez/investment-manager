@@ -3,13 +3,12 @@
 namespace App\Command;
 
 use App\Entity\Operation;
-use App\Message\UpdateWalletCapital;
+use App\Message\OperationImportedInWallet;
 use App\Repository\StockRepository;
 use App\Repository\WalletRepository;
 use App\VO\Money;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
-use function PHPSTORM_META\type;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -137,7 +136,7 @@ class ImportOperationCommand extends Command
 
         $this->em->flush();
 
-        $this->bus->dispatch(new UpdateWalletCapital($wallet));
+        $this->bus->dispatch(new OperationImportedInWallet($wallet));
 
         $io->progressFinish();
 

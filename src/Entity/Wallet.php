@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\Criteria\PositionByCriteria;
 use App\VO\Currency;
+use App\VO\DividendYear;
 use App\VO\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -114,6 +115,13 @@ class Wallet implements Entity
      * @ORM\Column(type="currency", nullable=false)
      */
     private $currency;
+
+    /**
+     * @var DividendYear[]
+     *
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $dividendYear;
 
     public function __construct()
     {
@@ -563,32 +571,20 @@ class Wallet implements Entity
         return $this;
     }
 
-    public function dividendProjectedYear(): ?float
-    {
-        $dividendProjectedYear = 0;
-
-        $now = new \DateTime();
-        $year = intval($now->format('Y'));
-
-        /** @var Position $position */
-        foreach ($this->getPositions(Position::STATUS_OPEN) as $position) {
-            foreach ($position->getStock()->getDividends() as $stockDividend) {
-                if (intval($stockDividend->getExDate()->format('Y')) == $year) {
-//                $dividend = $stockDividend->
-                }
-            }
-        }
-
-        dd($year);
-
-        return $dividendProjectedYear;
-    }
-
-    /**
-     * @return Currency
-     */
     public function getCurrency(): Currency
     {
         return $this->currency;
+    }
+
+    public function getDividendYear(): array
+    {
+        return $this->dividendYear;
+    }
+
+    public function setDividendYear($dividendYear): self
+    {
+        $this->dividendYear = $dividendYear;
+
+        return $this;
     }
 }

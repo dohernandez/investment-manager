@@ -5,7 +5,6 @@ namespace App\Controller\Api;
 use App\Api;
 use App\Entity;
 use App\Form\StockDividendType;
-use App\Message\StockDividendsUpdated;
 use App\Repository\StockRepository;
 use App\Scrape\NasdaqDividendScraper;
 use Doctrine\ORM\EntityManagerInterface;

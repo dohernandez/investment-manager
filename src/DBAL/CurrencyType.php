@@ -70,4 +70,12 @@ class CurrencyType extends Type
     {
         return self::CURRENCY_TYPE;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return true;
+    }
 }

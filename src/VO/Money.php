@@ -125,7 +125,7 @@ final class Money
         return $self;
     }
 
-    public function exchange(Currency $currency, array $rateExchange, int $precision = 2): self
+    public function exchange(Currency $currency, array $exchangeRates, int $precision = 2): self
     {
         $exchangePaar =  $currency->getPaarExchangeRate($this->getCurrency());
 
@@ -135,10 +135,10 @@ final class Money
         $self->setPrecision($precision);
 
         $exists = false;
-        /** @var Exchange $value */
-        foreach ($rateExchange as $value) {
-            if ($value->getPaarCurrency() == $exchangePaar) {
-                $self->setValue($this->getPreciseValue() / $value->getRate() * $this->getDivisorBy());
+        /** @var Exchange $rate */
+        foreach ($exchangeRates as $rate) {
+            if ($rate->getPaarCurrency() == $exchangePaar) {
+                $self->setValue($this->getPreciseValue() / $rate->getRate() * $this->getDivisorBy());
 
                 $exists = true;
                 break;
