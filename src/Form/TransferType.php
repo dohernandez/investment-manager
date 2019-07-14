@@ -5,8 +5,6 @@ namespace App\Form;
 use App\Entity\Transfer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -23,11 +21,13 @@ class TransferType extends AbstractType
                 'label' => 'Debtor',
                 'placeholder' => 'Choose a debtor',
             ])
-            ->add('amount', TextType::class, [
+            ->add('amount', MoneyType::class, [
                 'attr' => [
                     'placeholder' => 'Enter amount',
                     'autocomplete' => "off",
                 ],
+                'divisor' => 100,
+                'currency' => 'EUR',
             ])
             ->add('date', DateType::class, [
                 'attr' => [

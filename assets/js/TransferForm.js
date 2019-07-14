@@ -51,6 +51,16 @@ class TransferForm extends Form {
                     continue;
                 }
 
+                if (property === 'amount') {
+                    let inputData = data[property];
+
+                    if (inputData !== null) {
+                        $input.val(inputData.preciseValue);
+                    }
+
+                    continue;
+                }
+
                 $input.val(data[property]);
             }
         }
