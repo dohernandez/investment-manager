@@ -1,6 +1,6 @@
 <div class="box no-border no-shadow">
     <div class="box-header with-border">
-        {% embed 'Components/ui/stock-price.html.twig' with {
+        {% embed 'stocks/partial/stock-price.html.twig' with {
             'tmpl': true,
         }%}
         {% endembed %}
@@ -43,18 +43,18 @@
             <div class="col-md-7 stock-open-close-day-price-block pull-right">
                 {% embed 'Components/ui/range-slider-show.html.twig' with {
                     'id': 'low-high-day-price',
-                    'min_price': 'dayLow.value',
-                    'max_price': 'dayHigh.value',
-                    'current_price': 'value.value',
+                    'min_price': 'dayLow.preciseValue',
+                    'max_price': 'dayHigh.preciseValue',
+                    'current_price': 'value.preciseValue',
                     'type' : 'Day low/high'|trans|upper,
                     'tmpl': true,
                 } %}
                 {% endembed %}
                 {% embed 'Components/ui/range-slider-show.html.twig' with {
                     'id': 'low-high-52-week-price',
-                    'min_price': 'week52Low.value',
-                    'max_price': 'week52High.value',
-                    'current_price': 'value.value',
+                    'min_price': 'week52Low.preciseValue',
+                    'max_price': 'week52High.preciseValue',
+                    'current_price': 'value.preciseValue',
                     'type' : '52 week low/high'|trans|upper,
                     'tmpl': true,
                 } %}

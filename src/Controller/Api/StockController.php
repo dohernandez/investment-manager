@@ -108,8 +108,10 @@ class StockController extends BaseController
         }
 
         try {
+            dump($data);
             $form->submit($data);
         } catch (\Exception $e) {
+            dump($e);
             return $this->json(
                 [
                     'message' => $e->getMessage(),

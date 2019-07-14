@@ -55,7 +55,7 @@ class ImportStockMarketCommand extends Command
                 ->setSymbol($record[1])
                 ->setCountry($record[2])
                 ->setYahooSymbol($record[3])
-                ->setCurrency(Currency::fromSymbol($record[4]))
+                ->setCurrency(Currency::fromCode($record[4]))
                 ;
 
             $this->em->persist($stockMarket);

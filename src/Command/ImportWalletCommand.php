@@ -65,7 +65,7 @@ class ImportWalletCommand extends Command
                 ->setName($record[1])
                 ->setSite($record[0])
                 ->setAccount($account)
-                ->setCurrency(Currency::fromSymbol($record[2]))
+                ->setCurrency(Currency::fromCode($record[2]))
             ;
 
             $wallet = (new Wallet())

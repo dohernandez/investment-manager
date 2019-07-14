@@ -62,7 +62,7 @@ final class Currency
         return $self;
     }
 
-    static public function fromSymbol(string $symbol): self
+    static public function fromCode(string $symbol): self
     {
         $self = new static();
 

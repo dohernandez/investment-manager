@@ -2,27 +2,38 @@
 
 namespace App\Form;
 
+use App\Form\DataMapper\MoneyMapper;
 use App\VO\Money;
-use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType as SymfonyMoneyType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Tests\Extension\Core\Type\Money as FormMoneyType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class MoneyType extends AbstractType
+class MoneyType extends SymfonyMoneyType
 {
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('amount', FormMoneyType::class, array(
-                'divisor' => 100,
+            ->addViewTransformer(new MoneyMapper(
+                $options['scale'],
+                $options['grouping'],
+                $options['rounding_mode'],
+                $options['divisor'],
+                $options['currency'],
+                $options['precision']
             ))
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
+        parent::configureOptions($resolver);
+
         $resolver->setDefaults([
             'class' => Money::class,
+            'precision' => 2,
         ]);
     }
 }

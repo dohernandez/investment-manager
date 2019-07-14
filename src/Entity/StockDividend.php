@@ -237,6 +237,6 @@ class StockDividend implements Entity
      */
     public function __toString(): string
     {
-        return $this->getValue()->getValue() . '(' . $this->getStatus() . ')';
+        return $this->getValue() . '(' . $this->getStatus() . ')';
     }
 }

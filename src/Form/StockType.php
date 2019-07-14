@@ -35,11 +35,13 @@ class StockType extends AbstractType
             ->add('market', StockMarketChoiceType::class, [
                 'placeholder' => 'Choose a market'
             ])
-            ->add('value', TextType::class, [
+            ->add('value', MoneyType::class, [
                 'attr' => [
                     'placeholder' => 'Enter value',
                     'autocomplete' => "off",
                 ],
+                'divisor' => 100,
+                'currency' => 'USD',
             ])
             ->add('description', TextareaType::class, [
                 'attr' => [
@@ -63,29 +65,43 @@ class StockType extends AbstractType
                 'required' => false,
             ])
             // hidden inputs
-            ->add('lastChangePrice', HiddenType::class, [
+            ->add('lastChangePrice', HiddenMoneyType::class, [
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'USD',
             ])
             ->add('peRatio', HiddenType::class, [
                 'required' => false,
             ])
-            ->add('preClose', HiddenType::class, [
+            ->add('preClose', HiddenMoneyType::class, [
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'USD',
             ])
-            ->add('open', HiddenType::class, [
+            ->add('open', HiddenMoneyType::class, [
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'USD',
             ])
-            ->add('dayLow', HiddenType::class, [
+            ->add('dayLow', HiddenMoneyType::class, [
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'USD',
             ])
-            ->add('dayHigh', HiddenType::class, [
+            ->add('dayHigh', HiddenMoneyType::class, [
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'USD',
             ])
-            ->add('week52Low', HiddenType::class, [
+            ->add('week52Low', HiddenMoneyType::class, [
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'USD',
             ])
-            ->add('week52High', HiddenType::class, [
+            ->add('week52High', HiddenMoneyType::class, [
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'USD',
             ])
         ;
     }

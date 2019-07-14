@@ -240,6 +240,17 @@ class StockForm extends Form {
                 continue;
             }
 
+            if (['value', 'lastChangePrice', 'preClose', 'open', 'dayLow', 'dayHigh', 'week52Low', 'week52High']
+                .indexOf(property) !== -1) {
+                let inputData = data[property];
+
+                if (inputData !== null) {
+                    $input.val(inputData.preciseValue);
+                }
+
+                continue;
+            }
+
             $input.val(data[property]);
         }
     }

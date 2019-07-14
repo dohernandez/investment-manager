@@ -67,12 +67,13 @@ final class Money
         ];
     }
 
-    static public function from(Currency $currency, int $value): self
+    static public function from(Currency $currency, int $value, int $precision = 2): self
     {
         $self = new static();
 
         $self->setCurrency($currency);
         $self->setValue($value);
+        $self->setPrecision($precision);
 
         return $self;
     }
@@ -190,7 +191,7 @@ final class Money
     public function __toString(): string
     {
         switch ($this->getCurrency()->getCurrencyCode()) {
-            case Currency::CURRENCY_CODE_USD: {
+            case Currency::CURRENCY_CODE_CAD: {
                 $toString = sprintf(
                     '%.2f %s',
                     $this->getPreciseValue(),
@@ -203,7 +204,7 @@ final class Money
                 $toString = sprintf(
                     '%s %.2f',
                     $this->getCurrency()->getSymbol(),
-                    $this->getValue()
+                    $this->getPreciseValue()
                 );
             }
         }
