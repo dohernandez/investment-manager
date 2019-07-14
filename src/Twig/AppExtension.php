@@ -73,7 +73,7 @@ class AppExtension extends AbstractExtension
             return "
                 <% if ($value) { %> 
                     <% if ($value.currency.currencyCode == 'USD') { %>
-                        <%= $value.preciseValue.toFixed(2).toString().replace(/\./g, \",\") %> $
+                        $ <%= $value.preciseValue.toFixed(2).toString().replace(/\./g, \",\") %>
                     <% } else { %>
                         &euro; <%= $value.preciseValue.toFixed(2).toString().replace(/\./g, \",\") %>
                     <% } %>

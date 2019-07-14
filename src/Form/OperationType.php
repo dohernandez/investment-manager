@@ -46,39 +46,49 @@ class OperationType extends AbstractType
                 ],
                 'required' => false,
             ])
-            ->add('price', TextType::class, [
+            ->add('price', MoneyType::class, [
                 'attr' => [
                     'placeholder' => 'Enter price',
                     'autocomplete' => "off",
                 ],
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'USD',
             ])
-            ->add('priceChange', TextType::class, [
+            ->add('priceChange', MoneyType::class, [
                 'attr' => [
                     'placeholder' => 'Enter price change',
                     'autocomplete' => "off",
                 ],
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'USD',
             ])
-            ->add('priceChangeCommission', TextType::class, [
+            ->add('priceChangeCommission', MoneyType::class, [
                 'attr' => [
                     'placeholder' => 'Enter price change commision',
                     'autocomplete' => "off",
                 ],
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'EUR',
             ])
-            ->add('value', TextType::class, [
+            ->add('value', MoneyType::class, [
                 'attr' => [
                     'placeholder' => 'Enter value',
                     'autocomplete' => "off",
-                ]
+                ],
+                'divisor' => 100,
+                'currency' => 'EUR',
             ])
-            ->add('commission', TextType::class, [
+            ->add('commission', MoneyType::class, [
                 'attr' => [
                     'placeholder' => 'Enter commission',
                     'autocomplete' => "off",
                 ],
                 'required' => false,
+                'divisor' => 100,
+                'currency' => 'EUR',
             ])
         ;
     }
