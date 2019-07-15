@@ -2,14 +2,14 @@
 
 namespace App\DBAL;
 
-use App\VO\DividendYear;
+use App\Entity\WalletMetadata;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 
-class ArrayDividendYearType extends Type
+class WalletMetadataType extends Type
 {
-    const ARRAY_DIVIDEND_YEAR_TYPE = Type::JSON;
+    const WALLET_METADATA_TYPE = Type::JSON;
 
     /**
      * {@inheritDoc}
@@ -21,7 +21,7 @@ class ArrayDividendYearType extends Type
     /**
      * {@inheritDoc}
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform): ?array
+    public function convertToPHPValue($value, AbstractPlatform $platform): ?WalletMetadata
     {
         if ($value === null || $value === '') {
             return null;
@@ -37,11 +37,7 @@ class ArrayDividendYearType extends Type
             throw ConversionException::conversionFailed($value, $this->getName());
         }
 
-        foreach ($val as $k => $dy) {
-            $val[$k] = DividendYear::fromArray($dy);
-        }
-
-        return $val;
+        return WalletMetadata::fromArray($val);
     }
 
     /**
@@ -53,14 +49,11 @@ class ArrayDividendYearType extends Type
             return null;
         }
 
-        $val = [];
-        foreach ($value as $k => $item) {
-            if ($item instanceof DividendYear) {
-                $val[$k] = $item->toArray();
-            }
+        if (!$value instanceof WalletMetadata) {
+            return null;
         }
 
-        $val = json_encode($val);
+        $val = json_encode($value->toArray());
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw ConversionException::conversionFailedSerialization($value, 'json', json_last_error_msg());
@@ -74,7 +67,7 @@ class ArrayDividendYearType extends Type
      */
     public function getName()
     {
-        return self::ARRAY_DIVIDEND_YEAR_TYPE;
+        return self::WALLET_METADATA_TYPE;
     }
 
     /**

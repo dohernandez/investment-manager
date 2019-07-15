@@ -117,11 +117,11 @@ class Wallet implements Entity
     private $currency;
 
     /**
-     * @var DividendYear[]
+     * @var WalletMetadata
      *
-     * @ORM\Column(type="array_diviend_year", nullable=true)
+     * @ORM\Column(type="wallet_metadata", nullable=true)
      */
-    private $dividendYear;
+    private $metadata;
 
     public function __construct()
     {
@@ -576,17 +576,14 @@ class Wallet implements Entity
         return $this->currency;
     }
 
-    /**
-     * @return DividendYear[]
-     */
-    public function getDividendYear(): ?array
+    public function getMetadata(): ?WalletMetadata
     {
-        return $this->dividendYear;
+        return $this->metadata;
     }
 
-    public function setDividendYear(?array $dividendYear): self
+    public function setMetadata(?WalletMetadata $metadata): self
     {
-        $this->dividendYear = $dividendYear;
+        $this->metadata = $metadata;
 
         return $this;
     }

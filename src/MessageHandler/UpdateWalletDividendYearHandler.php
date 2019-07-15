@@ -4,6 +4,8 @@ namespace App\MessageHandler;
 
 use App\Entity\Position;
 use App\Entity\StockDividend;
+use App\Entity\WalletDividendMetadata;
+use App\Entity\WalletMetadata;
 use App\Message\UpdateWalletCapital;
 use App\Message\UpdateWalletDividendYear;
 use App\VO\DividendYear;
@@ -43,9 +45,10 @@ class UpdateWalletDividendYearHandler implements MessageHandlerInterface
         $exchangeRates = $message->getExchangeRates();
         $wallet = $message->getWallet();
 
-        $dividendYear = $wallet->getDividendYear() ?? [];
+        $metadata = $wallet->getMetadata() ?? new WalletMetadata();
+        $dividends = $metadata->getDividends() ?? [];
+
         $dividendProjectedYear = Money::fromCurrency($wallet->getCurrency());
-        $dividendPaidYear = Money::fromCurrency($wallet->getCurrency());
 
         /** @var Position $position */
         foreach ($wallet->getPositions(Position::STATUS_OPEN) as $position) {
@@ -57,44 +60,35 @@ class UpdateWalletDividendYearHandler implements MessageHandlerInterface
 
             /** @var StockDividend $dividend */
             foreach ($stock->yearDividends() as $dividend) {
-                switch ($dividend->getStatus()) {
-                    case StockDividend::STATUS_ANNOUNCED:
-                        if ($dividend->getExDate() > $now) {
-                            $dividendProjectedYear = $dividendProjectedYear->increase(
-                                $dividend->getValue()
-                                    ->exchange($dividendProjectedYear->getCurrency(), $exchangeRates)
-                                    ->multiply($position->getAmount())
-                            );
+                if (StockDividend::STATUS_ANNOUNCED || StockDividend::STATUS_PROJECTED) {
+                    $increase = false;
 
-                            break;
-                        }
+                    if ($dividend->getExDate() > $now) {
+                        $increase = true;
+                    } elseif (StockDividend::STATUS_ANNOUNCED && $dividend->getPaymentDate() < $now) {
+                        $increase = true;
+                    }
 
-                        //TODO add to the pending
-                        break;
-
-                    case StockDividend::STATUS_PAYED:
-                        // TODO need to sync the operation "dividend type" with the dividend.
-//                        $dividendPaidYear = $dividendPaidYear->increase($dividend->get)
-
-                        break;
-
-                    default:
+                    if ($increase) {
                         $dividendProjectedYear = $dividendProjectedYear->increase(
                             $dividend->getValue()
                                 ->exchange($dividendProjectedYear->getCurrency(), $exchangeRates)
                                 ->multiply($position->getAmount())
                         );
+                    }
                 }
             }
         }
 
-        if (!isset($dividendYear[$year])) {
-            $dividendYear[$year] = DividendYear::fromYearCurrency($year, $wallet->getCurrency());
+        if (!isset($dividends[$year])) {
+            $dividends[$year] = (new WalletDividendMetadata())
+                                    ->setProjected($dividendProjectedYear)
+            ;
         }
 
-        $dividendYear[$year] = $dividendYear[$year]->changeProjected($dividendProjectedYear);
+        $metadata->setDividends($dividends);
+        $wallet->setMetadata($metadata);
 
-        $wallet->setDividendYear($dividendYear);
         $this->em->persist($wallet);
 
         $this->em->flush();
