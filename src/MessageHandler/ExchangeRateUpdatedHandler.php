@@ -4,6 +4,7 @@ namespace App\MessageHandler;
 
 use App\Message\ExchangeRateUpdated;
 use App\Message\UpdateWalletCapital;
+use App\Message\UpdateWalletDividendYear;
 use App\Repository\WalletRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -55,6 +56,7 @@ class ExchangeRateUpdatedHandler implements MessageHandlerInterface
         $wallets = $this->walletRepository->findAll();
         foreach ($wallets as $wallet) {
             $this->bus->dispatch(new UpdateWalletCapital($wallet, $exchangeRates));
+            $this->bus->dispatch(new UpdateWalletDividendYear($wallet, $exchangeRates));
         }
     }
 }

@@ -106,7 +106,7 @@ class UpdateExchangeRateCommand extends Command
             }
         }
 
-        $this->currencyConverter->updateRates($exchangeRates);
+//        $this->currencyConverter->updateRates($exchangeRates);
 
         foreach ($exchangeRates as $exchangeRate) {
             $this->em->persist($exchangeRate);

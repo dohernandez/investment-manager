@@ -8,19 +8,19 @@ use Doctrine\Common\Collections\Expr\CompositeExpression;
 
 class StockDividendByCriteria extends Criteria
 {
-    public static function nextExDate(\DateTime $exDate)
+    public static function gteExDate(\DateTime $exDate)
     {
         return Criteria::create()
             ->andWhere(Criteria::expr()->gte('exDate', $exDate))
-            ->orderBy(['exDate' => 'ASC']);
+            ->orderBy(['exDate' => 'ASC'])
             ;
     }
 
-    public static function lastExDate(\DateTime $exDate)
+    public static function ltExDate(\DateTime $exDate)
     {
         return Criteria::create()
             ->andWhere(Criteria::expr()->lt('exDate', $exDate))
-            ->orderBy(['exDate' => 'DESC']);
+            ->orderBy(['exDate' => 'DESC'])
             ;
     }
 
@@ -33,6 +33,18 @@ class StockDividendByCriteria extends Criteria
                     Criteria::expr()->eq('status', StockDividend::STATUS_ANNOUNCED),
                 ])
             )
+            ;
+    }
+
+    public static function year(int $year)
+    {
+        $now = new \DateTimeImmutable();
+        $beginYear = $now->setDate($year, 1, 1);
+        $endYear = $now->setDate($year, 12, 31);
+
+        return Criteria::create()
+            ->andWhere(Criteria::expr()->gte('exDate', $beginYear))
+            ->andWhere(Criteria::expr()->lt('exDate', $endYear))
             ;
     }
 }

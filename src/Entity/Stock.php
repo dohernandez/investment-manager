@@ -408,7 +408,7 @@ class Stock implements Entity
          * @psalm-var Collection<TKey,StockDividend>
          * @var Collection $matches
          */
-        $matches = $this->dividends->matching(StockDividendByCriteria::nextExDate($nextDate));
+        $matches = $this->dividends->matching(StockDividendByCriteria::gteExDate($nextDate));
 
         if ($matches->isEmpty()){
             return null;
@@ -434,13 +434,21 @@ class Stock implements Entity
          * @psalm-var Collection<TKey,StockDividend>
          * @var Collection $matches
          */
-        $matches = $this->dividends->matching(StockDividendByCriteria::lastExDate($preDate));
+        $matches = $this->dividends->matching(StockDividendByCriteria::ltExDate($preDate));
 
         if ($matches->isEmpty()){
             return null;
         }
 
         return $matches->first();
+    }
+
+    public function yearDividends($time='now'): Collection
+    {
+        $now = new \DateTime($time);
+        $year = $now->format('Y');
+
+        return $this->dividends->matching(StockDividendByCriteria::year($year));
     }
 
     public function getPeRatio(): ?float

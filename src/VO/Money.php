@@ -222,4 +222,17 @@ final class Money
         $this->precision = $precision;
     }
 
+    public function multiply(float $value): self
+    {
+        if (!$value) {
+            return $this;
+        }
+
+        $self = new static();
+
+        $self->setCurrency($this->getCurrency());
+        $self->setValue($this->getValue() * $value);
+
+        return $self;
+    }
 }

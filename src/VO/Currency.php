@@ -25,23 +25,9 @@ final class Currency
         return $this->symbol;
     }
 
-    public function setSymbol(string $symbol): self
-    {
-        $this->symbol = $symbol;
-
-        return $this;
-    }
-
     public function getCurrencyCode(): ?string
     {
         return $this->currencyCode;
-    }
-
-    public function setCurrencyCode(string $currencyCode): self
-    {
-        $this->currencyCode = $currencyCode;
-
-        return $this;
     }
 
     public function toArray(): array
@@ -56,8 +42,8 @@ final class Currency
     {
         $self = new static();
 
-        $self->setSymbol($currency[self::FIELD_SYMBOL]);
-        $self->setCurrencyCode($currency[self::FIELD_CURRENCY_CODE]);
+        $self->symbol = $currency[self::FIELD_SYMBOL];
+        $self->currencyCode = $currency[self::FIELD_CURRENCY_CODE];
 
         return $self;
     }
@@ -68,16 +54,16 @@ final class Currency
 
         switch ($symbol) {
             case self::CURRENCY_CODE_USD:
-                $self->setSymbol(self::CURRENCY_SYMBOL_USD);
-                $self->setCurrencyCode(self::CURRENCY_CODE_USD);
+                $self->symbol = self::CURRENCY_SYMBOL_USD;
+                $self->currencyCode = self::CURRENCY_CODE_USD;
                 break;
             case self::CURRENCY_CODE_EUR:
-                $self->setSymbol(self::CURRENCY_SYMBOL_EUR);
-                $self->setCurrencyCode(self::CURRENCY_CODE_EUR);
+                $self->symbol = self::CURRENCY_SYMBOL_EUR;
+                $self->currencyCode = self::CURRENCY_CODE_EUR;
                 break;
             case self::CURRENCY_CODE_CAD:
-                $self->setSymbol(self::CURRENCY_SYMBOL_CAD);
-                $self->setCurrencyCode(self::CURRENCY_CODE_CAD);
+                $self->symbol = self::CURRENCY_SYMBOL_CAD;
+                $self->currencyCode = self::CURRENCY_CODE_CAD;
                 break;
             default:
                 throw new \LogicException('currency not supported');
@@ -90,8 +76,8 @@ final class Currency
     {
         $self = new static();
 
-        $self->setSymbol(self::CURRENCY_SYMBOL_USD);
-        $self->setCurrencyCode(self::CURRENCY_CODE_USD);
+        $self->symbol = self::CURRENCY_SYMBOL_USD;
+        $self->currencyCode = self::CURRENCY_CODE_USD;
 
         return $self;
     }
@@ -100,8 +86,8 @@ final class Currency
     {
         $self = new static();
 
-        $self->setSymbol(self::CURRENCY_SYMBOL_EUR);
-        $self->setCurrencyCode(self::CURRENCY_CODE_EUR);
+        $self->symbol = self::CURRENCY_SYMBOL_EUR;
+        $self->currencyCode = self::CURRENCY_CODE_EUR;
 
         return $self;
     }

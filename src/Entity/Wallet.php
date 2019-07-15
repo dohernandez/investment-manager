@@ -119,7 +119,7 @@ class Wallet implements Entity
     /**
      * @var DividendYear[]
      *
-     * @ORM\Column(type="json", nullable=true)
+     * @ORM\Column(type="array_diviend_year", nullable=true)
      */
     private $dividendYear;
 
@@ -576,12 +576,15 @@ class Wallet implements Entity
         return $this->currency;
     }
 
-    public function getDividendYear(): array
+    /**
+     * @return DividendYear[]
+     */
+    public function getDividendYear(): ?array
     {
         return $this->dividendYear;
     }
 
-    public function setDividendYear($dividendYear): self
+    public function setDividendYear(?array $dividendYear): self
     {
         $this->dividendYear = $dividendYear;
 

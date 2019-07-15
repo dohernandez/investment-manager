@@ -40,7 +40,7 @@ class StockDividendRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('sd')
             ->andWhere('sd.stock = :stock')
             ->setParameter('stock', $stock)
-            ->addCriteria(StockDividendByCriteria::nextExDate($exDate))
+            ->addCriteria(StockDividendByCriteria::gteExDate($exDate))
             ->orderBy('sd.exDate', 'ASC')
             ->setMaxResults(1)
             ->getQuery()
