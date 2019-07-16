@@ -4,8 +4,9 @@ namespace App\Entity;
 
 use App\Repository\Criteria\PositionByCriteria;
 use App\VO\Currency;
-use App\VO\DividendYear;
 use App\VO\Money;
+use App\VO\WalletDividendMetadata;
+use App\VO\WalletMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -235,6 +236,7 @@ class Wallet implements Entity
         $this->setCommissions(null);
         $this->setConnection(null);
         $this->setInterest(null);
+        $this->setMetadata(null);
 
         return $this;
     }
@@ -474,26 +476,49 @@ class Wallet implements Entity
     {
         if (!$this->operations->contains($operation)) {
 
+            $netValue = $operation->getNetValue();
+
             switch ($operation->getType()) {
                 case Operation::TYPE_BUY:
-                        $this->decreaseFunds($operation->getNetValue());
+                        $this->decreaseFunds($netValue);
                         $this->increaseCommissions($operation->getFinalCommissionPaid());
                     break;
                 case Operation::TYPE_SELL:
-                        $this->increaseFunds($operation->getNetValue());
+                        $this->increaseFunds($netValue);
                         $this->increaseCommissions($operation->getFinalCommissionPaid());
                     break;
                 case Operation::TYPE_DIVIDEND:
-                        $this->increaseFunds($operation->getNetValue());
-                        $this->increaseDividend($operation->getNetValue());
+                    $this->increaseFunds($netValue);
+                    $this->increaseDividend($netValue);
+
+                    // update metadata dividend paid
+                    $lastPaidDividend = $operation->getStock()->lastPaidDividendAtDate($operation->getDateAt());
+                    if ($lastPaidDividend) {
+                        $year = $lastPaidDividend->getExDate()->format('Y');
+                    } else {
+                        $year = $operation->getDateAt()->format('Y');
+                    }
+
+                    $metadata = $this->getMetadata();
+                    if ($metadata === null) {
+                        $metadata = new WalletMetadata();
+                    }
+
+                    $dividendMetadata = $metadata->getDividendYear($year);
+                    if ($dividendMetadata === null) {
+                        $dividendMetadata = WalletDividendMetadata::fromYear($year);
+                    }
+                    $dividendMetadata = $dividendMetadata->increasePaid($netValue);
+
+                    $this->setMetadata($metadata->setDividendYear($year, $dividendMetadata));
                     break;
                 case Operation::TYPE_INTEREST:
-                        $this->decreaseFunds($operation->getNetValue());
-                        $this->increaseInterest($operation->getNetValue());
+                        $this->decreaseFunds($netValue);
+                        $this->increaseInterest($netValue);
                     break;
                 case Operation::TYPE_CONNECTIVITY:
-                        $this->decreaseFunds($operation->getNetValue());
-                        $this->increaseConnection($operation->getNetValue());
+                        $this->decreaseFunds($netValue);
+                        $this->increaseConnection($netValue);
                     break;
                 default:
                     throw new \LogicException(sprintf('operation "%s" not supported.', $operation->getType()));

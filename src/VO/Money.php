@@ -235,4 +235,18 @@ final class Money
 
         return $self;
     }
+
+    public function divide(float $value): self
+    {
+        if (!$value) {
+            return $this;
+        }
+
+        $self = new static();
+
+        $self->setCurrency($this->getCurrency());
+        $self->setValue($this->getValue() / $value);
+
+        return $self;
+    }
 }

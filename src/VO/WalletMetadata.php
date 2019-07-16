@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\VO;
 
 class WalletMetadata
 {
@@ -19,11 +19,25 @@ class WalletMetadata
         return $this->dividends;
     }
 
-    public function setDividends(?array $dividends): self
+    public function getDividendYear(int $year): ?WalletDividendMetadata
     {
-        $this->dividends = $dividends;
+        return isset($this->dividends[$year]) ? $this->dividends[$year] : null;
+    }
 
-        return $this;
+    public function setDividendYear(int $year, ?WalletDividendMetadata $dividendMetadata): self
+    {
+        $self = new static();
+
+        $dividends = $this->getDividends();
+        if ($dividends) {
+            foreach ($dividends as $y => $dividend) {
+                $self->dividends[$y] = $dividend;
+            }
+        }
+
+        $self->dividends[$year] = $dividendMetadata;
+
+        return $self;
     }
 
     public function toArray(): array
@@ -57,7 +71,7 @@ class WalletMetadata
             $dividends[$year] = WalletDividendMetadata::fromArray($dividend);
         }
 
-        $self->setDividends($dividends);
+        $self->dividends = $dividends;
 
         return $self;
     }

@@ -2,7 +2,7 @@
 
 namespace App\DBAL;
 
-use App\Entity\WalletMetadata;
+use App\VO\WalletMetadata;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;

@@ -400,7 +400,7 @@ class Stock implements Entity
      * @return StockDividend|null
      * @throws \Exception
      */
-    public function nextDividend($time='now'): ?StockDividend
+    public function nextDividend(string $time='now'): ?StockDividend
     {
         $nextDate = new \DateTime($time);
 
@@ -417,38 +417,28 @@ class Stock implements Entity
         return $matches->first();
     }
 
-    /**
-     * Returns the last dividend before time.
-     * Use in most case when nextDividend is null.
-     *
-     * @param string $time
-     *
-     * @return StockDividend|null
-     * @throws \Exception
-     */
-    public function preDividend($time='now'): ?StockDividend
-    {
-        $preDate = new \DateTime($time);
-
-        /**
-         * @psalm-var Collection<TKey,StockDividend>
-         * @var Collection $matches
-         */
-        $matches = $this->dividends->matching(StockDividendByCriteria::ltExDate($preDate));
-
-        if ($matches->isEmpty()){
-            return null;
-        }
-
-        return $matches->first();
-    }
-
-    public function yearDividends($time='now'): Collection
+    public function yearDividends(string $time='now'): Collection
     {
         $now = new \DateTime($time);
         $year = $now->format('Y');
 
         return $this->dividends->matching(StockDividendByCriteria::year($year));
+    }
+
+    public function lastPaidDividendAtDate(?\DateTimeInterface $datetime = null): ?StockDividend
+    {
+        if ($datetime === null) {
+            $datetime = new \DateTime();
+        }
+
+        $matches = $this->dividends->matching(StockDividendByCriteria::lastPaidAtDate($datetime));
+
+        $lastPaid = $matches->first();
+        if (!$lastPaid) {
+            return null;
+        }
+
+        return $matches->first();
     }
 
     public function getPeRatio(): ?float

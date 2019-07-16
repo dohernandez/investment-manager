@@ -65,7 +65,7 @@ class PersistOperationListener
                 $pr = $trade->getAmount() * 100 / $position->getAmount();
 
                 // this operation can drive into a diff of 0.01 cents
-                $tradeDividend = round($operation->getValue() * $pr / 100, 2);
+                $tradeDividend = $operation->getValue()->multiply($pr)->divide(100);
                 $trade->increaseDividend($tradeDividend);
             }
 

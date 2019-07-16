@@ -5,7 +5,7 @@ namespace App\Message;
 use App\Entity\Exchange;
 use App\Entity\Wallet;
 
-final class UpdateWalletDividendYear
+final class UpdateWalletDividendYearProjected
 {
     /**
      * @var Wallet

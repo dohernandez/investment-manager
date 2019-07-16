@@ -90,6 +90,7 @@ class ResetWalletCommand extends Command
             $wallet->setDividend(null);
             $wallet->setCapital(null);
             $wallet->setCommissions(null);
+            $wallet->setMetadata(null);
             $wallet->setFunds($wallet->getInvested());
 
             $em->persist($wallet);

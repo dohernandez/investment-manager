@@ -4,17 +4,15 @@ namespace App\MessageHandler;
 
 use App\Entity\Position;
 use App\Entity\StockDividend;
-use App\Entity\WalletDividendMetadata;
-use App\Entity\WalletMetadata;
-use App\Message\UpdateWalletCapital;
-use App\Message\UpdateWalletDividendYear;
-use App\VO\DividendYear;
+use App\Message\UpdateWalletDividendYearProjected;
 use App\VO\Money;
+use App\VO\WalletDividendMetadata;
+use App\VO\WalletMetadata;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-class UpdateWalletDividendYearHandler implements MessageHandlerInterface
+class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterface
 {
     /**
      * @var LoggerInterface
@@ -34,7 +32,7 @@ class UpdateWalletDividendYearHandler implements MessageHandlerInterface
         $this->em = $em;
     }
 
-    public function __invoke(UpdateWalletDividendYear $message)
+    public function __invoke(UpdateWalletDividendYearProjected $message)
     {
         $this->logger->debug('Handling message UpdateWalletCapital', [
             'message' => $message
@@ -44,9 +42,6 @@ class UpdateWalletDividendYearHandler implements MessageHandlerInterface
         $year = $now->format('Y');
         $exchangeRates = $message->getExchangeRates();
         $wallet = $message->getWallet();
-
-        $metadata = $wallet->getMetadata() ?? new WalletMetadata();
-        $dividends = $metadata->getDividends() ?? [];
 
         $dividendProjectedYear = Money::fromCurrency($wallet->getCurrency());
 
@@ -80,14 +75,18 @@ class UpdateWalletDividendYearHandler implements MessageHandlerInterface
             }
         }
 
-        if (!isset($dividends[$year])) {
-            $dividends[$year] = (new WalletDividendMetadata())
-                                    ->setProjected($dividendProjectedYear)
-            ;
+        $metadata = $wallet->getMetadata();
+        if ($metadata === null) {
+            $metadata = new WalletMetadata();
         }
 
-        $metadata->setDividends($dividends);
-        $wallet->setMetadata($metadata);
+        $dividendMetadata = $metadata->getDividendYear($year);
+        if ($dividendMetadata === null) {
+            $dividendMetadata = WalletDividendMetadata::fromYear($year);
+        }
+        $dividendMetadata = $dividendMetadata->setProjected($dividendProjectedYear);
+
+        $wallet->setMetadata($metadata->setDividendYear($year, $dividendMetadata));
 
         $this->em->persist($wallet);
 
