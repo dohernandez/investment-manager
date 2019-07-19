@@ -7,33 +7,26 @@ class WalletMetadata
     const FIELD_DIVIDENDS = 'dividends';
 
     /**
-     * @var WalletDividendMetadata[]
+     * @var WalletDividendYearMetadata[]
      */
     private $dividends;
 
     /**
-     * @return WalletDividendMetadata[]|null
+     * @return WalletDividendYearMetadata[]|null
      */
     public function getDividends(): ?array
     {
         return $this->dividends;
     }
 
-    public function getDividendYear(int $year): ?WalletDividendMetadata
+    public function getDividendYear(int $year): ?WalletDividendYearMetadata
     {
         return isset($this->dividends[$year]) ? $this->dividends[$year] : null;
     }
 
-    public function setDividendYear(int $year, ?WalletDividendMetadata $dividendMetadata): self
+    public function setDividendYear(int $year, ?WalletDividendYearMetadata $dividendMetadata): self
     {
-        $self = new static();
-
-        $dividends = $this->getDividends();
-        if ($dividends) {
-            foreach ($dividends as $y => $dividend) {
-                $self->dividends[$y] = $dividend;
-            }
-        }
+        $self = clone $this;
 
         $self->dividends[$year] = $dividendMetadata;
 
@@ -68,7 +61,7 @@ class WalletMetadata
         $dividends = [];
 
         foreach ($metadata[$self::FIELD_DIVIDENDS] as $year => $dividend) {
-            $dividends[$year] = WalletDividendMetadata::fromArray($dividend);
+            $dividends[$year] = WalletDividendYearMetadata::fromArray($dividend);
         }
 
         $self->dividends = $dividends;

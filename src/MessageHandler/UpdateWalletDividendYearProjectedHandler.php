@@ -6,7 +6,8 @@ use App\Entity\Position;
 use App\Entity\StockDividend;
 use App\Message\UpdateWalletDividendYearProjected;
 use App\VO\Money;
-use App\VO\WalletDividendMetadata;
+use App\VO\WalletDividendMonthMetadata;
+use App\VO\WalletDividendYearMetadata;
 use App\VO\WalletMetadata;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -44,6 +45,10 @@ class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterfac
         $wallet = $message->getWallet();
 
         $dividendProjectedYear = Money::fromCurrency($wallet->getCurrency());
+        $dividendProjectedMonths = [];
+        for ($i = 1; $i < $now->format('n'); $i++) {
+            $dividendProjectedMonths[$i] = null;
+        }
 
         /** @var Position $position */
         foreach ($wallet->getPositions(Position::STATUS_OPEN) as $position) {
@@ -60,33 +65,58 @@ class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterfac
 
                     if ($dividend->getExDate() > $now) {
                         $increase = true;
-                    } elseif (StockDividend::STATUS_ANNOUNCED && $dividend->getPaymentDate() < $now) {
+                    } elseif (
+                        StockDividend::STATUS_ANNOUNCED == $dividend ->getStatus() &&
+                        $dividend->getPaymentDate() < $now
+                    ) {
                         $increase = true;
                     }
 
                     if ($increase) {
-                        $dividendProjectedYear = $dividendProjectedYear->increase(
-                            $dividend->getValue()
-                                ->exchange($dividendProjectedYear->getCurrency(), $exchangeRates)
-                                ->multiply($position->getAmount())
-                        );
+                        $dividendProjected = $dividend->getValue()
+                            ->exchange($dividendProjectedYear->getCurrency(), $exchangeRates)
+                            ->multiply($position->getAmount())
+                        ;
+
+                        $dividendProjectedYear = $dividendProjectedYear->increase($dividendProjected);
+
+                        $month = $dividend->getExDate()->format('n');
+                        if (!isset($dividendProjectedMonths[$month])) {
+                            $dividendProjectedMonths[$month] = Money::fromCurrency($wallet->getCurrency());
+                        }
+                        $dividendProjectedMonths[$month] = $dividendProjectedMonths[$month]->increase($dividendProjected);
                     }
                 }
             }
         }
 
+        // Setting wallet metadata
         $metadata = $wallet->getMetadata();
         if ($metadata === null) {
             $metadata = new WalletMetadata();
         }
 
-        $dividendMetadata = $metadata->getDividendYear($year);
-        if ($dividendMetadata === null) {
-            $dividendMetadata = WalletDividendMetadata::fromYear($year);
+        // Setting dividend year metadata
+        $dividendYearMetadata = $metadata->getDividendYear($year);
+        if ($dividendYearMetadata === null) {
+            $dividendYearMetadata = WalletDividendYearMetadata::fromYear($year);
         }
-        $dividendMetadata = $dividendMetadata->setProjected($dividendProjectedYear);
 
-        $wallet->setMetadata($metadata->setDividendYear($year, $dividendMetadata));
+        /** @var WalletDividendYearMetadata $dividendYearMetadata */
+        $dividendYearMetadata = $dividendYearMetadata->setProjected($dividendProjectedYear);
+
+        // Setting dividend month metadata
+        foreach ($dividendProjectedMonths as $month => $dividendProjectedMonth) {
+            $dividendMonthMetadata = $dividendYearMetadata->getDividendMonth($month);
+            if ($dividendMonthMetadata === null) {
+                $dividendMonthMetadata = WalletDividendMonthMetadata::fromMonth($month);
+            }
+            $dividendMonthMetadata = $dividendMonthMetadata->setProjected($dividendProjectedMonth);
+
+            $dividendYearMetadata = $dividendYearMetadata->setDividendMonth($month, $dividendMonthMetadata);
+        }
+
+        $wallet->setMetadata($metadata->setDividendYear($year, $dividendYearMetadata));
 
         $this->em->persist($wallet);
 

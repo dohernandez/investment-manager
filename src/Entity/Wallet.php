@@ -5,7 +5,8 @@ namespace App\Entity;
 use App\Repository\Criteria\PositionByCriteria;
 use App\VO\Currency;
 use App\VO\Money;
-use App\VO\WalletDividendMetadata;
+use App\VO\WalletDividendMonthMetadata;
+use App\VO\WalletDividendYearMetadata;
 use App\VO\WalletMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -495,8 +496,10 @@ class Wallet implements Entity
                     $lastPaidDividend = $operation->getStock()->lastPaidDividendAtDate($operation->getDateAt());
                     if ($lastPaidDividend) {
                         $year = $lastPaidDividend->getExDate()->format('Y');
+                        $month = $lastPaidDividend->getExDate()->format('m');
                     } else {
                         $year = $operation->getDateAt()->format('Y');
+                        $month = $operation->getDateAt()->format('m');
                     }
 
                     $metadata = $this->getMetadata();
@@ -504,13 +507,23 @@ class Wallet implements Entity
                         $metadata = new WalletMetadata();
                     }
 
-                    $dividendMetadata = $metadata->getDividendYear($year);
-                    if ($dividendMetadata === null) {
-                        $dividendMetadata = WalletDividendMetadata::fromYear($year);
+                    // Setting dividend year metadata
+                    $dividendYearMetadata = $metadata->getDividendYear($year);
+                    if ($dividendYearMetadata === null) {
+                        $dividendYearMetadata = WalletDividendYearMetadata::fromYear($year);
                     }
-                    $dividendMetadata = $dividendMetadata->increasePaid($netValue);
+                    $dividendYearMetadata = $dividendYearMetadata->increasePaid($netValue);
 
-                    $this->setMetadata($metadata->setDividendYear($year, $dividendMetadata));
+                    // Setting dividend month metadata
+                    $dividendMonthMetadata = $dividendYearMetadata->getDividendMonth($month);
+                    if ($dividendMonthMetadata === null) {
+                        $dividendMonthMetadata = WalletDividendMonthMetadata::fromMonth($month);
+                    }
+                    $dividendMonthMetadata = $dividendMonthMetadata->increasePaid($netValue);
+
+                    $dividendYearMetadata = $dividendYearMetadata->setDividendMonth($month, $dividendMonthMetadata);
+
+                    $this->setMetadata($metadata->setDividendYear($year, $dividendYearMetadata));
                     break;
                 case Operation::TYPE_INTEREST:
                         $this->decreaseFunds($netValue);

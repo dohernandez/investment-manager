@@ -35,6 +35,8 @@ class Wallet
 
     public $interest;
 
+    public $metadata;
+
     static public function fromEntity(Entity\Wallet $wallet): self
     {
         $self = new static();
@@ -59,6 +61,8 @@ class Wallet
 
 
         $self->broker = Broker::fromEntity($wallet->getBroker());
+
+        $self->metadata = $wallet->getMetadata();
 
         $self->title = (string) $wallet;
 
