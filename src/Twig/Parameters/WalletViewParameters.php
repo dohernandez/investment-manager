@@ -202,14 +202,14 @@ class WalletViewParameters extends AbstractViewParameters
                 'name' => 'displayBenefits',
                 'label' => 'benefits',
                 'render' => 'quantity',
-                'quantity' => 'benefits',
+                'quantity' => 'benefits.value',
                 'class' => 'js-manager-table-extra-cell-hide',
             ],
             [
                 'name' => 'displayChange',
                 'label' => 'Change',
                 'render' => 'quantity',
-                'quantity' => 'change',
+                'quantity' => 'change.value',
                 'class' => 'js-manager-table-extra-cell-hide',
             ],
         ];

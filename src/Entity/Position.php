@@ -520,14 +520,24 @@ class Position implements Entity
         return $percentage;
     }
 
-    public function getChange(): ?float
+    public function getChange(): ?Money
     {
-        return $this->getAmount() * $this->getStock()->getChange()->getValue();
+        $change = $this->getStock()->getChange();
+        if ($change === null) {
+            return null;
+        }
+
+        return $change->multiply($this->getAmount());
     }
 
-    public function getPreClose(): ?float
+    public function getPreClose(): ?Money
     {
-        return $this->getAmount() * $this->getStock()->getPreClose()->getValue();
+        $preClose = $this->getStock()->getPreClose();
+        if ($preClose === null) {
+            return null;
+        }
+
+        return $preClose->multiply($this->getAmount());
     }
 
     public function getCapital(): Money

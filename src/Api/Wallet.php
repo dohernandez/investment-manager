@@ -35,6 +35,12 @@ class Wallet
 
     public $interest;
 
+    public $dividendProjected;
+
+    public $dividendProjectedIncrease;
+
+    public $dividendProjectedMonths;
+
     public $metadata;
 
     static public function fromEntity(Entity\Wallet $wallet): self
@@ -59,8 +65,35 @@ class Wallet
         $self->connection = $wallet->getConnection();
         $self->interest = $wallet->getInterest();
 
-
         $self->broker = Broker::fromEntity($wallet->getBroker());
+
+        $now = new \DateTimeImmutable();
+
+        $year = $now->format('Y');
+        $dividendProjectedMonths[$year] = [];
+
+        $dividendYear = $wallet->getMetadata()->getDividendYear($year);
+        if ($dividendYear !== null) {
+            $self->dividendProjected = $dividendYear->getProjected()->increase($dividendYear->getPaid());
+
+            foreach ($dividendYear->getMonths() as $month) {
+                $dividendProjectedMonths[$year][$month->getMonth()] = $month->getProjected();
+            }
+        }
+
+        $previousYear = $year - 1;
+        $dividendProjectedMonths[$previousYear] = [];
+
+        $dividendPreviousYear = $wallet->getMetadata()->getDividendYear($previousYear);
+        if ($dividendPreviousYear !== null) {
+            $self->dividendProjectedIncrease = ($self->dividendProjected->getValue() - $dividendPreviousYear->getPaid()->getValue())
+                / $self->dividendProjected->getValue() * 100;
+
+            foreach ($dividendPreviousYear->getMonths() as $month) {
+                $dividendProjectedMonths[$previousYear][$month->getMonth()] = $month->getPaid();
+            }
+        }
+        $self->dividendProjectedMonths = $dividendProjectedMonths;
 
         $self->metadata = $wallet->getMetadata();
 
@@ -69,3 +102,4 @@ class Wallet
         return $self;
     }
 }
+

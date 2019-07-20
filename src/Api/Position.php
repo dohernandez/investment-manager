@@ -51,9 +51,9 @@ class Position
 
         $self->change = $position->getChange();
         $self->displayChange = sprintf(
-            '€ %.2f (%.2f%%)',
+            '%s (%.2f%%)',
             $self->change,
-            round($self->change * 100 / $position->getPreClose(), 2)
+            $self->change->getValue() * 100 / $position->getPreClose()->getValue()
         );
 
         $self->title = (string) $position;
