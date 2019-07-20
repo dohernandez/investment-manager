@@ -58,6 +58,12 @@
                     showPerPageTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
                     rowTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
+                sort: function (aTransfer, bTransfer) {
+                    let a = new Date(aTransfer.date);
+                    let b = new Date(bTransfer.date);
+
+                    return a > b ? -1 : a < b ? 1 : 0;
+                },
             });
 
             const form = new TransferForm(

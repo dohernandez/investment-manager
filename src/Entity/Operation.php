@@ -276,6 +276,14 @@ class Operation implements Entity
 
     public function getFinalCommissionPaid(): Money
     {
+        if ($this->getCommission() === null) {
+            if ($this->getPriceChangeCommission() === null) {
+                return Money::fromCurrency($this->getWallet()->getCurrency());
+            }
+
+            return $this->getPriceChangeCommission();
+        }
+
         return $this->getCommission()->increase($this->getPriceChangeCommission());
     }
 
