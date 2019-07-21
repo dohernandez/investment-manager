@@ -53,7 +53,7 @@ class PositionMetadata
         $self = new static();
 
         $self->dividend = isset($metadata[self::FIELD_DIVIDEND]) ? Money::fromArray($metadata[self::FIELD_DIVIDEND]) : null;
-        $self->dividendYield = isset($metadata[self::FIELD_DIVIDEND]) ? $metadata[self::FIELD_DIVIDEND] : null;
+        $self->dividendYield = isset($metadata[self::FIELD_DIVIDEND_YIELD]) ? $metadata[self::FIELD_DIVIDEND_YIELD] : null;
 
         return $self;
     }

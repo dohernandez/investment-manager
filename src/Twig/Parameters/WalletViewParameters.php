@@ -247,6 +247,11 @@ class WalletViewParameters extends AbstractViewParameters
                 'render' => 'date',
                 'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
             ],
+            [
+                'name' => 'displayDividendYield',
+                'label' => 'R. D. Yield',
+                'class' => 'js-manager-table-extra-cell-hide',
+            ],
         ];
     }
 }

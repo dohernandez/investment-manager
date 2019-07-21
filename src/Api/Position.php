@@ -30,6 +30,8 @@ class Position
 
     public $displayDividendYield;
 
+    public $metadata;
+
     public $title;
 
     static public function fromEntity(Entity\Position $position): self
@@ -58,11 +60,15 @@ class Position
             $self->change->getValue() * 100 / $position->getPreClose()->getValue()
         );
 
-//        $self->displayDividendYield = sprintf(
-//            '%s (%.2f%%)',
-//            $self->change,
-//            $self->change->getValue() * 100 / $position->getPreClose()->getValue()
-//        );
+        $self->metadata = $position->getMetadata();
+
+        if ($self->metadata !== null) {
+            $self->displayDividendYield = sprintf(
+                '%s (%.2f%%)',
+                $self->metadata->getDividend()->multiply($self->amount),
+                $self->metadata->getDividendYield()
+            );
+        }
 
         $self->title = (string) $position;
 
