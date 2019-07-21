@@ -4,34 +4,47 @@ namespace App\VO;
 
 class PositionMetadata
 {
-    const FIELD_DIVIDEND_PROJECTED = 'dividend_projected';
+    const FIELD_DIVIDEND = 'dividend';
+    const FIELD_DIVIDEND_YIELD = 'dividend_yield';
 
     /**
      * @var Money
      */
-    private $dividendProjected;
+    private $dividend;
+
+    /**
+     * @var float
+     */
+    private $dividendYield;
 
     /**
      * @return Money
      */
-    public function getDividendProjected(): ?Money
+    public function getDividend(): ?Money
     {
-        return $this->dividendProjected;
+        return $this->dividend;
     }
 
-    public function setDividendProjected(?Money $dividendProjected): self
+    public function setDividendAndDividendYield(?Money $dividendProjected, float $dividendYieldProjected): self
     {
         $self = clone $this;
 
-        $self->dividendProjected = $dividendProjected;
+        $self->dividend = $dividendProjected;
+        $self->dividendYield = $dividendYieldProjected;
 
         return $self;
+    }
+
+    public function getDividendYield(): float
+    {
+        return $this->dividendYield;
     }
 
     public function toArray(): array
     {
         return [
-            self::FIELD_DIVIDEND_PROJECTED => $this->getDividendProjected() ? $this->getDividendProjected()->toArray() : null,
+            self::FIELD_DIVIDEND       => $this->getDividend() ? $this->getDividend()->toArray() : null,
+            self::FIELD_DIVIDEND_YIELD => $this->getDividendYield(),
         ];
     }
 
@@ -39,7 +52,8 @@ class PositionMetadata
     {
         $self = new static();
 
-        $self->dividendProjected = $metadata[self::FIELD_DIVIDEND_PROJECTED] ? Money::fromArray($metadata[self::FIELD_DIVIDEND_PROJECTED]) : null;
+        $self->dividend = isset($metadata[self::FIELD_DIVIDEND]) ? Money::fromArray($metadata[self::FIELD_DIVIDEND]) : null;
+        $self->dividendYield = isset($metadata[self::FIELD_DIVIDEND]) ? $metadata[self::FIELD_DIVIDEND] : null;
 
         return $self;
     }

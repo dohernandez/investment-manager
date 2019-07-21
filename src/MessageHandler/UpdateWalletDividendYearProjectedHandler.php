@@ -93,6 +93,7 @@ class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterfac
             $nextDividend = $stock->nextDividend();
             if ($nextDividend !== null) {
                 $positionDividendProjected = $nextDividend->getValue()->exchange($wallet->getCurrency(), $exchangeRates);
+                $positionDividendYieldProjected = $positionDividendProjected->getValue() * 4 / $position->getWeightedAvgPrice()->getValue() * 100;
 
                 $positionMetadata = $position->getMetadata();
                 if ($positionMetadata === null) {
@@ -100,7 +101,7 @@ class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterfac
                 }
 
                 $position->setMetadata(
-                    $positionMetadata->setDividendProjected($positionDividendProjected)
+                    $positionMetadata->setDividendAndDividendYield($positionDividendProjected, $positionDividendYieldProjected)
                 );
 
                 $this->em->persist($position);
