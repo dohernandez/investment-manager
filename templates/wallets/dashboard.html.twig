@@ -94,6 +94,16 @@
                 return null;
             });
 
+            positionCrudManager.withAfterSearch(function (search) {
+                window.operationCrudManager.search(search);
+                window.positionDividendCrudManager.search(search);
+            });
+
+            positionCrudManager.withAfterCleanSearch(function () {
+                window.operationCrudManager.cleanSearch();
+                window.positionDividendCrudManager.cleanSearch();
+            });
+
             positionCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
                 let param = {
                     '_id': {{ wallet.id }},
@@ -131,6 +141,94 @@
             );
 
             window.positionCrudManager = positionCrudManager;
+
+            // Delegate selector for buy button
+            positionCrudManager.$wrapper.on(
+                'click',
+                '.js-position-buy',
+                function (e) {
+                    e.preventDefault();
+
+                    // find entity to edit
+                    const $row = $(e.currentTarget).closest('tr');
+                    const id = $row.data('id');
+
+                    let recordIndex = this.indexOfById(id);
+                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
+
+                    entity.type = 'buy';
+                    entity.amount = '';
+                    // forcing to be a create action
+                    window.operationCrudManager.createFrom(entity, 'create')
+                    // update the row by creating a new row base on the row template and
+                    // replace the old row
+                        .then((result) => {
+                            if (result.value) {
+                                let entity = result.value.item;
+
+                                window.operationCrudManager.addEntity(entity);
+                            }
+                        });
+                }.bind(positionCrudManager)
+            );
+
+            // Delegate selector for sell button
+            positionCrudManager.$wrapper.on(
+                'click',
+                '.js-position-sell',
+                function (e) {
+                    e.preventDefault();
+
+                    // find entity to edit
+                    const $row = $(e.currentTarget).closest('tr');
+                    const id = $row.data('id');
+
+                    let recordIndex = this.indexOfById(id);
+                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
+
+                    entity.type = 'sell';
+                    // forcing to be a create action
+                    window.operationCrudManager.createFrom(entity, 'create')
+                    // update the row by creating a new row base on the row template and
+                    // replace the old row
+                        .then((result) => {
+                            if (result.value) {
+                                let entity = result.value.item;
+
+                                window.operationCrudManager.addEntity(entity);
+                            }
+                        });
+                }.bind(positionCrudManager)
+            );
+
+            // Delegate selector for dividend button
+            positionCrudManager.$wrapper.on(
+                'click',
+                '.js-position-dividend',
+                function (e) {
+                    e.preventDefault();
+
+                    // find entity to edit
+                    const $row = $(e.currentTarget).closest('tr');
+                    const id = $row.data('id');
+
+                    let recordIndex = this.indexOfById(id);
+                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
+
+                    entity.type = 'dividend';
+                    // forcing to be a create action
+                    window.operationCrudManager.createFrom(entity, 'create')
+                    // update the row by creating a new row base on the row template and
+                    // replace the old row
+                        .then((result) => {
+                            if (result.value) {
+                                let entity = result.value.item;
+
+                                window.operationCrudManager.addEntity(entity);
+                            }
+                        });
+                }.bind(positionCrudManager)
+            );
         });
     </script>
 
@@ -170,6 +268,25 @@
 
                     return a < b ? -1 : a > b ? 1 : 0;
                 },
+                searchFunc: function (positions, search) {
+                    if (search.length >= 2) {
+                        let $matches = [];
+
+                        search = search.toUpperCase();
+
+                        $.each(positions, function (index, position) {
+                            if (position.stock.name.toUpperCase().indexOf(search) > -1 ||
+                                position.stock.symbol.toUpperCase().indexOf(search) > -1 ) {
+
+                                $matches.push(position);
+                            }
+                        });
+
+                        return $matches;
+                    }
+
+                    return null;
+                }
             });
 
             positionDividendCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
@@ -253,6 +370,27 @@
 
                     return a > b ? -1 : a < b ? 1 : 0;
                 },
+                searchFunc: function (operations, search) {
+                    if (search.length >= 2) {
+                        let $matches = [];
+
+                        search = search.toUpperCase();
+
+                        $.each(operations, function (index, operation) {
+                            if (operation.stock) {
+                                if (operation.stock.name.toUpperCase().indexOf(search) > -1 ||
+                                    operation.stock.symbol.toUpperCase().indexOf(search) > -1 ) {
+
+                                    $matches.push(operation);
+                                }
+                            }
+                        });
+
+                        return $matches;
+                    }
+
+                    return null;
+                }
             });
 
             operationCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
@@ -319,92 +457,7 @@
 
             window.positionCrudManager.withForm(form);
 
-            // Delegate selector for buy button
-            window.positionCrudManager.$wrapper.on(
-                'click',
-                '.js-position-buy',
-                function (e) {
-                    e.preventDefault();
-
-                    // find entity to edit
-                    const $row = $(e.currentTarget).closest('tr');
-                    const id = $row.data('id');
-
-                    let recordIndex = this.indexOfById(id);
-                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
-
-                    entity.type = 'buy';
-                    // forcing to be a create action
-                    operationCrudManager.createFrom(entity, 'create')
-                    // update the row by creating a new row base on the row template and
-                    // replace the old row
-                        .then((result) => {
-                            if (result.value) {
-                                let entity = result.value.item;
-
-                                operationCrudManager.addEntity(entity);
-                            }
-                        });
-                }.bind(window.positionCrudManager)
-            );
-
-            // Delegate selector for sell button
-            window.positionCrudManager.$wrapper.on(
-                'click',
-                '.js-position-sell',
-                function (e) {
-                    e.preventDefault();
-
-                    // find entity to edit
-                    const $row = $(e.currentTarget).closest('tr');
-                    const id = $row.data('id');
-
-                    let recordIndex = this.indexOfById(id);
-                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
-
-                    entity.type = 'sell';
-                    // forcing to be a create action
-                    operationCrudManager.createFrom(entity, 'create')
-                    // update the row by creating a new row base on the row template and
-                    // replace the old row
-                        .then((result) => {
-                            if (result.value) {
-                                let entity = result.value.item;
-
-                                operationCrudManager.addEntity(entity);
-                            }
-                        });
-                }.bind(window.positionCrudManager)
-            );
-
-            // Delegate selector for dividend button
-            window.positionCrudManager.$wrapper.on(
-                'click',
-                '.js-position-dividend',
-                function (e) {
-                    e.preventDefault();
-
-                    // find entity to edit
-                    const $row = $(e.currentTarget).closest('tr');
-                    const id = $row.data('id');
-
-                    let recordIndex = this.indexOfById(id);
-                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
-
-                    entity.type = 'dividend';
-                    // forcing to be a create action
-                    operationCrudManager.createFrom(entity, 'create')
-                    // update the row by creating a new row base on the row template and
-                    // replace the old row
-                        .then((result) => {
-                            if (result.value) {
-                                let entity = result.value.item;
-
-                                operationCrudManager.addEntity(entity);
-                            }
-                        });
-                }.bind(window.positionCrudManager)
-            );
+            window.operationCrudManager = operationCrudManager;
         });
     </script>
 {% endblock %}

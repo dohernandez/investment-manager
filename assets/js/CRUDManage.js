@@ -43,6 +43,7 @@ class CRUDManage {
             viewTemplate: '',
             selectors: CRUDManage._selectors,
             sort: null,
+            searchFunc: null,
         });
 
         this.entityType = _options.entityType;
@@ -89,7 +90,10 @@ class CRUDManage {
         this.expanded = 0;
 
         // search
-        this.searchFunc = null;
+        this.searchFunc = _options.searchFunc;
+        this.searchButton = false;
+        this.afterCleanSearchFunc = null;
+        this.afterSearchFunc = null;
 
         this.routing = this._getRouting;
     }
@@ -140,7 +144,7 @@ class CRUDManage {
         }
 
         // render search input
-        if (this.searchFunc !== null) {
+        if (this.searchButton) {
             let $search = this._compileTemplate(this.selectors.searchTemplate);
             this.$wrapper.find(this.selectors.searchContainer)
                 .append($search);
@@ -768,7 +772,11 @@ class CRUDManage {
      * @param {function} searchFunc
      */
     withSearch(searchFunc) {
-        this.searchFunc = searchFunc;
+        this.searchButton = true;
+
+        if (searchFunc !== null) {
+            this.searchFunc = searchFunc;
+        }
 
         this.$wrapper.on(
             'click',
@@ -784,7 +792,7 @@ class CRUDManage {
     }
 
     /**
-     * Clear the search input
+     * Handle click event for search input.
      * @param e
      */
     handlerSearchClear(e) {
@@ -796,6 +804,17 @@ class CRUDManage {
         $search.val('');
         $searchClear.hide();
 
+        this.cleanSearch();
+
+        if (this.afterCleanSearchFunc) {
+            this.afterCleanSearchFunc();
+        }
+    }
+
+    /**
+     * Clean the search
+     */
+    cleanSearch() {
         if (!this.pagination) {
             this.cleanRows();
 
@@ -809,6 +828,13 @@ class CRUDManage {
 
         this.page = 1;
         this.refreshPagination();
+    }
+
+    /**
+     * Callback function after clean search
+     */
+    withAfterCleanSearch(afterCleanSearchFunc) {
+        this.afterCleanSearchFunc = afterCleanSearchFunc
     }
 
     /**
@@ -831,7 +857,18 @@ class CRUDManage {
             $searchClear.show();
         }
 
-        let matches = this.searchFunc(this.records, $search.val());
+        this.search($search.val());
+
+        if (this.afterSearchFunc) {
+            this.afterSearchFunc(search);
+        }
+    }
+
+    /**
+     * search.
+     */
+    search(val) {
+        let matches = this.searchFunc(this.records, val);
         if (matches === null) {
             if (!this.pagination) {
                 this.cleanRows();
@@ -877,6 +914,13 @@ class CRUDManage {
 
             this.cleanRows();
         }
+    }
+
+    /**
+     * Callback function after search
+     */
+    withAfterSearch(afterSearchFunc) {
+        this.afterSearchFunc = afterSearchFunc
     }
 
     /**
