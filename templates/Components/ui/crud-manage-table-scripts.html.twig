@@ -24,6 +24,7 @@
        ]
     form => form object,
     create_button_label => Different value for create button. Example "Add operation"
+    search_width => Set different width to the search input. Default "248px".
 #}
 
 {% import 'Components/Macros/crud-manage-render.html.twig' as render %}
@@ -47,7 +48,7 @@
     <label class="pull-right">Search:
         <div class="btn-group">
             <input type="search" class="form-control js-manage-search" placeholder="Search" aria-controls="search"
-                   style="width: 248px; display: inline-block;">
+                   style="width: {{ search_width|default('248px') }}; display: inline-block;">
             <span class="glyphicon glyphicon-remove-circle js-manage-search-clear"
                   style="display: none;"></span>
         </div>

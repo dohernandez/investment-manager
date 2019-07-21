@@ -38,6 +38,7 @@
         'entity_name': wallet_position_entity_name,
         'fields': wallet_position_fields,
         'buttons': wallet_position_buttons,
+        'search_width': '242px',
     }%}
     {% endembed %}
 
@@ -70,6 +71,27 @@
 
                     return a < b ? -1 : a > b ? 1 : 0;
                 },
+            });
+
+            // add search input function
+            positionCrudManager.withSearch(function (positions, search) {
+                if (search.length >= 2) {
+                    let $matches = [];
+
+                    search = search.toUpperCase();
+
+                    $.each(positions, function (index, position) {
+                        if (position.stock.name.toUpperCase().indexOf(search) > -1 ||
+                            position.stock.symbol.toUpperCase().indexOf(search) > -1 ) {
+
+                            $matches.push(position);
+                        }
+                    });
+
+                    return $matches;
+                }
+
+                return null;
             });
 
             positionCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
