@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\Criteria\TradeByCriteria;
 use App\VO\Money;
+use App\VO\PositionMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -116,6 +117,13 @@ class Position implements Entity
      * @ORM\Column(type="money", nullable=true)
      */
     private $capital;
+
+    /**
+     * @var PositionMetadata
+     *
+     * @ORM\Column(type="position_metadata", nullable=true)
+     */
+    private $metadata;
 
     public function __construct()
     {
@@ -546,13 +554,30 @@ class Position implements Entity
         return $preClose->multiply($this->getAmount());
     }
 
-    public function getCapital(): Money
+    public function getCapital(): ?Money
     {
         return $this->capital;
     }
 
-    public function setCapital(Money $capital): void
+    public function setCapital(?Money $capital): void
     {
         $this->capital = $capital;
+    }
+
+    public function getWeightedAvgPrice(): ?Money
+    {
+        return $this->invested ? $this->invested->divide($this->getAmount()) : null;
+    }
+
+    public function getMetadata(): ?PositionMetadata
+    {
+        return $this->metadata;
+    }
+
+    public function setMetadata(?PositionMetadata $metadata): self
+    {
+        $this->metadata = $metadata;
+
+        return $this;
     }
 }

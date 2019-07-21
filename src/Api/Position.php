@@ -28,6 +28,8 @@ class Position
 
     public $displayChange;
 
+    public $displayDividendYield;
+
     public $title;
 
     static public function fromEntity(Entity\Position $position): self
@@ -55,6 +57,12 @@ class Position
             $self->change,
             $self->change->getValue() * 100 / $position->getPreClose()->getValue()
         );
+
+//        $self->displayDividendYield = sprintf(
+//            '%s (%.2f%%)',
+//            $self->change,
+//            $self->change->getValue() * 100 / $position->getPreClose()->getValue()
+//        );
 
         $self->title = (string) $position;
 

@@ -6,6 +6,7 @@ use App\Entity\Position;
 use App\Entity\StockDividend;
 use App\Message\UpdateWalletDividendYearProjected;
 use App\VO\Money;
+use App\VO\PositionMetadata;
 use App\VO\WalletDividendMonthMetadata;
 use App\VO\WalletDividendYearMetadata;
 use App\VO\WalletMetadata;
@@ -88,6 +89,23 @@ class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterfac
                     }
                 }
             }
+
+            $nextDividend = $stock->nextDividend();
+            if ($nextDividend !== null) {
+                $positionDividendProjected = $nextDividend->getValue()->exchange($wallet->getCurrency(), $exchangeRates);
+
+                $positionMetadata = $position->getMetadata();
+                if ($positionMetadata === null) {
+                    $positionMetadata = new PositionMetadata();
+                }
+
+                $position->setMetadata(
+                    $positionMetadata->setDividendProjected($positionDividendProjected)
+                );
+
+                $this->em->persist($position);
+            }
+
         }
 
         // Setting wallet metadata
@@ -96,7 +114,7 @@ class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterfac
             $metadata = new WalletMetadata();
         }
 
-        // Setting dividend year metadata
+        // Setting dividend year metadata for wallet metadata
         $dividendYearMetadata = $metadata->getDividendYear($year);
         if ($dividendYearMetadata === null) {
             $dividendYearMetadata = WalletDividendYearMetadata::fromYear($year);
@@ -105,7 +123,7 @@ class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterfac
         /** @var WalletDividendYearMetadata $dividendYearMetadata */
         $dividendYearMetadata = $dividendYearMetadata->setProjected($dividendProjectedYear);
 
-        // Setting dividend month metadata
+        // Setting dividend month metadata for wallet metadata
         foreach ($dividendProjectedMonths as $month => $dividendProjectedMonth) {
             $dividendMonthMetadata = $dividendYearMetadata->getDividendMonth($month);
             if ($dividendMonthMetadata === null) {
