@@ -533,6 +533,9 @@ class Wallet implements Entity
                         $this->decreaseFunds($netValue);
                         $this->increaseConnection($netValue);
                     break;
+                case Operation::TYPE_SPLIT_REVERSE:
+                    // no need to do anything
+                    break;
                 default:
                     throw new \LogicException(sprintf('operation "%s" not supported.', $operation->getType()));
             }

@@ -43,6 +43,7 @@ class PersistOperationListener
                 Operation::TYPE_BUY,
                 Operation::TYPE_SELL,
                 Operation::TYPE_DIVIDEND,
+                Operation::TYPE_SPLIT_REVERSE,
             ])) {
 
             return;
@@ -96,7 +97,7 @@ class PersistOperationListener
             $trade->addBuy($operation->getAmount(), $operation->getNetValue());
 
             $position->addTrade($trade);
-        } else {
+        } elseif ($type === Operation::TYPE_SELL) {
             $trades = $position->getOpenTrades();
 
             if (!empty($trades)) {
@@ -148,6 +149,8 @@ class PersistOperationListener
                     ->setClosedAt($operation->getDateAt())
                 ;
             }
+        } else {
+            $operation->setValue(Money::fromCurrency($wallet->getCurrency()));
         }
     }
 }

@@ -31,7 +31,7 @@ class OperationForm extends Form {
 
         this.select2StockTemplate = new Select2StockTemplate();
 
-        this.operations = {
+        this.disableInputInOperations = {
             connectivity: [
                 'stock', 'amount', 'price', 'priceChange', 'priceChangeCommission', 'commission'
             ],
@@ -40,6 +40,9 @@ class OperationForm extends Form {
             ],
             dividend: [
                 'amount', 'commission'
+            ],
+            'split/reverse': [
+                'commission', 'price', 'priceChange', 'priceChangeCommission', 'commission', 'value'
             ],
         }
     }
@@ -64,8 +67,8 @@ class OperationForm extends Form {
 
             let selected = $type.val();
 
-            if (selected in this.operations) {
-                let operation = this.operations[selected];
+            if (selected in this.disableInputInOperations) {
+                let operation = this.disableInputInOperations[selected];
 
                 for (let i = 0; i < operation.length; i++) {
                     let $input = $form.find('#' + operation[i]);

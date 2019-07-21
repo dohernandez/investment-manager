@@ -315,6 +315,12 @@ class Position implements Entity
                 case Operation::TYPE_DIVIDEND:
                     $this->addDividend($netValue);
                     break;
+                case Operation::TYPE_SPLIT_REVERSE:
+                    $this->setAmount($operation->getAmount());
+
+                    // Because this operation comes without value, we set the value to 0 at this point.
+                    $operation->setValue(Money::fromCurrency($this->getWallet()->getCurrency()));
+                    break;
             }
 
             $this->operations[] = $operation;

@@ -16,6 +16,7 @@ class Operation implements Entity
     const TYPE_CONNECTIVITY = 'connectivity';
     const TYPE_DIVIDEND = 'dividend';
     const TYPE_INTEREST = 'interest';
+    const TYPE_SPLIT_REVERSE = 'split/reverse';
 
     const TYPES = [
         self::TYPE_BUY,
@@ -23,6 +24,7 @@ class Operation implements Entity
         self::TYPE_CONNECTIVITY,
         self::TYPE_DIVIDEND,
         self::TYPE_INTEREST,
+        self::TYPE_SPLIT_REVERSE,
     ];
 
     use TimestampableEntity;
@@ -184,7 +186,7 @@ class Operation implements Entity
         return $this->value;
     }
 
-    public function setValue(Money $value): self
+    public function setValue(?Money $value): self
     {
         $this->value = $value;
 
@@ -261,7 +263,7 @@ class Operation implements Entity
         );
     }
 
-    public function getNetValue(): Money
+    public function getNetValue(): ?Money
     {
         if ($this->getType() === self::TYPE_BUY) {
             return $this->getFinalCommissionPaid()->increase($this->getValue());
