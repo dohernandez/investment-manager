@@ -121,7 +121,7 @@ class ImportOperationCommand extends Command
 
                     $priceChange = $this->parserPrice($record[6], 10000);
                     if (!empty($priceChange)) {
-                        $operation->setPriceChange(Money::from($stockCurrency, $priceChange), 4);
+                        $operation->setPriceChange(Money::from($stockCurrency, $priceChange, 4));
                     }
                 }
 

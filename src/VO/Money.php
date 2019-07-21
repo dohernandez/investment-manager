@@ -40,7 +40,7 @@ final class Money
     public function getDivisorBy(): int
     {
         if ($this->getPrecision() === 4) {
-            return 1000;
+            return 10000;
         }
 
         return 100;

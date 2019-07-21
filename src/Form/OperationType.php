@@ -61,7 +61,7 @@ class OperationType extends AbstractType
                     'autocomplete' => "off",
                 ],
                 'required' => false,
-                'divisor' => 100,
+                'divisor' => 10000,
                 'currency' => 'USD',
             ])
             ->add('priceChangeCommission', MoneyType::class, [

@@ -162,7 +162,7 @@ class Operation implements Entity
 
     public function setPriceChange(?Money $priceChange): self
     {
-        $this->priceChange = $priceChange;
+        $this->priceChange = Money::from($priceChange->getCurrency(), $priceChange->getValue(), 4);
 
         return $this;
     }
