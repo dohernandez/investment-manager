@@ -51,8 +51,6 @@ class CRUDManage extends Table {
             searchFunc: null,
         });
 
-        console.log(_options);
-
         this.entityType = _options.entityType;
 
         this.selectors = _.defaults(_options.selectors || {}, CRUDManage._selectors);
@@ -117,11 +115,6 @@ class CRUDManage extends Table {
             // template
             rowTemplate: '#js-manager-row-template',
             createButtonTemplate: '#js-manager-create-button-template',
-            searchTemplate: '#js-manager-search-template',
-
-            // serach input
-            search: '.js-manage-search',
-            searchClear: '.js-manage-search-clear',
 
             manageButtons: '.js-manage-buttons'
         };
@@ -137,13 +130,6 @@ class CRUDManage extends Table {
             let $createButton = Template.compile(this.selectors.createButtonTemplate);
             this.$wrapper.find(this.selectors.createButtonContainer)
                 .append($createButton);
-        }
-
-        // render search input
-        if (this.searchButton) {
-            let $search = Template.compile(this.selectors.searchTemplate);
-            this.$wrapper.find(this.selectors.searchContainer)
-                .append($search);
         }
 
         super.render(renderFunc);
@@ -533,167 +519,46 @@ class CRUDManage extends Table {
     }
 
     /**
+     * @deprecated use constructor option.
+     * Example:
+     *          New CRUDManage({
+     *            ...,
+     *            showSearchBox: true
+     *          })
      *
      * @param {function} searchFunc
      */
     withSearch(searchFunc) {
-        this.searchButton = true;
+        this.showSearchBox = true;
 
         if (searchFunc !== null) {
             this.searchFunc = searchFunc;
         }
-
-        this.$wrapper.on(
-            'click',
-            this.selectors.searchClear,
-            this.handlerSearchClear.bind(this)
-        );
-
-        this.$wrapper.on(
-            'keyup',
-            this.selectors.search,
-            this.handlerSearch.bind(this)
-        );
     }
 
     /**
-     * Handle click event for search input.
-     * @param e
-     */
-    handlerSearchClear(e) {
-        e.preventDefault();
-
-        let $searchClear = $(e.currentTarget);
-        let $search = this.$wrapper.find(this.selectors.search);
-
-        $search.val('');
-        $searchClear.hide();
-
-        this.cleanSearch();
-
-        if (this.afterCleanSearchFunc) {
-            this.afterCleanSearchFunc();
-        }
-    }
-
-    /**
-     * Clean the search
-     */
-    cleanSearch() {
-        if (!this.pagination) {
-            this.cleanRows();
-
-            // create the rows of the table based on the records to display
-            $.each(this.records, (index, entity) => {
-                this.addRow(entity, index);
-            });
-
-            if (this.expanded) {
-                this.toggleTableExtraCell('td');
-            }
-
-            return;
-        }
-
-        this.page = 1;
-        this.refreshPagination();
-    }
-
-    /**
+     * @deprecated use constructor option.
+     * Example:
+     *          New CRUDManage({
+     *            ...,
+     *            afterCleanSearchFunc: function () {},
+     *          })
+     *
      * Callback function after clean search
      */
     withAfterCleanSearch(afterCleanSearchFunc) {
         this.afterCleanSearchFunc = afterCleanSearchFunc
     }
 
+
     /**
-     * Handle on keyup event for search input.
+     * @deprecated use constructor option.
+     * Example:
+     *          New CRUDManage({
+     *            ...,
+     *            afterSearchFunc: function (search) {},
+     *          })
      *
-     * @param e The event
-     */
-    handlerSearch(e) {
-        e.preventDefault();
-
-        let $search = $(e.currentTarget);
-        let $searchClear = this.$wrapper.find(this.selectors.searchClear);
-
-        let search = $search.val();
-        if (search == '') {
-            // clear pagination and hide clear button
-            $searchClear.hide();
-        } else {
-            // show clear button
-            $searchClear.show();
-        }
-
-        this.search($search.val());
-
-        if (this.afterSearchFunc) {
-            this.afterSearchFunc(search);
-        }
-    }
-
-    /**
-     * search.
-     */
-    search(val) {
-        let matches = this.searchFunc(this.records, val);
-        if (matches === null) {
-            if (!this.pagination) {
-                this.cleanRows();
-
-                // create the rows of the table based on the records to display
-                $.each(this.records, (index, entity) => {
-                    this.addRow(entity, index);
-                });
-
-                if (this.expanded) {
-                    this.toggleTableExtraCell('td');
-                }
-
-                return;
-            }
-
-            this.page = 1;
-            this.refreshPagination();
-
-            return;
-        }
-
-        if (!this.pagination) {
-            this.cleanRows();
-
-            // create the rows of the table based on the records to display
-            $.each(matches, (index, entity) => {
-                this.addRow(entity, index);
-            });
-
-            if (this.expanded) {
-                this.toggleTableExtraCell('td');
-            }
-
-            return;
-        }
-
-        let totalRecords = matches.length;
-
-        try {
-            this.refreshPagination({
-                records: matches,
-                totalRecords: totalRecords,
-                totalPages: Math.ceil(totalRecords / this.showPerPage),
-                page: 1,
-            });
-        } catch (err) {
-            let $paginationInfo = this.$wrapper.find($(this.selectors.paginationInfo));
-
-            $paginationInfo.html('');
-
-            this.cleanRows();
-        }
-    }
-
-    /**
      * Callback function after search
      */
     withAfterSearch(afterSearchFunc) {

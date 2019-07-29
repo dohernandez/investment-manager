@@ -14,6 +14,7 @@ class Table {
             visiblePages: 6,
             sort: null,
             selectors: _.defaults(options.selectors || {}, Table._selectors),
+            showSearchBox: options.showSearchBox ? options.showSearchBox : options.searchButton,
         });
 
         // Start binding functions for $wrapper
@@ -42,6 +43,13 @@ class Table {
         this.totalPages = 0;
 
         this.sort = _options.sort;
+
+        // search
+        this.searchFunc = _options.searchFunc;
+        this.showSearchBox = _options.showSearchBox;
+        this.searchButton = false;
+        this.afterCleanSearchFunc = null;
+        this.afterSearchFunc = null;
     }
 
     static get _selectors() {
@@ -59,6 +67,12 @@ class Table {
             showPerPage: '.js-manage-show-per-page',
             pagination: '.js-manage-pagination',
             paginationInfo: '.js-manage-pagination-info',
+
+            // serach
+            searchContainer: '.js-manage-header-search-container',
+            searchTemplate: '#js-manager-search-template',
+            searchBox: '.js-manage-search',
+            searchClearButton: '.js-manage-search-clear',
         }
     }
 
@@ -320,9 +334,27 @@ class Table {
 
     // Render
     render(renderFunc) {
+        // render search input
+        if (this.showSearchBox) {
+            let $search = Template.compile(this.selectors.searchTemplate);
+            this.$wrapper.find(this.selectors.searchContainer)
+                .append($search);
+
+            this.$wrapper.on(
+                'click',
+                this.selectors.searchClearButton,
+                this.handlerSearchClear.bind(this)
+            );
+
+            this.$wrapper.on(
+                'keyup',
+                this.selectors.searchBox,
+                this.handlerSearch.bind(this)
+            );
+        }
+
         // render pagination elements
         if (this.pagination === true) {
-            console.log('render pagination');
             // add on change for show per page
             this.$wrapper.on(
                 'change',
@@ -350,6 +382,94 @@ class Table {
 
         if (renderFunc) {
             renderFunc.call(this);
+        }
+    }
+
+    /**
+     * Handle click event for search input.
+     * @param e
+     */
+    handlerSearchClear(e) {
+        e.preventDefault();
+
+        let $searchClearButton = $(e.currentTarget);
+        let $search = this.$wrapper.find(this.selectors.searchBox);
+
+        $search.val('');
+        $searchClearButton.hide();
+
+        this.cleanSearch();
+
+        if (this.afterCleanSearchFunc) {
+            this.afterCleanSearchFunc();
+        }
+    }
+
+    /**
+     * Clean the search
+     */
+    cleanSearch() {
+        this.recreateTableWithRecords(this.records);
+
+        this.page = 1;
+        this.refreshPagination();
+    }
+
+    /**
+     * Handle on keyup event for search input.
+     *
+     * @param e The event
+     */
+    handlerSearch(e) {
+        e.preventDefault();
+
+        let $search = $(e.currentTarget);
+        let $searchClearButton = this.$wrapper.find(this.selectors.searchClearButton);
+
+        let search = $search.val();
+        if (search == '') {
+            // clear pagination and hide clear button
+            $searchClearButton.hide();
+        } else {
+            // show clear button
+            $searchClearButton.show();
+        }
+
+        this.search(search);
+
+        if (this.afterSearchFunc) {
+            this.afterSearchFunc(search);
+        }
+    }
+
+    /**
+     * search.
+     */
+    search(val) {
+        let matches = this.searchFunc(this.records, val);
+        if (matches === null) {
+            this.cleanSearch();
+
+            return;
+        }
+
+        this.recreateTableWithRecords(matches);
+
+        let totalRecords = matches.length;
+
+        try {
+            this.refreshPagination({
+                records: matches,
+                totalRecords: totalRecords,
+                totalPages: Math.ceil(totalRecords / this.showPerPage),
+                page: 1,
+            });
+        } catch (err) {
+            let $paginationInfo = this.$wrapper.find($(this.selectors.paginationInfo));
+
+            $paginationInfo.html('');
+
+            this.cleanRows();
         }
     }
 }
