@@ -1,10 +1,13 @@
 'use strict';
 
 import Form from './Components/Form';
-import $ from 'jquery';
-import Swal from 'sweetalert2';
-import Routing from './Components/Routing';
+import Table from './Components/Table';
+import Template from "./Components/Template";
 import InvestmentManagerClient from './Components/InvestmentManagerClient';
+
+import Routing from './Components/Routing';
+import Swal from 'sweetalert2';
+import $ from 'jquery';
 import _ from 'underscore';
 
 import 'twbs-pagination';
@@ -17,7 +20,7 @@ import '../css/CrudManager.scss';
  * @see templates/Components/Table/crud-manage-table.html.twig.
  *
  */
-class CRUDManage {
+class CRUDManage extends Table {
     /**
      *
      * @param {{
@@ -30,6 +33,8 @@ class CRUDManage {
      * }} options
      */
     constructor(options) {
+        super(options);
+
         let _options = _.defaults(options || {}, {
             pagination: false,
             showPerPage: 10,
@@ -41,10 +46,12 @@ class CRUDManage {
             buttonColWidth: 0,
             swalViewOptions: null,
             viewTemplate: '',
-            selectors: CRUDManage._selectors,
+            selectors: _.defaults(options.selectors || {}, CRUDManage._selectors),
             sort: null,
             searchFunc: null,
         });
+
+        console.log(_options);
 
         this.entityType = _options.entityType;
 
@@ -106,26 +113,15 @@ class CRUDManage {
             footer : '.js-manage-footer',
             createButtonContainer: '.js-manage-header-create-button-container',
             searchContainer: '.js-manage-header-search-container',
-            perPageContainer: '.js-manage-header-per-page-container',
 
             // template
             rowTemplate: '#js-manager-row-template',
             createButtonTemplate: '#js-manager-create-button-template',
             searchTemplate: '#js-manager-search-template',
-            showPerPageTemplate: '#js-manager-show-per-page-template',
-
-            // pagination
-            showPerPage: '.js-manage-show-per-page',
-            pagination: '.js-manage-pagination',
-            paginationInfo: '.js-manage-pagination-info',
 
             // serach input
             search: '.js-manage-search',
             searchClear: '.js-manage-search-clear',
-
-            // show/hide column
-            extraCellShown: '.js-manager-table-extra-cell-show',
-            extraCellHide: '.js-manager-table-extra-cell-hide',
 
             manageButtons: '.js-manage-buttons'
         };
@@ -135,72 +131,29 @@ class CRUDManage {
         this.routing = routing.bind(this);
     }
 
-    render(extraRender) {
+    render(renderFunc) {
         // render create button
         if (this.createButton) {
-            let $createButton = this._compileTemplate(this.selectors.createButtonTemplate);
+            let $createButton = Template.compile(this.selectors.createButtonTemplate);
             this.$wrapper.find(this.selectors.createButtonContainer)
                 .append($createButton);
         }
 
         // render search input
         if (this.searchButton) {
-            let $search = this._compileTemplate(this.selectors.searchTemplate);
+            let $search = Template.compile(this.selectors.searchTemplate);
             this.$wrapper.find(this.selectors.searchContainer)
                 .append($search);
         }
 
-        // render pagination elements
-        if (this.pagination) {
-
-            // add on change for show per page
-            this.$wrapper.on(
-                'change',
-                this.selectors.showPerPage,
-                (e) => {
-                    e.preventDefault();
-
-                    const perPage = $(e.currentTarget).val();
-                    this.showPerPage = parseInt(perPage);
-                    this.page = 1;
-
-                    this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
-
-                    this.refreshPagination();
-                }
-            );
-
-            let $perPage = this._compileTemplate(this.selectors.showPerPageTemplate);
-            this.$wrapper.find(this.selectors.perPageContainer)
-                .append($perPage);
-
-            let $showPerPage = this.$wrapper.find(this.selectors.showPerPage);
-            $showPerPage.val(this.showPerPage);
-        }
-
-        if (extraRender) {
-            extraRender.call(this);
-        }
+        super.render(renderFunc);
 
         // render manage col with
         let $manageButtons = this.$wrapper.find(this.selectors.manageButtons);
 
-        $manageButtons.css( "width", this.buttonColWidth );
+        $manageButtons.css( "width", this.buttonColWidth);
 
         this.loadRows();
-    }
-
-    _compileTemplate(selector, compile) {
-        const tplText = $(selector).html();
-        const tpl = _.template(tplText);
-
-        let html = '';
-
-        if (compile !== null || typeof compile !== 'undefined') {
-            html = tpl(compile);
-        }
-
-        return $.parseHTML(html);
     }
 
     /**
@@ -210,29 +163,8 @@ class CRUDManage {
         $.ajax({
             url: this.routing(this.entityType, 'list'),
             success: (data) => {
-                this.setData(data);
+                super.setData(data);
             }
-        });
-    }
-
-    setData(data) {
-        this.records = data.items;
-        this.totalRecords = data.items.length;
-
-        if (!this.pagination) {
-            $.each(this.records, (index, entity) => {
-                this.addRow(entity, index);
-            });
-
-            return;
-        }
-
-        this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
-
-        let $pagination = this.$wrapper.find($(this.selectors.pagination));
-        $pagination.each((index, ul) => {
-            let $ul = $(ul);
-            this.refreshPagination($ul);
         });
     }
 
@@ -273,140 +205,8 @@ class CRUDManage {
     }
 
     /**
-     * Create/update the pagination. Due to the way pagination works, this function destroy the current
-     * pagination if exists and create new pagination.
-     *
-     * @param options
-     */
-    refreshPagination(options) {
-        // remove pagination
-        let $pagination = this.$wrapper.find($(this.selectors.pagination));
-        let $parent = $pagination.parent();
-        $pagination.remove();
-
-        // recreate the pagination
-        $pagination = new $('<ul id="pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>');
-        $parent.append($pagination);
-
-        // show pagination
-        // init all the pagination variables
-        let _options = _.defaults(options || {}, {
-            totalPages: this.totalPages,
-            showPerPage: this.showPerPage,
-            records: this.records,
-            page: this.page,
-            totalRecords: this.totalRecords,
-        });
-
-        let showPerPage = _options.showPerPage;
-        let records = this.sort ? _options.records.sort(this.sort) : _options.records;
-        let totalPages = _options.totalPages;
-        let currentPage = _options.page;
-        let totalRecords = _options.totalRecords;
-
-        // tweak pagination info
-        let $paginationInfo = this.$wrapper.find($(this.selectors.paginationInfo));
-        $paginationInfo.parent().css('margin', '24px 0');
-
-        // init pagination object
-        $pagination.twbsPagination({
-            totalPages: totalPages,
-            visiblePages: 6,
-            onPageClick: function (event, page) {
-                let displayRecordsIndex = Math.max(page - 1, 0) * showPerPage;
-                let endRec = (displayRecordsIndex) + showPerPage;
-
-                let displayRecords = records.slice(displayRecordsIndex, endRec);
-
-                this.cleanRows();
-
-                // create the rows of the table based on the records to display
-                $.each(displayRecords, (index, entity) => {
-                    this.addRow(entity, displayRecordsIndex + index);
-                });
-
-                // update pagination text
-                let pageInfo = $paginationInfo.data('text')
-                    .replace(/:from/g, displayRecordsIndex + 1)
-                    .replace(/:to/g, displayRecordsIndex + displayRecords.length)
-                    .replace(/:of/g, totalRecords)
-                ;
-
-                $paginationInfo.html(pageInfo);
-
-                // to keep the current page
-                this.page = page
-            }.bind(this),
-            startPage: currentPage
-        });
-
-        if (totalRecords <= this.showPerPage) {
-            $pagination.hide();
-        }
-    }
-
-    /**
-     * Clean the rows from the table.
-     */
-    cleanRows() {
-        const $table = this.$wrapper.find(this.selectors.table);
-
-        $table.find('tbody').html('');
-    }
-
-    /**
-     * Create a row table with the entity value.
-     *
-     * @param {{
-     *          id: int,
-     *          date: string,
-     *          beneficiaryParty: {name: string, accountNo: string},
-     *          debtorParty: {name: string, accountNo: string},
-     *          amount: float
-     *        }} entity
-     * @param {int} index
-     */
-    addRow(entity, index) {
-        const $table = this.$wrapper.find(this.selectors.table);
-
-        let data = entity;
-        data.index = index + 1;
-        let row = this._createRow(data);
-
-        $table.find('tbody').append(row);
-
-        if (this.expanded) {
-            this.toggleTableExtraCell($table);
-        }
-    }
-
-    toggleTableExtraCell($table) {
-        let $cellShown = $table.find(this.selectors.extraCellShown);
-        let $cellHidden = $table.find(this.selectors.extraCellHide);
-
-        $cellShown.addClass(this.selectors.extraCellHide.slice(1));
-        $cellShown.removeClass(this.selectors.extraCellShown.slice(1));
-
-        $cellHidden.addClass(this.selectors.extraCellShown.slice(1));
-        $cellHidden.removeClass(this.selectors.extraCellHide.slice(1));
-    }
-
-    /**
-     * Create a row base on row template.
-     *
-     * @param {{
-     *          id: int,
-     *          date: string,
-     *          beneficiaryParty: {name: string, accountNo: string},
-     *          debtorParty: {name: string, accountNo: string},
-     *          amount: float
-     *          editButton: boolean
-     *          deleteButton: boolean
-     *          viewButton: boolean
-     *        }} compile
-     *
-     * @return {Object}
-     *
+     * @deprecated Use createRow instead
+     * @param compile
      * @private
      */
     _createRow(compile) {
@@ -414,7 +214,15 @@ class CRUDManage {
         compile.deleteButton = this.deleteButton;
         compile.viewButton = this.viewButton;
 
-        return this._compileTemplate(this.selectors.rowTemplate, compile);
+        return super.createRow(compile);
+    }
+
+    createRow(compile) {
+        compile.editButton = this.editButton;
+        compile.deleteButton = this.deleteButton;
+        compile.viewButton = this.viewButton;
+
+        return super.createRow(compile);
     }
 
     /**
@@ -579,11 +387,7 @@ class CRUDManage {
      * @param {Object} entity
      */
     addEntity(entity) {
-        this.records.push(entity);
-        this.totalRecords++;
-        this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
-
-        this.refreshPagination();
+        super.addRecord(entity);
 
         this.form.onCreated(entity);
     }
@@ -623,8 +427,7 @@ class CRUDManage {
         const $row = $(e.currentTarget).closest('tr');
         const id = $row.data('id');
 
-        let recordIndex = this.indexOfById(id);
-        let entity = recordIndex !== null ? this.records[recordIndex] : null;
+        let entity = this.getRecord(id);
 
         // fetch the entity from the server because it is not loaded yet.
         // So far there is not clear use case where the application hit this scope, but we will like to
@@ -659,30 +462,13 @@ class CRUDManage {
                 if (result.value) {
                     let entity = result.value.item;
 
-                    this.records[recordIndex] = entity;
-                    entity.index = $row.data('i');
+                    this.replaceRecord(entity, id);
 
                     $row.fadeOut('normal', () => {
                         $row.replaceWith(this._createRow(entity));
                     });
                 }
             });
-    }
-
-    /**
-     * @param id
-     * @return {null|number}
-     */
-    indexOfById(id) {
-        for (let i = 0; i < this.records.length; i++) {
-            let record = this.records[i];
-
-            if (record.id === id) {
-                return i;
-            }
-        }
-
-        return null
     }
 
     /**
@@ -717,7 +503,6 @@ class CRUDManage {
 
         // Setting form data.
         const $form = $(e.currentTarget);
-        const $row = $form.closest('tr');
 
         const itemTitle = $form.data('title');
         const id = $form.data('id');
@@ -734,27 +519,7 @@ class CRUDManage {
                 return InvestmentManagerClient.sendRPC(this.routing(this.entityType, 'delete', id), 'DELETE')
                     // Remove the row from the table.
                     .then(() => {
-                        for( let i = 0; i < this.records.length; i++){
-                            if ( this.records[i].id === id) {
-                                this.records.splice(i, 1);
-                            }
-                        }
-
-                        this.totalRecords--;
-
-                        let newTotalPages = Math.ceil(this.totalRecords / this.showPerPage);
-                        if (this.totalPages !== newTotalPages ) {
-                            // Once here it is because the newTotalPages is minor than this.totalPages.
-                            // This is a delete method this.totalRecords always decrease, therefore
-                            // this.totalPages will never be bigger
-                            if (this.page > newTotalPages) {
-                                this.page = newTotalPages ? newTotalPages : 1;
-                            }
-
-                            this.totalPages = newTotalPages;
-                        }
-
-                        this.refreshPagination();
+                        super.removeRecord(id);
                     });
             }
         }).then((result) => {
@@ -823,6 +588,10 @@ class CRUDManage {
                 this.addRow(entity, index);
             });
 
+            if (this.expanded) {
+                this.toggleTableExtraCell('td');
+            }
+
             return;
         }
 
@@ -878,6 +647,10 @@ class CRUDManage {
                     this.addRow(entity, index);
                 });
 
+                if (this.expanded) {
+                    this.toggleTableExtraCell('td');
+                }
+
                 return;
             }
 
@@ -894,6 +667,10 @@ class CRUDManage {
             $.each(matches, (index, entity) => {
                 this.addRow(entity, index);
             });
+
+            if (this.expanded) {
+                this.toggleTableExtraCell('td');
+            }
 
             return;
         }
@@ -923,25 +700,6 @@ class CRUDManage {
         this.afterSearchFunc = afterSearchFunc
     }
 
-    /**
-     * Set whether the table is expanded or not
-     * @param expanded
-     */
-    setExpanded(expanded) {
-        this.expanded = expanded;
-    }
-
-    toggleExpanded() {
-        this.setExpanded(!this.expanded);
-
-        const $table = this.$wrapper.find(this.selectors.table);
-
-        if (this.expanded) {
-            this.toggleTableExtraCell($table);
-        } else {
-            this.toggleTableExtraCell($table);
-        }
-    }
 
     /**
      * Enables a view button for the table and adds it handler function.
@@ -966,7 +724,6 @@ class CRUDManage {
         );
     }
 
-
     /**
      * Handle on click event for create button.
      * Create a new row when create success.
@@ -984,8 +741,8 @@ class CRUDManage {
         let entity = recordIndex !== null ? this.records[recordIndex] : null;
 
         // Build form html base on the template.
-        const html = this._compileTemplate(this.viewTemplate, entity);
-        const title = this._compileTemplate('#js-view-title-template', entity);
+        const html = Template.compile(this.viewTemplate, entity);
+        const title = Template.compile('#js-view-title-template', entity);
 
         // Swal form modal
         const swalForm = Swal.mixin(this.swalViewOptions);
