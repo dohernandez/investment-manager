@@ -4,6 +4,8 @@ import Form from './Components/Form';
 import Table from './Components/Table';
 import Template from "./Components/Template";
 import InvestmentManagerClient from './Components/InvestmentManagerClient';
+import CreateButton from "./Components/CreateButton";
+import Button from "./Components/Button";
 
 import Routing from './Components/Routing';
 import Swal from 'sweetalert2';
@@ -36,8 +38,6 @@ class CRUDManage extends Table {
         super(options);
 
         let _options = _.defaults(options || {}, {
-            pagination: false,
-            showPerPage: 10,
             viewButton: false,
             createButton: false,
             editButton: false,
@@ -47,8 +47,6 @@ class CRUDManage extends Table {
             swalViewOptions: null,
             viewTemplate: '',
             selectors: _.defaults(options.selectors || {}, CRUDManage._selectors),
-            sort: null,
-            searchFunc: null,
         });
 
         this.entityType = _options.entityType;
@@ -75,32 +73,9 @@ class CRUDManage extends Table {
         this.totalButtons = _options.totalButtons;
         this.buttonColWidth = _options.buttonColWidth;
 
-        // The total records object of array.
-        this.records = [];
-        // The total number of records fetch from database.
-        this.totalRecords = 0;
-
-        // Variables related to pagination
-        this.pagination = _options.pagination;
-        // The records per page will show into table.
-        this.showPerPage = _options.showPerPage;
-        // The current page number.
-        this.page = 1;
-        // The total pages based on records.
-        this.totalPages = 0;
-
-        this.sort = _options.sort;
-
-        // set whether the table is shows all it cols
-        this.expanded = 0;
-
-        // search
-        this.searchFunc = _options.searchFunc;
-        this.searchButton = false;
-        this.afterCleanSearchFunc = null;
-        this.afterSearchFunc = null;
-
         this.routing = this._getRouting;
+
+        this.buttons = [];
     }
 
     static get _selectors() {
@@ -125,17 +100,16 @@ class CRUDManage extends Table {
     }
 
     render(renderFunc) {
-        // render create button
-        if (this.createButton) {
-            let $createButton = Template.compile(this.selectors.createButtonTemplate);
-            this.$wrapper.find(this.selectors.createButtonContainer)
-                .append($createButton);
-        }
+        let $wrapper = this.$wrapper;
+
+        $.each(this.buttons, function (index, button) {
+            button.render($wrapper);
+        });
 
         super.render(renderFunc);
 
         // render manage col with
-        let $manageButtons = this.$wrapper.find(this.selectors.manageButtons);
+        let $manageButtons = $wrapper.find(this.selectors.manageButtons);
 
         $manageButtons.css( "width", this.buttonColWidth);
 
@@ -226,43 +200,35 @@ class CRUDManage extends Table {
     withCreateButton(selector, handler) {
         this.createButton = true;
 
-        let func = this.handleCreate;
-
-        if (handler) {
-            func = handler;
-        }
-
         let sel = '.js-entity-create';
 
         if (selector) {
             sel = selector;
         }
 
-        // Delegate selector
-        this.$wrapper.on(
-            'click',
-            sel,
-            func.bind(this)
-        );
+        let createButton = null;
+        if (handler) {
+            createButton = new Button(
+                sel,
+                this.selectors.createButtonTemplate,
+                this.selectors.createButtonContainer,
+                handler
+            );
+        } else {
+            createButton = new CreateButton(
+                sel,
+                this.selectors.createButtonTemplate,
+                this.selectors.createButtonContainer
+            );
+        }
+
+        this.addButton(createButton);
     }
 
-    /**
-     * Handle on click event for create button.
-     * Create a new row when create success.
-     *
-     * @param e
-     */
-    handleCreate(e) {
-        e.preventDefault();
+    addButton(button) {
+        button.setManager(this);
 
-        this.createFrom()
-            .then((result) => {
-                if (result.value) {
-                    let entity = result.value.item;
-
-                    this.addEntity(entity);
-                }
-            });
+        this.buttons.push(button);
     }
 
     /**
@@ -277,72 +243,26 @@ class CRUDManage extends Table {
         // Set the action to performance.
         let action = data === null ? 'create' : 'update';
 
-        if (force == 'create' || force == 'update') {
-            action = force;
+        let url = '';
+        if (action === 'create') {
+            url = this.routing(this.entityType, 'new');
+        } else {
+            url = this.routing(this.entityType, 'edit', data.id);
         }
-
-        // Build form html base on the template.
-        const html = this.form.html();
-
-        // The options use to show the form inside the modal and how to parser the inputs.
-        const formOptions = this.form.formOptions(action);
 
         // Swal form modal
         const swalForm = Swal.mixin(this.swalFormOptions);
 
-        return swalForm.fire({
-            html: html,
-            confirmButtonText: formOptions.text.confirmButtonText,
-            titleText: formOptions.text.titleText,
-            onBeforeOpen: () => {
-                const $modal = $(swalForm.getContainer()).find('.swal2-modal');
-
-                formOptions.onBeforeOpen(data, $modal);
-            },
-            preConfirm: () => {
-                // Getting form data.
-                const $form = $(swalForm.getContainer()).find(this.form.selector);
-                const formData = {};
-
-                $.each($form.serializeArray(), (key, fieldData) => {
-                    formData[fieldData.name] = fieldData.value
-                });
-
-                // Sending the data to the server.
-                let url, method = '';
-
-                if (action === 'create') {
-                    url = this.routing(this.entityType, 'new');
-                    method = 'POST';
-                } else {
-                    url = this.routing(this.entityType, 'edit', data.id);
-                    method = 'PUT';
-                }
-
-                return InvestmentManagerClient.sendRPC(url, method, formData)
-                    // Catches response error
-                    .catch((errorsData) => {
-                        $('#swal2-validation-message').empty();
-
-                        if (errorsData.errors) {
-                            this.form.mapErrors($form, errorsData.errors);
-
-                            return false;
-                        }
-
-                        if (errorsData.message) {
-                            $('#swal2-validation-message').append(
-                                $('<span></span>').html(errorsData.message)
-                            ).show()
-                        }
-
-                        return false;
-                    });
-            }
-        }).then((result) => {
+        return this.form.create(
+            swalForm,
+            url,
+            action,
+            data,
+            force
+        ).then((result) => {
             // Show popup with success message
             if (result.value) {
-                this._showStatusMessage(formOptions.text.toastTitleText);
+                this._showStatusMessage(this.form.toastTitleText(action));
             }
 
             return result
@@ -511,7 +431,7 @@ class CRUDManage extends Table {
         }).then((result) => {
             // Show popup with success message
             if (result.value) {
-                this._showStatusMessage(this.form.formOptions('delete').text.toastTitleText)
+                this._showStatusMessage(this.form.toastTitleText('delete'))
             }
         }).catch((arg) => {
             // canceling is cool!
