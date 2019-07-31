@@ -154,7 +154,7 @@ class Table {
     getRecord(id) {
         let recordIndex = this.indexOfById(id);
 
-        return recordIndex !== null ? this.records[recordIndex] : null;
+        return recordIndex != null ? this.records[recordIndex] : null;
     }
 
     /**
@@ -183,6 +183,10 @@ class Table {
 
     replaceRecord(record, id) {
         let recordIndex = this.indexOfById(id);
+
+        if (recordIndex == null) {
+            return;
+        }
 
         this.records[recordIndex] = record;
     }

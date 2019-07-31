@@ -6,6 +6,7 @@ import Template from "./Components/Template";
 import InvestmentManagerClient from './Components/InvestmentManagerClient';
 import CreateButton from "./Components/CreateButton";
 import Button from "./Components/Button";
+import EditButton from "./Components/EditButton";
 
 import Routing from './Components/Routing';
 import Swal from 'sweetalert2';
@@ -75,7 +76,8 @@ class CRUDManage extends Table {
 
         this.routing = this._getRouting;
 
-        this.buttons = [];
+        this.tableButtons = [];
+        this.rowButtons = [];
     }
 
     static get _selectors() {
@@ -102,11 +104,15 @@ class CRUDManage extends Table {
     render(renderFunc) {
         let $wrapper = this.$wrapper;
 
-        $.each(this.buttons, function (index, button) {
+        $.each(this.tableButtons, function (index, button) {
             button.render($wrapper);
         });
 
         super.render(renderFunc);
+
+        $.each(this.rowButtons, function (index, button) {
+            button.register($wrapper);
+        });
 
         // render manage col with
         let $manageButtons = $wrapper.find(this.selectors.manageButtons);
@@ -164,25 +170,12 @@ class CRUDManage extends Table {
         return route
     }
 
-    /**
-     * @deprecated Use createRow instead
-     * @param compile
-     * @private
-     */
-    _createRow(compile) {
-        compile.editButton = this.editButton;
-        compile.deleteButton = this.deleteButton;
-        compile.viewButton = this.viewButton;
+    createRow(row) {
+        row.editButton = this.editButton;
+        row.deleteButton = this.deleteButton;
+        row.viewButton = this.viewButton;
 
-        return super.createRow(compile);
-    }
-
-    createRow(compile) {
-        compile.editButton = this.editButton;
-        compile.deleteButton = this.deleteButton;
-        compile.viewButton = this.viewButton;
-
-        return super.createRow(compile);
+        return super.createRow(row);
     }
 
     /**
@@ -222,13 +215,13 @@ class CRUDManage extends Table {
             );
         }
 
-        this.addButton(createButton);
+        this.addTableButton(createButton);
     }
 
-    addButton(button) {
+    addTableButton(button) {
         button.setManager(this);
 
-        this.buttons.push(button);
+        this.tableButtons.push(button);
     }
 
     /**
@@ -311,70 +304,19 @@ class CRUDManage extends Table {
             sel = selector;
         }
 
-        // Delegate selector
-        this.$wrapper.on(
-            'click',
+        let editButton = new EditButton(
             sel,
-            this.handleEdit.bind(this)
+            this.selectors.createButtonTemplate,
+            this.selectors.createButtonContainer
         );
+
+        this.addRowButton(editButton);
     }
 
-    /**
-     * Handle on click event for edit buttons.
-     * Send a request to the server to get the entity data and pre populate the form with it.
-     * Update the row when update success.
-     *
-     * @param e
-     */
-    handleEdit(e) {
-        e.preventDefault();
+    addRowButton(button) {
+        button.setManager(this);
 
-        // find entity to edit
-        const $row = $(e.currentTarget).closest('tr');
-        const id = $row.data('id');
-
-        let entity = this.getRecord(id);
-
-        // fetch the entity from the server because it is not loaded yet.
-        // So far there is not clear use case where the application hit this scope, but we will like to
-        // keep it.
-        if (entity === null) {
-            let getUrl = this.routing(this.entityType, 'get', id);
-
-            InvestmentManagerClient.sendRPC(getUrl, 'GET')
-                .then((data) => {
-                    this.createFrom(data.item)
-                    // update the row by creating a new row base on the row template and
-                    // replace the old row
-                        .then((result) => {
-                            if (result.value) {
-                                let entity = result.value.item;
-                                entity.index = $row.data('i');
-
-                                $row.fadeOut('normal', () => {
-                                    $row.replaceWith(this._createRow(entity));
-                                });
-                            }
-                        });
-                });
-
-            return
-        }
-
-        this.createFrom(entity)
-        // update the row by creating a new row base on the row template and
-        // replace the old row
-            .then((result) => {
-                if (result.value) {
-                    let entity = result.value.item;
-
-                    this.replaceRecord(entity, id);
-
-                    $row.fadeOut('normal', () => {
-                        $row.replaceWith(this._createRow(entity));
-                    });
-                }
-            });
+        this.rowButtons.push(button);
     }
 
     /**
