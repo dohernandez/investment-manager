@@ -1,0 +1,176 @@
+{#
+    entity_name => entity name
+    border => default(0) -> define wheather use box border or not
+    js_panel_class = default('js-panel-box')
+
+    // table fields
+    fields => {
+                'render': {
+                    base:   <value>, default(text) -> How to render the field.
+                            Render type [text, currency, date, slice, check, quantity]
+                    option: <value>
+
+                        1. base 'text' option should not be defined.
+                        2. base 'truncate' option value is the slice until the truncate value.
+                        3. base 'date' option value is the format date.
+                        4. base 'currency' option value is the format currency.
+                        5. base 'check' option value is the object to check whether is null or not.
+                        6. base 'quantity' option value is the object to check to determinate whether increase or decrease.
+                },
+                'name': <value>, # required -> Column name
+                'label': <value>, -> Column name label. When label is not defined then name is used instead.
+                'col_with': <value> -> Collumn with
+            }
+    'buttons': [
+           {
+               'type': '<value>', default('info') -> buton type.
+               'jsClass': '<value>', default('js-entity-view') -> buton type.
+               'icon': '<value>', default('fas fa-eye') -> buton icon.
+           },
+       ]
+    form => form object.
+    search_width => Set different width to the search input. Default "248px".
+#}
+
+{% import 'Components/Macros/table-render.html.twig' as render %}
+
+<div class="row {{ js_panel_class|default('js-panel-box') }}" data-entity-type="{{ entity_name|snake }}">
+    <div class="col-md-12">
+        <div class="box {% if border is defined and border == 0 %}no-border{% endif %}">
+            <div class="box-header with-border js-panel-header">
+                <div class="col-md-12 js-panel-header-button-container">
+                </div>
+            </div>
+            <div class="box-body js-panel-body">
+                <div class="box no-border js-table-box">
+                    <div class="box-header no-border js-table-header">
+                        <div class="col-md-12">
+                            <div class="col-md-4 js-table-header-per-page-container" style="padding-left: 0px;">
+
+                            </div>
+                            <div class="col-md-4 pull-right js-table-header-search-container" style="padding-right: 0px;">
+                                <!-- search table template -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-body table-responsive no-padding js-table-body">
+                        <table id="{{ entity_name|lower|replace({' ': '_'}) }}s" class="table table-bordered table-striped js-table">
+                            <thead>
+                            <tr>
+                                <th width="60" class="text-center" scope="col">#</th>
+                                {% for field in fields %}
+                                    <th {% if field.col_with is defined %} width="{{ field.col_with }}" {% endif %} scope="col"
+                                            {% if field.class is defined %} class="{{ field.class }}" {% endif %}>
+                                        {% if field.label is not defined %}{{ field.name|trans|upper }}{% else %}{{ field.label|trans|upper }}{% endif %}
+                                    </th>
+                                {% endfor %}
+                                {% if buttons is defined %}<th class="js-table-row-buttons" scope="col"></th>{% endif %}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th class="text-center" scope="col">#</th>
+                                {% for field in fields %}
+                                    <th {% if field.class is defined %} class="{{ field.class }}" {% endif %}  scope="col">
+                                        {% if field.label is not defined %}{{ field.name|trans|upper }}{% else %}{{ field.label|trans|upper }}{% endif %}
+                                    </th>
+                                {% endfor %}
+                                {% if buttons is defined %}<th scope="col"></th>{% endif %}
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="box-footer no-border js-table-footer">
+                        <div class="col-md-12">
+                            <div class="pull-left col-sm-6">
+                        <span class="js-table-pagination-info" id="{{ entity_name|lower|replace({' ': '_'}) }}s-pagination-info" role="status" aria-live="polite"
+                              data-text="{{ 'Showing :from to :to of :of'|trans }} {{ entity_name|lower|replace({'_': ' '}) }}s"></span>
+                            </div>
+                            <div class="pull-right col-sm-6">
+                                <ul id="{{ entity_name|lower|replace({' ': '_'}) }}s-pagination" class="pagination-sm pagination js-table-pagination pull-right"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="box-footer with-border js-panel-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+{# templates #}
+<!-- search table template -->
+<script type="text/template" id="js-table-{{ entity_name|lower|replace({' ': '_'}) }}-search-template">
+    <label class="pull-right">Search:
+        <div class="btn-group">
+            <input type="search" class="form-control js-table-search" placeholder="Search" aria-controls="search"
+                   style="width: {{ search_width|default('248px') }}; display: inline-block;">
+            <span class="glyphicon glyphicon-remove-circle js-table-search-clear"
+                  style="display: none;"></span>
+        </div>
+    </label>
+</script>
+
+<!-- create table show per page template -->
+<script type="text/template" id="js-table-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template">
+    <label>{{ 'Show'|trans }}
+        <select id="show-{{ entity_name|lower|replace({' ': '_'}) }}s-per-page" name="table-per-page" aria-controls="per page"
+                class="form-control input-sm js-table-show-per-page"
+                style="width: 75px; display: inline-block;">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+        {{ 'entries'|trans }}</label>
+</script>
+
+{% if fields is defined %}
+    <!-- row table template -->
+    <script type="text/template" id="js-table-{{ entity_name|lower|replace({' ': '_'}) }}-row-template">
+        <tr data-id="<%= id %>" data-i="<%= index %>">
+            <th style="vertical-align: middle;" scope="row" class="text-center js-table-row-index"><%= index %></th>
+            {% for field in fields %}
+                <td style="vertical-align: middle;" {% if field.class is defined %} class="{{ field.class }}" {% endif %}>
+                    {{ render.field(field.name, field) }}
+                </td>
+            {% endfor %}
+            {% if buttons is defined %}
+                <td style="text-align: center;">
+                        {% for button in buttons %}
+                            {#
+                                'buttons': [
+                                   {
+                                       'type': '<value>', default('info') -> buton type.
+                                       'jsClass': '<value>', default('js-entity-view') -> buton type.
+                                       'icon': '<value>', default('fas fa-eye') -> buton icon.
+                                   },
+                               ]
+                            #}
+                            <button type="button" data-backdrop="static" data-keyboard="false" class="{{ button.jsClass|default('js-entity-view') }} btn btn-{{ button.type|default('info') }} btn-sm pull-left"
+                                    style="margin-left: 3px">
+                                <i class="{{ button.icon|default('fas fa-eye') }}" aria-hidden="true"></i>
+                            </button>
+                        {% endfor %}
+                </td>
+            {% endif %}
+        </tr>
+    </script>
+{% endif %}
+
+{% if form is defined %}
+    <!-- form panel template -->
+    <script type="text/template" id="js-panel-{{ entity_name|lower|replace({' ': '_'}) }}-form-template">
+        {% set _form_theme = form_theme|default('Components/Form/horizontal-theme-form.html.twig') %}
+    {% form_theme form _form_theme %}
+
+    {{ form_start(form, {'attr': {'id': 'entity-form', 'class': 'form-horizontal js-entity-from' }}) }}
+        <div class="box-body">
+            {{ form_widget(form) }}
+        </div>
+        {{ form_end(form) }}
+    </script>
+{% endif %}
