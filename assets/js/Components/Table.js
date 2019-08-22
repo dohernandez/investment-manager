@@ -6,6 +6,8 @@ import Form from "./Form";
 import _ from 'underscore';
 import $ from 'jquery';
 
+import 'twbs-pagination';
+
 class Table {
     constructor(options) {
         let _options = _.defaults(options || {}, {
@@ -14,7 +16,7 @@ class Table {
             visiblePages: 6,
             sort: null,
             selectors: _.defaults(options.selectors || {}, Table._selectors),
-            showSearchBox: options.showSearchBox ? options.showSearchBox : options.searchButton,
+            buttonColWidth: 0,
         });
 
         // Start binding functions for $wrapper
@@ -46,10 +48,13 @@ class Table {
 
         // search
         this.searchFunc = _options.searchFunc;
-        this.showSearchBox = _options.showSearchBox;
-        this.searchButton = false;
+        this.showSearchBox = this.searchFunc ? true : false;
         this.afterCleanSearchFunc = null;
         this.afterSearchFunc = null;
+
+        // row buttons
+        this.rowButtons = [];
+        this.buttonColWidth = _options.buttonColWidth;
     }
 
     static get _selectors() {
@@ -73,6 +78,9 @@ class Table {
             searchTemplate: '#js-manager-search-template',
             searchBox: '.js-manage-search',
             searchClearButton: '.js-manage-search-clear',
+
+            // row buttons
+            rowButtons: '.js-row-buttons'
         }
     }
 
@@ -387,6 +395,10 @@ class Table {
         if (renderFunc) {
             renderFunc.call(this);
         }
+
+        // render manage col with
+        let $manageButtons = this.$wrapper.find(this.selectors.rowButtons);
+        $manageButtons.css( "width", this.buttonColWidth);
     }
 
     /**
@@ -474,6 +486,22 @@ class Table {
             $paginationInfo.html('');
 
             this.cleanRows();
+        }
+    }
+
+    addRowButton(button) {
+        this.rowButtons.push(button);
+
+        let buttonWidth = button.width();
+
+        if (buttonWidth) {
+            this.buttonColWidth += buttonWidth;
+        }
+
+        if (this.rowButtons.size() !== 1) {
+            this.buttonColWidth += 37;
+        } else {
+            this.buttonColWidth = 54;
         }
     }
 }

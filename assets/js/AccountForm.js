@@ -1,13 +1,14 @@
 'use strict';
 
-import Form from './Components/Form';
-
+import SwalForm from './Components/SwalForm';
 /**
  * Form manage how the account form should be build when a crud manager invokes a create or an update action.
  */
-class AccountForm extends Form {
-    constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
-        super(swalFormOptionsText, template, selector);
+class AccountForm extends SwalForm {
+    constructor(swalOptions, table, template = '#js-panel-form-template', selector = '.js-entity-from') {
+        super(swalOptions, template, selector);
+
+        this.table = table;
     }
 
     /**
@@ -25,6 +26,10 @@ class AccountForm extends Form {
                 $input.val(data[property]);
             }
         }
+    }
+
+    onCreated(entity) {
+        this.table.addRecord(entity);
     }
 }
 

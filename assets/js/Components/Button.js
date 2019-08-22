@@ -3,11 +3,13 @@
 import Template from "./Template";
 
 class Button {
-    constructor(selector, template, container, handler) {
+    constructor(selector, template, container, handler, width = null) {
         this.selector = selector;
         this.template = template;
         this.container = container;
         this.handler = handler;
+
+        this._width = width;
     }
 
     /**
@@ -35,6 +37,10 @@ class Button {
             this.selector,
             this.handler.bind(this)
         );
+    }
+
+    get width() {
+        return this._width
     }
 }
 

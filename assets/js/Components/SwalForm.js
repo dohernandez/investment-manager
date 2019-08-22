@@ -2,23 +2,31 @@
 
 import InvestmentManagerClient from "./InvestmentManagerClient";
 
-import _ from 'underscore';
+import Swal from 'sweetalert2';
 import $ from 'jquery';
+import Template from "./Template";
+
+const eventBus = require('js-event-bus')();
+
 
 /**
  * Form manage how a form should be build when a crud manager invokes a create or an update action.
  *
+ * @param {Object} $container
  * @param {Object} swalOptions
- * @param {Object} swalOptions.confirmOptions
- * @param {Object} swalOptions.toastOptions
- * @param {Object} swalOptions.textOptions
+ * @param {Object} swalOptions.form
+ * @param {Object} swalOptions.confirm
+ * @param {Object} swalOptions.toast
+ * @param {Object} swalOptions.text
  */
-class Form {
-    constructor(swalOptions, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
-        this.swalFormOptionsText = swalOptions;
+class SwalForm {
+    constructor(swalOptions, template = '#js-panel-form-template', selector = '.js-entity-from') {
+        this.swalOptions = swalOptions;
 
         this.template = template;
         this.selector = selector;
+
+        eventBus.on("entity_created", this.onCreated.bind(this));
     }
 
     /**
@@ -29,25 +37,26 @@ class Form {
      *
      * @return {*|Promise|Promise<T | never>}
      */
-    create(swalForm, url, action, data = null, force = '') {
+    create(url, action, data = null, force = '') {
         if (force == 'create' || force == 'update') {
             action = force;
         }
 
         // Build form html base on the template.
         const html = this.html();
+        const swalOptions = this.formOptions(action);
 
-        // The options use to show the form inside the modal and how to parser the inputs.
-        const formOptions = this.formOptions(action);
+        // Swal form modal
+        const swalForm = Swal.mixin(swalOptions.form);// The options use to show the form inside the modal and how to parser the inputs.
 
         return swalForm.fire({
             html: html,
-            confirmButtonText: formOptions.text.confirmButtonText,
-            titleText: formOptions.text.titleText,
+            confirmButtonText: swalOptions.formConfirmButtonText,
+            titleText: swalOptions.formTitleText,
             onBeforeOpen: () => {
                 const $modal = $(swalForm.getContainer()).find('.swal2-modal');
 
-                formOptions.onBeforeOpen(data, $modal);
+                swalOptions.onBeforeOpen(data, $modal);
             },
             preConfirm: () => {
                 // Getting form data.
@@ -64,7 +73,8 @@ class Form {
                 return InvestmentManagerClient.sendRPC(url, method, formData)
                 // Catches response error
                     .catch((errorsData) => {
-                        $('#swal2-validation-message').empty();
+                        let $swalValidationMessage = $('#swal2-validation-message');
+                        $swalValidationMessage.empty();
 
                         if (errorsData.errors) {
                             this.mapErrors($form, errorsData.errors);
@@ -73,7 +83,7 @@ class Form {
                         }
 
                         if (errorsData.message) {
-                            $('#swal2-validation-message').append(
+                            $swalValidationMessage.append(
                                 $('<span></span>').html(errorsData.message)
                             ).show()
                         }
@@ -81,6 +91,16 @@ class Form {
                         return false;
                     });
             },
+        }).then((result) => {
+            // Show popup with success message
+            if (result.value) {
+                this._showStatusMessage(swalOptions.toastTitleText);
+            }
+
+            return result
+        }).catch((arg) => {
+            // canceling is cool!
+            console.log(arg)
         });
     }
 
@@ -90,15 +110,7 @@ class Form {
      * @return {*}
      */
     html() {
-        const tplText = $(this.template).html();
-        const tpl = _.template(tplText);
-        const html = tpl();
-
-        return html;
-    }
-
-    toastTitleText(action = 'create') {
-        return this.formOptions(action).text.toastTitleText;
+        return Template.compile(this.template);
     }
 
     /**
@@ -107,31 +119,46 @@ class Form {
      * @param {string} action
      */
     formOptions(action = 'create') {
-        let formOptions = {};
+        let formOptions = {
+            form: this.swalOptions.form,
+            onBeforeOpen: this.onBeforeOpen.bind(this),
+        };
 
         switch (action) {
             case 'create':
-                formOptions = {
-                    text: this.swalFormOptionsText.create,
-                    onBeforeOpen: this.onBeforeOpen.bind(this)
-                };
+                formOptions['formConfirmButtonText'] = this.swalOptions.text.create.confirmButtonText;
+                formOptions['formTitleText'] = this.swalOptions.text.create.titleText;
+                formOptions['toastTitleText'] = this.swalOptions.text.create.toastTitleText;
 
                 break;
             case 'update':
-                formOptions = {
-                    text: this.swalFormOptionsText.update,
-                    onBeforeOpen: this.onBeforeOpen.bind(this)
-                };
+                formOptions['formConfirmButtonText'] = this.swalOptions.text.update.confirmButtonText;
+                formOptions['formTitleText'] = this.swalOptions.text.update.titleText;
+                formOptions['toastTitleText'] = this.swalOptions.text.update.toastTitleText;
+
                 break;
             case 'delete':
-                formOptions = {
-                    text: this.swalFormOptionsText.delete
-                };
+                formOptions['toastTitleText'] = this.swalOptions.text.delete.toastTitleText;
 
                 break;
         }
 
         return formOptions;
+    }
+
+    /**
+     * Show action success message.
+     *
+     * @param titleText
+     * @private
+     */
+    _showStatusMessage(titleText) {
+        const toast = Swal.mixin(this.swalOptions.toast);
+
+        toast.fire({
+            type: 'success',
+            titleText
+        });
     }
 
     /**
@@ -143,7 +170,7 @@ class Form {
      * @param $wrapper
      */
     onBeforeOpen(data, $wrapper) {
-
+        console.log('onCreate');
     }
 
     /**
@@ -154,7 +181,29 @@ class Form {
      * @param {Object} data
      */
     onCreated(data) {
+        console.log('onCreate', data);
+    }
 
+    /**
+     * Callback function when data is updated
+     *
+     * This method should overwritten by the child class in case the form requires to do an action after data is updated.
+     *
+     * @param {Object} data
+     */
+    onUpdate(data) {
+        console.log('onUpdate', data);
+    }
+
+    /**
+     * Callback function when data is deleted
+     *
+     * This method should overwritten by the child class in case the form requires to do an action after data is delete.
+     *
+     * @param {Object} data
+     */
+    onDelete(data) {
+        console.log('onDelete', data);
     }
 
     /**
@@ -193,4 +242,4 @@ class Form {
     }
 }
 
-export default Form;
+export default SwalForm;
