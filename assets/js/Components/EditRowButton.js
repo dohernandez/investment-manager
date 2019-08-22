@@ -9,12 +9,12 @@ const eventBus = require('js-event-bus')();
 class EditRowButton extends RowButton {
     /**
      *
-     * @param from {Object}
+     * @param form {Object}
      * @param url {function}
      * @param selector {string}
      * @param container {string}
      */
-    constructor(from, url, selector) {
+    constructor(form, url, selector) {
         super(selector, function (e) {
             e.preventDefault();
 
@@ -25,7 +25,7 @@ class EditRowButton extends RowButton {
             let entity = this.table.getRecord(id);
             let index = entity.index;
 
-            from.create(url(id), 'update', entity)
+            form.update(url(id), entity)
             // update the row by creating a new row base on the row template and
             // replace the old row
                 .then((result) => {

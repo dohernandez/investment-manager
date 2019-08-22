@@ -25,15 +25,19 @@ class SwalForm {
         this.selector = selector;
     }
 
+    create(url) {
+        return this.display(url, 'create');
+    }
+
     /**
-     * Create a form to create or edit entity.
+     * Display a form to create or edit entity.
      *
      * @param {Object} data Use to pre populate the from.
      * @param {string} force Use to for an action.
      *
      * @return {*|Promise|Promise<T | never>}
      */
-    create(url, action, data = null, force = '') {
+    display(url, action, data = null, force = '') {
         if (force == 'create' || force == 'update') {
             action = force;
         }
@@ -90,7 +94,7 @@ class SwalForm {
         }).then((result) => {
             // Show popup with success message
             if (result.value) {
-                this._showStatusMessage(swalOptions.toastTitleText);
+                this.showStatusMessage(swalOptions.toastTitleText);
             }
 
             return result
@@ -146,9 +150,8 @@ class SwalForm {
      * Show action success message.
      *
      * @param titleText
-     * @private
      */
-    _showStatusMessage(titleText) {
+    showStatusMessage(titleText) {
         const toast = Swal.mixin(this.swalOptions.toast);
 
         toast.fire({
@@ -166,51 +169,7 @@ class SwalForm {
      * @param $wrapper
      */
     onBeforeOpen(data, $wrapper) {
-        console.log('onCreate');
-    }
-
-    /**
-     * Callback function when data is created
-     *
-     * This method should overwritten by the child class in case the form requires to do an action after data is stored.
-     *
-     * @param {Object} data
-     */
-    onCreated(data) {
-        console.log('onCreate', data);
-    }
-
-    /**
-     * Callback function when data is updated
-     *
-     * This method should overwritten by the child class in case the form requires to do an action after data is updated.
-     *
-     * @param {Object} data
-     */
-    onUpdate(data) {
-        console.log('onUpdate', data);
-    }
-
-    /**
-     * Callback function when data is deleted
-     *
-     * This method should overwritten by the child class in case the form requires to do an action after data is delete.
-     *
-     * @param {Object} data
-     */
-    onDelete(data) {
-        console.log('onDelete', data);
-    }
-
-    /**
-     * Callback function when data is preview
-     *
-     * This method should overwritten by the child class in case the form requires to do an action after data is preview.
-     *
-     * @param {Object} data
-     */
-    onPreview(data) {
-
+        console.log('onBeforeOpen');
     }
 
     mapErrors($form, errorData) {
@@ -234,6 +193,36 @@ class SwalForm {
 
             $wrapper.append($error);
             $groupWrapper.addClass('has-error');
+        });
+    }
+
+    update(url, data) {
+        return this.display(url, 'update', data);
+    }
+
+    delete(url, id, title) {
+        // Create delete text confirmation.
+        const text = this.swalOptions.confirm.text.replace(/\{0\}/g, '"' + title + '"');
+
+        // Swal confirmation modal
+        const swalConfirm = Swal.mixin(swalConfirmOptions);
+
+        return swalConfirm.fire({
+            text,
+            preConfirm: () => {
+                return InvestmentManagerClient.sendRPC(url, 'DELETE');
+            }
+        }).then((result) => {
+            // Show popup with success message
+            if (result.value) {
+                this.showStatusMessage(this.formOptions('delete').toastTitleText);
+            }
+
+            return result
+        }).catch((arg) => {
+            // canceling is cool!
+
+            console.log(arg);
         });
     }
 }

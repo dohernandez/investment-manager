@@ -10,16 +10,16 @@ class CreateButton extends Button {
     /**
      *
      * @param text {string}
-     * @param from {Object}
+     * @param form {Object}
      * @param url {function}
      * @param selector {string}
      * @param container {string}
      */
-    constructor(text, from, url, selector, container) {
+    constructor(text, form, url, selector, container) {
         super(selector, null, container, function (e) {
             e.preventDefault();
 
-            from.create(url(), 'create')
+            form.create(url())
                 .then((result) => {
                     if (result.value) {
                         let entity = result.value.item;

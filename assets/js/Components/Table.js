@@ -281,12 +281,12 @@ class Table {
      */
     refreshPagination(options) {
         // remove pagination
-        let $paginator = this.$wrapper.find($(this.selectors.pagination));
+        let $paginator = this.$wrapper.find(this.selectors.pagination);
         let $parent = $paginator.parent();
         $paginator.remove();
 
         // recreate the pagination
-        $paginator = new $('<ul id="pagination" class="pagination-sm pagination js-manage-pagination pull-right"></ul>');
+        $paginator = new $('<ul id="pagination" class="pagination-sm pagination ' + this.selectors.pagination.slice(1) + ' pull-right"></ul>');
         $parent.append($paginator);
 
         // show pagination
@@ -298,7 +298,7 @@ class Table {
         }
 
         // tweak pagination info
-        let $paginationInfo = this.$wrapper.find($(this.selectors.paginationInfo));
+        let $paginationInfo = this.$wrapper.find(this.selectors.paginationInfo);
         $paginationInfo.parent().css('margin', '24px 0');
 
         // init pagination object
@@ -325,7 +325,7 @@ class Table {
                 // to keep the current page
                 this.page = page
             }.bind(this),
-            startPage: _options.currentPage
+            startPage: _options.page
         });
 
         if (_options.totalRecords <= _options.showPerPage) {
