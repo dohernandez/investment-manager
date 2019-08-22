@@ -131,7 +131,7 @@
 {% if fields is defined %}
     <!-- row table template -->
     <script type="text/template" id="js-table-{{ entity_name|lower|replace({' ': '_'}) }}-row-template">
-        <tr data-id="<%= id %>" data-i="<%= index %>">
+        <tr data-id="<%= id %>" data-i="<%= index %>" data-title="<%= title %>">
             <th style="vertical-align: middle;" scope="row" class="text-center js-table-row-index"><%= index %></th>
             {% for field in fields %}
                 <td style="vertical-align: middle;" {% if field.class is defined %} class="{{ field.class }}" {% endif %}>

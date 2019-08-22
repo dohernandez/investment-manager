@@ -9,6 +9,7 @@ import _ from 'underscore';
 
 import '../css/PanelTable.scss';
 import EditRowButton from "./Components/EditRowButton";
+import DeleteRowButton from "./Components/DeleteRowButton";
 
 class PanelTable extends Table {
     constructor(options) {
@@ -85,3 +86,4 @@ class PanelTable extends Table {
 global.PanelTable = PanelTable;
 global.CreateButton = CreateButton;
 global.EditRowButton = EditRowButton;
+global.DeleteRowButton = DeleteRowButton;

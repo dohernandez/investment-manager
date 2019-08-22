@@ -47,7 +47,7 @@
                 '{{ 'Create new'|trans }} {{ entity_name|trans|lower }}',
                 form,
                 function () {
-                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_new');
+                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_new', {});
                 },
                 '.js-entity-create',
                 '.js-panel-header-button-container'
@@ -63,6 +63,16 @@
                 '.js-entity-edit'
             );
             panelTable.addRowButton(editRowButton);
+
+
+            const deleteRowButton = new DeleteRowButton(
+                form,
+                function (id) {
+                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_delete', {id});
+                },
+                '.js-entity-delete'
+            );
+            panelTable.addRowButton(deleteRowButton);
 
             panelTable.render();
             panelTable.loadRows();

@@ -14,7 +14,8 @@ class AccountForm extends SwalForm {
         this.table = table;
 
         eventBus.on("entity_created", this.onCreated.bind(this));
-        eventBus.on("entity_updated", this.onUpdate.bind(this));
+        eventBus.on("entity_updated", this.onUpdated.bind(this));
+        eventBus.on("entity_deleted", this.onDeleted.bind(this));
     }
 
     /**
@@ -38,12 +39,16 @@ class AccountForm extends SwalForm {
         this.table.addRecord(entity);
     }
 
-    onUpdate(entity, $row) {
+    onUpdated(entity, $row) {
         this.table.replaceRecord(entity, entity.id);
 
         $row.fadeOut('normal', () => {
             $row.replaceWith(this.table.createRow(entity));
         });
+    }
+
+    onDeleted(id) {
+        this.table.removeRecord(id);
     }
 }
 

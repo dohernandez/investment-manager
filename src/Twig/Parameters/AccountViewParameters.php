@@ -56,6 +56,11 @@ class AccountViewParameters extends AbstractViewParameters
                         'jsClass' => 'js-entity-edit',
                         'icon' => 'fa fa-pencil-alt',
                     ],
+                    [
+                        'type' => 'danger',
+                        'jsClass' => 'js-entity-delete',
+                        'icon' => 'fa fa-trash-alt',
+                    ],
                 ],
             ]);
     }
