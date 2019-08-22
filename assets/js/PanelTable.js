@@ -8,7 +8,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 
 import '../css/PanelTable.scss';
-import EditButton from "./Components/EditButtonForm";
+import EditRowButton from "./Components/EditRowButton";
 
 class PanelTable extends Table {
     constructor(options) {
@@ -84,4 +84,4 @@ class PanelTable extends Table {
 
 global.PanelTable = PanelTable;
 global.CreateButton = CreateButton;
-global.EditButton = EditButton;
+global.EditRowButton = EditRowButton;

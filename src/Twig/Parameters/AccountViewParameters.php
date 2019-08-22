@@ -45,4 +45,18 @@ class AccountViewParameters extends AbstractViewParameters
             ],
         ];
     }
+
+    public function index(array $entities = [], array $context = []): array
+    {
+        return parent::index($entities, $context + [
+                'search_width' => '242px',
+                'buttons' => [
+                    [
+                        'type' => 'primary',
+                        'jsClass' => 'js-entity-edit',
+                        'icon' => 'fa fa-pencil-alt',
+                    ],
+                ],
+            ]);
+    }
 }

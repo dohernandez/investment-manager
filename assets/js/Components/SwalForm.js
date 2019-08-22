@@ -6,8 +6,6 @@ import Swal from 'sweetalert2';
 import $ from 'jquery';
 import Template from "./Template";
 
-const eventBus = require('js-event-bus')();
-
 
 /**
  * Form manage how a form should be build when a crud manager invokes a create or an update action.
@@ -25,8 +23,6 @@ class SwalForm {
 
         this.template = template;
         this.selector = selector;
-
-        eventBus.on("entity_created", this.onCreated.bind(this));
     }
 
     /**

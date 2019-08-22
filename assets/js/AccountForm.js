@@ -1,6 +1,9 @@
 'use strict';
 
 import SwalForm from './Components/SwalForm';
+
+const eventBus = require('js-event-bus')();
+
 /**
  * Form manage how the account form should be build when a crud manager invokes a create or an update action.
  */
@@ -9,6 +12,9 @@ class AccountForm extends SwalForm {
         super(swalOptions, template, selector);
 
         this.table = table;
+
+        eventBus.on("entity_created", this.onCreated.bind(this));
+        eventBus.on("entity_updated", this.onUpdate.bind(this));
     }
 
     /**
@@ -30,6 +36,14 @@ class AccountForm extends SwalForm {
 
     onCreated(entity) {
         this.table.addRecord(entity);
+    }
+
+    onUpdate(entity, $row) {
+        this.table.replaceRecord(entity, entity.id);
+
+        $row.fadeOut('normal', () => {
+            $row.replaceWith(this.table.createRow(entity));
+        });
     }
 }
 

@@ -346,29 +346,35 @@ class Table {
 
     // Render
     render(renderFunc) {
+        let $wrapper = this.$wrapper;
+
         // render search input
         if (this.showSearchBox) {
             let $search = Template.compile(this.selectors.searchTemplate);
-            this.$wrapper.find(this.selectors.searchContainer)
+            $wrapper.find(this.selectors.searchContainer)
                 .append($search);
 
-            this.$wrapper.on(
+            $wrapper.on(
                 'click',
                 this.selectors.searchClearButton,
                 this.handlerSearchClear.bind(this)
             );
 
-            this.$wrapper.on(
+            $wrapper.on(
                 'keyup',
                 this.selectors.searchBox,
                 this.handlerSearch.bind(this)
             );
         }
 
+        $.each(this.rowButtons, function (index, button) {
+            button.render($wrapper);
+        });
+
         // render pagination elements
         if (this.pagination === true) {
             // add on change for show per page
-            this.$wrapper.on(
+            $wrapper.on(
                 'change',
                 this.selectors.showPerPage,
                 (e) => {
@@ -385,10 +391,10 @@ class Table {
             );
 
             let $perPage = Template.compile(this.selectors.showPerPageTemplate);
-            this.$wrapper.find(this.selectors.perPageContainer)
+            $wrapper.find(this.selectors.perPageContainer)
                 .append($perPage);
 
-            let $showPerPage = this.$wrapper.find(this.selectors.showPerPage);
+            let $showPerPage = $wrapper.find(this.selectors.showPerPage);
             $showPerPage.val(this.showPerPage);
         }
 
@@ -397,7 +403,7 @@ class Table {
         }
 
         // render manage col with
-        let $manageButtons = this.$wrapper.find(this.selectors.rowButtons);
+        let $manageButtons = $wrapper.find(this.selectors.rowButtons);
         $manageButtons.css( "width", this.buttonColWidth);
     }
 
@@ -491,14 +497,15 @@ class Table {
 
     addRowButton(button) {
         this.rowButtons.push(button);
+        button.setTable(this);
 
-        let buttonWidth = button.width();
+        let buttonWidth = button.width;
 
         if (buttonWidth) {
             this.buttonColWidth += buttonWidth;
         }
 
-        if (this.rowButtons.size() !== 1) {
+        if (this.rowButtons.length !== 1) {
             this.buttonColWidth += 37;
         } else {
             this.buttonColWidth = 54;
