@@ -1,17 +1,25 @@
 'use strict';
 
-import Form from './Components/Form';
+import SwalForm from "./Components/SwalForm";
 import $ from 'jquery';
 
 import 'select2';
 import '../css/StockMarketForm.scss';
 
+const eventBus = require('js-event-bus')();
+
 /**
  * Form manage how the account form should be build when a crud manager invokes a create or an update action.
  */
-class StockMarketForm extends Form {
-    constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
-        super(swalFormOptionsText, template, selector);
+class StockMarketForm extends SwalForm {
+    constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
+        super(swalOptions, template, selector);
+
+        this.table = table;
+
+        eventBus.on("entity_created", this.onCreated.bind(this));
+        eventBus.on("entity_updated", this.onUpdated.bind(this));
+        eventBus.on("entity_deleted", this.onDeleted.bind(this));
     }
 
     /**
@@ -58,6 +66,22 @@ class StockMarketForm extends Form {
             placeholder: 'Search for a country',
             minimumResultsForSearch: 4
         });
+    }
+
+    onCreated(entity) {
+        this.table.addRecord(entity);
+    }
+
+    onUpdated(entity, $row) {
+        this.table.replaceRecord(entity, entity.id);
+
+        $row.fadeOut('normal', () => {
+            $row.replaceWith(this.table.createRow(entity));
+        });
+    }
+
+    onDeleted(id) {
+        this.table.removeRecord(id);
     }
 }
 
