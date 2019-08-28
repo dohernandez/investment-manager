@@ -8,7 +8,7 @@
     <div class="box-body">
         <div class="row stock-price-row">
             <div class="col-md-5">
-                {% embed 'Components/ui/table-simple-key-value.html.twig' with {
+                {% embed 'Components/ui/table-key-value.html.twig' with {
                     'rows' : [
                         {
                             'key': 'Prev. Close',
@@ -59,7 +59,7 @@
                     'tmpl': true,
                 } %}
                 {% endembed %}
-                {% embed 'Components/ui/table-simple-key-value.html.twig' with {
+                {% embed 'Components/ui/table-key-value.html.twig' with {
                     'rows' : [
                         {
                             'key': 'Sector',

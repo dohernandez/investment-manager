@@ -2,6 +2,8 @@
 
 import Table from "./Components/Table";
 import Routing from "./Components/Routing";
+import Button from "./Components/Button";
+import RowButton from "./Components/RowButton";
 import CreateButton from "./Components/CreateButtonForm";
 import EditRowButton from "./Components/EditRowButton";
 import DeleteRowButton from "./Components/DeleteRowButton";
@@ -85,7 +87,9 @@ class PanelTable extends Table {
 }
 
 global.PanelTable = PanelTable;
+global.Button = Button;
 global.CreateButton = CreateButton;
+global.RowButton = RowButton;
 global.EditRowButton = EditRowButton;
 global.DeleteRowButton = DeleteRowButton;
 global.ViewRowButton = ViewRowButton;

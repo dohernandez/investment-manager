@@ -3,96 +3,97 @@
 {% block stylesheets %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-css.html.twig' %}
+    {% include 'Components/Panel/panel-table-css.html.twig' %}
 
     <link rel="stylesheet" href="{{ asset('build/stock_form.css') }}">
 {%  endblock %}
 
 {% block page_content %}
-    {% include 'Components/ui/crud-manage-table.html.twig' %}
+    {% include 'Components/Panel/panel-table.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-scripts.html.twig' %}
-    {% include 'Components/ui/crud-manage-table-scripts.html.twig' %}
+    {% include 'Components/Panel/panel-table-scripts.html.twig' %}
 
     <script src="{{ asset('build/stock_form.js') }}"></script>
 
     <script>
         $(document).ready(function() {
             // Create page instance
-            let $crudManagerRowBox = $('.{{ js_crud_manage_class|default('js-crud-manage-row-box') }}');
+            let $panelBox = $('.{{ js_panel_class|default('js-panel-box') }}');
 
-            let contentWrapper = $crudManagerRowBox.closest('section');
-            let entityType = $crudManagerRowBox.data('entity-type');
+            let contentWrapper = $panelBox.closest('section');
+            let entityType = $panelBox.data('entity-type');
 
-            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
-            let crudManager = new CRUDManage({
+            // Create panelTable instance @see assets/js/PanelTable.js
+            let panelTable = new PanelTable({
                 entityType: entityType,
                 wrapper: contentWrapper,
-                swalFormOptions: window.swalFormOptions,
-                swalConfirmOptions: window.swalConfirmOptions,
-                toastOptions: window.toastOptions,
                 pagination: true,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
+                    searchTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
-            });
+                searchFunc: function (stocks, search) {
+                    if (search.length >= 2) {
+                        let $matches = [];
 
-            // add search input function
-            crudManager.withSearch(function (stocks, search) {
-                if (search.length >= 2) {
-                    let $matches = [];
+                        search = search.toUpperCase();
 
-                    search = search.toUpperCase();
+                        $.each(stocks, function (index, stock) {
+                            if (stock.name.toUpperCase().indexOf(search) > -1 ||
+                                stock.symbol.toUpperCase().indexOf(search) > -1 ) {
 
-                    $.each(stocks, function (index, stock) {
-                        if (stock.name.toUpperCase().indexOf(search) > -1 ||
-                            stock.symbol.toUpperCase().indexOf(search) > -1 ) {
+                                $matches.push(stock);
+                            }
+                        });
 
-                            $matches.push(stock);
-                        }
-                    });
+                        return $matches;
+                    }
 
-                    return $matches;
+                    return null;
                 }
-
-                return null;
             });
-
-            // prepare the crud manage table
-            let swalFormOptionsText = {
-                create: {
-                    confirmButtonText: '{{ 'Create'|trans }}',
-                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
-                },
-                update: {
-                    confirmButtonText: '{{ 'Update'|trans }}',
-                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was updated successfully.'|trans }}'
-                },
-                delete: {
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'
-                }
-            };
 
             const form = new StockForm(
-                swalFormOptionsText,
-                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+                window.swalOptions,
+                panelTable,
+                '#js-panel-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
             );
 
-            crudManager.withForm(form);
-            // add button create
-            crudManager.withCreateButton();
+            const createButton = new CreateButton(
+                '{{ 'Create new'|trans }} {{ entity_name|trans|lower }}',
+                form,
+                function () {
+                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_new', {});
+                },
+                '.js-entity-create',
+                '.js-panel-header-button-container'
+            );
+            panelTable.addButton(createButton);
 
-            // Set up swal confirm options
-            let swalViewOptions = {
+            const editRowButton = new EditRowButton(
+                form,
+                function (id) {
+                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_edit', {id});
+                },
+                '.js-entity-edit'
+            );
+            panelTable.addRowButton(editRowButton);
+
+            const deleteRowButton = new DeleteRowButton(
+                form,
+                function (id) {
+                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_delete', {id});
+                },
+                '.js-entity-delete'
+            );
+            panelTable.addRowButton(deleteRowButton);
+
+            let swalOptions = {
                 customClass: {
                     title: 'swal2-form-title',
                     content: 'swal2-form-content',
@@ -103,24 +104,18 @@
                 allowEscapeKey: true,
                 allowOutsideClick: true,
                 showCloseButton: true,
-                position: 'top'
+                position: 'top',
             };
 
-            // add button view
-            crudManager.withViewButton('.js-entity-view', swalViewOptions, '#js-view-template');
-            // add button edit
-            crudManager.withEditButton();
-            // add button delete
-            crudManager.withDeleteButton();
-            // add button extra
-            crudManager.withExtraButton();
-
-            crudManager.render();
+            const viewRowButton = new ViewRowButton(
+                form,
+                '.js-entity-view',
+                swalOptions,
+            );
+            panelTable.addRowButton(viewRowButton);
 
 
-            // Delegate selector for edit stock dividend
-            $('.js-crud-manage-row-box').closest('section').on(
-                'click',
+            const dividendRowButton = new RowButton(
                 '.js-entity-edit-dividend-yield',
                 function (e) {
                     e.preventDefault();
@@ -131,6 +126,10 @@
                     window.location = Routing.generate('stock_dividend_index', {'_id': id})
                 }
             );
+            panelTable.addRowButton(dividendRowButton);
+
+            panelTable.render();
+            panelTable.loadRows();
 
             // Tweak button toggle main menu to show/hide columns
             $('.sidebar-toggle').on(
@@ -139,7 +138,7 @@
                     let $button = $(e.currentTarget);
 
                     if ($button.data('toggle') === 'push-menu') {
-                        crudManager.toggleExpanded();
+                        panelTable.toggleExpanded();
                     }
                 }
             );

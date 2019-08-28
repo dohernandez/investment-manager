@@ -231,7 +231,6 @@ class StockForm extends SwalForm {
 
             if (property === 'type' || property === 'sector' || property === 'industry') {
                 let inputData = data[property];
-                console.log($input, inputData);
                 if (inputData !== null) {
                     let id = inputData.id ? inputData.id : inputData.title;
 
