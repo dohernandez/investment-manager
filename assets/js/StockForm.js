@@ -1,11 +1,12 @@
 'use strict';
 
-import Form from './Components/Form';
+import SwalForm from "./Components/SwalForm";
 import Select2StockMarketTemplate from './Components/Select2StockMarketTemplate';
 import Select2StockInfoTemplate from './Components/Select2StockInfoTemplate';
-import $ from 'jquery';
 import Slider from 'bootstrap-slider';
 import Routing from './Components/Routing';
+import RowButton from "./Components/RowButton";
+import $ from 'jquery';
 
 import 'select2';
 
@@ -15,9 +16,11 @@ import './../css/StockView.scss';
 /**
  * Form manage how the stock form should be build when a crud manager invokes a create or an update action.
  */
-class StockForm extends Form {
-    constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
-        super(swalFormOptionsText, template, selector);
+class StockForm extends SwalForm {
+    constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
+        super(swalOptions, template, selector);
+
+        this.table = table;
 
         this.Select2StockMarketTemplate = new Select2StockMarketTemplate();
 
@@ -33,7 +36,7 @@ class StockForm extends Form {
      * @param {Object} data
      * @param $wrapper
      */
-    onBeforeOpen(data, $wrapper) {
+    onBeforeOpenEditView(data, $wrapper) {
         // Form use to set data and to read symbol to load values from external sources.
         let $form = $wrapper.find(this.selector);
 
@@ -262,13 +265,29 @@ class StockForm extends Form {
      *
      * @param {Object} data
      */
-    onPreview(data) {
+    onBeforeOpenPreview(data) {
         let sliderDay = new Slider('#low-high-day-price', {
             precision: 3
         });
         let sliderWeek = new Slider('#low-high-52-week-price', {
             precision: 3
         });
+    }
+
+    onCreated(entity) {
+        this.table.addRecord(entity);
+    }
+
+    onUpdated(entity, $row) {
+        this.table.replaceRecord(entity, entity.id);
+
+        $row.fadeOut('normal', () => {
+            $row.replaceWith(this.table.createRow(entity));
+        });
+    }
+
+    onDeleted(id) {
+        this.table.removeRecord(id);
     }
 }
 

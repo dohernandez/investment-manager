@@ -1,24 +1,27 @@
 'use strict';
 
-import Template from "./Template";
 import Button from "./Button";
 
 class CreateButton extends Button {
-    constructor(selector, template, container) {
-        super(selector, template, container, function (e) {
-            e.preventDefault();
+    constructor(selector, template, container, handler) {
+        if (handler === null) {
+            handler = function (e) {
+                e.preventDefault();
 
-            let manager = this.manager;
+                let manager = this.manager;
 
-            manager.createFrom()
-                .then((result) => {
-                    if (result.value) {
-                        let entity = result.value.item;
+                manager.createFrom()
+                    .then((result) => {
+                        if (result.value) {
+                            let entity = result.value.item;
 
-                        manager.addEntity(entity);
-                    }
-                });
-        });
+                            manager.addEntity(entity);
+                        }
+                    });
+            }
+        }
+
+        super(selector, template, container, handler);
 
         this.manager = null;
     }

@@ -3,13 +3,14 @@
 import Table from "./Components/Table";
 import Routing from "./Components/Routing";
 import CreateButton from "./Components/CreateButtonForm";
+import EditRowButton from "./Components/EditRowButton";
+import DeleteRowButton from "./Components/DeleteRowButton";
+import ViewRowButton from "./Components/ViewRowButton";
 
 import $ from 'jquery';
 import _ from 'underscore';
 
 import '../css/PanelTable.scss';
-import EditRowButton from "./Components/EditRowButton";
-import DeleteRowButton from "./Components/DeleteRowButton";
 
 class PanelTable extends Table {
     constructor(options) {
@@ -87,3 +88,4 @@ global.PanelTable = PanelTable;
 global.CreateButton = CreateButton;
 global.EditRowButton = EditRowButton;
 global.DeleteRowButton = DeleteRowButton;
+global.ViewRowButton = ViewRowButton;

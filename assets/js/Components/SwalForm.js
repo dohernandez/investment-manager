@@ -12,9 +12,10 @@ import Template from "./Template";
  *
  * @param {Object} $container
  * @param {Object} swalOptions
- * @param {Object} swalOptions.form
+ * @param {Object} swalOptions.editView
+ * @param {Object} swalOptions.deleteView
+ * @param {Object} swalOptions.detailView
  * @param {Object} swalOptions.confirm
- * @param {Object} swalOptions.toast
  * @param {Object} swalOptions.text
  */
 class SwalForm {
@@ -26,33 +27,43 @@ class SwalForm {
     }
 
     create(url) {
-        return this.display(url, 'create');
+        let swalOptions = {
+            options: this.swalOptions.editView,
+            onBeforeOpen: this.onBeforeOpenEditView.bind(this),
+            confirmButtonText: this.swalOptions.text.create.confirmButtonText,
+            titleText: this.swalOptions.text.create.titleText,
+            toastTitleText: this.swalOptions.text.create.toastTitleText,
+        };
+
+        return this.display(swalOptions, url, 'create');
     }
 
     /**
      * Display a form to create or edit entity.
      *
+     * @param {Object} swalOptions
+     * @param {Object} swalOptions.options
+     * @param {function} swalOptions.onBeforeOpen
+     * @param {string} swalOptions.confirmButtonText
+     * @param {string} swalOptions.titleText
+     * @param {string} swalOptions.confirmTitleText
+     * @param {string} url
+     * @param {string} action
      * @param {Object} data Use to pre populate the from.
-     * @param {string} force Use to for an action.
      *
      * @return {*|Promise|Promise<T | never>}
      */
-    display(url, action, data = null, force = '') {
-        if (force == 'create' || force == 'update') {
-            action = force;
-        }
-
+    display(swalOptions, url, action, data = null) {
         // Build form html base on the template.
         const html = this.html();
-        const swalOptions = this.formOptions(action);
 
         // Swal form modal
-        const swalForm = Swal.mixin(swalOptions.form);// The options use to show the form inside the modal and how to parser the inputs.
+        const swalForm = Swal.mixin(swalOptions.options);// The options use to show the form inside the modal and how to parser the inputs.
 
         return swalForm.fire({
             html: html,
-            confirmButtonText: swalOptions.formConfirmButtonText,
-            titleText: swalOptions.formTitleText,
+            confirmButtonText: swalOptions.confirmButtonText,
+            titleText: swalOptions.titleText,
             onBeforeOpen: () => {
                 const $modal = $(swalForm.getContainer()).find('.swal2-modal');
 
@@ -94,7 +105,7 @@ class SwalForm {
         }).then((result) => {
             // Show popup with success message
             if (result.value) {
-                this.showStatusMessage(swalOptions.toastTitleText);
+                this.showStatusMessage(swalOptions.confirmTitleText);
             }
 
             return result
@@ -114,45 +125,12 @@ class SwalForm {
     }
 
     /**
-     * Defines from options base on the action use by crud manage when an entity is create, update and remove.
-     *
-     * @param {string} action
-     */
-    formOptions(action = 'create') {
-        let formOptions = {
-            form: this.swalOptions.form,
-            onBeforeOpen: this.onBeforeOpen.bind(this),
-        };
-
-        switch (action) {
-            case 'create':
-                formOptions['formConfirmButtonText'] = this.swalOptions.text.create.confirmButtonText;
-                formOptions['formTitleText'] = this.swalOptions.text.create.titleText;
-                formOptions['toastTitleText'] = this.swalOptions.text.create.toastTitleText;
-
-                break;
-            case 'update':
-                formOptions['formConfirmButtonText'] = this.swalOptions.text.update.confirmButtonText;
-                formOptions['formTitleText'] = this.swalOptions.text.update.titleText;
-                formOptions['toastTitleText'] = this.swalOptions.text.update.toastTitleText;
-
-                break;
-            case 'delete':
-                formOptions['toastTitleText'] = this.swalOptions.text.delete.toastTitleText;
-
-                break;
-        }
-
-        return formOptions;
-    }
-
-    /**
      * Show action success message.
      *
      * @param titleText
      */
     showStatusMessage(titleText) {
-        const toast = Swal.mixin(this.swalOptions.toast);
+        const toast = Swal.mixin(this.swalOptions.confirm);
 
         toast.fire({
             type: 'success',
@@ -161,15 +139,15 @@ class SwalForm {
     }
 
     /**
-     * Defines how inputs inside the form must be parser.
+     * Defines instructions to execute before the form totaly display.
      *
      * This method should overwritten by the child class in case the form requires to be preload.
      *
      * @param {Object} data
      * @param $wrapper
      */
-    onBeforeOpen(data, $wrapper) {
-        console.log('onBeforeOpen');
+    onBeforeOpenEditView(data, $wrapper) {
+        console.log('onBeforeOpenEditView');
     }
 
     mapErrors($form, errorData) {
@@ -197,15 +175,23 @@ class SwalForm {
     }
 
     update(url, data) {
-        return this.display(url, 'update', data);
+        let swalOptions = {
+            options: this.swalOptions.editView,
+            onBeforeOpen: this.onBeforeOpenEditView.bind(this),
+            confirmButtonText: this.swalOptions.text.update.confirmButtonText,
+            titleText: this.swalOptions.text.update.titleText,
+            toastTitleText: this.swalOptions.text.update.toastTitleText,
+        };
+
+        return this.display(swalOptions, url, 'update', data);
     }
 
     delete(url, id, title) {
         // Create delete text confirmation.
-        const text = this.swalOptions.confirm.text.replace(/\{0\}/g, '"' + title + '"');
+        const text = this.swalOptions.deleteView.text.replace(/\{0\}/g, '"' + title + '"');
 
         // Swal confirmation modal
-        const swalConfirm = Swal.mixin(swalConfirmOptions);
+        const swalConfirm = Swal.mixin(this.swalOptions.deleteView);
 
         return swalConfirm.fire({
             text,
@@ -215,7 +201,7 @@ class SwalForm {
         }).then((result) => {
             // Show popup with success message
             if (result.value) {
-                this.showStatusMessage(this.formOptions('delete').toastTitleText);
+                this.showStatusMessage(this.swalOptions.text.delete.toastTitleText);
             }
 
             return result

@@ -33,7 +33,7 @@ class TransferForm extends SwalForm {
      * @param {Object} data
      * @param $wrapper
      */
-    onBeforeOpen(data, $wrapper) {
+    onBeforeOpenEditView(data, $wrapper) {
         $('[data-datepickerenable="on"]').datetimepicker();
 
         if (data) {

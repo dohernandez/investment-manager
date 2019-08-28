@@ -149,14 +149,14 @@ class Table {
     /**
      * Create a row base on row template.
      *
-     * @param {Object} compile
+     * @param {Object} data
      *
      * @return {Object}
      *
      * @protected
      */
-    createRow(compile) {
-        return Template.compile(this.selectors.rowTemplate, compile);
+    createRow(data) {
+        return Template.compile(this.selectors.rowTemplate, data);
     }
 
     getRecord(id) {

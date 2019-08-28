@@ -28,7 +28,7 @@ class StockMarketForm extends SwalForm {
      * @param {Object} data
      * @param $wrapper
      */
-    onBeforeOpen(data, $wrapper) {
+    onBeforeOpenEditView(data, $wrapper) {
         if (data) {
             let $form = $wrapper.find(this.selector);
             for (const property in data) {
