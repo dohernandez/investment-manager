@@ -1,6 +1,6 @@
 'use strict';
 
-import Form from './Components/Form';
+import SwalForm from "./Components/SwalForm";
 import $ from 'jquery';
 
 import 'select2';
@@ -8,12 +8,18 @@ import 'eonasdan-bootstrap-datetimepicker';
 
 import './../css/StockDividendFrom.scss';
 
+const eventBus = require('js-event-bus')();
+
 /**
  * Form manage how the stock form should be build when a crud manager invokes a create or an update action.
  */
-class StockDividendForm extends Form {
-    constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
-        super(swalFormOptionsText, template, selector);
+class StockDividendForm extends SwalForm {
+    constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
+        super(swalOptions, template, selector);
+
+        eventBus.on("entity_created", this.onCreated.bind(this));
+        eventBus.on("entity_updated", this.onUpdated.bind(this));
+        eventBus.on("entity_deleted", this.onDeleted.bind(this));
     }
 
     /**
@@ -22,7 +28,7 @@ class StockDividendForm extends Form {
      * @param {Object} data
      * @param $wrapper
      */
-    onBeforeOpen(data, $wrapper) {
+    onBeforeOpenEditView(data, $wrapper) {
         $('[data-datepickerenable="on"]').datetimepicker();
 
         // start set data to the form
@@ -86,6 +92,22 @@ class StockDividendForm extends Form {
         //     templateResult: this.Select2StockMarketTemplate.templateResult,
         //     templateSelection: this.Select2StockMarketTemplate.templateSelection
         // });
+    }
+
+    onCreated(entity) {
+        this.table.addRecord(entity);
+    }
+
+    onUpdated(entity, $row) {
+        this.table.replaceRecord(entity, entity.id);
+
+        $row.fadeOut('normal', () => {
+            $row.replaceWith(this.table.createRow(entity));
+        });
+    }
+
+    onDeleted(id) {
+        this.table.removeRecord(id);
     }
 }
 

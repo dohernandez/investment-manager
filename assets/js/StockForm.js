@@ -5,13 +5,14 @@ import Select2StockMarketTemplate from './Components/Select2StockMarketTemplate'
 import Select2StockInfoTemplate from './Components/Select2StockInfoTemplate';
 import Slider from 'bootstrap-slider';
 import Routing from './Components/Routing';
-import RowButton from "./Components/RowButton";
 import $ from 'jquery';
 
 import 'select2';
 
 import './../css/StockForm.scss';
 import './../css/StockView.scss';
+
+const eventBus = require('js-event-bus')();
 
 /**
  * Form manage how the stock form should be build when a crud manager invokes a create or an update action.
@@ -27,6 +28,10 @@ class StockForm extends SwalForm {
         this.Select2StockInfoTypeTemplate = new Select2StockInfoTemplate('type');
         this.Select2StockInfoSectorTemplate = new Select2StockInfoTemplate('sector');
         this.Select2StockInfoIndustryTemplate = new Select2StockInfoTemplate('industry');
+
+        eventBus.on("entity_created", this.onCreated.bind(this));
+        eventBus.on("entity_updated", this.onUpdated.bind(this));
+        eventBus.on("entity_deleted", this.onDeleted.bind(this));
 
     }
 

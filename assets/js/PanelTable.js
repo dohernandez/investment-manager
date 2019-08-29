@@ -74,10 +74,16 @@ class PanelTable extends Table {
 
     /**
      * Loads all entities via ajax and create its respective row into the table.
+     *
+     * @param url {function}
      */
-    loadRows() {
+    loadRows(url = null) {
+        url = url !== null ? url : function () {
+            return Routing.generate(this.entityType + '_list');
+        }.bind(this);
+
         $.ajax({
-            url: Routing.generate(this.entityType + '_list'),
+            url: url(),
             // url: this.routing(this.entityType, 'list'),
             success: (data) => {
                 super.setData(data);

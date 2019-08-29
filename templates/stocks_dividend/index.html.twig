@@ -5,59 +5,37 @@
 {% block stylesheets %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-css.html.twig' %}
+    {% include 'Components/Panel/panel-table-css.html.twig' %}
 {%  endblock %}
 
 {% block page_content %}
-    {% include 'Components/ui/crud-manage-table.html.twig' %}
+    {% include 'Components/Panel/panel-table.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-scripts.html.twig' %}
-    {% include 'Components/ui/crud-manage-table-scripts.html.twig' %}
+    {% include 'Components/Panel/panel-table-scripts.html.twig' %}
 
     <script src="{{ asset('build/stock_dividend_form.js') }}"></script>
 
     <script>
         $(document).ready(function() {
-            // prepare the crud manage table
-            let swalFormOptionsText = {
-                create: {
-                    confirmButtonText: '{{ 'Create'|trans }}',
-                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
-                },
-                update: {
-                    confirmButtonText: '{{ 'Update'|trans }}',
-                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was updated successfully.'|trans }}'
-                },
-                {#delete: {#}
-                    {#toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'#}
-                {#}#}
-            };
-
             // Create page instance
-            let $crudManagerRowBox = $('.{{ js_crud_manage_class|default('js-crud-manage-row-box') }}');
+            let $panelBox = $('.{{ js_panel_class|default('js-panel-box') }}');
 
-            let contentWrapper = $crudManagerRowBox.closest('section');
-            let entityType = $crudManagerRowBox.data('entity-type');
+            let contentWrapper = $panelBox.closest('section');
+            let entityType = $panelBox.data('entity-type');
 
-            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
-            let crudManager = new CRUDManage({
+            // Create panelTable instance @see assets/js/PanelTable.js
+            let panelTable = new PanelTable({
                 entityType: entityType,
                 wrapper: contentWrapper,
-                swalFormOptions: window.swalFormOptions,
-                swalConfirmOptions: window.swalConfirmOptions,
-                toastOptions: window.toastOptions,
                 pagination: true,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
+                    searchTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
                 sort: function (aStockDividend, bStockDividend) {
                     let a = new Date(aStockDividend.exDate);
@@ -69,97 +47,134 @@
 
             // Create form use in crudManager
             const form = new StockDividendForm(
-                swalFormOptionsText,
-                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+                window.swalOptions,
+                panelTable,
+                '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
             );
 
+            const syncButton = new Button(
+                '.js-entity-sync',
+                '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-sync-button-template',
+                '.js-panel-header-button-container',
+                function (e) {
+                    e.preventDefault();
+
+                    // disable button
+                    let $button = $(e.currentTarget);
+
+                    $button.attr("disabled", true);
+                    $button.find('i').addClass('fa-spin');
+
+                    InvestmentManagerClient.sendRPC(
+                        Routing.generate(entityType + '_sync', {'_id': {{ stock.id }}}),
+                        'GET'
+                    ).then((result) => {
+                        panelTable.setData(result);
+
+                        $button.attr("disabled", false);
+                        $button.find('i').removeClass('fa-spin');
+                    }).catch((errorsData) => {
+                        console.log(errorsData);
+
+                        $button.attr("disabled", false);
+                        $button.find('i').removeClass('fa-spin');
+                    });
+                },
+            );
+            panelTable.addButton(syncButton);
+
+            panelTable.render();
+            panelTable.loadRows(
+                function () {
+                    let param = {
+                        '_id': {{ stock.id }}
+                    };
+
+                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_list', param);
+                });
+
             // Overwrite the default routing strategy. Default routing strategy only consider single id
-            crudManager.setRouteGenerating((entityType, endpoint, id = null) => {
-                let route = '';
-                let param = {
-                    '_id': {{ stock.id }}
-                };
+            {#crudManager.setRouteGenerating((entityType, endpoint, id = null) => {#}
+            {#    let route = '';#}
+            {#    let param = {#}
+            {#        '_id': {{ stock.id }}#}
+            {#    };#}
 
-                if (id) {
-                    param['id'] = id;
-                }
+            {#    if (id) {#}
+            {#        param['id'] = id;#}
+            {#    }#}
 
-                switch (endpoint) {
-                    case 'list':
-                        route = Routing.generate(entityType + '_list', param);
+            {#    switch (endpoint) {#}
+            {#        case 'list':#}
+            {#            route = Routing.generate(entityType + '_list', param);#}
 
-                        break;
-                    case 'new':
-                        route = Routing.generate(entityType + '_new', param);
+            {#            break;#}
+            {#        case 'new':#}
+            {#            route = Routing.generate(entityType + '_new', param);#}
 
-                        break;
-                    case 'get':
-                        route = Routing.generate(entityType + '_get', param);
+            {#            break;#}
+            {#        case 'get':#}
+            {#            route = Routing.generate(entityType + '_get', param);#}
 
-                        break;
-                    case 'edit':
-                        route = Routing.generate(entityType + '_edit', param);
+            {#            break;#}
+            {#        case 'edit':#}
+            {#            route = Routing.generate(entityType + '_edit', param);#}
 
-                        break;
-                    case 'delete':
-                        route = Routing.generate(entityType + '_delete', param);
+            {#            break;#}
+            {#        case 'delete':#}
+            {#            route = Routing.generate(entityType + '_delete', param);#}
 
-                        break;
-                    default:
-                        throw 'Endpoint ' + endpoint + ' not supported';
-                }
+            {#            break;#}
+            {#        default:#}
+            {#            throw 'Endpoint ' + endpoint + ' not supported';#}
+            {#    }#}
 
-                return route
-            });
+            {#    return route#}
+            {#});#}
 
-            crudManager.withForm(form);
-            crudManager.withCreateButton();
-            crudManager.withEditButton();
-            crudManager.withDeleteButton();
+            {#crudManager.render(function () {#}
+            {#    // add sync button to the table#}
+            {#    // Delegate selector#}
+            {#    this.$wrapper.on(#}
+            {#        'click',#}
+            {#        '.js-entity-sync',#}
+            {#        function (e) {#}
+            {#            e.preventDefault();#}
 
-            crudManager.render(function () {
-                // add sync button to the table
-                // Delegate selector
-                this.$wrapper.on(
-                    'click',
-                    '.js-entity-sync',
-                    function (e) {
-                        e.preventDefault();
+            {#            // disable button#}
+            {#            let $button = $(e.currentTarget);#}
 
-                        // disable button
-                        let $button = $(e.currentTarget);
+            {#            $button.attr("disabled", true);#}
+            {#            $button.find('i').addClass('fa-spin');#}
 
-                        $button.attr("disabled", true);
-                        $button.find('i').addClass('fa-spin');
+            {#            InvestmentManagerClient.sendRPC(#}
+            {#                Routing.generate(entityType + '_sync', {'_id': {{ stock.id }}}),#}
+            {#                'GET'#}
+            {#            ).then((result) => {#}
+            {#                this.setData(result);#}
 
-                        InvestmentManagerClient.sendRPC(
-                            Routing.generate(entityType + '_sync', {'_id': {{ stock.id }}}),
-                            'GET'
-                        ).then((result) => {
-                            this.setData(result);
+            {#                $button.attr("disabled", false);#}
+            {#                $button.find('i').removeClass('fa-spin');#}
+            {#            }).catch((errorsData) => {#}
+            {#                console.log(errorsData);#}
 
-                            $button.attr("disabled", false);
-                            $button.find('i').removeClass('fa-spin');
-                        }).catch((errorsData) => {
-                            console.log(errorsData);
+            {#                $button.attr("disabled", false);#}
+            {#                $button.find('i').removeClass('fa-spin');#}
+            {#            });#}
 
-                            $button.attr("disabled", false);
-                            $button.find('i').removeClass('fa-spin');
-                        });
+            {#        }.bind(this)#}
+            {#    );#}
 
-                    }.bind(this)
-                );
-
-                let $syncButton = this._compileTemplate("#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-sync-button-template");
-                this.$wrapper.find(this.selectors.createButtonContainer)
-                    .prepend($syncButton);
-            });
+            {#    let $syncButton = this._compileTemplate("#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-sync-button-template");#}
+            {#    this.$wrapper.find(this.selectors.createButtonContainer)#}
+            {#        .prepend($syncButton);#}
+            // });
         });
     </script>
 
-    <!-- sync button table manager template -->
-    <script type="text/template" id="js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-sync-button-template">
-        <button class="js-entity-sync btn btn-warning pull-right" style="margin-left: 8px;">
+    <!-- sync button table template -->
+    <script type="text/template" id="js-table-{{ entity_name|lower|replace({' ': '_'}) }}-sync-button-template">
+        <button class="js-entity-sync btn btn-warning pull-right" style="margin-right: 8px;">
             <i class="fa-sync fas" aria-hidden="true"></i>
             {{ 'Sync'|trans }} {{ entity_name|trans|lower }}
         </button>
