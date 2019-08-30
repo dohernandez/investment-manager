@@ -67,8 +67,8 @@ class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterfac
                     if ($dividend->getExDate() > $now) {
                         $increase = true;
                     } elseif (
-                        StockDividend::STATUS_ANNOUNCED == $dividend ->getStatus() &&
-                        $dividend->getPaymentDate() < $now
+                        StockDividend::STATUS_ANNOUNCED == $dividend->getStatus() &&
+                        $dividend->getPaymentDate() > $now
                     ) {
                         $increase = true;
                     }
