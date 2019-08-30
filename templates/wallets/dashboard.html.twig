@@ -59,6 +59,7 @@
                 return null;
             };
 
+
             // Create panelTable instance @see assets/js/PanelTable.js
             let positionPanelTable = new PanelTable({
                 entityType: positionEntityType,
@@ -83,6 +84,7 @@
                     eventBus.emit('position_search_cleaned', null);
                 }
             });
+
 
             // Create dividend panel instance
             let $dividendPanelBox = $('.js-position-dividend-panel-box');
@@ -109,6 +111,7 @@
                 searchFunc: searchFuncPanel,
                 showSearchBox: false,
             });
+
 
             // Create dividend panel instance
             let $operationPanelBox = $('.js-operation-panel-box');
@@ -183,11 +186,41 @@
                 positionPanelTable.addRowButton(positionDividendRowButton);
             });
 
+
+            // Create dividend panel instance
+            let $comingDividendsPanelBox = $('.js-coming-dividends-panel-box');
+
+            let comingDividendsContentWrapper = $comingDividendsPanelBox.closest('.js-coming-dividends-panel');
+            let comingDividendsEntityType = $comingDividendsPanelBox.data('entity-type');
+
+            // Create panelTable instance @see assets/js/PanelTable.js
+            let comingDividendsPanelTable = new PanelTable({
+                entityType: comingDividendsEntityType,
+                wrapper: comingDividendsContentWrapper,
+                pagination: false,
+                selectors: {
+                    searchTemplate: '#js-table-{{ wallet_coming_dividend_entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-table-{{ wallet_coming_dividend_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-table-{{ wallet_coming_dividend_entity_name|lower|replace({' ': '_'}) }}-row-template',
+                },
+                sort: function (aPosition, bPosition) {
+                    // Hack to send those stocks do not have dividend to the end of the list.
+                    // When exDate is null the date created is 1970-01-01. In order to send those date to the end of the list
+                    // the date is set to 4019-10-03.
+                    let a = aPosition.stock.exDate !== null ? new Date(aPosition.stock.exDate) : new Date('4019-10-03');
+                    let b = bPosition.stock.exDate !== null ? new Date(bPosition.stock.exDate) : new Date('4019-10-03');
+
+                    return a < b ? -1 : a > b ? 1 : 0;
+                },
+                limit: 5,
+            });
+
             let panel = new WalletDashboard(
                 {{ wallet.id }},
                 positionPanelTable,
                 dividendPanelTable,
-                operationPanelTable
+                operationPanelTable,
+                comingDividendsPanelTable
             );
 
             panel.render();
@@ -202,6 +235,7 @@
                     if ($button.data('toggle') === 'push-menu') {
                         positionPanelTable.toggleExpanded();
                         dividendPanelTable.toggleExpanded();
+                        comingDividendsPanelTable.toggleExpanded();
                     }
                 }
             );

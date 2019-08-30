@@ -4,6 +4,7 @@ namespace App\Api;
 
 use App\Entity;
 use App\VO\Money;
+use Symfony\Component\DependencyInjection\Tests\Fixtures\StdClassDecorator;
 
 class Wallet
 {
@@ -69,6 +70,7 @@ class Wallet
 
         $self->broker = Broker::fromEntity($wallet->getBroker());
 
+        // dividend Projected
         $now = new \DateTimeImmutable();
 
         $year = $now->format('Y');
@@ -106,8 +108,6 @@ class Wallet
             }
             $self->dividendProjectedMonths = $dividendProjectedMonths;
         }
-
-        $self->comingDividends = [];
 
         $self->metadata = $wallet->getMetadata();
 

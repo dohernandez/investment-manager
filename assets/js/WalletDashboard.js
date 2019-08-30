@@ -20,12 +20,13 @@ const eventBus = require('js-event-bus')();
  * Form manage how the operation form should be build when a crud manager invokes a create or an update action.
  */
 class WalletDashboard {
-    constructor(walletId, positionPanel, dividendPanel, operationPanel) {
+    constructor(walletId, positionPanel, dividendPanel, operationPanel, comingDividendsPanel) {
         this.walletId = walletId;
 
         this.positionPanel = positionPanel;
         this.dividendPanel = dividendPanel;
         this.operationPanel = operationPanel;
+        this.comingDividendsPanel = comingDividendsPanel;
 
         this.header = new WalletDashboardHeader();
         this.dividenProjected = new WalletDashboardDividendProjected();
@@ -40,6 +41,7 @@ class WalletDashboard {
         this.positionPanel.render();
         this.dividendPanel.render();
         this.operationPanel.render();
+        this.comingDividendsPanel.render();
     }
 
     load() {
@@ -67,6 +69,7 @@ class WalletDashboard {
         ).then((result) => {
             this.positionPanel.setData(result);
             this.dividendPanel.setData(result);
+            this.comingDividendsPanel.setData(result);
         });
     }
 

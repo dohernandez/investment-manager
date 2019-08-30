@@ -20,6 +20,7 @@ class Table {
             afterCleanSearchFunc: null,
             afterSearchFunc: null,
             showSearchBox: true,
+            limit: 0,
         });
 
         // Start binding functions for $wrapper
@@ -58,6 +59,9 @@ class Table {
         // row buttons
         this.rowButtons = [];
         this.buttonColWidth = _options.buttonColWidth;
+
+        // limit
+        this.limit = _options.pagination === false ? _options.limit : 0;
     }
 
     static get _selectors() {
@@ -277,7 +281,14 @@ class Table {
         }
 
         if (this.pagination === false) {
-            this.recreateTableWithRecords(_options.records, 0);
+            let displayRecords = _options.records;
+
+            if (this.limit) {
+                console.log(_options.records);
+                displayRecords = _options.records.slice(0, this.limit);
+            }
+
+            this.recreateTableWithRecords(displayRecords, 0);
 
             return;
         }
