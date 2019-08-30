@@ -48,6 +48,16 @@ class BrokerViewParameters extends AbstractViewParameters
                         'jsClass' => 'js-entity-edit-broker-stocks',
                         'icon' => 'fas fa-money-bill',
                     ],
+                    [
+                        'type' => 'primary',
+                        'jsClass' => 'js-entity-edit',
+                        'icon' => 'fa fa-pencil-alt',
+                    ],
+                    [
+                        'type' => 'danger',
+                        'jsClass' => 'js-entity-delete',
+                        'icon' => 'fa fa-trash-alt',
+                    ],
                 ],
             ]);
     }

@@ -1,6 +1,6 @@
 'use strict';
 
-import Form from './Components/Form';
+import SwalForm from "./Components/SwalForm";
 import Select2AccountTemplate from './Components/Select2AccountTemplate';
 import $ from 'jquery';
 
@@ -8,14 +8,20 @@ import 'select2';
 
 import './../css/BrokerFrom.scss';
 
+const eventBus = require('js-event-bus')();
+
 /**
  * Form manage how the broker form should be build when a crud manager invokes a create or an update action.
  */
-class BrokerForm extends Form {
-    constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
-        super(swalFormOptionsText, template, selector);
+class BrokerForm extends SwalForm {
+    constructor(swalOptions, table, template = '#js-panel-form-template', selector = '.js-entity-from') {
+        super(swalOptions, template, selector);
 
-        this.select2AccountTemplate = new Select2AccountTemplate()
+        this.select2AccountTemplate = new Select2AccountTemplate();
+
+        eventBus.on("entity_created", this.onCreated.bind(this));
+        eventBus.on("entity_updated", this.onUpdated.bind(this));
+        eventBus.on("entity_deleted", this.onDeleted.bind(this));
     }
 
     /**
@@ -24,7 +30,7 @@ class BrokerForm extends Form {
      * @param {Object} data
      * @param $wrapper
      */
-    onBeforeOpen(data, $wrapper) {
+    onBeforeOpenEditView(data, $wrapper) {
         if (data) {
             let $form = $wrapper.find(this.selector);
             for (const property in data) {
@@ -84,6 +90,22 @@ class BrokerForm extends Form {
                 templateSelection: this.select2AccountTemplate.templateSelection
             });
         });
+    }
+
+    onCreated(entity) {
+        this.table.addRecord(entity);
+    }
+
+    onUpdated(entity, $row) {
+        this.table.replaceRecord(entity, entity.id);
+
+        $row.fadeOut('normal', () => {
+            $row.replaceWith(this.table.createRow(entity));
+        });
+    }
+
+    onDeleted(id) {
+        this.table.removeRecord(id);
     }
 }
 
