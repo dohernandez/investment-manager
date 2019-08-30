@@ -51,7 +51,6 @@ module.exports = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
 
     entry: {
-        crud_manager: './assets/js/CRUDManage.js',
         transfer_form: './assets/js/TransferForm.js',
         stock_market_form: './assets/js/StockMarketForm.js',
         account_from: './assets/js/AccountForm.js',
@@ -62,7 +61,6 @@ module.exports = {
         wallet_dashboard: './assets/js/WalletDashboard.js',
         broker_stock_form: './assets/js/BrokerStockForm.js',
         panel_table: './assets/js/PanelTable.js',
-        wallet_dashboard_panel: './assets/js/WalletDashboard.js',
     },
     output: {
         path: path.resolve(__dirname, 'public', 'build'),
