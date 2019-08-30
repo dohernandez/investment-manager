@@ -29,12 +29,35 @@
 
     <script>
         $(document).ready(function() {
+            const eventBus = window.eventBus;
 
             // Create position panel instance
             let $positionPanelBox = $('.js-position-panel-box');
 
             let positionContentWrapper = $positionPanelBox.closest('.js-position-panel');
             let positionEntityType = $positionPanelBox.data('entity-type');
+
+            const searchFuncPanel = function (entities, search) {
+                if (search.length >= 2) {
+                    let $matches = [];
+
+                    search = search.toUpperCase();
+
+                    $.each(entities, function (index, entity) {
+                        if (entity.stock) {
+                            if (entity.stock.name.toUpperCase().indexOf(search) > -1 ||
+                                entity.stock.symbol.toUpperCase().indexOf(search) > -1 ) {
+
+                                $matches.push(entity);
+                            }
+                        }
+                    });
+
+                    return $matches;
+                }
+
+                return null;
+            };
 
             // Create panelTable instance @see assets/js/PanelTable.js
             let positionPanelTable = new PanelTable({
@@ -52,6 +75,13 @@
 
                     return a < b ? -1 : a > b ? 1 : 0;
                 },
+                searchFunc: searchFuncPanel,
+                afterSearchFunc: function (search) {
+                    eventBus.emit('position_searched', null, search);
+                },
+                afterCleanSearchFunc: function () {
+                    eventBus.emit('position_search_cleaned', null);
+                }
             });
 
             // Create dividend panel instance
@@ -76,6 +106,8 @@
 
                     return a < b ? -1 : a > b ? 1 : 0;
                 },
+                searchFunc: searchFuncPanel,
+                showSearchBox: false,
             });
 
             // Create dividend panel instance
@@ -100,27 +132,8 @@
 
                     return a > b ? -1 : a < b ? 1 : 0;
                 },
-                searchFunc: function (operations, search) {
-                    if (search.length >= 2) {
-                        let $matches = [];
-
-                        search = search.toUpperCase();
-
-                        $.each(operations, function (index, operation) {
-                            if (operation.stock) {
-                                if (operation.stock.name.toUpperCase().indexOf(search) > -1 ||
-                                    operation.stock.symbol.toUpperCase().indexOf(search) > -1 ) {
-
-                                    $matches.push(operation);
-                                }
-                            }
-                        });
-
-                        return $matches;
-                    }
-
-                    return null;
-                }
+                searchFunc: searchFuncPanel,
+                showSearchBox: false,
             });
 
             const swalOperationOptions = window.swalOperationOptions;

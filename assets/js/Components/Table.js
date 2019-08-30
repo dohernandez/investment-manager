@@ -17,6 +17,9 @@ class Table {
             sort: null,
             selectors: _.defaults(options.selectors || {}, Table._selectors),
             buttonColWidth: 0,
+            afterCleanSearchFunc: null,
+            afterSearchFunc: null,
+            showSearchBox: true,
         });
 
         // Start binding functions for $wrapper
@@ -48,9 +51,9 @@ class Table {
 
         // search
         this.searchFunc = _options.searchFunc;
-        this.showSearchBox = this.searchFunc ? true : false;
-        this.afterCleanSearchFunc = null;
-        this.afterSearchFunc = null;
+        this.showSearchBox = _options.showSearchBox === true ? !!this.searchFunc : false;
+        this.afterCleanSearchFunc = _options.afterCleanSearchFunc;
+        this.afterSearchFunc = _options.afterSearchFunc;
 
         // row buttons
         this.rowButtons = [];

@@ -30,6 +30,9 @@ class WalletDashboardPanel {
         this.header = new WalletDashboardDashboard();
 
         eventBus.on("entity_operation_created", this.onCreated.bind(this));
+
+        eventBus.on("position_searched", this.onPositionSearched.bind(this));
+        eventBus.on("position_search_cleaned", this.onPositionSearchCleaned.bind(this));
     }
 
     render() {
@@ -77,6 +80,16 @@ class WalletDashboardPanel {
     onCreated() {
         this._loadWallet();
         this._loadPositions();
+    }
+
+    onPositionSearched(search) {
+        this.dividendPanel.search(search);
+        this.operationPanel.search(search);
+    }
+
+    onPositionSearchCleaned() {
+        this.dividendPanel.cleanSearch();
+        this.operationPanel.cleanSearch();
     }
 }
 
@@ -302,3 +315,4 @@ class PositionOperationRowButton extends RowButton {
 global.WalletDashboardPanel = WalletDashboardPanel;
 global.OperationForm = OperationForm;
 global.PositionOperationRowButton = PositionOperationRowButton;
+window.eventBus = eventBus;

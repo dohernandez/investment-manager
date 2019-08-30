@@ -92,6 +92,7 @@ class WalletViewParameters extends AbstractViewParameters
                 'wallet_operation_fields' => $this->getOperationFields(),
                 'wallet_operation_form' => $walletOperationForm->createView(),
 
+                'wallet_position_search_width' => '235px',
                 'wallet_position_entity_name' => 'position',
                 'wallet_position_fields' => $this->getPositionFields(),
                 'wallet_position_buttons' => [
@@ -111,6 +112,8 @@ class WalletViewParameters extends AbstractViewParameters
                         'icon' => 'fab fa-stripe-s',
                     ],
                 ],
+
+                'wallet_position_dividend_search_width' => '215px',
                 'wallet_position_dividend_entity_name' => 'position_dividend',
                 'wallet_position_dividend_fields' => $this->getPositionDividendFields(),
                 'wallet_coming_dividend_entity_name' => 'coming_dividend',
