@@ -37,12 +37,15 @@
 <div class="row {{ js_panel_class|default('js-panel-box') }}" data-entity-type="{{ entity_name|snake }}">
     <div class="col-md-12">
         <div class="box {% if border is defined and border == 0 %}no-border{% endif %}">
-            <div class="box-header with-border js-panel-header">
+            {% if panel_header is not defined or panel_header == 1 %}
+            <div class="box-header no-border js-panel-header">
                 <div class="col-md-12 js-panel-header-button-container">
                 </div>
             </div>
+            {% endif %}
             <div class="box-body js-panel-body">
                 <div class="box no-border js-table-box">
+                    {% if header is not defined or header == 1 %}
                     <div class="box-header no-border js-table-header">
                         <div class="col-md-12">
                             <div class="col-md-4 js-table-header-per-page-container" style="padding-left: 0px;">
@@ -53,6 +56,7 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
                     <div class="box-body table-responsive no-padding js-table-body">
                         <table id="{{ entity_name|lower|replace({' ': '_'}) }}s" class="table table-bordered table-striped js-table">
                             <thead>
@@ -82,6 +86,7 @@
                             </tfoot>
                         </table>
                     </div>
+                    {% if footer is not defined or footer == 1 %}
                     <div class="box-footer no-border js-table-footer">
                         <div class="col-md-12">
                             <div class="pull-left col-sm-6">
@@ -93,9 +98,8 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
-            </div>
-            <div class="box-footer with-border js-panel-footer">
             </div>
         </div>
     </div>

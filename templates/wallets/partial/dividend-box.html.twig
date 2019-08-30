@@ -18,6 +18,9 @@
                     'js_panel_class': 'js-position-dividend-panel-box',
                     'border': 0,
                     'search_width': wallet_position_dividend_search_width,
+                    'panel_header': 0,
+                    'header': 0,
+                    'footer': 0,
                 }%}
                 {% endembed %}
             </div>
@@ -100,11 +103,14 @@
                     </div>
                     <!-- /.box-header -->
                     <div class="box-body">
-                        {% embed 'Components/Table/table.html.twig' with {
+                        {% embed 'Components/Panel/panel-table.html.twig' with {
                             'entity_name': wallet_coming_dividend_entity_name,
                             'fields': wallet_coming_dividend_fields,
                             'js_table_class': 'js-coming-dividend-table-row-box',
-                            'border': 0
+                            'border': 0,
+                            'panel_header': 0,
+                            'header': 0,
+                            'footer': 0,
                         }%}
                         {% endembed %}
                     </div>
