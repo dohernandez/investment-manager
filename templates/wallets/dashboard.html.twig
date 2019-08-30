@@ -137,7 +137,6 @@
             });
 
             const swalOperationOptions = window.swalOperationOptions;
-            console.log(swalOperationOptions);
             const urlCreateOperation = Routing.generate(
                 'wallet_{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}_new',
                 {'_id': {{ wallet.id }}}

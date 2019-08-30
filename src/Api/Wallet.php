@@ -80,7 +80,15 @@ class Wallet
                 $self->dividendProjected = $dividendYear->getProjected()->increase($dividendYear->getPaid());
 
                 foreach ($dividendYear->getMonths() as $month) {
-                    $dividendProjectedMonths[$year][$month->getMonth()] = $month->getProjected();
+                    $dividendProjectedMonth = $month->getProjected();
+
+                    if ($dividendProjectedMonth !== null) {
+                        $dividendProjectedMonth = $dividendProjectedMonth->increase($month->getPaid());
+                    } else {
+                        $dividendProjectedMonth = $month->getPaid();
+                    }
+
+                    $dividendProjectedMonths[$year][$month->getMonth()] = $dividendProjectedMonth;
                 }
             }
 
