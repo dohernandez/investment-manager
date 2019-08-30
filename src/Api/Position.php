@@ -54,11 +54,13 @@ class Position
         );
 
         $self->change = $position->getChange();
-        $self->displayChange = sprintf(
-            '%s (%.2f%%)',
-            $self->change,
-            $self->change->getValue() * 100 / $position->getPreClose()->getValue()
-        );
+        if ($self->change !== null && $position->getPreClose() !== null) {
+            $self->displayChange = sprintf(
+                '%s (%.2f%%)',
+                $self->change,
+                $self->change->getValue() * 100 / $position->getPreClose()->getValue()
+            );
+        }
 
         $self->metadata = $position->getMetadata();
 

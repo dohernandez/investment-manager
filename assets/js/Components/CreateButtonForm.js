@@ -15,7 +15,7 @@ class CreateButton extends Button {
      * @param selector {string}
      * @param container {string}
      */
-    constructor(text, form, url, selector, container) {
+    constructor(text, form, url, selector, container, eventName = 'entity_created') {
         super(selector, null, container, function (e) {
             e.preventDefault();
 
@@ -24,7 +24,7 @@ class CreateButton extends Button {
                     if (result.value) {
                         let entity = result.value.item;
 
-                        eventBus.emit('entity_created', null, entity);
+                        eventBus.emit(eventName, null, entity);
                     }
                 });
         });

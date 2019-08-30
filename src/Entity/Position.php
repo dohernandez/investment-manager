@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use mysql_xdevapi\Exception;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -520,11 +521,16 @@ class Position implements Entity
 
     public function getBenefits(): ?Money
     {
-        return $this->getCapital()
-                ->increase($this->getSell())
+        $benefits = $this->getSell()
                 ->increase($this->getDividend())
                 ->decrease($this->getBuy())
-            ;
+        ;
+
+        if ($this->getCapital() !== null) {
+            $benefits = $benefits->increase($this->getCapital());
+        }
+
+        return $benefits;
     }
 
     public function getPercentageBenefits(): ?float

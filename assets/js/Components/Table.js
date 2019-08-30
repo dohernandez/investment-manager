@@ -96,23 +96,9 @@ class Table {
         this.records = data.items;
         this.totalRecords = data.items.length;
 
-        this.recreateTableWithRecords(this.records);
-
         this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
         this.refreshPagination();
-    }
-
-    recreateTableWithRecords(records, staringIndex) {
-        staringIndex = staringIndex ? staringIndex : 0;
-
-        this.cleanRows();
-
-        $.each(records, (index, entity) => {
-            this.addRow(entity, staringIndex + index);
-        });
-
-        this.refreshExpanded();
     }
 
     /**
@@ -280,6 +266,20 @@ class Table {
      * @param options
      */
     refreshPagination(options) {
+        // init all the pagination variables
+        let _options = _.defaults(options || {}, this.getDefaultPaginatorOptions());
+
+        if (this.sort) {
+            _options.records = _options.records.sort(this.sort);
+        }
+
+        if (this.pagination === false) {
+            this.recreateTableWithRecords(_options.records, 0);
+
+            return;
+        }
+
+        // show pagination
         // remove pagination
         let $paginator = this.$wrapper.find(this.selectors.pagination);
         let $parent = $paginator.parent();
@@ -289,13 +289,6 @@ class Table {
         $paginator = new $('<ul id="pagination" class="pagination-sm pagination ' + this.selectors.pagination.slice(1) + ' pull-right"></ul>');
         $parent.append($paginator);
 
-        // show pagination
-        // init all the pagination variables
-        let _options = _.defaults(options || {}, this.getDefaultPaginatorOptions());
-
-        if (this.sort) {
-            _options.records = _options.records.sort(this.sort);
-        }
 
         // tweak pagination info
         let $paginationInfo = this.$wrapper.find(this.selectors.paginationInfo);
@@ -342,6 +335,18 @@ class Table {
             totalRecords: this.totalRecords,
             visiblePages: this.visiblePages,
         }
+    }
+
+    recreateTableWithRecords(records, staringIndex) {
+        staringIndex = staringIndex ? staringIndex : 0;
+
+        this.cleanRows();
+
+        $.each(records, (index, entity) => {
+            this.addRow(entity, staringIndex + index);
+        });
+
+        this.refreshExpanded();
     }
 
     // Render
@@ -431,8 +436,6 @@ class Table {
      * Clean the search
      */
     cleanSearch() {
-        this.recreateTableWithRecords(this.records);
-
         this.page = 1;
         this.refreshPagination();
     }
@@ -475,8 +478,6 @@ class Table {
             return;
         }
 
-        this.recreateTableWithRecords(matches);
-
         let totalRecords = matches.length;
 
         try {
@@ -503,6 +504,8 @@ class Table {
 
         if (buttonWidth) {
             this.buttonColWidth += buttonWidth;
+
+            return;
         }
 
         if (this.rowButtons.length !== 1) {

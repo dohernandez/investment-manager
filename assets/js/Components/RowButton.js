@@ -12,8 +12,8 @@ class RowButton extends Button {
      * @param selector {string}
      * @param container {string}
      */
-    constructor(selector, handler) {
-        super(selector, null, null, handler);
+    constructor(selector, handler, width = null) {
+        super(selector, null, null, handler, width);
 
         this.table = null;
     }

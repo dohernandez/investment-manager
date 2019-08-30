@@ -5,9 +5,10 @@
 {% block stylesheets %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-css.html.twig' %}
+    {% include 'Components/Panel/panel-table-css.html.twig' %}
 
-    <link rel="stylesheet" href="{{ asset('build/wallet_dashboard.css') }}">
+{#    <link rel="stylesheet" href="{{ asset('build/wallet_dashboard.css') }}">#}
+    <link rel="stylesheet" href="{{ asset('build/wallet_dashboard_panel.css') }}">
 {% endblock %}
 
 {% block page_content %}
@@ -22,49 +23,29 @@
 {% block javascripts %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-scripts.html.twig' %}
-    <script src="{{ asset('build/wallet_dashboard.js') }}"></script>
+    {% include 'Components/Panel/panel-table-scripts.html.twig' %}
+
+    <script src="{{ asset('build/wallet_dashboard_panel.js') }}"></script>
 
     <script>
         $(document).ready(function() {
-            window.walletInfo = new WalletInfo({{ wallet.id }});
 
-            window.walletInfo.load();
-        });
-    </script>
+            // Create position panel instance
+            let $positionPanelBox = $('.js-position-panel-box');
 
-    <!-- positionCrudManager -->
-    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
-        'entity_name': wallet_position_entity_name,
-        'fields': wallet_position_fields,
-        'buttons': wallet_position_buttons,
-        'search_width': '242px',
-    }%}
-    {% endembed %}
+            let positionContentWrapper = $positionPanelBox.closest('.js-position-panel');
+            let positionEntityType = $positionPanelBox.data('entity-type');
 
-    <script>
-        $(document).ready(function() {
-            // Create page instance
-            let $positionCrudManagerRowBox = $('.js-position-crud-manage-row-box');
-
-            let positionContentWrapper = $positionCrudManagerRowBox.closest('div');
-            let positionEntityType = $positionCrudManagerRowBox.data('entity-type');
-
-            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
-            let positionCrudManager = new CRUDManage({
+            // Create panelTable instance @see assets/js/PanelTable.js
+            let positionPanelTable = new PanelTable({
                 entityType: positionEntityType,
                 wrapper: positionContentWrapper,
-                swalFormOptions: window.swalFormOptions,
-                swalConfirmOptions: window.swalConfirmOptions,
-                toastOptions: window.toastOptions,
-                pagination: true,
+                pagination: false,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-row-template',
+                    searchTemplate: '#js-table-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-table-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-table-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
-                showPerPage: 25,
                 sort: function (aPosition, bPosition) {
                     let a = aPosition.stock.name;
                     let b = bPosition.stock.name;
@@ -73,296 +54,45 @@
                 },
             });
 
-            // add search input function
-            positionCrudManager.withSearch(function (positions, search) {
-                if (search.length >= 2) {
-                    let $matches = [];
+            // Create dividend panel instance
+            let $dividendPanelBox = $('.js-position-dividend-panel-box');
 
-                    search = search.toUpperCase();
+            let dividendContentWrapper = $dividendPanelBox.closest('.js-dividend-panel');
+            let dividendEntityType = $dividendPanelBox.data('entity-type');
 
-                    $.each(positions, function (index, position) {
-                        if (position.stock.name.toUpperCase().indexOf(search) > -1 ||
-                            position.stock.symbol.toUpperCase().indexOf(search) > -1 ) {
-
-                            $matches.push(position);
-                        }
-                    });
-
-                    return $matches;
-                }
-
-                return null;
-            });
-
-            positionCrudManager.withAfterSearch(function (search) {
-                window.operationCrudManager.search(search);
-                window.positionDividendCrudManager.search(search);
-            });
-
-            positionCrudManager.withAfterCleanSearch(function () {
-                window.operationCrudManager.cleanSearch();
-                window.positionDividendCrudManager.cleanSearch();
-            });
-
-            positionCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
-                let param = {
-                    '_id': {{ wallet.id }},
-                    's': 'open'
-                };
-
-                if (id) {
-                    param['id'] = id;
-                }
-
-                if (endpoint === 'list') {
-                    return Routing.generate('wallet_' + entityType + '_list', param);
-                }
-
-                throw 'Endpoint wallet_' + endpoint + ' not supported';
-            });
-
-            positionCrudManager.withViewButton();
-            positionCrudManager.withExtraButton();
-            positionCrudManager.withExtraButton();
-            positionCrudManager.withExtraButton();
-
-            positionCrudManager.render();
-
-            // Tweak button toggle main menu to show/hide columns
-            $('.sidebar-toggle').on(
-                'click',
-                function(e) {
-                    let $button = $(e.currentTarget);
-
-                    if ($button.data('toggle') === 'push-menu') {
-                        this.toggleExpanded();
-                    }
-                }.bind(positionCrudManager)
-            );
-
-            window.positionCrudManager = positionCrudManager;
-
-            // Delegate selector for buy button
-            positionCrudManager.$wrapper.on(
-                'click',
-                '.js-position-buy',
-                function (e) {
-                    e.preventDefault();
-
-                    // find entity to edit
-                    const $row = $(e.currentTarget).closest('tr');
-                    const id = $row.data('id');
-
-                    let recordIndex = this.indexOfById(id);
-                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
-
-                    entity.type = 'buy';
-                    entity.amount = '';
-                    // forcing to be a create action
-                    window.operationCrudManager.createFrom(entity, 'create')
-                    // update the row by creating a new row base on the row template and
-                    // replace the old row
-                        .then((result) => {
-                            if (result.value) {
-                                let entity = result.value.item;
-
-                                window.operationCrudManager.addEntity(entity);
-                            }
-                        });
-                }.bind(positionCrudManager)
-            );
-
-            // Delegate selector for sell button
-            positionCrudManager.$wrapper.on(
-                'click',
-                '.js-position-sell',
-                function (e) {
-                    e.preventDefault();
-
-                    // find entity to edit
-                    const $row = $(e.currentTarget).closest('tr');
-                    const id = $row.data('id');
-
-                    let recordIndex = this.indexOfById(id);
-                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
-
-                    entity.type = 'sell';
-                    // forcing to be a create action
-                    window.operationCrudManager.createFrom(entity, 'create')
-                    // update the row by creating a new row base on the row template and
-                    // replace the old row
-                        .then((result) => {
-                            if (result.value) {
-                                let entity = result.value.item;
-
-                                window.operationCrudManager.addEntity(entity);
-                            }
-                        });
-                }.bind(positionCrudManager)
-            );
-
-            // Delegate selector for dividend button
-            positionCrudManager.$wrapper.on(
-                'click',
-                '.js-position-dividend',
-                function (e) {
-                    e.preventDefault();
-
-                    // find entity to edit
-                    const $row = $(e.currentTarget).closest('tr');
-                    const id = $row.data('id');
-
-                    let recordIndex = this.indexOfById(id);
-                    let entity = recordIndex !== null ? this.records[recordIndex] : null;
-
-                    entity.type = 'dividend';
-                    // forcing to be a create action
-                    window.operationCrudManager.createFrom(entity, 'create')
-                    // update the row by creating a new row base on the row template and
-                    // replace the old row
-                        .then((result) => {
-                            if (result.value) {
-                                let entity = result.value.item;
-
-                                window.operationCrudManager.addEntity(entity);
-                            }
-                        });
-                }.bind(positionCrudManager)
-            );
-        });
-    </script>
-
-    <!-- positionDividendCrudManager -->
-    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
-        'entity_name': wallet_position_dividend_entity_name,
-        'fields': wallet_position_dividend_fields,
-    }%}
-    {% endembed %}
-
-    <script>
-        $(document).ready(function() {
-            // Create page instance
-            let $positionDividendCrudManagerRowBox = $('.js-position-dividend-crud-manage-row-box');
-
-            let positionDividendContentWrapper = $positionDividendCrudManagerRowBox.closest('div');
-            let positionDividendEntityType = $positionDividendCrudManagerRowBox.data('entity-type');
-
-            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
-            let positionDividendCrudManager = new CRUDManage({
-                entityType: positionDividendEntityType,
-                wrapper: positionDividendContentWrapper,
-                swalFormOptions: window.swalFormOptions,
-                swalConfirmOptions: window.swalConfirmOptions,
-                toastOptions: window.toastOptions,
-                pagination: true,
+            // Create panelTable instance @see assets/js/PanelTable.js
+            let dividendPanelTable = new PanelTable({
+                entityType: dividendEntityType,
+                wrapper: dividendContentWrapper,
+                pagination: false,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-row-template',
+                    searchTemplate: '#js-table-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-table-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-table-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
-                showPerPage: 25,
                 sort: function (aPosition, bPosition) {
                     let a = aPosition.stock.name;
                     let b = bPosition.stock.name;
 
                     return a < b ? -1 : a > b ? 1 : 0;
                 },
-                searchFunc: function (positions, search) {
-                    if (search.length >= 2) {
-                        let $matches = [];
-
-                        search = search.toUpperCase();
-
-                        $.each(positions, function (index, position) {
-                            if (position.stock.name.toUpperCase().indexOf(search) > -1 ||
-                                position.stock.symbol.toUpperCase().indexOf(search) > -1 ) {
-
-                                $matches.push(position);
-                            }
-                        });
-
-                        return $matches;
-                    }
-
-                    return null;
-                }
             });
 
-            positionDividendCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
-                let param = {
-                    '_id': {{ wallet.id }},
-                    's': 'open'
-                };
+            // Create dividend panel instance
+            let $operationPanelBox = $('.js-operation-panel-box');
 
-                if (id) {
-                    param['id'] = id;
-                }
+            let operationContentWrapper = $operationPanelBox.closest('.js-operation-panel');
+            let operationEntityType = $operationPanelBox.data('entity-type');
 
-                entityType = entityType.replace('_dividend','');
-
-                if (endpoint === 'list') {
-                    return Routing.generate('wallet_' + entityType + '_list', param);
-                }
-
-                throw 'Endpoint wallet_' + endpoint + ' not supported';
-            });
-
-            positionDividendCrudManager.render();
-
-            // Tweak button toggle main menu to show/hide columns
-            $('.sidebar-toggle').on(
-                'click',
-                function(e) {
-                    let $button = $(e.currentTarget);
-
-                    if ($button.data('toggle') === 'push-menu') {
-                        this.toggleExpanded();
-                    }
-                }.bind(positionDividendCrudManager)
-            );
-
-            window.positionDividendCrudManager = positionDividendCrudManager;
-        });
-    </script>
-
-    <!-- operationCrudManager -->
-    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {
-        'entity_name': wallet_operation_entity_name,
-        'fields': wallet_operation_fields,
-        'create_button_label': 'Add new'|trans ~ ' ' ~ wallet_operation_entity_name|trans|lower,
-        'form': wallet_operation_form,
-    }%}
-    {% endembed %}
-
-    <script>
-        $(document).ready(function() {
-            // Create page instance
-            let $operationCrudManagerRowBox = $('.js-operation-crud-manage-row-box');
-
-            let operationContentWrapper = $operationCrudManagerRowBox.closest('div');
-            let operationEntityType = $operationCrudManagerRowBox.data('entity-type');
-
-            let swalConfirmOptions = window.swalFormOptions;
-            swalConfirmOptions.titleText = '{{ 'Delete'|trans }} {{ wallet_operation_entity_name|trans|title }}';
-            swalConfirmOptions.text = '{{ 'Do you want to delete the'|trans }} {{ wallet_operation_entity_name|trans|title|lower }} {0}?';
-
-            let toastOptions = window.toastOptions;
-            toastOptions.titleText = '{{ wallet_operation_entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}';
-
-            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
-            let operationCrudManager = new CRUDManage({
+            // Create panelTable instance @see assets/js/PanelTable.js
+            let operationPanelTable = new PanelTable({
                 entityType: operationEntityType,
                 wrapper: operationContentWrapper,
-                swalFormOptions: window.swalFormOptions,
-                swalConfirmOptions: swalConfirmOptions,
-                toastOptions: toastOptions,
                 pagination: true,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-row-template',
+                    searchTemplate: '#js-table-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-table-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-table-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
                 sort: function (aOperation, bOperation) {
                     let a = new Date(aOperation.dateAt);
@@ -393,71 +123,531 @@
                 }
             });
 
-            operationCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {
-                let route = '';
-                let param = {
-                    '_id': {{ wallet.id }}
-                };
+            const swalOperationOptions = window.swalOperationOptions;
+            const urlCreateOperation = Routing.generate(
+                'wallet_{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}_new',
+                {'_id': {{ wallet.id }}}
+            );
+            const createOperationEventName = 'entity_operation_created';
 
-                if (id) {
-                    param['id'] = id;
-                }
-
-                switch (endpoint) {
-                    case 'list':
-                        route = Routing.generate('wallet_' + entityType + '_list', param);
-
-                        break;
-                    case 'new':
-                        route = Routing.generate('wallet_' + entityType + '_new', param);
-
-                        break;
-                    case 'edit':
-                        route = Routing.generate('wallet_' + entityType + '_edit', param);
-
-                        break;
-                    case 'delete':
-                        route = Routing.generate('wallet_' + entityType + '_delete', param);
-
-                        break;
-                    default:
-                        throw 'Endpoint wallet_' + endpoint + ' not supported';
-                }
-
-                return route
-            });
-
-            let swalFormOptionsText = {
-                create: {
-                    confirmButtonText: '{{ 'Create'|trans }}',
-                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
-                },
-                update: {
-                    confirmButtonText: '{{ 'Update'|trans }}',
-                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was updated successfully.'|trans }}'
-                },
-                delete: {
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'
-                }
-            };
-
-            const form = new OperationForm(
-                window.positionCrudManager,
-                window.walletInfo,
-                swalFormOptionsText,
-                '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-form-template',
+            const operationForm = new OperationForm(
+                swalOperationOptions,
+                operationPanelTable,
+                '#js-panel-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-form-template',
             );
 
-            operationCrudManager.withForm(form);
-            operationCrudManager.withCreateButton();
+            const createButton = new CreateButton(
+                '{{ 'Create new'|trans }} {{ wallet_operation_entity_name|trans|lower }}',
+                operationForm,
+                function () {
+                    return urlCreateOperation;
+                },
+                '.js-entity-create',
+                '.js-panel-header-button-container',
+                createOperationEventName
+            );
+            operationPanelTable.addButton(createButton);
 
-            operationCrudManager.render();
+            // Setting the relation with the same form as the operation panel.
+            positionPanelTable.addButton(createButton);
 
-            window.positionCrudManager.withForm(form);
+            const swalOptionsCreateOperation = {
+                options: swalOperationOptions.editView,
+                onBeforeOpen: operationForm.onBeforeOpenEditView.bind(operationForm),
+                confirmButtonText: swalOperationOptions.text.create.confirmButtonText,
+                titleText: swalOperationOptions.text.create.titleText,
+                toastTitleText: swalOperationOptions.text.create.toastTitleText,
+            };
 
-            window.operationCrudManager = operationCrudManager;
+            $.each(['dividend', 'buy', 'sell'], function (index, type) {
+                const positionDividendRowButton = new PositionOperationRowButton(
+                    operationForm,
+                    swalOptionsCreateOperation,
+                    type,
+                    urlCreateOperation,
+                    createOperationEventName
+                );
+                positionPanelTable.addRowButton(positionDividendRowButton);
+            });
+
+            let panel = new WalletDashboardPanel(
+                {{ wallet.id }},
+                positionPanelTable,
+                dividendPanelTable,
+                operationPanelTable
+            );
+
+            panel.render();
+            panel.load();
+
+            // Tweak button toggle main menu to show/hide columns
+            $('.sidebar-toggle').on(
+                'click',
+                function(e) {
+                    let $button = $(e.currentTarget);
+
+                    if ($button.data('toggle') === 'push-menu') {
+                        positionPanelTable.toggleExpanded();
+                        dividendPanelTable.toggleExpanded();
+                    }
+                }
+            );
         });
     </script>
+
 {% endblock %}
+
+{#{% block javascripts %}#}
+{#    {{ parent() }}#}
+
+{#    {% include 'Components/ui/crud-manage-scripts.html.twig' %}#}
+{#    <script src="{{ asset('build/wallet_dashboard.js') }}"></script>#}
+
+{#    <script>#}
+{#        $(document).ready(function() {#}
+{#            window.walletInfo = new WalletInfo({{ wallet.id }});#}
+
+{#            window.walletInfo.load();#}
+{#        });#}
+{#    </script>#}
+
+{#    <!-- positionCrudManager -->#}
+{#    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {#}
+{#        'entity_name': wallet_position_entity_name,#}
+{#        'fields': wallet_position_fields,#}
+{#        'buttons': wallet_position_buttons,#}
+{#        'search_width': '242px',#}
+{#    }%}#}
+{#    {% endembed %}#}
+
+{#    <script>#}
+{#        $(document).ready(function() {#}
+{#            // Create page instance#}
+{#            let $positionCrudManagerRowBox = $('.js-position-crud-manage-row-box');#}
+
+{#            let positionContentWrapper = $positionCrudManagerRowBox.closest('div');#}
+{#            let positionEntityType = $positionCrudManagerRowBox.data('entity-type');#}
+
+{#            // Create CRUDManage instance @see public/assets/js/CRUDManage.js#}
+{#            let positionCrudManager = new CRUDManage({#}
+{#                entityType: positionEntityType,#}
+{#                wrapper: positionContentWrapper,#}
+{#                swalFormOptions: window.swalFormOptions,#}
+{#                swalConfirmOptions: window.swalConfirmOptions,#}
+{#                toastOptions: window.toastOptions,#}
+{#                pagination: true,#}
+{#                selectors: {#}
+{#                    createButtonTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-create-button-template',#}
+{#                    searchTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-search-template',#}
+{#                    showPerPageTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',#}
+{#                    rowTemplate: '#js-manager-{{ wallet_position_entity_name|lower|replace({' ': '_'}) }}-row-template',#}
+{#                },#}
+{#                showPerPage: 25,#}
+{#                sort: function (aPosition, bPosition) {#}
+{#                    let a = aPosition.stock.name;#}
+{#                    let b = bPosition.stock.name;#}
+
+{#                    return a < b ? -1 : a > b ? 1 : 0;#}
+{#                },#}
+{#            });#}
+
+{#            // add search input function#}
+{#            positionCrudManager.withSearch(function (positions, search) {#}
+{#                if (search.length >= 2) {#}
+{#                    let $matches = [];#}
+
+{#                    search = search.toUpperCase();#}
+
+{#                    $.each(positions, function (index, position) {#}
+{#                        if (position.stock.name.toUpperCase().indexOf(search) > -1 ||#}
+{#                            position.stock.symbol.toUpperCase().indexOf(search) > -1 ) {#}
+
+{#                            $matches.push(position);#}
+{#                        }#}
+{#                    });#}
+
+{#                    return $matches;#}
+{#                }#}
+
+{#                return null;#}
+{#            });#}
+
+{#            positionCrudManager.withAfterSearch(function (search) {#}
+{#                window.operationCrudManager.search(search);#}
+{#                window.positionDividendCrudManager.search(search);#}
+{#            });#}
+
+{#            positionCrudManager.withAfterCleanSearch(function () {#}
+{#                window.operationCrudManager.cleanSearch();#}
+{#                window.positionDividendCrudManager.cleanSearch();#}
+{#            });#}
+
+{#            positionCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {#}
+{#                let param = {#}
+{#                    '_id': {{ wallet.id }},#}
+{#                    's': 'open'#}
+{#                };#}
+
+{#                if (id) {#}
+{#                    param['id'] = id;#}
+{#                }#}
+
+{#                if (endpoint === 'list') {#}
+{#                    return Routing.generate('wallet_' + entityType + '_list', param);#}
+{#                }#}
+
+{#                throw 'Endpoint wallet_' + endpoint + ' not supported';#}
+{#            });#}
+
+{#            positionCrudManager.withViewButton();#}
+{#            positionCrudManager.withExtraButton();#}
+{#            positionCrudManager.withExtraButton();#}
+{#            positionCrudManager.withExtraButton();#}
+
+{#            positionCrudManager.render();#}
+
+{#            // Tweak button toggle main menu to show/hide columns#}
+{#            $('.sidebar-toggle').on(#}
+{#                'click',#}
+{#                function(e) {#}
+{#                    let $button = $(e.currentTarget);#}
+
+{#                    if ($button.data('toggle') === 'push-menu') {#}
+{#                        this.toggleExpanded();#}
+{#                    }#}
+{#                }.bind(positionCrudManager)#}
+{#            );#}
+
+{#            window.positionCrudManager = positionCrudManager;#}
+
+{#            // Delegate selector for buy button#}
+{#            positionCrudManager.$wrapper.on(#}
+{#                'click',#}
+{#                '.js-position-buy',#}
+{#                function (e) {#}
+{#                    e.preventDefault();#}
+
+{#                    // find entity to edit#}
+{#                    const $row = $(e.currentTarget).closest('tr');#}
+{#                    const id = $row.data('id');#}
+
+{#                    let recordIndex = this.indexOfById(id);#}
+{#                    let entity = recordIndex !== null ? this.records[recordIndex] : null;#}
+
+{#                    entity.type = 'buy';#}
+{#                    entity.amount = '';#}
+{#                    // forcing to be a create action#}
+{#                    window.operationCrudManager.createFrom(entity, 'create')#}
+{#                    // update the row by creating a new row base on the row template and#}
+{#                    // replace the old row#}
+{#                        .then((result) => {#}
+{#                            if (result.value) {#}
+{#                                let entity = result.value.item;#}
+
+{#                                window.operationCrudManager.addEntity(entity);#}
+{#                            }#}
+{#                        });#}
+{#                }.bind(positionCrudManager)#}
+{#            );#}
+
+{#            // Delegate selector for sell button#}
+{#            positionCrudManager.$wrapper.on(#}
+{#                'click',#}
+{#                '.js-position-sell',#}
+{#                function (e) {#}
+{#                    e.preventDefault();#}
+
+{#                    // find entity to edit#}
+{#                    const $row = $(e.currentTarget).closest('tr');#}
+{#                    const id = $row.data('id');#}
+
+{#                    let recordIndex = this.indexOfById(id);#}
+{#                    let entity = recordIndex !== null ? this.records[recordIndex] : null;#}
+
+{#                    entity.type = 'sell';#}
+{#                    // forcing to be a create action#}
+{#                    window.operationCrudManager.createFrom(entity, 'create')#}
+{#                    // update the row by creating a new row base on the row template and#}
+{#                    // replace the old row#}
+{#                        .then((result) => {#}
+{#                            if (result.value) {#}
+{#                                let entity = result.value.item;#}
+
+{#                                window.operationCrudManager.addEntity(entity);#}
+{#                            }#}
+{#                        });#}
+{#                }.bind(positionCrudManager)#}
+{#            );#}
+
+{#            // Delegate selector for dividend button#}
+{#            positionCrudManager.$wrapper.on(#}
+{#                'click',#}
+{#                '.js-position-dividend',#}
+{#                function (e) {#}
+{#                    e.preventDefault();#}
+
+{#                    // find entity to edit#}
+{#                    const $row = $(e.currentTarget).closest('tr');#}
+{#                    const id = $row.data('id');#}
+
+{#                    let recordIndex = this.indexOfById(id);#}
+{#                    let entity = recordIndex !== null ? this.records[recordIndex] : null;#}
+
+{#                    entity.type = 'dividend';#}
+{#                    // forcing to be a create action#}
+{#                    window.operationCrudManager.createFrom(entity, 'create')#}
+{#                    // update the row by creating a new row base on the row template and#}
+{#                    // replace the old row#}
+{#                        .then((result) => {#}
+{#                            if (result.value) {#}
+{#                                let entity = result.value.item;#}
+
+{#                                window.operationCrudManager.addEntity(entity);#}
+{#                            }#}
+{#                        });#}
+{#                }.bind(positionCrudManager)#}
+{#            );#}
+{#        });#}
+{#    </script>#}
+
+{#    <!-- positionDividendCrudManager -->#}
+{#    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {#}
+{#        'entity_name': wallet_position_dividend_entity_name,#}
+{#        'fields': wallet_position_dividend_fields,#}
+{#    }%}#}
+{#    {% endembed %}#}
+
+{#    <script>#}
+{#        $(document).ready(function() {#}
+{#            // Create page instance#}
+{#            let $positionDividendCrudManagerRowBox = $('.js-position-dividend-crud-manage-row-box');#}
+
+{#            let positionDividendContentWrapper = $positionDividendCrudManagerRowBox.closest('div');#}
+{#            let positionDividendEntityType = $positionDividendCrudManagerRowBox.data('entity-type');#}
+
+{#            // Create CRUDManage instance @see public/assets/js/CRUDManage.js#}
+{#            let positionDividendCrudManager = new CRUDManage({#}
+{#                entityType: positionDividendEntityType,#}
+{#                wrapper: positionDividendContentWrapper,#}
+{#                swalFormOptions: window.swalFormOptions,#}
+{#                swalConfirmOptions: window.swalConfirmOptions,#}
+{#                toastOptions: window.toastOptions,#}
+{#                pagination: true,#}
+{#                selectors: {#}
+{#                    createButtonTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-create-button-template',#}
+{#                    searchTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-search-template',#}
+{#                    showPerPageTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',#}
+{#                    rowTemplate: '#js-manager-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-row-template',#}
+{#                },#}
+{#                showPerPage: 25,#}
+{#                sort: function (aPosition, bPosition) {#}
+{#                    let a = aPosition.stock.name;#}
+{#                    let b = bPosition.stock.name;#}
+
+{#                    return a < b ? -1 : a > b ? 1 : 0;#}
+{#                },#}
+{#                searchFunc: function (positions, search) {#}
+{#                    if (search.length >= 2) {#}
+{#                        let $matches = [];#}
+
+{#                        search = search.toUpperCase();#}
+
+{#                        $.each(positions, function (index, position) {#}
+{#                            if (position.stock.name.toUpperCase().indexOf(search) > -1 ||#}
+{#                                position.stock.symbol.toUpperCase().indexOf(search) > -1 ) {#}
+
+{#                                $matches.push(position);#}
+{#                            }#}
+{#                        });#}
+
+{#                        return $matches;#}
+{#                    }#}
+
+{#                    return null;#}
+{#                }#}
+{#            });#}
+
+{#            positionDividendCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {#}
+{#                let param = {#}
+{#                    '_id': {{ wallet.id }},#}
+{#                    's': 'open'#}
+{#                };#}
+
+{#                if (id) {#}
+{#                    param['id'] = id;#}
+{#                }#}
+
+{#                entityType = entityType.replace('_dividend','');#}
+
+{#                if (endpoint === 'list') {#}
+{#                    return Routing.generate('wallet_' + entityType + '_list', param);#}
+{#                }#}
+
+{#                throw 'Endpoint wallet_' + endpoint + ' not supported';#}
+{#            });#}
+
+{#            positionDividendCrudManager.render();#}
+
+{#            // Tweak button toggle main menu to show/hide columns#}
+{#            $('.sidebar-toggle').on(#}
+{#                'click',#}
+{#                function(e) {#}
+{#                    let $button = $(e.currentTarget);#}
+
+{#                    if ($button.data('toggle') === 'push-menu') {#}
+{#                        this.toggleExpanded();#}
+{#                    }#}
+{#                }.bind(positionDividendCrudManager)#}
+{#            );#}
+
+{#            window.positionDividendCrudManager = positionDividendCrudManager;#}
+{#        });#}
+{#    </script>#}
+
+{#    <!-- comingDividendTable -->#}
+{#    {% embed 'Components/ui/table-scripts.html.twig' with {#}
+{#        'entity_name': wallet_coming_dividend_entity_name,#}
+{#        'fields': wallet_coming_dividend_fields,#}
+{#    }%}#}
+{#    {% endembed %}#}
+
+{#    <!-- operationCrudManager -->#}
+{#    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' with {#}
+{#        'entity_name': wallet_operation_entity_name,#}
+{#        'fields': wallet_operation_fields,#}
+{#        'create_button_label': 'Add new'|trans ~ ' ' ~ wallet_operation_entity_name|trans|lower,#}
+{#        'form': wallet_operation_form,#}
+{#    }%}#}
+{#    {% endembed %}#}
+
+{#    <script>#}
+{#        $(document).ready(function() {#}
+{#            // Create page instance#}
+{#            let $operationCrudManagerRowBox = $('.js-operation-crud-manage-row-box');#}
+
+{#            let operationContentWrapper = $operationCrudManagerRowBox.closest('div');#}
+{#            let operationEntityType = $operationCrudManagerRowBox.data('entity-type');#}
+
+{#            let swalConfirmOptions = window.swalFormOptions;#}
+{#            swalConfirmOptions.titleText = '{{ 'Delete'|trans }} {{ wallet_operation_entity_name|trans|title }}';#}
+{#            swalConfirmOptions.text = '{{ 'Do you want to delete the'|trans }} {{ wallet_operation_entity_name|trans|title|lower }} {0}?';#}
+
+{#            let toastOptions = window.toastOptions;#}
+{#            toastOptions.titleText = '{{ wallet_operation_entity_name|trans|title }} {{ 'was {0} successfully.'|trans }}';#}
+
+{#            let swalOptions = {#}
+{#                confirmOptions: swalConfirmOptions,#}
+{#                toastOptions: toastOptions,#}
+{#            };#}
+
+{#            // Create CRUDManage instance @see public/assets/js/CRUDManage.js#}
+{#            let operationCrudManager = new CRUDManage({#}
+{#                entityType: operationEntityType,#}
+{#                wrapper: operationContentWrapper,#}
+{#                swalFormOptions: window.swalFormOptions,#}
+{#                swalConfirmOptions: swalConfirmOptions,#}
+{#                toastOptions: toastOptions,#}
+{#                pagination: true,#}
+{#                selectors: {#}
+{#                    createButtonTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-create-button-template',#}
+{#                    searchTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-search-template',#}
+{#                    showPerPageTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',#}
+{#                    rowTemplate: '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-row-template',#}
+{#                },#}
+{#                sort: function (aOperation, bOperation) {#}
+{#                    let a = new Date(aOperation.dateAt);#}
+{#                    let b = new Date(bOperation.dateAt);#}
+
+{#                    return a > b ? -1 : a < b ? 1 : 0;#}
+{#                },#}
+{#                searchFunc: function (operations, search) {#}
+{#                    if (search.length >= 2) {#}
+{#                        let $matches = [];#}
+
+{#                        search = search.toUpperCase();#}
+
+{#                        $.each(operations, function (index, operation) {#}
+{#                            if (operation.stock) {#}
+{#                                if (operation.stock.name.toUpperCase().indexOf(search) > -1 ||#}
+{#                                    operation.stock.symbol.toUpperCase().indexOf(search) > -1 ) {#}
+
+{#                                    $matches.push(operation);#}
+{#                                }#}
+{#                            }#}
+{#                        });#}
+
+{#                        return $matches;#}
+{#                    }#}
+
+{#                    return null;#}
+{#                }#}
+{#            });#}
+
+{#            operationCrudManager.setRouteGenerating((entityType, endpoint, id = null) => {#}
+{#                let route = '';#}
+{#                let param = {#}
+{#                    '_id': {{ wallet.id }}#}
+{#                };#}
+
+{#                if (id) {#}
+{#                    param['id'] = id;#}
+{#                }#}
+
+{#                switch (endpoint) {#}
+{#                    case 'list':#}
+{#                        route = Routing.generate('wallet_' + entityType + '_list', param);#}
+
+{#                        break;#}
+{#                    case 'new':#}
+{#                        route = Routing.generate('wallet_' + entityType + '_new', param);#}
+
+{#                        break;#}
+{#                    case 'edit':#}
+{#                        route = Routing.generate('wallet_' + entityType + '_edit', param);#}
+
+{#                        break;#}
+{#                    case 'delete':#}
+{#                        route = Routing.generate('wallet_' + entityType + '_delete', param);#}
+
+{#                        break;#}
+{#                    default:#}
+{#                        throw 'Endpoint wallet_' + endpoint + ' not supported';#}
+{#                }#}
+
+{#                return route#}
+{#            });#}
+
+{#            let swalFormOptionsText = {#}
+{#                create: {#}
+{#                    confirmButtonText: '{{ 'Create'|trans }}',#}
+{#                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',#}
+{#                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'#}
+{#                },#}
+{#                update: {#}
+{#                    confirmButtonText: '{{ 'Update'|trans }}',#}
+{#                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}',#}
+{#                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was updated successfully.'|trans }}'#}
+{#                },#}
+{#                delete: {#}
+{#                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was deleted successfully.'|trans }}'#}
+{#                }#}
+{#            };#}
+
+{#            const form = new OperationForm(#}
+{#                window.positionCrudManager,#}
+{#                window.walletInfo,#}
+{#                swalFormOptionsText,#}
+{#                '#js-manager-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-form-template',#}
+{#            );#}
+
+{#            operationCrudManager.withForm(form);#}
+{#            operationCrudManager.withCreateButton();#}
+
+{#            operationCrudManager.render();#}
+
+{#            window.positionCrudManager.withForm(form);#}
+
+{#            window.operationCrudManager = operationCrudManager;#}
+{#        });#}
+{#    </script>#}
+{#{% endblock %}#}

@@ -41,6 +41,8 @@ class Wallet
 
     public $dividendProjectedMonths;
 
+    public $comingDividends;
+
     public $metadata;
 
     static public function fromEntity(Entity\Wallet $wallet): self
@@ -96,6 +98,8 @@ class Wallet
             }
             $self->dividendProjectedMonths = $dividendProjectedMonths;
         }
+
+        $self->comingDividends = [];
 
         $self->metadata = $wallet->getMetadata();
 

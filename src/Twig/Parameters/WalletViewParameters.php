@@ -86,9 +86,12 @@ class WalletViewParameters extends AbstractViewParameters
         return [
                 'wallet' => $wallet,
                 'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
+
+                'wallet_operation_search_width' => '235px',
                 'wallet_operation_entity_name' => 'operation',
                 'wallet_operation_fields' => $this->getOperationFields(),
                 'wallet_operation_form' => $walletOperationForm->createView(),
+
                 'wallet_position_entity_name' => 'position',
                 'wallet_position_fields' => $this->getPositionFields(),
                 'wallet_position_buttons' => [
@@ -110,6 +113,8 @@ class WalletViewParameters extends AbstractViewParameters
                 ],
                 'wallet_position_dividend_entity_name' => 'position_dividend',
                 'wallet_position_dividend_fields' => $this->getPositionDividendFields(),
+                'wallet_coming_dividend_entity_name' => 'coming_dividend',
+                'wallet_coming_dividend_fields' => $this->getComingDividendFields(),
             ] + $context;
     }
 
@@ -183,6 +188,12 @@ class WalletViewParameters extends AbstractViewParameters
                 'label' => 'Market',
             ],
             [
+                'name' => 'stock.value',
+                'label' => 'Price',
+                'render' => 'money',
+                'class' => 'js-manager-table-extra-cell-hide',
+            ],
+            [
                 'name' => 'amount',
                 'label' => 'Amt',
             ],
@@ -240,6 +251,27 @@ class WalletViewParameters extends AbstractViewParameters
             [
                 'name' => 'stock.displayDividendYield',
                 'label' => 'D. Yield',
+            ],
+            [
+                'name' => 'stock.exDate',
+                'label' => 'Ex. Date',
+                'render' => 'date',
+                'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
+            ],
+            [
+                'name' => 'displayDividendYield',
+                'label' => 'R. D. Yield',
+                'class' => 'js-manager-table-extra-cell-hide',
+            ],
+        ];
+    }
+
+    private function getComingDividendFields(): array
+    {
+        return [
+            [
+                'name' => 'stock.symbol',
+                'label' => 'Symbol',
             ],
             [
                 'name' => 'stock.exDate',
