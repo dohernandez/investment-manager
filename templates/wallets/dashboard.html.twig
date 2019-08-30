@@ -137,6 +137,7 @@
             });
 
             const swalOperationOptions = window.swalOperationOptions;
+            console.log(swalOperationOptions);
             const urlCreateOperation = Routing.generate(
                 'wallet_{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}_new',
                 {'_id': {{ wallet.id }}}
@@ -169,7 +170,7 @@
                 onBeforeOpen: operationForm.onBeforeOpenEditView.bind(operationForm),
                 confirmButtonText: swalOperationOptions.text.create.confirmButtonText,
                 titleText: swalOperationOptions.text.create.titleText,
-                toastTitleText: swalOperationOptions.text.create.toastTitleText,
+                confirmTitleText: swalOperationOptions.text.create.confirmTitleText,
             };
 
             $.each(['dividend', 'buy', 'sell'], function (index, type) {

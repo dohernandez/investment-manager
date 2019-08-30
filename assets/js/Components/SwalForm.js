@@ -32,7 +32,7 @@ class SwalForm {
             onBeforeOpen: this.onBeforeOpenEditView.bind(this),
             confirmButtonText: this.swalOptions.text.create.confirmButtonText,
             titleText: this.swalOptions.text.create.titleText,
-            toastTitleText: this.swalOptions.text.create.toastTitleText,
+            confirmTitleText: this.swalOptions.text.create.confirmTitleText,
         };
 
         return this.display(swalOptions, url, 'create');
@@ -180,7 +180,7 @@ class SwalForm {
             onBeforeOpen: this.onBeforeOpenEditView.bind(this),
             confirmButtonText: this.swalOptions.text.update.confirmButtonText,
             titleText: this.swalOptions.text.update.titleText,
-            toastTitleText: this.swalOptions.text.update.toastTitleText,
+            confirmTitleText: this.swalOptions.text.update.confirmTitleText,
         };
 
         return this.display(swalOptions, url, 'update', data);
@@ -201,7 +201,7 @@ class SwalForm {
         }).then((result) => {
             // Show popup with success message
             if (result.value) {
-                this.showStatusMessage(this.swalOptions.text.delete.toastTitleText);
+                this.showStatusMessage(this.swalOptions.text.delete.confirmTitleText);
             }
 
             return result
