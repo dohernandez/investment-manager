@@ -27,7 +27,8 @@ class WalletDashboardPanel {
         this.dividendPanel = dividendPanel;
         this.operationPanel = operationPanel;
 
-        this.header = new WalletDashboardDashboard();
+        this.header = new WalletDashboardHeader();
+        this.dividenProjected = new WalletDashboardDividendProjected();
 
         eventBus.on("entity_operation_created", this.onCreated.bind(this));
 
@@ -55,6 +56,7 @@ class WalletDashboardPanel {
             let wallet = result.item;
 
             this.header.setData(wallet);
+            this.dividenProjected.setData(wallet);
         });
     }
 
@@ -93,7 +95,7 @@ class WalletDashboardPanel {
     }
 }
 
-class WalletDashboardDashboard {
+class WalletDashboardHeader {
     setData(wallet) {
         // Dashboard
         $('.js-wallet-invested').each(function (index, span) {
@@ -308,6 +310,47 @@ class PositionOperationRowButton extends RowButton {
                         entity.amount = amount;
                     }
                 });
+        });
+    }
+}
+
+class WalletDashboardDividendProjected {
+    setData(wallet) {
+        $('.js-wallet-dividend-projected').each(function (index, span) {
+            $(span).html('<small>' + wallet.dividendProjected.currency.symbol + '</small> ' + wallet.dividendProjected.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-dividend-increase').each(function (index, span) {
+            $(span).html(wallet.dividendProjectedIncrease.toFixed(2))
+        });
+        $('.js-wallet-dividend-increase-bar').each(function (index, span) {
+            // console.log($(span), $(span).val());
+            $(span).css('width', wallet.dividendProjectedIncrease.toFixed(2))
+        });
+
+        let year = null;
+        $('.js-wallet-dividend-year').each(function (index, span) {
+            year = $(span).data('year');
+        });
+
+        let previousYear = null;
+        $('.js-wallet-dividend-previous-year').each(function (index, span) {
+            previousYear = $(span).data('year');
+        });
+
+        $('.js-wallet-dividend-month').each(function (index, span) {
+            let month = $(span).data('month');
+
+            let mIdx = index + 1;
+
+            $('.js-wallet-dividend-year-month-' + mIdx).each(function (index, span) {
+                let dividend = wallet.dividendProjectedMonths[year][month];
+                $(span).html('<small>' + dividend.currency.symbol + '</small> ' + dividend.preciseValue.toFixed(2) + '</span>')
+            });
+
+            $('.js-wallet-dividend-previous-month-' + mIdx).each(function (index, span) {
+                let dividend = wallet.dividendProjectedMonths[previousYear][month];
+                $(span).html('<small>' + dividend.currency.symbol + '</small> ' + dividend.preciseValue.toFixed(2) + '</span>')
+            });
         });
     }
 }
