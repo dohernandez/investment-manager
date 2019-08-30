@@ -1,11 +1,12 @@
 'use strict';
 
-import Form from './Components/Form';
+import SwalForm from "./Components/SwalForm";
 import Select2StockTemplate from './Components/Select2StockTemplate';
 import $ from 'jquery';
 import moment from 'moment';
 import Routing from './Components/Routing';
 import InvestmentManagerClient from './Components/InvestmentManagerClient';
+import RowButton from "./Components/RowButton";
 
 import 'select2';
 import 'eonasdan-bootstrap-datetimepicker';
@@ -13,21 +14,131 @@ import 'eonasdan-bootstrap-datetimepicker';
 import './../css/Select2.scss';
 import './../css/WalletDashboard.scss';
 
+const eventBus = require('js-event-bus')();
+
 /**
  * Form manage how the operation form should be build when a crud manager invokes a create or an update action.
  */
-class OperationForm extends Form {
-    constructor(
-        positionCrudManager,
-        walletInfo,
-        swalFormOptionsText,
-        template = '#js-manager-form-template',
-        selector = '.js-entity-create-from'
-    ) {
-        super(swalFormOptionsText, template, selector);
+class WalletDashboard {
+    constructor(walletId, positionPanel, dividendPanel, operationPanel) {
+        this.walletId = walletId;
 
-        this.walletInfo = walletInfo;
-        this.positionCrudManager = positionCrudManager;
+        this.positionPanel = positionPanel;
+        this.dividendPanel = dividendPanel;
+        this.operationPanel = operationPanel;
+
+        this.header = new WalletDashboardHeader();
+        this.dividenProjected = new WalletDashboardDividendProjected();
+
+        eventBus.on("entity_operation_created", this.onCreated.bind(this));
+
+        eventBus.on("position_searched", this.onPositionSearched.bind(this));
+        eventBus.on("position_search_cleaned", this.onPositionSearchCleaned.bind(this));
+    }
+
+    render() {
+        this.positionPanel.render();
+        this.dividendPanel.render();
+        this.operationPanel.render();
+    }
+
+    load() {
+        this._loadWallet();
+        this._loadPositions();
+        this._loadOperations();
+    }
+
+    _loadWallet() {
+        InvestmentManagerClient.sendRPC(
+            Routing.generate('wallet_get', {'id': this.walletId}),
+            'GET'
+        ).then((result) => {
+            let wallet = result.item;
+
+            this.header.setData(wallet);
+            this.dividenProjected.setData(wallet);
+        });
+    }
+
+    _loadPositions() {
+        InvestmentManagerClient.sendRPC(
+            Routing.generate('wallet_position_list', {'_id': this.walletId, 's': 'open'}),
+            'GET'
+        ).then((result) => {
+            this.positionPanel.setData(result);
+            this.dividendPanel.setData(result);
+        });
+    }
+
+    _loadOperations() {
+        InvestmentManagerClient.sendRPC(
+            Routing.generate('wallet_operation_list', {'_id': this.walletId}),
+            'GET'
+        ).then((result) => {
+            this.operationPanel.setData(result);
+        });
+    }
+
+    onCreated() {
+        this._loadWallet();
+        this._loadPositions();
+    }
+
+    onPositionSearched(search) {
+        this.dividendPanel.search(search);
+        this.operationPanel.search(search);
+    }
+
+    onPositionSearchCleaned() {
+        this.dividendPanel.cleanSearch();
+        this.operationPanel.cleanSearch();
+    }
+}
+
+class WalletDashboardHeader {
+    setData(wallet) {
+        // Dashboard
+        $('.js-wallet-invested').each(function (index, span) {
+            $(span).html('<small>' + wallet.invested.currency.symbol + '</small> ' + wallet.invested.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-net-capital').each(function (index, span) {
+            $(span).html('<small>' + wallet.netCapital.currency.symbol + '</small> ' + wallet.netCapital.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-dividend').each(function (index, span) {
+            $(span).html('<small>' + wallet.dividend.currency.symbol + '</small> ' + wallet.dividend.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-benefits').each(function (index, span) {
+            $(span).html('<small>' + wallet.benefits.currency.symbol + '</small> ' + wallet.benefits.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-pbenefits').each(function (index, span) {
+            $(span).html(wallet.pBenefits.toFixed(2) + '%')
+        });
+        $('.js-wallet-capital').each(function (index, span) {
+            $(span).html('<small>' + wallet.capital.currency.symbol + '</small> ' + wallet.capital.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-margin').each(function (index, span) {
+            $(span).html('<small>' + wallet.capital.currency.symbol + '</small> ' + wallet.capital.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-funds').each(function (index, span) {
+            $(span).html('<small>' + wallet.funds.currency.symbol + '</small> ' + wallet.funds.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-commissions').each(function (index, span) {
+            $(span).html('<small>' + wallet.commissions.currency.symbol + '</small> ' + wallet.commissions.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-interest').each(function (index, span) {
+            $(span).html('<small>' + wallet.interest.currency.symbol + '</small> ' + wallet.interest.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-connection').each(function (index, span) {
+            $(span).html('<small>' + wallet.connection.currency.symbol + '</small> ' + wallet.connection.preciseValue.toFixed(2) + '</span>')
+        });
+    }
+}
+
+class OperationForm extends SwalForm {
+    constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
+        super(swalOptions, template, selector);
+
+        this.table = table;
 
         this.select2StockTemplate = new Select2StockTemplate();
 
@@ -45,12 +156,14 @@ class OperationForm extends Form {
                 'commission', 'price', 'priceChange', 'priceChangeCommission', 'commission', 'value'
             ],
         }
+
+        eventBus.on("entity_operation_created", this.onCreated.bind(this));
     }
 
     /**
      * @inheritDoc
      */
-    onBeforeOpen(data, $wrapper) {
+    onBeforeOpenEditView(data, $wrapper) {
         $('[data-datepickerenable="on"]').datetimepicker();
 
         let $form = $wrapper.find(this.selector);
@@ -154,112 +267,95 @@ class OperationForm extends Form {
         });
     }
 
-    /**
-     * @inheritDoc
-     */
-    onCreated(data) {
-        // refresh position table.
-        this.positionCrudManager.loadRows();
-
-        this.walletInfo.load();
+    onCreated(entity) {
+        this.table.addRecord(entity);
     }
 }
 
-global.OperationForm = OperationForm;
-
-class WalletInfo {
-    constructor(walletId) {
-        this.walletId = walletId;
-    }
-
+class PositionOperationRowButton extends RowButton {
     /**
-     * Load wallet from server and update header dashboard info.
+     *
+     * @param form {Object}
+     * @param swalOptions {Object}
+     * @param type {string}
+     * @param url {string}
+     * @param eventName {string}
      */
-    load() {
-        InvestmentManagerClient.sendRPC(
-            Routing.generate('wallet_get', {'id': this.walletId}),
-            'GET'
-        ).then((result) => {
-            let wallet = result.item;
+    constructor(form, swalOptions, type, url, eventName) {
+        super('.js-position-' + type, function (e) {
+            e.preventDefault();
 
-            // Dashboard
-            $('.js-wallet-invested').each(function (index, span) {
-                $(span).html('<small>' + wallet.invested.currency.symbol + '</small> ' + wallet.invested.preciseValue.toFixed(2) + '</span>')
-            });
-            $('.js-wallet-net-capital').each(function (index, span) {
-                $(span).html('<small>' + wallet.netCapital.currency.symbol + '</small> ' + wallet.netCapital.preciseValue.toFixed(2) + '</span>')
-            });
-            $('.js-wallet-dividend').each(function (index, span) {
-                $(span).html('<small>' + wallet.dividend.currency.symbol + '</small> ' + wallet.dividend.preciseValue.toFixed(2) + '</span>')
-            });
-            $('.js-wallet-benefits').each(function (index, span) {
-                $(span).html('<small>' + wallet.benefits.currency.symbol + '</small> ' + wallet.benefits.preciseValue.toFixed(2) + '</span>')
-            });
-            $('.js-wallet-pbenefits').each(function (index, span) {
-                $(span).html(wallet.pBenefits.toFixed(2) + '%')
-            });
-            $('.js-wallet-capital').each(function (index, span) {
-                $(span).html('<small>' + wallet.capital.currency.symbol + '</small> ' + wallet.capital.preciseValue.toFixed(2) + '</span>')
-            });
-            $('.js-wallet-margin').each(function (index, span) {
-                $(span).html('<small>' + wallet.capital.currency.symbol + '</small> ' + wallet.capital.preciseValue.toFixed(2) + '</span>')
-            });
-            $('.js-wallet-funds').each(function (index, span) {
-                $(span).html('<small>' + wallet.funds.currency.symbol + '</small> ' + wallet.funds.preciseValue.toFixed(2) + '</span>')
-            });
-            $('.js-wallet-commissions').each(function (index, span) {
-                $(span).html('<small>' + wallet.commissions.currency.symbol + '</small> ' + wallet.commissions.preciseValue.toFixed(2) + '</span>')
-            });
-            $('.js-wallet-interest').each(function (index, span) {
-                $(span).html('<small>' + wallet.interest.currency.symbol + '</small> ' + wallet.interest.preciseValue.toFixed(2) + '</span>')
-            });
-            $('.js-wallet-connection').each(function (index, span) {
-                $(span).html('<small>' + wallet.connection.currency.symbol + '</small> ' + wallet.connection.preciseValue.toFixed(2) + '</span>')
-            });
+            // find entity to edit
+            const $row = $(e.currentTarget).closest('tr');
+            const id = $row.data('id');
 
+            let entity = this.table.getRecord(id);
+            let amount = entity.amount;
 
-            // Dividend projected
-            $('.js-wallet-dividend-projected').each(function (index, span) {
-                $(span).html('<small>' + wallet.dividendProjected.currency.symbol + '</small> ' + wallet.dividendProjected.preciseValue.toFixed(2) + '</span>')
-            });
-            $('.js-wallet-dividend-increase').each(function (index, span) {
-                $(span).html(wallet.dividendProjectedIncrease.toFixed(2))
-            });
-            $('.js-wallet-dividend-increase-bar').each(function (index, span) {
-                // console.log($(span), $(span).val());
-                $(span).css('width', wallet.dividendProjectedIncrease.toFixed(2))
-            });
+            entity.type = type;
+            if (type === 'buy') {
+                entity.amount = '';
+            }
 
-            let year = null;
-            $('.js-wallet-dividend-year').each(function (index, span) {
-                year = $(span).data('year');
-            });
+            return form.display(swalOptions, url, 'create', entity)
+                .then((result) => {
+                    if (result.value) {
+                        let entity = result.value.item;
 
-            let previousYear = null;
-            $('.js-wallet-dividend-previous-year').each(function (index, span) {
-                previousYear = $(span).data('year');
-            });
-
-            $('.js-wallet-dividend-month').each(function (index, span) {
-                let month = $(span).data('month');
-
-                let mIdx = index + 1;
-
-                $('.js-wallet-dividend-year-month-' + mIdx).each(function (index, span) {
-                    let dividend = wallet.dividendProjectedMonths[year][month];
-                    $(span).html('<small>' + dividend.currency.symbol + '</small> ' + dividend.preciseValue.toFixed(2) + '</span>')
+                        eventBus.emit(eventName, null, entity);
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === 'cancel' || result.dismiss === 'close'
+                    ) {
+                        entity.amount = amount;
+                    }
                 });
-
-                $('.js-wallet-dividend-previous-month-' + mIdx).each(function (index, span) {
-                    let dividend = wallet.dividendProjectedMonths[previousYear][month];
-                    $(span).html('<small>' + dividend.currency.symbol + '</small> ' + dividend.preciseValue.toFixed(2) + '</span>')
-                });
-            });
-
-        }).catch((errorsData) => {
-            console.log(errorsData);
         });
     }
 }
 
-global.WalletInfo = WalletInfo;
+class WalletDashboardDividendProjected {
+    setData(wallet) {
+        $('.js-wallet-dividend-projected').each(function (index, span) {
+            $(span).html('<small>' + wallet.dividendProjected.currency.symbol + '</small> ' + wallet.dividendProjected.preciseValue.toFixed(2) + '</span>')
+        });
+        $('.js-wallet-dividend-increase').each(function (index, span) {
+            $(span).html(wallet.dividendProjectedIncrease.toFixed(2))
+        });
+        $('.js-wallet-dividend-increase-bar').each(function (index, span) {
+            // console.log($(span), $(span).val());
+            $(span).css('width', wallet.dividendProjectedIncrease.toFixed(2))
+        });
+
+        let year = null;
+        $('.js-wallet-dividend-year').each(function (index, span) {
+            year = $(span).data('year');
+        });
+
+        let previousYear = null;
+        $('.js-wallet-dividend-previous-year').each(function (index, span) {
+            previousYear = $(span).data('year');
+        });
+
+        $('.js-wallet-dividend-month').each(function (index, span) {
+            let month = $(span).data('month');
+
+            let mIdx = index + 1;
+
+            $('.js-wallet-dividend-year-month-' + mIdx).each(function (index, span) {
+                let dividend = wallet.dividendProjectedMonths[year][month];
+                $(span).html('<small>' + dividend.currency.symbol + '</small> ' + dividend.preciseValue.toFixed(2) + '</span>')
+            });
+
+            $('.js-wallet-dividend-previous-month-' + mIdx).each(function (index, span) {
+                let dividend = wallet.dividendProjectedMonths[previousYear][month];
+                $(span).html('<small>' + dividend.currency.symbol + '</small> ' + dividend.preciseValue.toFixed(2) + '</span>')
+            });
+        });
+    }
+}
+
+global.WalletDashboard = WalletDashboard;
+global.OperationForm = OperationForm;
+global.PositionOperationRowButton = PositionOperationRowButton;
+window.eventBus = eventBus;

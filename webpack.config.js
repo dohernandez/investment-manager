@@ -62,7 +62,7 @@ module.exports = {
         wallet_dashboard: './assets/js/WalletDashboard.js',
         broker_stock_form: './assets/js/BrokerStockForm.js',
         panel_table: './assets/js/PanelTable.js',
-        wallet_dashboard_panel: './assets/js/WalletDashboardPanel.js',
+        wallet_dashboard_panel: './assets/js/WalletDashboard.js',
     },
     output: {
         path: path.resolve(__dirname, 'public', 'build'),
