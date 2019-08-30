@@ -1,6 +1,6 @@
 'use strict';
 
-import Form from "./Components/Form";
+import SwalForm from "./Components/SwalForm";
 import Select2StockTemplate from './Components/Select2StockTemplate';
 import $ from 'jquery';
 import Slider from 'bootstrap-slider';
@@ -11,10 +11,12 @@ import 'select2';
 import './../css/BrokerStockForm.scss';
 import './../css/StockView.scss';
 
+const eventBus = require('js-event-bus')();
+
 /**
  * Form manage how the form should be build when a crud manager invokes a create or an update action.
  */
-class BrokerStockForm extends Form {
+class BrokerStockForm extends SwalForm {
     constructor(swalFormOptionsText, template = '#js-manager-form-template', selector = '.js-entity-create-from') {
         super(swalFormOptionsText, template, selector);
     }

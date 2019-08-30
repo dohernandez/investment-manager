@@ -3,40 +3,40 @@
 {% block stylesheets %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-css.html.twig' %}
+    {% include 'Components/Panel/panel-table-css.html.twig' %}
 
     <link rel="stylesheet" href="{{ asset('build/broker_stock_form.css') }}">
 {%  endblock %}
 
 {% block page_content %}
-    {% include 'Components/ui/crud-manage-table.html.twig' %}
+    {% include 'Components/Panel/panel-table.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-scripts.html.twig' %}
+    {% include 'Components/Panel/panel-table-scripts.html.twig' %}
 
     <script src="{{ asset('build/broker_stock_form.js') }}"></script>
 
-    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' %}
-        {% block create_button_template %}
-            <!-- create button table manager template -->
-            <script type="text/template" id="js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-create-button-template">
-                <form method="post" id="add-stock-form" class="form-horizontal js-entity-add-stock-from">
-                    <button class="js-add-stock-create btn btn-success pull-right">
-                        <i class="fa-plus-circle fa" aria-hidden="true"></i>
-                        {{ create_button_label }}
-                    </button>
-                    <select id="brokerStock" name="stock" required="required" style="width: 30%; margin-right: 10px;"
-                            class="js-broker-stock-autocomplete form-control pull-right"
-                            data-autocomplete-url="{{ path('stock_list') }}">
-                        <option value="" selected="selected">Choose an stock</option>
-                    </select>
-                </form>
-            </script>
-        {% endblock %}
-    {% endembed %}
+{#    {% embed 'Components/ui/crud-manage-table-scripts.html.twig' %}#}
+{#        {% block create_button_template %}#}
+{#            <!-- create button table manager template -->#}
+{#            <script type="text/template" id="js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-create-button-template">#}
+{#                <form method="post" id="add-stock-form" class="form-horizontal js-entity-add-stock-from">#}
+{#                    <button class="js-add-stock-create btn btn-success pull-right">#}
+{#                        <i class="fa-plus-circle fa" aria-hidden="true"></i>#}
+{#                        {{ create_button_label }}#}
+{#                    </button>#}
+{#                    <select id="brokerStock" name="stock" required="required" style="width: 30%; margin-right: 10px;"#}
+{#                            class="js-broker-stock-autocomplete form-control pull-right"#}
+{#                            data-autocomplete-url="{{ path('stock_list') }}">#}
+{#                        <option value="" selected="selected">Choose an stock</option>#}
+{#                    </select>#}
+{#                </form>#}
+{#            </script>#}
+{#        {% endblock %}#}
+{#    {% endembed %}#}
 
     <!-- view title manager template -->
     <script type="text/template" id="js-view-title-template">
@@ -51,135 +51,139 @@
 
     <script>
         $(document).ready(function() {
-            let swalFormOptionsText = {
-                add: {
-                    toastTitleText: '{{ 'Stock was added to the broker successfully.'|trans }}'
-                },
-                delete: {
-                    toastTitleText: '{{ 'Stock was removed from the broker successfully.'|trans }}'
-                }
-            };
-
             // Create page instance
-            let $crudManagerRowBox = $('.{{ js_crud_manage_class|default('js-crud-manage-row-box') }}');
+            let $panelBox = $('.{{ js_panel_class|default('js-panel-box') }}');
 
-            let contentWrapper = $crudManagerRowBox.closest('section');
-            let entityType = $crudManagerRowBox.data('entity-type');
+            let contentWrapper = $panelBox.closest('section');
+            let entityType = $panelBox.data('entity-type');
 
-            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
-            let crudManager = new CRUDManage({
+            // Create panelTable instance @see assets/js/PanelTable.js
+            let panelTable = new PanelTable({
                 entityType: entityType,
                 wrapper: contentWrapper,
-                swalFormOptions: window.swalFormOptions,
-                swalConfirmOptions: window.swalConfirmOptions,
-                toastOptions: window.toastOptions,
                 pagination: true,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
+                    searchTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
                 },
-            });
-
-            // add search input function
-            crudManager.withSearch(function (stocks, search) {
-                if (search.length >= 2) {
-                    let $matches = [];
-
-                    search = search.toUpperCase();
-
-                    $.each(stocks, function (index, stock) {
-                        if (stock.name.toUpperCase().indexOf(search) > -1 ||
-                            stock.symbol.toUpperCase().indexOf(search) > -1 ) {
-
-                            $matches.push(stock);
-                        }
-                    });
-
-                    return $matches;
-                }
-
-                return null;
             });
 
             const form = new BrokerStockForm(
-                swalFormOptionsText,
-                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+                window.swalOptions,
+                panelTable,
+                '#js-panel-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
             );
 
-            crudManager.withForm(form);
-            // add button create
-            crudManager.withCreateButton('.js-add-stock-create', form.addStock);
-
-            // Set up swal confirm options
-            let swalViewOptions = {
-                customClass: {
-                    title: 'swal2-form-title',
-                    content: 'swal2-form-content',
-                },
-                showConfirmButton: false,
-                buttonsStyling: false,
-                width: 700,
-                allowEscapeKey: true,
-                allowOutsideClick: true,
-                showCloseButton: true,
-                position: 'top'
-            };
-
-            // add button view
-            crudManager.withViewButton('.js-entity-view', swalViewOptions, '#js-view-template');
-
-            // add button delete
-            crudManager.withDeleteButton();
-
-            // add button extra
-            // Delegate selector for edit stock dividend
-            $('.js-crud-manage-row-box').closest('section').on(
-                'click',
-                '.js-entity-edit-dividend-yield',
-                function (e) {
-                    e.preventDefault();
-
-                    const $row = $(e.currentTarget).closest('tr');
-                    const id = $row.data('id');
-
-                    window.location = Routing.generate('stock_dividend_index', {'_id': id})
-                }
-            );
-            crudManager.withExtraButton();
-
-            crudManager.setRouteGenerating((entityType, endpoint, id = null) => {
-                let route = '';
+            panelTable.render();
+            panelTable.loadRows(function () {
                 let param = {
                     'id': {{ broker.id }}
                 };
 
-                switch (endpoint) {
-                    case 'list':
-                        route = Routing.generate(entityType + '_list', param);
-
-                        break;
-                    case 'delete':
-                        if (id) {
-                            param['stockId'] = id;
-                        }
-
-                        route = Routing.generate(entityType + '_delete', param);
-
-                        break;
-                    case 'add':
-                        route = Routing.generate(entityType + '_add', param);
-
-                        break;
-                    default:
-                        throw 'Endpoint ' + endpoint + ' not supported';
-                }
-
-                return route
+                return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_list', param);
             });
+            {#let swalFormOptionsText = {#}
+            {#    add: {#}
+            {#        toastTitleText: '{{ 'Stock was added to the broker successfully.'|trans }}'#}
+            {#    },#}
+            {#    delete: {#}
+            {#        toastTitleText: '{{ 'Stock was removed from the broker successfully.'|trans }}'#}
+            {#    }#}
+            {#};#}
 
-            crudManager.render(form.render);
+            // // add search input function
+            // crudManager.withSearch(function (stocks, search) {
+            //     if (search.length >= 2) {
+            //         let $matches = [];
+            //
+            //         search = search.toUpperCase();
+            //
+            //         $.each(stocks, function (index, stock) {
+            //             if (stock.name.toUpperCase().indexOf(search) > -1 ||
+            //                 stock.symbol.toUpperCase().indexOf(search) > -1 ) {
+            //
+            //                 $matches.push(stock);
+            //             }
+            //         });
+            //
+            //         return $matches;
+            //     }
+            //
+            //     return null;
+            // });
+
+            // crudManager.withForm(form);
+            // // add button create
+            // crudManager.withCreateButton('.js-add-stock-create', form.addStock);
+            //
+            // // Set up swal confirm options
+            // let swalViewOptions = {
+            //     customClass: {
+            //         title: 'swal2-form-title',
+            //         content: 'swal2-form-content',
+            //     },
+            //     showConfirmButton: false,
+            //     buttonsStyling: false,
+            //     width: 700,
+            //     allowEscapeKey: true,
+            //     allowOutsideClick: true,
+            //     showCloseButton: true,
+            //     position: 'top'
+            // };
+            //
+            // // add button view
+            // crudManager.withViewButton('.js-entity-view', swalViewOptions, '#js-view-template');
+            //
+            // // add button delete
+            // crudManager.withDeleteButton();
+
+            // add button extra
+            // Delegate selector for edit stock dividend
+            // $('.js-crud-manage-row-box').closest('section').on(
+            //     'click',
+            //     '.js-entity-edit-dividend-yield',
+            //     function (e) {
+            //         e.preventDefault();
+            //
+            //         const $row = $(e.currentTarget).closest('tr');
+            //         const id = $row.data('id');
+            //
+            //         window.location = Routing.generate('stock_dividend_index', {'_id': id})
+            //     }
+            // );
+
+            {#crudManager.setRouteGenerating((entityType, endpoint, id = null) => {#}
+            {#    let route = '';#}
+            {#    let param = {#}
+            {#        'id': {{ broker.id }}#}
+            {#    };#}
+
+            {#    switch (endpoint) {#}
+            {#        case 'list':#}
+            {#            route = Routing.generate(entityType + '_list', param);#}
+
+            {#            break;#}
+            {#        case 'delete':#}
+            {#            if (id) {#}
+            {#                param['stockId'] = id;#}
+            {#            }#}
+
+            {#            route = Routing.generate(entityType + '_delete', param);#}
+
+            {#            break;#}
+            {#        case 'add':#}
+            {#            route = Routing.generate(entityType + '_add', param);#}
+
+            {#            break;#}
+            {#        default:#}
+            {#            throw 'Endpoint ' + endpoint + ' not supported';#}
+            {#    }#}
+
+            {#    return route#}
+            {#});#}
+
+            // crudManager.render(form.render);
         });
     </script>
 
