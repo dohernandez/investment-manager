@@ -38,6 +38,8 @@ class Wallet
 
     public $dividendProjected;
 
+    public $displayDividendProjectedYield;
+
     public $dividendProjectedIncrease;
 
     public $dividendProjectedMonths;
@@ -108,6 +110,12 @@ class Wallet
             }
             $self->dividendProjectedMonths = $dividendProjectedMonths;
         }
+
+        $self->displayDividendProjectedYield = sprintf(
+            '%s (%.2f%%)',
+            $self->dividendProjected,
+            $self->dividendProjected->getValue() * 100 / $wallet->getInvested()->getValue()
+        );
 
         $self->metadata = $wallet->getMetadata();
 

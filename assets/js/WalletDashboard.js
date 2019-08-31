@@ -331,7 +331,8 @@ class PositionOperationRowButton extends RowButton {
 class WalletDashboardDividendProjected {
     setData(wallet) {
         $('.js-wallet-dividend-projected').each(function (index, span) {
-            $(span).html('<small>' + wallet.dividendProjected.currency.symbol + '</small> ' + wallet.dividendProjected.preciseValue.toFixed(2) + '</span>')
+            // $(span).html('<small>' + wallet.dividendProjected.currency.symbol + '</small> ' + wallet.dividendProjected.preciseValue.toFixed(2) + '</span>')
+            $(span).html('<small>' + wallet.displayDividendProjectedYield + '</span>')
         });
         $('.js-wallet-dividend-increase').each(function (index, span) {
             $(span).html(wallet.dividendProjectedIncrease.toFixed(2))
