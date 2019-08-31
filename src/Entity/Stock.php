@@ -158,6 +158,11 @@ class Stock implements Entity
      */
     private $positions;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $notes;
+
     public function __construct()
     {
         $this->dividends = new ArrayCollection();
@@ -638,5 +643,17 @@ class Stock implements Entity
     public function getCurrency(): Currency
     {
         return $this->getMarket()->getCurrency();
+    }
+
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(?string $notes): self
+    {
+        $this->notes = $notes;
+
+        return $this;
     }
 }
