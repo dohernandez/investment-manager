@@ -284,7 +284,6 @@ class Table {
             let displayRecords = _options.records;
 
             if (this.limit) {
-                console.log(_options.records);
                 displayRecords = _options.records.slice(0, this.limit);
             }
 

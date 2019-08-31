@@ -24,6 +24,7 @@
     "babel-loader": "^8.0.5",
     "babel-polyfill": "^6.26.0",
     "bootstrap-slider": "^10.6.1",
+    "canvasjs": "^1.8.0",
     "clean-webpack-plugin": "^2.0.2",
     "css-loader": "^2.1.1",
     "eonasdan-bootstrap-datetimepicker": "^4.17.47",

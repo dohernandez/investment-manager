@@ -233,9 +233,7 @@
                     let $button = $(e.currentTarget);
 
                     if ($button.data('toggle') === 'push-menu') {
-                        positionPanelTable.toggleExpanded();
-                        dividendPanelTable.toggleExpanded();
-                        comingDividendsPanelTable.toggleExpanded();
+                        panel.toggleExpanded();
                     }
                 }
             );

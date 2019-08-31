@@ -7,6 +7,7 @@ import moment from 'moment';
 import Routing from './Components/Routing';
 import InvestmentManagerClient from './Components/InvestmentManagerClient';
 import RowButton from "./Components/RowButton";
+import 'canvasjs/dist/canvasjs';
 
 import 'select2';
 import 'eonasdan-bootstrap-datetimepicker';
@@ -30,6 +31,7 @@ class WalletDashboard {
 
         this.header = new WalletDashboardHeader();
         this.dividenProjected = new WalletDashboardDividendProjected();
+        this.dividenChart = new DividendChart();
 
         eventBus.on("entity_operation_created", this.onCreated.bind(this));
 
@@ -59,6 +61,7 @@ class WalletDashboard {
 
             this.header.setData(wallet);
             this.dividenProjected.setData(wallet);
+            this.dividenChart.setData(wallet);
         });
     }
 
@@ -95,6 +98,14 @@ class WalletDashboard {
     onPositionSearchCleaned() {
         this.dividendPanel.cleanSearch();
         this.operationPanel.cleanSearch();
+    }
+
+    toggleExpanded() {
+        this.positionPanel.toggleExpanded();
+        this.dividendPanel.toggleExpanded();
+        this.comingDividendsPanel.toggleExpanded();
+
+        this.dividenChart.toggleExpanded();
     }
 }
 
@@ -355,6 +366,80 @@ class WalletDashboardDividendProjected {
                 $(span).html('<small>' + dividend.currency.symbol + '</small> ' + dividend.preciseValue.toFixed(2) + '</span>')
             });
         });
+    }
+}
+
+class DividendChart {
+    constructor() {
+        this.chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true,
+            title:{
+                text: "Dividends earned years, months"
+            },
+            axisY: {
+                title: "Euros",
+            },
+            toolTip: {
+                shared: true
+            },
+            legend: {
+                cursor:"pointer",
+                itemclick: this.toggleDataSeries.bind(this)
+            },
+        });
+    }
+
+    setData(wallet) {
+        const dividendValue = function(dividend) {
+            if (!dividend) {
+                return 0;
+            }
+
+            if (!dividend.paid) {
+                return 0;
+            }
+
+            return dividend.paid.preciseValue;
+        };
+
+        let data = [];
+
+        $.each(wallet.metadata.dividends, function (index, dividend) {
+            data.push({
+                type: "column",
+                name: index,
+                legendText: index,
+                showInLegend: true,
+                dataPoints:[
+                    { label: "Jan", y: dividendValue(dividend.months[1]) },
+                    { label: "Feb", y: dividendValue(dividend.months[2]) },
+                    { label: "Mar", y: dividendValue(dividend.months[3]) },
+                    { label: "Apr", y: dividendValue(dividend.months[4]) },
+                    { label: "May", y: dividendValue(dividend.months[5]) },
+                    { label: "Jun", y: dividendValue(dividend.months[6]) },
+                    { label: "Jul", y: dividendValue(dividend.months[7]) },
+                    { label: "Aug", y: dividendValue(dividend.months[8]) },
+                    { label: "Sep", y: dividendValue(dividend.months[9]) },
+                    { label: "Oct", y: dividendValue(dividend.months[10]) },
+                    { label: "Nov", y: dividendValue(dividend.months[11]) },
+                    { label: "Dec", y: dividendValue(dividend.months[12]) },
+                ]
+            });
+        });
+
+        this.chart.options.data = data;
+
+        this.chart.render();
+    }
+
+    toggleDataSeries(e) {
+        e.dataSeries.visible = !(typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible);
+
+        this.chart.render();
+    }
+
+    toggleExpanded() {
+        this.chart.render(true);
     }
 }
 
