@@ -20,6 +20,25 @@ class PositionRepository extends ServiceEntityRepository
         parent::__construct($registry, Position::class);
     }
 
+    /**
+     * @param int $id
+     * @param int $walletId
+     *
+     * @return Position|null Returns a Position object
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getByIdAndWalletId($id, $walletId)
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.wallet = :wallet_id')
+            ->setParameter('wallet_id', $walletId)
+            ->andWhere('p.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
     // /**
     //  * @return Position[] Returns an array of Position objects
     //  */

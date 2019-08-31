@@ -108,7 +108,6 @@ class StockController extends BaseController
         }
 
         try {
-            dump($data);
             $form->submit($data);
         } catch (\Exception $e) {
             dump($e);

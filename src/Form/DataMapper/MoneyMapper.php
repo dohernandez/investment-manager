@@ -41,7 +41,6 @@ class MoneyMapper extends MoneyToLocalizedStringTransformer
         if (!$value instanceof Money) {
             throw new \LogicException('The AccountChoiceType can only be used with Account objects');
         }
-        dump('transform', $value);
 
         return parent::transform($value->getPreciseValue());
     }
@@ -56,8 +55,6 @@ class MoneyMapper extends MoneyToLocalizedStringTransformer
         }
 
         $value = parent::reverseTransform($value);
-
-        dump('reverseTransform', $value);
 
         return Money::from(
             Currency::fromCode($this->currency),

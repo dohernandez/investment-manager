@@ -487,6 +487,10 @@ class PositionDividendForm extends SwalForm {
             let $label = $(group).children('div').first();
             $label.addClass('col-sm-4');
             $label.removeClass('col-sm-3');
+
+            $label = $(group).children('div').last();
+            $label.addClass('col-sm-8');
+            $label.removeClass('col-sm-9');
         });
 
         if (data) {
@@ -514,7 +518,6 @@ class PositionDividendRowButton extends RowButton {
      * @param swalOptions {Object}
      * @param selector {string}
      * @param url {function}
-     * @param eventName {string}
      */
     constructor(form, swalOptions, selector, url) {
         super(selector, function (e) {
@@ -526,7 +529,7 @@ class PositionDividendRowButton extends RowButton {
 
             let entity = this.table.getRecord(id);
 
-            return form.display(swalOptions, url, 'PATCH', entity)
+            return form.display(swalOptions, url(id), 'PATCH', entity)
                 .then((result) => {
                     console.log('PositionDividendRowButton', result);
                     // if (result.value) {

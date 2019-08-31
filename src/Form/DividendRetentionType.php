@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\Position;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\PercentType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -13,11 +12,15 @@ class DividendRetentionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('dividendRetention', PercentType::class, [
+            ->add('dividendRetention', MoneyType::class, [
                 'attr' => [
-                    'placeholder' => 'Enter dividend retention',
+                    'placeholder' => 'Enter value',
                     'autocomplete' => "off",
                 ],
+                'divisor' => 10000,
+                'currency' => 'USD',
+                'precision' => '4',
+                'scale' => 4,
             ])
         ;
     }

@@ -130,8 +130,14 @@
                     confirmTitleText: '{{ 'Dividend retention was deleted successfully.'|trans }}',
                 },
                 '.js-position-dividend-retention',
-                function () {
-                    return '';
+                function (id) {
+                    return Routing.generate(
+                        'wallet_{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}_retention',
+                        {
+                            '_id': {{ wallet.id }},
+                            id,
+                        }
+                    );
                 }
             );
             dividendPanelTable.addRowButton(dividendRetentionRowButton);

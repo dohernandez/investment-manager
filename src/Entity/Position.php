@@ -81,9 +81,9 @@ class Position implements Entity
     private $trades;
 
     /**
-     * In percentage
+     * @var Money
      *
-     * @ORM\Column(type="decimal", precision=11, scale=4, nullable=true)
+     * @ORM\Column(type="money", nullable=true)
      */
     private $dividendRetention;
 
@@ -433,12 +433,12 @@ class Position implements Entity
         return $this;
     }
 
-    public function getDividendRetention(): ?float
+    public function getDividendRetention(): ?Money
     {
         return $this->dividendRetention;
     }
 
-    public function setDividendRetention(?float $dividendRetention): self
+    public function setDividendRetention(?Money $dividendRetention): self
     {
         $this->dividendRetention = $dividendRetention;
 
