@@ -110,7 +110,6 @@ class PositionController extends BaseController
         try {
             $form->submit($data);
         } catch (\Exception $e) {
-            dump($e);
             return $this->json(
                 [
                     'message' => $e->getMessage(),
@@ -133,10 +132,8 @@ class PositionController extends BaseController
         /** @var Entity\Position $position */
         $position = $form->getData();
 
-        dump($position);
-
-//        $em->persist($position);
-//        $em->flush();
+        $em->persist($position);
+        $em->flush();
 
         return $this->createApiResponse(
             [

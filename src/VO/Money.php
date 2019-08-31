@@ -165,7 +165,12 @@ final class Money
         $self = new static();
 
         $self->setCurrency($this->getCurrency());
-        $self->setValue($this->getValue() + $value->getValue());
+
+        if ($this->getPrecision() == $value->getPrecision()) {
+            $self->setValue($this->getValue() + $value->getValue());
+        } else {
+            $self->setValue(($this->getPreciseValue() + $value->getPreciseValue()) * $this->getDivisorBy());
+        }
 
         return $self;
     }
@@ -183,7 +188,12 @@ final class Money
         $self = new static();
 
         $self->setCurrency($this->getCurrency());
-        $self->setValue($this->getValue() - $value->getValue());
+
+        if ($this->getPrecision() == $value->getPrecision()) {
+            $self->setValue($this->getValue() - $value->getValue());
+        } else {
+            $self->setValue(($this->getPreciseValue() - $value->getPreciseValue()) * $this->getDivisorBy());
+        }
 
         return $self;
     }

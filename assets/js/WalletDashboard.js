@@ -497,6 +497,16 @@ class PositionDividendForm extends SwalForm {
             for (const property in data) {
                 let $input = $form.find('#' + property);
 
+                if ('dividendRetention' == property) {
+                    let inputData = data[property];
+
+                    if (inputData !== null) {
+                        $input.val(inputData.preciseValue);
+                    }
+
+                    continue;
+                }
+
                 $input.val(data[property]);
             }
         }
