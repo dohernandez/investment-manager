@@ -34,6 +34,8 @@ class Position
 
     public $title;
 
+    public $openedAt;
+
     static public function fromEntity(Entity\Position $position): self
     {
         $self = new static();
@@ -73,6 +75,8 @@ class Position
         }
 
         $self->title = (string) $position;
+
+        $self->openedAt = $position->getOpenedAt();
 
         return $self;
     }

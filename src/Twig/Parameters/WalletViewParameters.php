@@ -177,6 +177,13 @@ class WalletViewParameters extends AbstractViewParameters
     {
         return [
             [
+                'name' => 'openedAt',
+                'label' => 'Added Date',
+                'render' => 'date',
+                'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
+                'class' => 'js-manager-table-extra-cell-hide',
+            ],
+            [
                 'name' => 'stock.name',
                 'label' => 'Stock',
                 'col_with' => '264',
