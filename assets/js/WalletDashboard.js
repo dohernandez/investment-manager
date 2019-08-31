@@ -33,10 +33,12 @@ class WalletDashboard {
         this.dividenProjected = new WalletDashboardDividendProjected();
         this.dividenChart = new DividendChart();
 
-        eventBus.on("entity_operation_created", this.onCreated.bind(this));
+        eventBus.on("entity_operation_created", this.onOperationCreated.bind(this));
 
         eventBus.on("position_searched", this.onPositionSearched.bind(this));
         eventBus.on("position_search_cleaned", this.onPositionSearchCleaned.bind(this));
+
+        eventBus.on("entity_position_dividend_updated", this.onPositionDividendUpdated.bind(this));
     }
 
     render() {
@@ -85,7 +87,7 @@ class WalletDashboard {
         });
     }
 
-    onCreated() {
+    onOperationCreated() {
         this._loadWallet();
         this._loadPositions();
     }
@@ -106,6 +108,10 @@ class WalletDashboard {
         this.comingDividendsPanel.toggleExpanded();
 
         this.dividenChart.toggleExpanded();
+    }
+
+    onPositionDividendUpdated() {
+        this._loadWallet();
     }
 }
 
@@ -444,7 +450,101 @@ class DividendChart {
     }
 }
 
+class PositionDividendForm extends SwalForm {
+    constructor(swalOptions, table, template = '#js-panel-form-template', selector = '.js-entity-from') {
+        super(swalOptions, template, selector);
+
+        this.table = table;
+
+        eventBus.on("entity_position_dividend_updated", this.onUpdated.bind(this));
+    }
+
+    /**
+     * Defines how inputs inside the form must be parser.
+     *
+     * @param {Object} data
+     * @param $wrapper
+     */
+    onBeforeOpenEditView(data, $wrapper) {
+        let $form = $wrapper.find(this.selector);
+
+        let $controlGroup = $form.find('.box-body').children('div').first();
+
+        let $group = $(
+            '<div class="form-group">' +
+                '<div class="col-sm-3">' +
+                    '<label class="control-label" for="stockName">Stock</label>'+
+                '</div>'+
+                '<div class="input-group">'+
+                    data.stock.name + ' (' + data.stock.symbol +':' + data.stock.market.symbol +')' +
+                '</div>'+
+            '</div>'
+        );
+
+        $controlGroup.prepend($group);
+
+        $controlGroup.find('.form-group').each(function (index, group) {
+            let $label = $(group).children('div').first();
+            $label.addClass('col-sm-4');
+            $label.removeClass('col-sm-3');
+        });
+
+        if (data) {
+            for (const property in data) {
+                let $input = $form.find('#' + property);
+
+                $input.val(data[property]);
+            }
+        }
+    }
+
+    onUpdated(entity, $row) {
+        this.table.replaceRecord(entity, entity.id);
+
+        $row.fadeOut('normal', () => {
+            $row.replaceWith(this.table.createRow(entity));
+        });
+    }
+}
+
+class PositionDividendRowButton extends RowButton {
+    /**
+     *
+     * @param form {Object}
+     * @param swalOptions {Object}
+     * @param selector {string}
+     * @param url {function}
+     * @param eventName {string}
+     */
+    constructor(form, swalOptions, selector, url) {
+        super(selector, function (e) {
+            e.preventDefault();
+
+            // find entity to edit
+            const $row = $(e.currentTarget).closest('tr');
+            const id = $row.data('id');
+
+            let entity = this.table.getRecord(id);
+
+            return form.display(swalOptions, url, 'PATCH', entity)
+                .then((result) => {
+                    console.log('PositionDividendRowButton', result);
+                    // if (result.value) {
+                    //     let entity = result.value.item;
+                    //
+                    //     eventBus.emit(eventName, null, entity);
+                    // }
+                });
+
+            // eventBus.emit('entity_position_dividend_updated', null);
+        });
+    }
+}
+
 global.WalletDashboard = WalletDashboard;
 global.OperationForm = OperationForm;
 global.PositionOperationRowButton = PositionOperationRowButton;
+global.PositionDividendRowButton = PositionDividendRowButton;
+global.PositionDividendForm = PositionDividendForm;
+
 window.eventBus = eventBus;

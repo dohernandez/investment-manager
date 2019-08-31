@@ -433,7 +433,7 @@ class Position implements Entity
         return $this;
     }
 
-    public function getDividendRetention(): float
+    public function getDividendRetention(): ?float
     {
         return $this->dividendRetention;
     }

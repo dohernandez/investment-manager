@@ -48,12 +48,18 @@ class SwalForm {
      * @param {string} swalOptions.titleText
      * @param {string} swalOptions.confirmTitleText
      * @param {string} url
-     * @param {string} action
+     * @param {string} method
      * @param {Object} data Use to pre populate the from.
      *
      * @return {*|Promise|Promise<T | never>}
      */
-    display(swalOptions, url, action, data = null) {
+    display(swalOptions, url, method, data = null) {
+
+        // Keeping backward compatibility
+        if (method === 'create' || method === 'update') {
+            method = method === 'create' ? 'POST' : 'PUT';
+        }
+
         // Build form html base on the template.
         const html = this.html();
 
@@ -79,8 +85,6 @@ class SwalForm {
                 });
 
                 // Sending the data to the server.
-                let method = action === 'create' ? 'POST' : 'PUT';
-
                 return InvestmentManagerClient.sendRPC(url, method, formData)
                 // Catches response error
                     .catch((errorsData) => {

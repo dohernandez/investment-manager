@@ -2,8 +2,8 @@
 
 namespace App\Twig\Parameters;
 
-use App\Entity\Entity;
 use App\Entity\Wallet;
+use App\Form\DividendRetentionType;
 use App\Form\OperationType;
 use App\Form\WalletType;
 
@@ -82,6 +82,7 @@ class WalletViewParameters extends AbstractViewParameters
     public function dashboard(Wallet $wallet, array $context = []): array
     {
         $walletOperationForm = $this->form->create(OperationType::class);
+        $walletPositionDividendForm = $this->form->create(DividendRetentionType::class);
 
         return [
                 'wallet' => $wallet,
@@ -116,6 +117,15 @@ class WalletViewParameters extends AbstractViewParameters
                 'wallet_position_dividend_search_width' => '215px',
                 'wallet_position_dividend_entity_name' => 'position_dividend',
                 'wallet_position_dividend_fields' => $this->getPositionDividendFields(),
+                'wallet_position_dividend_buttons' => [
+                    [
+                        'type' => 'warning',
+                        'jsClass' => 'js-position-dividend-retention',
+                        'icon' => 'fas fa-hand-holding-usd',
+                    ],
+                ],
+                'wallet_position_dividend_form' => $walletPositionDividendForm->createView(),
+
                 'wallet_coming_dividend_entity_name' => 'coming_dividend',
                 'wallet_coming_dividend_fields' => $this->getComingDividendFields(),
             ] + $context;

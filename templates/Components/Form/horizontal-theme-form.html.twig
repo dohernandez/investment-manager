@@ -87,3 +87,15 @@
     {% endif %}
     </div>
 {%- endblock money_widget %}
+
+{% block percent_widget -%}
+    {%- if symbol -%}
+        <div class="input-group">
+            {% set wrapper = false %}
+            {{- block('form_widget_simple') -}}
+            <span class="input-group-addon">{{ symbol|default('%') }}</span>
+        </div>
+    {%- else -%}
+        {{- block('form_widget_simple') -}}
+    {%- endif -%}
+{%- endblock percent_widget %}

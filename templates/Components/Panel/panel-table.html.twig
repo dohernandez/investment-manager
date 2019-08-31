@@ -30,6 +30,7 @@
        ]
     form => form object.
     search_width => Set different width to the search input. Default "248px".
+    swalOptionsVariablePrefix => set different name to the swalOption variables to allow to have multiples form
 #}
 
 {% import 'Components/Macros/table-render.html.twig' as render %}
@@ -180,7 +181,7 @@
 
     <script>
         // Set up swal confirm options
-        let deleteViewOptions = {
+        let {{ swalOptionsVariablePrefix|default('') }}deleteViewOptions = {
             customClass: {
                 confirmButton: 'btn btn-danger',
                 cancelButton: 'btn btn-default',
@@ -202,7 +203,7 @@
         };
 
         // Set up swal confirm options
-        let swalEditViewOptions = {
+        let {{ swalOptionsVariablePrefix|default('') }}swalEditViewOptions = {
             customClass: {
                 confirmButton: 'btn btn-danger',
                 cancelButton: 'btn btn-default',
@@ -222,7 +223,7 @@
         };
 
         // Set up toast options, for showing the operation final status at the end.
-        let swalConfirmOptions = {
+        let {{ swalOptionsVariablePrefix|default('') }}swalConfirmOptions = {
             toast: true,
             position: 'top',
             showConfirmButton: false,
@@ -233,7 +234,7 @@
         };
 
         //
-        let swalTextOptions = {
+        let {{ swalOptionsVariablePrefix|default('') }}swalTextOptions = {
             create: {
                 confirmButtonText: '{{ 'Create'|trans }}',
                 titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
@@ -249,11 +250,11 @@
             }
         };
 
-        window.{{ swalOptionsName|default('swalOptions') }} = {
-            editView: swalEditViewOptions,
-            confirm: swalConfirmOptions,
-            deleteView: deleteViewOptions,
-            text: swalTextOptions,
+        window.{{ swalOptionsVariablePrefix|default('') }}swalOptions = {
+            editView: {{ swalOptionsVariablePrefix|default('') }}swalEditViewOptions,
+            confirm: {{ swalOptionsVariablePrefix|default('') }}swalConfirmOptions,
+            deleteView: {{ swalOptionsVariablePrefix|default('') }}deleteViewOptions,
+            text: {{ swalOptionsVariablePrefix|default('') }}swalTextOptions,
         }
     </script>
 {% endif %}

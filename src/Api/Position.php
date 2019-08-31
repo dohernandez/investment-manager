@@ -36,6 +36,8 @@ class Position
 
     public $openedAt;
 
+    public $dividendRetention;
+
     static public function fromEntity(Entity\Position $position): self
     {
         $self = new static();
@@ -77,6 +79,7 @@ class Position
         $self->title = (string) $position;
 
         $self->openedAt = $position->getOpenedAt();
+        $self->dividendRetention = $position->getDividendRetention();
 
         return $self;
     }

@@ -112,6 +112,30 @@
                 showSearchBox: false,
             });
 
+            const PositionDividendswalOptions = window.PositionDividendswalOptions;
+
+            const dividendForm = new PositionDividendForm(
+                PositionDividendswalOptions,
+                dividendPanelTable,
+                '#js-panel-{{ wallet_position_dividend_entity_name|lower|replace({' ': '_'}) }}-form-template',
+            );
+
+            const dividendRetentionRowButton = new PositionDividendRowButton(
+                dividendForm,
+                {
+                    options: PositionDividendswalOptions.editView,
+                    onBeforeOpen: dividendForm.onBeforeOpenEditView.bind(dividendForm),
+                    confirmButtonText: PositionDividendswalOptions.text.update.confirmButtonText,
+                    titleText: '{{ 'Update dividend retention'|trans }}',
+                    confirmTitleText: '{{ 'Dividend retention was deleted successfully.'|trans }}',
+                },
+                '.js-position-dividend-retention',
+                function () {
+                    return '';
+                }
+            );
+            dividendPanelTable.addRowButton(dividendRetentionRowButton);
+
 
             // Create dividend panel instance
             let $operationPanelBox = $('.js-operation-panel-box');
@@ -139,15 +163,16 @@
                 showSearchBox: false,
             });
 
-            const swalOperationOptions = window.swalOperationOptions;
+            const OperationswalOptions = window.OperationswalOptions;
             const urlCreateOperation = Routing.generate(
                 'wallet_{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}_new',
                 {'_id': {{ wallet.id }}}
             );
             const createOperationEventName = 'entity_operation_created';
 
+            // create operation form
             const operationForm = new OperationForm(
-                swalOperationOptions,
+                OperationswalOptions,
                 operationPanelTable,
                 '#js-panel-{{ wallet_operation_entity_name|lower|replace({' ': '_'}) }}-form-template',
             );
@@ -168,11 +193,11 @@
             positionPanelTable.addButton(createButton);
 
             const swalOptionsCreateOperation = {
-                options: swalOperationOptions.editView,
+                options: OperationswalOptions.editView,
                 onBeforeOpen: operationForm.onBeforeOpenEditView.bind(operationForm),
-                confirmButtonText: swalOperationOptions.text.create.confirmButtonText,
-                titleText: swalOperationOptions.text.create.titleText,
-                confirmTitleText: swalOperationOptions.text.create.confirmTitleText,
+                confirmButtonText: OperationswalOptions.text.create.confirmButtonText,
+                titleText: OperationswalOptions.text.create.titleText,
+                confirmTitleText: OperationswalOptions.text.create.confirmTitleText,
             };
 
             $.each(['dividend', 'buy', 'sell'], function (index, type) {
