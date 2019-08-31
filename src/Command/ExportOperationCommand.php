@@ -59,7 +59,7 @@ class ExportOperationCommand extends Command
         }
 
         $filepath = $input->getArgument('filepath');
-        $writer = Writer::createFromPath($filepath);
+        $writer = Writer::createFromPath($filepath, 'c+');
 
         $operations = $this->operationRepository->findBy([
             'wallet' => $wallet,
@@ -78,6 +78,7 @@ class ExportOperationCommand extends Command
                 Operation::TYPE_SELL,
                 Operation::TYPE_BUY,
                 Operation::TYPE_DIVIDEND,
+                Operation::TYPE_SPLIT_REVERSE,
             ])) {
                 $record[] = $operation->getStock()->getName();
             } else {
@@ -86,23 +87,38 @@ class ExportOperationCommand extends Command
 
             $record[] = $this->convertType($oType);
 
+            switch ($oType) {
+                case Operation::TYPE_SELL:
+                case Operation::TYPE_BUY:
+                        $record[] = $operation->getAmount();
+                        $record[] = $operation->getPrice() ? $operation->getPrice()->getPreciseValue() : 0;
+                        $record[] = $operation->getPriceChange() ? $operation->getPriceChange()->getPreciseValue() : 0;
+                        $record[] = $operation->getPriceChangeCommission() ? $operation->getPriceChangeCommission()->getPreciseValue() : 0;
+                        $record[] = $operation->getValue() ? $operation->getValue()->getPreciseValue() : 0;
+                        $record[] = $operation->getCommission() ? $operation->getCommission()->getPreciseValue() : 0;
+                    break;
+                case Operation::TYPE_SPLIT_REVERSE:
+                        $record[] = $operation->getAmount();
+                        $record[] = '';
+                        $record[] = '';
+                        $record[] = '';
+                        $record[] = '';
+                        $record[] = '';
+                    break;
+                default:
+                    $record[] = '';
+                    $record[] = '';
+                    $record[] = '';
+                    $record[] = '';
+                    $record[] = $operation->getValue() ? $operation->getValue()->getPreciseValue() : 0;
+                    $record[] = '';
+            }
+
             if (in_array($oType, [
                 Operation::TYPE_SELL,
                 Operation::TYPE_BUY,
             ])) {
-                $record[] = $operation->getAmount();
-                $record[] = $operation->getPrice() ? $operation->getPrice()->getPreciseValue() : 0;
-                $record[] = $operation->getPriceChange() ? $operation->getPriceChange()->getPreciseValue() : 0;
-                $record[] = $operation->getPriceChangeCommission() ? $operation->getPriceChangeCommission()->getPreciseValue() : 0;
-                $record[] = $operation->getValue() ? $operation->getValue()->getPreciseValue() : 0;
-                $record[] = $operation->getCommission() ? $operation->getCommission()->getPreciseValue() : 0;
             } else {
-                $record[] = '';
-                $record[] = '';
-                $record[] = '';
-                $record[] = '';
-                $record[] = $operation->getValue() ? $operation->getValue()->getPreciseValue() : 0;
-                $record[] = '';
             }
 
             $writer->insertOne($record);
@@ -129,6 +145,8 @@ class ExportOperationCommand extends Command
                 return 'Interés';
             case Operation::TYPE_DIVIDEND:
                 return 'Dividendo';
+            case Operation::TYPE_SPLIT_REVERSE:
+                return 'Split/Reverse';
         }
 
         throw new \LogicException('type ' . $type . ' not supported');

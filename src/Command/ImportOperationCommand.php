@@ -102,6 +102,7 @@ class ImportOperationCommand extends Command
                 Operation::TYPE_BUY,
                 Operation::TYPE_SELL,
                 Operation::TYPE_DIVIDEND,
+                Operation::TYPE_SPLIT_REVERSE,
             ])) {
                 $stock = $this->stockRepository->findOneBy(['name' => $record[2]]);
                 if ($stock === null) {

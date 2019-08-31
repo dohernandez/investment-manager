@@ -489,41 +489,41 @@ class Wallet implements Entity
                         $this->increaseCommissions($operation->getFinalCommissionPaid());
                     break;
                 case Operation::TYPE_DIVIDEND:
-                    $this->increaseFunds($netValue);
-                    $this->increaseDividend($netValue);
+                        $this->increaseFunds($netValue);
+                        $this->increaseDividend($netValue);
 
-                    // update metadata dividend paid
-                    $lastPaidDividend = $operation->getStock()->lastPaidDividendAtDate($operation->getDateAt());
-                    if ($lastPaidDividend) {
-                        $year = $lastPaidDividend->getExDate()->format('Y');
-                        $month = $lastPaidDividend->getExDate()->format('m');
-                    } else {
-                        $year = $operation->getDateAt()->format('Y');
-                        $month = $operation->getDateAt()->format('m');
-                    }
+                        // update metadata dividend paid
+                        $lastPaidDividend = $operation->getStock()->lastPaidDividendAtDate($operation->getDateAt());
+                        if ($lastPaidDividend) {
+                            $year = $lastPaidDividend->getExDate()->format('Y');
+                            $month = $lastPaidDividend->getExDate()->format('m');
+                        } else {
+                            $year = $operation->getDateAt()->format('Y');
+                            $month = $operation->getDateAt()->format('m');
+                        }
 
-                    $metadata = $this->getMetadata();
-                    if ($metadata === null) {
-                        $metadata = new WalletMetadata();
-                    }
+                        $metadata = $this->getMetadata();
+                        if ($metadata === null) {
+                            $metadata = new WalletMetadata();
+                        }
 
-                    // Setting dividend year metadata
-                    $dividendYearMetadata = $metadata->getDividendYear($year);
-                    if ($dividendYearMetadata === null) {
-                        $dividendYearMetadata = WalletDividendYearMetadata::fromYear($year);
-                    }
-                    $dividendYearMetadata = $dividendYearMetadata->increasePaid($netValue);
+                        // Setting dividend year metadata
+                        $dividendYearMetadata = $metadata->getDividendYear($year);
+                        if ($dividendYearMetadata === null) {
+                            $dividendYearMetadata = WalletDividendYearMetadata::fromYear($year);
+                        }
+                        $dividendYearMetadata = $dividendYearMetadata->increasePaid($netValue);
 
-                    // Setting dividend month metadata
-                    $dividendMonthMetadata = $dividendYearMetadata->getDividendMonth($month);
-                    if ($dividendMonthMetadata === null) {
-                        $dividendMonthMetadata = WalletDividendMonthMetadata::fromMonth($month);
-                    }
-                    $dividendMonthMetadata = $dividendMonthMetadata->increasePaid($netValue);
+                        // Setting dividend month metadata
+                        $dividendMonthMetadata = $dividendYearMetadata->getDividendMonth($month);
+                        if ($dividendMonthMetadata === null) {
+                            $dividendMonthMetadata = WalletDividendMonthMetadata::fromMonth($month);
+                        }
+                        $dividendMonthMetadata = $dividendMonthMetadata->increasePaid($netValue);
 
-                    $dividendYearMetadata = $dividendYearMetadata->setDividendMonth($month, $dividendMonthMetadata);
+                        $dividendYearMetadata = $dividendYearMetadata->setDividendMonth($month, $dividendMonthMetadata);
 
-                    $this->setMetadata($metadata->setDividendYear($year, $dividendYearMetadata));
+                        $this->setMetadata($metadata->setDividendYear($year, $dividendYearMetadata));
                     break;
                 case Operation::TYPE_INTEREST:
                         $this->decreaseFunds($netValue);
