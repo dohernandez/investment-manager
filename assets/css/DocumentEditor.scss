@@ -137,3 +137,8 @@ Preserve the relative scale, though. */
   margin-left: calc( 2 * var(--ck-spacing-large) );
   margin-right: calc( 2 * var(--ck-spacing-large) );
 }
+
+/* Unset the min height inherent from the editable panel. */
+.document-editor .ck-content .image>figcaption {
+  min-height: unset;
+}

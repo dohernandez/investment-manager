@@ -9,7 +9,27 @@ class DocumentEditor {
         this.editor = null;
 
         let self = this;
-        DecoupledEditor.create(document.querySelector(editorSelector))
+        DecoupledEditor.create(document.querySelector(editorSelector), {
+            ckfinder: {
+                // The URL that the images are uploaded to.
+                uploadUrl: '/v1/upload/image',
+            },
+            image: {
+                // You need to configure the image toolbar, too, so it uses the new style buttons.
+                toolbar: [ 'imageStyle:alignLeft', 'imageStyle:full', 'imageStyle:alignRight' ],
+
+                styles: [
+                    // This option is equal to a situation where no style is applied.
+                    'full',
+
+                    // This represents an image aligned to the left.
+                    'alignLeft',
+
+                    // This represents an image aligned to the right.
+                    'alignRight'
+                ]
+            }
+        })
             .then( editor => {
                 const toolbarContainer = document.querySelector(toolbarSelector);
 
