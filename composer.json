@@ -26,7 +26,6 @@
         "friendsofsymfony/jsrouting-bundle": "^2.3",
         "incenteev/composer-parameter-handler": "^2.0",
         "kevinpapst/adminlte-bundle": "^2.0",
-        "kms/froala-editor-bundle": "v2.9.4",
         "knplabs/knp-menu-bundle": "^2.2",
         "league/csv": "^9.0",
         "sensio/framework-extra-bundle": "^5.0.0",

@@ -3,5 +3,5 @@ twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
 
-    form_themes:
-        - '@KMSFroalaEditor/Form/froala_widget.html.twig'
+#    form_themes:
+#        - '@FOSCKEditor/Form/ckeditor_widget.html.twig'

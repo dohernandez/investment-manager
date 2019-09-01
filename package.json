@@ -15,12 +15,13 @@
     "start": "NODE_ENV=development webpack-dev-server --open",
     "production": "NODE_ENV=production webpack"
   },
-  "dependencies": {
-    "twbs-pagination": "^1.4.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
+    "@ckeditor/ckeditor5-build-classic": "^12.4.0",
+    "twbs-pagination": "^1.4.1",
+    "@ckeditor/ckeditor5-build-decoupled-document": "^12.4.0",
     "babel-loader": "^8.0.5",
     "babel-polyfill": "^6.26.0",
     "bootstrap-slider": "^10.6.1",

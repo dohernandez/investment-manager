@@ -31,3 +31,15 @@
         </div>
     </div>
 {%- endblock date_widget -%}
+
+{%- block _notes_widget -%}
+    <div class="document-editor">
+        <div class="document-editor__toolbar"></div>
+        <div class="document-editor__editable-container">
+            <div class="document-editor__editable">
+
+            </div>
+        </div>
+    </div>
+    {{ block('hidden_widget') }}
+{%- endblock _notes_widget -%}

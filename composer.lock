@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7f89c6219fca9e8de4a5ff4433241c00",
+    "content-hash": "d4d5adb517bf7f55cc37e9d862f3a056",
     "packages": [
         {
             "name": "behat/transliterator",
@@ -1857,58 +1857,6 @@
             ],
             "description": "Admin theme bundle for Symfony 4 based on AdminLTE 2.4.8 with FOSUserBundle support",
             "time": "2019-08-08T08:09:47+00:00"
-        },
-        {
-            "name": "kms/froala-editor-bundle",
-            "version": "v2.9.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/froala/KMSFroalaEditorBundle.git",
-                "reference": "a51f2328d6eb4f4ed9f768465798fe8403eb4929"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/froala/KMSFroalaEditorBundle/zipball/a51f2328d6eb4f4ed9f768465798fe8403eb4929",
-                "reference": "a51f2328d6eb4f4ed9f768465798fe8403eb4929",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.3.3|^7.0",
-                "symfony/form": "^2.3|^3.0|^4.0",
-                "symfony/framework-bundle": "^2.3|^3.0|^4.0",
-                "twig/twig": "^1.1|^2.0"
-            },
-            "require-dev": {
-                "symfony/twig-bundle": "^2.3|^3.0|^4.0",
-                "symfony/yaml": "^2.3|^3.0|^4.0"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "KMS\\FroalaEditorBundle\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Simon Guionniere",
-                    "email": "simon.guionniere@gmail.com"
-                },
-                {
-                    "name": "Stefan Neculai",
-                    "email": "stefan.neculai@gmail.com"
-                }
-            ],
-            "description": "Provides a Froala editor integration for Symfony 2/3/4.",
-            "keywords": [
-                "editor",
-                "froala",
-                "wysiwyg"
-            ],
-            "time": "2019-04-09T13:07:20+00:00"
         },
         {
             "name": "knplabs/knp-menu",

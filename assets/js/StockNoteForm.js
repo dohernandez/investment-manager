@@ -2,6 +2,7 @@
 
 import SwalForm from "./Components/SwalForm";
 import StockNoteRowButton from './Components/StockNoteRowButton';
+import DocumentEditor from "./Components/DocumentEditor";
 
 class StockNoteForm extends SwalForm {
     constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
@@ -21,8 +22,25 @@ class StockNoteForm extends SwalForm {
     onBeforeOpenEditView(data, $wrapper) {
         if (data) {
             let $form = $wrapper.find(this.selector);
+
             for (const property in data) {
                 let $input = $form.find('#' + property);
+
+                if (property === 'notes') {
+                    new DocumentEditor(data[property]);
+                    // ClassicEditor.create(document.querySelector( '#notes' ), {
+                    //     initialData: data[property],
+                    //     minHeight: '300px',
+                    // })
+                    //     .then( editor => {
+                    //         console.log( editor );
+                    //     } )
+                    //     .catch( error => {
+                    //         console.error( error );
+                    //     });
+
+                    continue;
+                }
 
                 $input.val(data[property]);
             }
