@@ -25,7 +25,7 @@
 
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
 
-    <script src="{{ asset('build/wallet_dashboard.js') }}"></script>
+    <script type="text/javascript"  src="{{ asset('build/wallet_dashboard.js') }}"></script>
 
     <script>
         $(document).ready(function() {
@@ -85,6 +85,42 @@
                 }
             });
 
+            // create stock note form
+            const positionStockNoteswalOptions = window.StockNoteswalOptions;
+
+            // It is use PositionStockNoteForm which translate the position into stock and vise-versa
+            const stockNoteForm = new PositionStockNoteForm(
+                positionStockNoteswalOptions,
+                positionPanelTable,
+                '#js-panel-{{ stock_note_entity_name|lower|replace({' ': '_'}) }}-form-template',
+            );
+
+            const positionStockNoteButtonSwalOptions = {
+                options: positionStockNoteswalOptions.editView,
+                onBeforeOpen: stockNoteForm.onBeforeOpenEditView.bind(stockNoteForm),
+                confirmButtonText: positionStockNoteswalOptions.text.update.confirmButtonText,
+                titleText: positionStockNoteswalOptions.text.update.titleText,
+                confirmTitleText: positionStockNoteswalOptions.text.update.confirmTitleText,
+            };
+            positionStockNoteButtonSwalOptions.options.width = '80%';
+
+            const stockNoteRowButton = new StockNoteRowButton(
+                stockNoteForm,
+                positionStockNoteButtonSwalOptions,
+                function (position) {
+                    let id = position.stock.id;
+
+                    return Routing.generate(
+                        '{{ stock_note_entity_name|lower|replace({' ': '_'}) }}_edit',
+                        {
+                            id,
+                        }
+                    );
+                },
+                '.js-stock-note',
+            );
+            positionPanelTable.addRowButton(stockNoteRowButton);
+
 
             // Create dividend panel instance
             let $dividendPanelBox = $('.js-position-dividend-panel-box');
@@ -114,6 +150,7 @@
 
             const PositionDividendswalOptions = window.PositionDividendswalOptions;
 
+            // dividend form
             const dividendForm = new PositionDividendForm(
                 PositionDividendswalOptions,
                 dividendPanelTable,

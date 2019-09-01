@@ -1,6 +1,7 @@
 'use strict';
 
 import SwalForm from "./Components/SwalForm";
+import StockNoteForm from "./StockNoteForm";
 import Select2StockTemplate from './Components/Select2StockTemplate';
 import $ from 'jquery';
 import moment from 'moment';
@@ -541,16 +542,26 @@ class PositionDividendRowButton extends RowButton {
 
             return form.display(swalOptions, url(id), 'PATCH', entity)
                 .then((result) => {
-                    console.log('PositionDividendRowButton', result);
-                    // if (result.value) {
-                    //     let entity = result.value.item;
-                    //
-                    //     eventBus.emit(eventName, null, entity);
-                    // }
+                    console.log('TODO: update the dashboard.', result);
                 });
-
-            // eventBus.emit('entity_position_dividend_updated', null);
         });
+    }
+}
+
+class PositionStockNoteForm extends StockNoteForm {
+    display(swalOptions, url, method, entity) {
+        let stock = entity.stock;
+
+        return super.display(swalOptions, url, method, stock)
+    }
+
+    onUpdated(entity, $row) {
+        const id = $row.data('id');
+
+        let position = this.table.getRecord(id);
+        position.stock = entity;
+
+        super.onUpdated(position, $row);
     }
 }
 
@@ -559,5 +570,6 @@ global.OperationForm = OperationForm;
 global.PositionOperationRowButton = PositionOperationRowButton;
 global.PositionDividendRowButton = PositionDividendRowButton;
 global.PositionDividendForm = PositionDividendForm;
+global.PositionStockNoteForm = PositionStockNoteForm;
 
 window.eventBus = eventBus;

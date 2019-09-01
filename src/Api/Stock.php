@@ -50,6 +50,8 @@ class Stock
 
     public $industry;
 
+    public $notes;
+
     public $title;
 
     static public function fromEntity(Entity\Stock $stock): self
@@ -93,6 +95,8 @@ class Stock
         if ($self->preClose && $self->preClose->getValue()) {
             $self->changePercentage = round($self->change->getValue() * 100 / $self->preClose->getValue(), 3);
         }
+
+        $self->notes = $stock->getNotes();
 
         $self->title = (string) $stock;
 
