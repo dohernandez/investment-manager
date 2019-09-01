@@ -23,8 +23,9 @@ class StockNoteRowButton extends RowButton {
             const id = $row.data('id');
 
             let entity = this.table.getRecord(id);
+            let index = entity.index;
 
-            form.display(swalOptions, url(id), 'PATCH', entity)
+            form.display(swalOptions, url(entity), 'PATCH', entity)
                 .then((result) => {
                     if (result.value) {
                         let entity = result.value.item;

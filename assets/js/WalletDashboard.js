@@ -550,9 +550,9 @@ class PositionDividendRowButton extends RowButton {
 
 class PositionStockNoteForm extends StockNoteForm {
     display(swalOptions, url, method, entity) {
-        entity = entity.stock;
+        let stock = entity.stock;
 
-        return super.display(swalOptions, url, method, entity)
+        return super.display(swalOptions, url, method, stock)
     }
 
     onUpdated(entity, $row) {
@@ -560,6 +560,8 @@ class PositionStockNoteForm extends StockNoteForm {
 
         let position = this.table.getRecord(id);
         position.stock = entity;
+
+        super.onUpdated(position, $row);
     }
 }
 

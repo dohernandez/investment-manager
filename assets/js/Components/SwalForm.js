@@ -76,35 +76,13 @@ class SwalForm {
                 swalOptions.onBeforeOpen(data, $modal);
             },
             preConfirm: () => {
-                // Getting form data.
-                const $form = $(swalForm.getContainer()).find(this.selector);
-                const formData = {};
+                const $modal = $(swalForm.getContainer()).find('.swal2-modal');
 
-                $.each($form.serializeArray(), (key, fieldData) => {
-                    formData[fieldData.name] = fieldData.value
-                });
+                if (swalOptions.preConfirm) {
+                    return swalOptions.preConfirm($modal, url, method);
+                }
 
-                // Sending the data to the server.
-                return InvestmentManagerClient.sendRPC(url, method, formData)
-                // Catches response error
-                    .catch((errorsData) => {
-                        let $swalValidationMessage = $('#swal2-validation-message');
-                        $swalValidationMessage.empty();
-
-                        if (errorsData.errors) {
-                            this.mapErrors($form, errorsData.errors);
-
-                            return false;
-                        }
-
-                        if (errorsData.message) {
-                            $swalValidationMessage.append(
-                                $('<span></span>').html(errorsData.message)
-                            ).show()
-                        }
-
-                        return false;
-                    });
+                return this.preConfirm($modal, url, method);
             },
         }).then((result) => {
             // Show popup with success message
@@ -152,6 +130,38 @@ class SwalForm {
      */
     onBeforeOpenEditView(data, $wrapper) {
         console.log('onBeforeOpenEditView');
+    }
+
+    preConfirm($wrapper, url, method) {
+        // Getting form data.
+        const $form = $wrapper.find(this.selector);
+        const formData = {};
+
+        $.each($form.serializeArray(), (key, fieldData) => {
+            formData[fieldData.name] = fieldData.value
+        });
+
+        // Sending the data to the server.
+        return InvestmentManagerClient.sendRPC(url, method, formData)
+        // Catches response error
+            .catch((errorsData) => {
+                let $swalValidationMessage = $('#swal2-validation-message');
+                $swalValidationMessage.empty();
+
+                if (errorsData.errors) {
+                    this.mapErrors($form, errorsData.errors);
+
+                    return false;
+                }
+
+                if (errorsData.message) {
+                    $swalValidationMessage.append(
+                        $('<span></span>').html(errorsData.message)
+                    ).show()
+                }
+
+                return false;
+            });
     }
 
     mapErrors($form, errorData) {

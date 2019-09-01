@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Api;
 use App\Entity;
+use App\Form\StockNoteType;
 use App\Form\StockType;
 use App\Repository\StockRepository;
 use App\Scrape\YahooStockScraper;
@@ -110,7 +111,6 @@ class StockController extends BaseController
         try {
             $form->submit($data);
         } catch (\Exception $e) {
-            dump($e);
             return $this->json(
                 [
                     'message' => $e->getMessage(),
@@ -132,6 +132,7 @@ class StockController extends BaseController
 
         /** @var Entity\Stock $stock */
         $stock = $form->getData();
+//        dump($stock);
 
         $em->persist($stock);
         $em->flush();
@@ -210,5 +211,22 @@ class StockController extends BaseController
                 'item' => Api\Stock::fromEntity($stock),
             ]
         );
+    }
+
+    /**
+     * @Route("/{id}", name="stock_note_edit", methods={"PATCH"}, options={"expose"=true})
+     *
+     * @param Entity\Stock $stock
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     *
+     * @return Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function editStockNote(Entity\Stock $stock, EntityManagerInterface $em, Request $request): Response
+    {
+        $form = $this->createForm(StockNoteType::class, $stock);
+
+        return $this->save($form, $em, $request);
     }
 }

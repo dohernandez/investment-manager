@@ -15,12 +15,21 @@ class DocumentEditor {
 
                 toolbarContainer.appendChild(editor.ui.view.toolbar.element);
 
-                self.editor = editor;
-                self.editor.setData(data);
+                editor.setData(data);
+
+                self.setEditor(editor);
             } )
             .catch( err => {
                 console.error( err );
             } );
+    }
+
+    setEditor(editor) {
+        this.editor = editor;
+    }
+
+    getData() {
+        return this.editor.getData();
     }
 }
 

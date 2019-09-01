@@ -102,13 +102,20 @@
                 titleText: positionStockNoteswalOptions.text.update.titleText,
                 confirmTitleText: positionStockNoteswalOptions.text.update.confirmTitleText,
             };
-            positionStockNoteButtonSwalOptions.options.width = 800;
+            positionStockNoteButtonSwalOptions.options.width = '80%';
 
             const stockNoteRowButton = new StockNoteRowButton(
                 stockNoteForm,
                 positionStockNoteButtonSwalOptions,
-                function (id) {
-                    console.log(id);
+                function (position) {
+                    let id = position.stock.id;
+
+                    return Routing.generate(
+                        '{{ stock_note_entity_name|lower|replace({' ': '_'}) }}_edit',
+                        {
+                            id,
+                        }
+                    );
                 },
                 '.js-stock-note',
             );

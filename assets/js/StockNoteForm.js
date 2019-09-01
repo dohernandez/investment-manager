@@ -9,6 +9,7 @@ class StockNoteForm extends SwalForm {
         super(swalOptions, template, selector);
 
         this.table = table;
+        this.editor = null;
 
         eventBus.on("stock_note_updated", this.onUpdated.bind(this));
     }
@@ -20,31 +21,17 @@ class StockNoteForm extends SwalForm {
      * @param $wrapper
      */
     onBeforeOpenEditView(data, $wrapper) {
-        if (data) {
-            let $form = $wrapper.find(this.selector);
+        let notes = data['notes'] ? data['notes'] : '';
+        this.editor = new DocumentEditor(notes);
+    }
 
-            for (const property in data) {
-                let $input = $form.find('#' + property);
+    preConfirm($wrapper, url, method) {
+        let $form = $wrapper.find(this.selector);
 
-                if (property === 'notes') {
-                    new DocumentEditor(data[property]);
-                    // ClassicEditor.create(document.querySelector( '#notes' ), {
-                    //     initialData: data[property],
-                    //     minHeight: '300px',
-                    // })
-                    //     .then( editor => {
-                    //         console.log( editor );
-                    //     } )
-                    //     .catch( error => {
-                    //         console.error( error );
-                    //     });
+        let $inputNote = $form.find('#notes');
+        $inputNote.val(this.editor.getData());
 
-                    continue;
-                }
-
-                $input.val(data[property]);
-            }
-        }
+        return super.preConfirm($wrapper, url, method);
     }
 
     onUpdated(entity, $row) {
