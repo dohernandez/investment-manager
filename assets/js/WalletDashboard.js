@@ -138,7 +138,7 @@ class WalletDashboardHeader {
             $(span).html('<small>' + wallet.capital.currency.symbol + '</small> ' + wallet.capital.preciseValue.toFixed(2) + '</span>')
         });
         $('.js-wallet-margin').each(function (index, span) {
-            $(span).html('<small>' + wallet.capital.currency.symbol + '</small> ' + wallet.capital.preciseValue.toFixed(2) + '</span>')
+            $(span).html('<small>' + wallet.margin.currency.symbol + '</small> ' + wallet.margin.preciseValue.toFixed(2) + '</span>')
         });
         $('.js-wallet-funds').each(function (index, span) {
             $(span).html('<small>' + wallet.funds.currency.symbol + '</small> ' + wallet.funds.preciseValue.toFixed(2) + '</span>')

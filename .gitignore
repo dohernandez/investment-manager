@@ -57,3 +57,4 @@ var/data
 resources/import/account.csv
 resources/import/operation.csv
 resources/export/operation.csv
+/public/upload/

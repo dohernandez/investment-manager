@@ -40,6 +40,8 @@ class StockNoteForm extends SwalForm {
         $row.fadeOut('normal', () => {
             $row.replaceWith(this.table.createRow(entity));
         });
+
+        this.table.refresh();
     }
 }
 

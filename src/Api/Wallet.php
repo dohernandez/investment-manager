@@ -20,6 +20,8 @@ class Wallet
 
     public $netCapital;
 
+    public $margin;
+
     public $benefits;
 
     public $pBenefits;
@@ -58,6 +60,7 @@ class Wallet
         $self->invested = $wallet->getInvested();
         $self->capital = $wallet->getCapital();
         $self->netCapital = $wallet->getNetCapital();
+        $self->margin = ($self->netCapital->multiply(0.475))->increase($wallet->getFunds());
 
         $self->benefits = $wallet->getBenefits();
 

@@ -51,6 +51,7 @@ class Table {
         this.sort = _options.sort;
 
         // search
+        this.searchText = '';
         this.searchFunc = _options.searchFunc;
         this.showSearchBox = _options.showSearchBox === true ? !!this.searchFunc : false;
         this.afterCleanSearchFunc = _options.afterCleanSearchFunc;
@@ -449,6 +450,7 @@ class Table {
      * Clean the search
      */
     cleanSearch() {
+        this.searchText = '';
         this.page = 1;
         this.refreshPagination();
     }
@@ -484,6 +486,8 @@ class Table {
      * search.
      */
     search(val) {
+        this.searchText = val;
+
         let matches = this.searchFunc(this.records, val);
         if (matches === null) {
             this.cleanSearch();
@@ -526,6 +530,18 @@ class Table {
         } else {
             this.buttonColWidth = 54;
         }
+    }
+
+    refresh() {
+        const search = this.searchText;
+
+        if (search !== '') {
+            this.search(search);
+
+            return;
+        }
+
+        this.refreshPagination();
     }
 }
 
