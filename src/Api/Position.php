@@ -14,6 +14,10 @@ class Position
 
     public $capital;
 
+    public $pCapital;
+
+    public $displayCapital;
+
     public $invested;
 
     public $dividend;
@@ -46,6 +50,12 @@ class Position
         $self->stock = Stock::fromEntity($position->getStock());
         $self->amount = $position->getAmount();
         $self->capital = $position->getCapital();
+        $self->pCapital = $position->getPercentageCapital();
+        $self->displayCapital = sprintf(
+            '%s (%.2f%%)',
+            $self->capital,
+            $self->pCapital
+        );
         $self->invested = $position->getInvested();
         $self->dividend = $position->getDividend();
 

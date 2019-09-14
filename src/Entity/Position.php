@@ -535,6 +535,10 @@ class Position implements Entity
 
     public function getPercentageBenefits(): ?float
     {
+        if ($this->getBuy()->getValue() ==  0) {
+            return 100;
+        }
+
         $percentage = $this->getBenefits()->getValue() * 100 / $this->getBuy()->getValue();
 
         return $percentage;
@@ -563,6 +567,25 @@ class Position implements Entity
     public function getCapital(): ?Money
     {
         return $this->capital;
+    }
+
+    public function getPercentageCapital(): ?float
+    {
+        $priceBenefits = $this->getSell()
+            ->decrease($this->getBuy())
+        ;
+
+        if ($this->getCapital() !== null) {
+            $priceBenefits = $priceBenefits->increase($this->getCapital());
+        }
+
+        if ($this->getInvested()->getValue() == 0) {
+            return 100;
+        }
+
+        $percentage = $priceBenefits->getValue() * 100 / $this->getInvested()->getValue();
+
+        return $percentage;
     }
 
     public function setCapital(?Money $capital): void

@@ -14,6 +14,8 @@ class Operation
 
     public $capital;
 
+    public $price;
+
     public $value;
 
     public $type;
@@ -31,6 +33,7 @@ class Operation
         $self->id = $operation->getId();
         $self->stock = $operation->getStock() ? Stock::fromEntity($operation->getStock()) : null;
         $self->amount = $operation->getAmount();
+        $self->price = $operation->getPrice();
         $self->value = $operation->getNetValue();
         $self->type = $operation->getType();
         $self->dateAt = $operation->getDateAt();
