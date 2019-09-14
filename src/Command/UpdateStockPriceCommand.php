@@ -2,8 +2,10 @@
 
 namespace App\Command;
 
+use App\Entity\Position;
 use App\Message\StockPriceUpdated;
 use App\Repository\StockRepository;
+use App\Repository\WalletRepository;
 use App\Scrape\YahooStockScraper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -37,10 +39,16 @@ class UpdateStockPriceCommand extends Command
      */
     private $bus;
 
+    /**
+     * @var WalletRepository
+     */
+    private $walletRepository;
+
     public function __construct(
         YahooStockScraper $scraper,
         EntityManagerInterface $em,
         StockRepository $stockRepository,
+        WalletRepository $walletRepository,
         MessageBusInterface $bus
     ) {
         parent::__construct();
@@ -49,6 +57,7 @@ class UpdateStockPriceCommand extends Command
         $this->stockRepository = $stockRepository;
         $this->scraper = $scraper;
         $this->bus = $bus;
+        $this->walletRepository = $walletRepository;
     }
 
     protected function configure()
@@ -56,6 +65,7 @@ class UpdateStockPriceCommand extends Command
         $this
             ->setDescription('Update all stocks price value based on the yahoo website.')
             ->addOption('symbol', 's', InputOption::VALUE_OPTIONAL, 'Stock symbol')
+            ->addOption('wallet', 'w', InputOption::VALUE_OPTIONAL, 'Wallet slug')
         ;
     }
 
@@ -67,6 +77,11 @@ class UpdateStockPriceCommand extends Command
             $stocks = $this->stockRepository->findBy([
                 'symbol' => $symbol,
             ]);
+        } elseif ($wallet = $input->getOption('wallet')) {
+            $stocks = $this->walletRepository->findOneBySlug($wallet)->getPositions('open')->map(function ($position){
+                /** @var Position $position */
+                return $position->getStock();
+            });
         } else {
             $stocks = $this->stockRepository->findAll();
         }
