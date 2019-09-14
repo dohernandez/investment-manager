@@ -175,6 +175,11 @@ class WalletViewParameters extends AbstractViewParameters
                 'check' => 'stock',
             ],
             [
+                'name' => 'price',
+                'render' => 'money',
+                'class' => 'js-manager-table-extra-cell-hide',
+            ],
+            [
                 'name' => 'amount',
                 'label' => 'Amt',
             ],
@@ -231,6 +236,12 @@ class WalletViewParameters extends AbstractViewParameters
                 'name' => 'capital',
                 'render' => 'money',
             ],
+//            [
+//                'name' => 'displayCapital',
+//                'label' => 'capital',
+//                'render' => 'quantity',
+//                'quantity' => 'pCapital',
+//            ],
             [
                 'name' => 'invested',
                 'render' => 'money',
