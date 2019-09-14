@@ -107,6 +107,7 @@ class WalletDashboard {
         this.positionPanel.toggleExpanded();
         this.dividendPanel.toggleExpanded();
         this.comingDividendsPanel.toggleExpanded();
+        this.operationPanel.toggleExpanded();
 
         this.dividenChart.toggleExpanded();
     }
