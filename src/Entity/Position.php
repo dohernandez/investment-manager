@@ -172,6 +172,10 @@ class Position implements Entity
     {
         $this->amount -= $amount;
 
+        if ($this->amount < 0) {
+            $this->amount = 0;
+        }
+
         return $this;
     }
 
@@ -209,6 +213,13 @@ class Position implements Entity
         }
 
         $this->setInvested($this->getInvested()->decrease($invested));
+
+        if ($this->getInvested()->getValue() < 0) {
+            $this->setInvested(Money::fromCurrency(
+                $this->getInvested()->getCurrency(),
+                $this->getInvested()->getPrecision()
+            ));
+        }
 
         return $this;
     }
