@@ -32,7 +32,8 @@ class WalletDashboard {
 
         this.header = new WalletDashboardHeader();
         this.dividenProjected = new WalletDashboardDividendProjected();
-        this.dividenChart = new DividendChart();
+        this.dividenPaidChart = new DividendPaidChart();
+        this.dividendStockChart = new DividendStockChart();
 
         eventBus.on("entity_operation_created", this.onOperationCreated.bind(this));
 
@@ -64,7 +65,8 @@ class WalletDashboard {
 
             this.header.setData(wallet);
             this.dividenProjected.setData(wallet);
-            this.dividenChart.setData(wallet);
+            this.dividenPaidChart.setData(wallet);
+            this.dividendStockChart.setWalletData(wallet);
         });
     }
 
@@ -76,6 +78,7 @@ class WalletDashboard {
             this.positionPanel.setData(result);
             this.dividendPanel.setData(result);
             this.comingDividendsPanel.setData(result);
+            this.dividendStockChart.setPositionsData(result.items);
         });
     }
 
@@ -109,7 +112,7 @@ class WalletDashboard {
         this.comingDividendsPanel.toggleExpanded();
         this.operationPanel.toggleExpanded();
 
-        this.dividenChart.toggleExpanded();
+        this.dividenPaidChart.toggleExpanded();
     }
 
     onPositionDividendUpdated() {
@@ -378,9 +381,9 @@ class WalletDashboardDividendProjected {
     }
 }
 
-class DividendChart {
+class DividendPaidChart {
     constructor() {
-        this.chart = new CanvasJS.Chart("chartContainer", {
+        this.chart = new CanvasJS.Chart("dividend-paid-chart-container", {
             animationEnabled: true,
             title:{
                 text: "Dividends earned years, months"
@@ -563,6 +566,79 @@ class PositionStockNoteForm extends StockNoteForm {
         position.stock = entity;
 
         super.onUpdated(position, $row);
+    }
+}
+
+class DividendStockChart {
+    constructor() {
+        this.chart = new CanvasJS.Chart("dividend-stock-chart-container", {
+            exportEnabled: true,
+            animationEnabled: true,
+            title:{
+                text: "Invested"
+            },
+            legend: {
+                cursor:"pointer",
+                itemclick: DividendStockChart.explodePie
+            },
+        });
+
+        this.walletData = null;
+        this.positionsData = null;
+    }
+
+    setWalletData(wallet) {
+        this.walletData = wallet;
+
+        if (this.walletData !== null && this.positionsData !== null) {
+            this.setData(this.walletData, this.positionsData);
+        }
+    }
+
+    setPositionsData(positions) {
+        this.positionsData = positions;
+
+        if (this.walletData !== null && this.positionsData !== null) {
+            this.setData(this.walletData, this.positionsData);
+        }
+    }
+
+    setData(wallet, positions) {
+        let totalInvested = wallet.invested.value;
+        if (wallet.funds.value < 0){
+            totalInvested += wallet.funds.value * -1
+        }
+
+        let withoutDividendInvested = 0;
+        let withDividendInvested = 0;
+
+        $.each(positions, function (index, position) {
+            if (position.dividend.value > 0){
+                withDividendInvested += position.invested.value;
+            } else {
+                withoutDividendInvested += position.invested.value;
+            }
+        });
+
+        this.chart.options.data = [{
+            type: "pie",
+            showInLegend: true,
+            toolTipContent: "{name}: <strong>{y}%</strong>",
+            indexLabel: "{name} - {y}%",
+            dataPoints: [
+                { y: (withDividendInvested * 100 / totalInvested).toFixed(2), name: "stocks with dividend", exploded: true },
+                { y: (withoutDividendInvested * 100 / totalInvested).toFixed(2), name: "stocks without dividend" },
+            ]
+        }];
+
+        this.chart.render();
+    }
+
+    static explodePie(e) {
+        e.dataSeries.dataPoints[e.dataPointIndex].exploded = typeof (e.dataSeries.dataPoints[e.dataPointIndex].exploded) === "undefined" || !e.dataSeries.dataPoints[e.dataPointIndex].exploded;
+
+        e.chart.render();
+
     }
 }
 
