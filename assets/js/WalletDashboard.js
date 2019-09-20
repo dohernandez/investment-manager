@@ -553,6 +553,15 @@ class PositionDividendRowButton extends RowButton {
 }
 
 class PositionStockNoteForm extends StockNoteForm {
+    onBeforeOpenEditView(data, $wrapper) {
+        let $form = $wrapper.find(this.selector);
+        let $content = $form.parent();
+
+        $content.prepend($('<span>' + data['title'] + '</span>'));
+
+        super.onBeforeOpenEditView(data, $wrapper);
+    }
+
     display(swalOptions, url, method, entity) {
         let stock = entity.stock;
 
