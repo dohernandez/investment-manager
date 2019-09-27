@@ -6,7 +6,7 @@ use App\Api;
 use App\Entity;
 use App\Form\StockDividendType;
 use App\Repository\StockRepository;
-use App\Scrape\NasdaqDividendScraper;
+use App\Service\StockDividendsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -252,7 +252,7 @@ class StockDividendController extends BaseController
     /**
      * @Route("/sync", name="stock_dividend_sync", methods={"GET"}, options={"expose"=true})
      *
-     * @param NasdaqDividendScraper $scraper
+     * @param StockDividendsService $dividendService
      * @param EntityManagerInterface $em
      * @param int $_id
      *
@@ -260,7 +260,7 @@ class StockDividendController extends BaseController
      * @throws \Exception
      */
     public function sync(
-        NasdaqDividendScraper $scraper,
+        StockDividendsService $dividendService,
         EntityManagerInterface $em,
         int $_id
     ): JsonResponse {
@@ -269,7 +269,13 @@ class StockDividendController extends BaseController
             return $this->createApiErrorResponse('Stock not found', Response::HTTP_NOT_FOUND);
         }
 
-        $scraper->updateHistoricalDividend($stock);
+        $stock->removeProjectedAndAnnouncedDividends();
+
+        $stockDividends = $dividendService->getStockDividends($stock);
+
+        foreach ($stockDividends as $stockDividend) {
+            $stock->addDividend($stockDividend);
+        }
 
         $em->persist($stock);
         $em->flush();

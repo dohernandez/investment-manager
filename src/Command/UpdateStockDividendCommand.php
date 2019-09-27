@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Repository\StockRepository;
-use App\Scrape\NasdaqDividendScraper;
+use App\Service\StockDividendsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -27,8 +27,9 @@ class UpdateStockDividendCommand extends Command
     private $stockRepository;
 
     /**
+     * @var StockDividendsService
      */
-    private $scraper;
+    private $stockDividendsService;
 
     /**
      * @var LoggerInterface
@@ -36,7 +37,7 @@ class UpdateStockDividendCommand extends Command
     private $logger;
 
     public function __construct(
-        NasdaqDividendScraper $scraper,
+        StockDividendsService $stockDividendsService,
         EntityManagerInterface $em,
         StockRepository $stockRepository,
         LoggerInterface $logger
@@ -45,7 +46,7 @@ class UpdateStockDividendCommand extends Command
 
         $this->em = $em;
         $this->stockRepository = $stockRepository;
-        $this->scraper = $scraper;
+        $this->stockDividendsService = $stockDividendsService;
         $this->logger = $logger;
     }
 
@@ -75,12 +76,18 @@ class UpdateStockDividendCommand extends Command
             // Update stock price, description and sector or industry if missing
             // values from yahoo sources.
             try {
-                $this->scraper->updateHistoricalDividend($stock);
+                $stock->removeProjectedAndAnnouncedDividends();
+
+                $stockDividends = $this->stockDividendsService->getStockDividends($stock);
+
+                foreach ($stockDividends as $stockDividend) {
+                    $stock->addDividend($stockDividend);
+                }
 
                 $this->em->persist($stock);
             } catch (\Exception $e) {
                 $io->error(sprintf(
-                    'failed scraper update stock %s, error: %s',
+                    'failed update stock %s, error: %s',
                     $stock->getSymbol(),
                     $e->getMessage()
                 ));

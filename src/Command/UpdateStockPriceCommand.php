@@ -45,7 +45,7 @@ class UpdateStockPriceCommand extends Command
     private $walletRepository;
 
     public function __construct(
-        YahooStockScraper $scraper,
+        YahooStockScraper $stockDividendsService,
         EntityManagerInterface $em,
         StockRepository $stockRepository,
         WalletRepository $walletRepository,
@@ -55,7 +55,7 @@ class UpdateStockPriceCommand extends Command
 
         $this->em = $em;
         $this->stockRepository = $stockRepository;
-        $this->scraper = $scraper;
+        $this->scraper = $stockDividendsService;
         $this->bus = $bus;
         $this->walletRepository = $walletRepository;
     }

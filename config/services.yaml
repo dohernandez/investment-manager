@@ -58,3 +58,13 @@ services:
 
     # Classes
     Goutte\Client: ~
+
+    # Interfaces
+    App\Client\DividendsClientInterface: '@dividends.client'
+
+    # Client
+    Symfony\Contracts\HttpClient\HttpClientInterface:
+        factory: ['Symfony\Component\HttpClient\HttpClient', 'create']
+
+    dividends.client:
+        class: App\Client\NasdaqDividendsClient

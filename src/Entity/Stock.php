@@ -632,6 +632,15 @@ class Stock implements Entity
         return $this->value->decrease($this->preClose);
     }
 
+    public function removeProjectedAndAnnouncedDividends(): self
+    {
+        foreach ($this->getProjectedAndAnnouncedDividends() as $stockDividend) {
+            $this->removeDividend($stockDividend);
+        }
+
+        return $this;
+    }
+
     /**
      * @return Collection|StockDividend[]
      */
