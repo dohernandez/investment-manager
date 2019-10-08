@@ -629,6 +629,11 @@ class DividendStockChart {
             }
         });
 
+        console.log("totalInvested" + totalInvested);
+        console.log("withDividendInvested" + withDividendInvested);
+        console.log("withoutDividendInvested" + withoutDividendInvested);
+        console.log("sum" + (withDividendInvested + withoutDividendInvested));
+
         this.chart.options.data = [{
             type: "pie",
             showInLegend: true,

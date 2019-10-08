@@ -96,7 +96,7 @@ class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterfac
                 $positionDividendProjected = $nextDividend->getValue()
                     ->decrease($position->getDividendRetention())
                     ->exchange($wallet->getCurrency(), $exchangeRates);
-                $positionDividendYieldProjected = $positionDividendProjected->getValue() * 4 / $position->getWeightedAvgPrice()->getValue() * 100;
+                $positionDividendYieldProjected = $positionDividendProjected->getValue() * 4 / max($position->getWeightedAvgPrice()->getValue(), 1) * 100;
 
                 $positionMetadata = $position->getMetadata();
                 if ($positionMetadata === null) {

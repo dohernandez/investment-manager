@@ -37,7 +37,7 @@ class PositionMetadata
 
     public function getDividendYield(): float
     {
-        return $this->dividendYield;
+        return min($this->dividendYield, 100);
     }
 
     public function toArray(): array
