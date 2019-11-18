@@ -493,6 +493,7 @@ class Wallet implements Entity
                         $this->increaseDividend($netValue);
 
                         // update metadata dividend paid
+                        // this is to allocate correctly the dividend to the month of the ex date.
                         $lastPaidDividend = $operation->getStock()->lastPaidDividendAtDate($operation->getDateAt());
                         if ($lastPaidDividend) {
                             $year = $lastPaidDividend->getExDate()->format('Y');
