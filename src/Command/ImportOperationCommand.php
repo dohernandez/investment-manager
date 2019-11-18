@@ -157,6 +157,8 @@ class ImportOperationCommand extends Command
                 return Operation::TYPE_INTEREST;
             case 'Dividendo':
                 return Operation::TYPE_DIVIDEND;
+            case 'Split/Reverse':
+                return Operation::TYPE_SPLIT_REVERSE;
         }
 
         throw new \LogicException('type ' . $type . ' not supported');
