@@ -6,6 +6,7 @@
 parameters:
     locale: en
     upload_note_dir: '%kernel.project_dir%/public/upload/notes/files'
+    margin_rate: 0.475
 
 services:
     # default configuration for services in *this* file

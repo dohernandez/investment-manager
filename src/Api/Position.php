@@ -42,6 +42,8 @@ class Position
 
     public $dividendRetention;
 
+    public $displayDividendToPay;
+
     static public function fromEntity(Entity\Position $position): self
     {
         $self = new static();
@@ -79,11 +81,17 @@ class Position
         $self->metadata = $position->getMetadata();
 
         if ($self->metadata !== null) {
-            $self->displayDividendYield = sprintf(
-                '%s (%.2f%%)',
-                $self->metadata->getDividend()->multiply($self->amount),
-                $self->metadata->getDividendYield()
-            );
+            if ($self->metadata->getDividend()) {
+                $self->displayDividendYield = sprintf(
+                    '%s (%.2f%%)',
+                    $self->metadata->getDividend()->multiply($self->amount),
+                    $self->metadata->getDividendYield()
+                );
+            }
+
+            if ($self->metadata->getDividendToPay()) {
+                $self->displayDividendToPay = (string) $self->metadata->getDividendToPay()->multiply($self->amount);
+            }
         }
 
         $self->title = (string) $position;

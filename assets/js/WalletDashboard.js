@@ -22,13 +22,21 @@ const eventBus = require('js-event-bus')();
  * Form manage how the operation form should be build when a crud manager invokes a create or an update action.
  */
 class WalletDashboard {
-    constructor(walletId, positionPanel, dividendPanel, operationPanel, comingDividendsPanel) {
+    constructor(
+        walletId,
+        positionPanel,
+        dividendPanel,
+        operationPanel,
+        comingDividendsPanel,
+        toPayDividendsPanel
+    ) {
         this.walletId = walletId;
 
         this.positionPanel = positionPanel;
         this.dividendPanel = dividendPanel;
         this.operationPanel = operationPanel;
         this.comingDividendsPanel = comingDividendsPanel;
+        this.toPayDividendsPanel = toPayDividendsPanel;
 
         this.header = new WalletDashboardHeader();
         this.dividenProjected = new WalletDashboardDividendProjected();
@@ -48,6 +56,7 @@ class WalletDashboard {
         this.dividendPanel.render();
         this.operationPanel.render();
         this.comingDividendsPanel.render();
+        this.toPayDividendsPanel.render();
     }
 
     load() {
@@ -78,6 +87,7 @@ class WalletDashboard {
             this.positionPanel.setData(result);
             this.dividendPanel.setData(result);
             this.comingDividendsPanel.setData(result);
+            this.toPayDividendsPanel.setData(result);
             this.dividendStockChart.setPositionsData(result.items);
         });
     }
@@ -110,6 +120,7 @@ class WalletDashboard {
         this.positionPanel.toggleExpanded();
         this.dividendPanel.toggleExpanded();
         this.comingDividendsPanel.toggleExpanded();
+        this.toPayDividendsPanel.toggleExpanded();
         this.operationPanel.toggleExpanded();
 
         this.dividenPaidChart.toggleExpanded();

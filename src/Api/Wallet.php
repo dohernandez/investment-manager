@@ -60,7 +60,7 @@ class Wallet
         $self->invested = $wallet->getInvested();
         $self->capital = $wallet->getCapital();
         $self->netCapital = $wallet->getNetCapital();
-        $self->margin = ($self->netCapital->multiply(0.475))->increase($wallet->getFunds());
+        $self->margin = ($self->netCapital->multiply(0.43))->increase($wallet->getFunds());
 
         $self->benefits = $wallet->getBenefits();
 
@@ -114,11 +114,13 @@ class Wallet
             $self->dividendProjectedMonths = $dividendProjectedMonths;
         }
 
-        $self->displayDividendProjectedYield = sprintf(
-            '%s (%.2f%%)',
-            $self->dividendProjected,
-            $self->dividendProjected->getValue() * 100 / $wallet->getInvested()->getValue()
-        );
+        if ($self->dividendProjected) {
+            $self->displayDividendProjectedYield = sprintf(
+                '%s (%.2f%%)',
+                $self->dividendProjected,
+                $self->dividendProjected->getValue() * 100 / $wallet->getInvested()->getValue()
+            );
+        }
 
         $self->metadata = $wallet->getMetadata();
 

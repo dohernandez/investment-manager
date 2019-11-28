@@ -26,6 +26,10 @@ class Stock
 
     public $exDate;
 
+    public $displayToPayDividend;
+
+    public $toPayDate;
+
     public $peRatio;
 
     public $preClose;
@@ -74,6 +78,13 @@ class Stock
                 $nextDividend->getValue(),
                 $self->dividendYield
             );
+        }
+
+        $toPayDividend = $stock->toPayDividend();
+        if ($toPayDividend) {
+            $self->toPayDate = $toPayDividend->getPaymentDate();
+
+            $self->displayToPayDividend = (string) $toPayDividend->getValue();
         }
 
         $self->market = $stock->getMarket() ? Api\StockMarket::fromEntity($stock->getMarket()) : null;

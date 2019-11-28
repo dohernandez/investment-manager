@@ -422,6 +422,31 @@ class Stock implements Entity
         return $matches->first();
     }
 
+    /**
+     * Returns the to pay dividend before time.
+     *
+     * @param string $time
+     *
+     * @return StockDividend|null
+     * @throws \Exception
+     */
+    public function toPayDividend(string $time='now'): ?StockDividend
+    {
+        $nextDate = new \DateTime($time);
+
+        /**
+         * @psalm-var Collection<TKey,StockDividend>
+         * @var Collection $matches
+         */
+        $matches = $this->dividends->matching(StockDividendByCriteria::toPayDividend($nextDate));
+
+        if ($matches->isEmpty()){
+            return null;
+        }
+
+        return $matches->first();
+    }
+
     public function yearDividends(string $time='now'): Collection
     {
         $now = new \DateTime($time);

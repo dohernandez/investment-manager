@@ -49,4 +49,13 @@ class StockDividendByCriteria extends Criteria
             ->setMaxResults(1)
             ;
     }
+
+    public static function toPayDividend(\DateTimeInterface $date)
+    {
+        return Criteria::create()
+            ->andWhere(Criteria::expr()->lte('exDate', $date))
+            ->andWhere(Criteria::expr()->gte('paymentDate', $date))
+            ->orderBy(['paymentDate' => 'ASC'])
+            ;
+    }
 }

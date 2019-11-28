@@ -92,20 +92,32 @@ class UpdateWalletDividendYearProjectedHandler implements MessageHandlerInterfac
             }
 
             $nextDividend = $stock->nextDividend();
-            if ($nextDividend !== null) {
-                $positionDividendProjected = $nextDividend->getValue()
-                    ->decrease($position->getDividendRetention())
-                    ->exchange($wallet->getCurrency(), $exchangeRates);
-                $positionDividendYieldProjected = $positionDividendProjected->getValue() * 4 / max($position->getWeightedAvgPrice()->getValue(), 1) * 100;
-
+            $toPayDividend = $stock->toPayDividend();
+            if ($nextDividend !== null || $toPayDividend !== null) {
                 $positionMetadata = $position->getMetadata();
                 if ($positionMetadata === null) {
                     $positionMetadata = new PositionMetadata();
                 }
 
-                $position->setMetadata(
-                    $positionMetadata->setDividendAndDividendYield($positionDividendProjected, $positionDividendYieldProjected)
-                );
+                if ($nextDividend !== null) {
+                    $positionDividendProjected = $nextDividend->getValue()
+                        ->decrease($position->getDividendRetention())
+                        ->exchange($wallet->getCurrency(), $exchangeRates);
+                    $positionDividendYieldProjected = $positionDividendProjected->getValue() * 4 / max($position->getWeightedAvgPrice()->getValue(), 1) * 100;
+
+                    $positionMetadata = $positionMetadata->setDividendAndDividendYield($positionDividendProjected, $positionDividendYieldProjected);
+                }
+
+                if ($toPayDividend !== null) {
+                    $positionDividendToPay = $toPayDividend->getValue()
+                        ->decrease($position->getDividendRetention())
+                        ->exchange($wallet->getCurrency(), $exchangeRates);
+                    $positionDividendToPayYield = $positionDividendToPay->getValue() * 4 / max($position->getWeightedAvgPrice()->getValue(), 1) * 100;
+
+                    $positionMetadata = $positionMetadata->setDividendToPayAndDividendToPayYield($positionDividendToPay, $positionDividendToPayYield);
+                }
+
+                $position->setMetadata($positionMetadata);
 
                 $this->em->persist($position);
             }

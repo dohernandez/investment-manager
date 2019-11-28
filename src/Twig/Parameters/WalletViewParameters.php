@@ -136,6 +136,9 @@ class WalletViewParameters extends AbstractViewParameters
                 'wallet_coming_dividend_entity_name' => 'coming_dividend',
                 'wallet_coming_dividend_fields' => $this->getComingDividendFields(),
 
+                'wallet_to_pay_dividend_entity_name' => 'to_pay_dividend',
+                'wallet_to_pay_dividend_fields' => $this->getToPayDividendFields(),
+
                 'stock_note_entity_name' => 'stock note',
                 'stock_note_form' => $stockNoteForm->createView(),
             ] + $context;
@@ -323,6 +326,27 @@ class WalletViewParameters extends AbstractViewParameters
             [
                 'name' => 'displayDividendYield',
                 'label' => 'R. D. Yield',
+                'class' => 'js-manager-table-extra-cell-hide',
+            ],
+        ];
+    }
+
+    private function getToPayDividendFields(): array
+    {
+        return [
+            [
+                'name' => 'stock.symbol',
+                'label' => 'Symbol',
+            ],
+            [
+                'name' => 'stock.toPayDate',
+                'label' => 'Payment Date',
+                'render' => 'date',
+                'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
+            ],
+            [
+                'name' => 'displayDividendToPay',
+                'label' => 'To Pay',
                 'class' => 'js-manager-table-extra-cell-hide',
             ],
         ];
