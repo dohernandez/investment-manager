@@ -6,7 +6,7 @@ require dirname(__DIR__).'/vendor/autoload.php';
 
 // To allow to have real data and fake data for dev in the same machine
 // $_SERVER['SERVER_PORT'] == 8000 prod env
-if ($_SERVER['SERVER_PORT'] == 8000) {
+if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 8000) {
     $_ENV['APP_ENV'] = 'prod';
 }
 
