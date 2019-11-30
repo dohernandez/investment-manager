@@ -10,6 +10,10 @@ if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 8000) {
     $_ENV['APP_ENV'] = 'prod';
 }
 
+if (!isset($_ENV['APP_ENV'])) {
+    $_ENV['APP_ENV'] = 'dev';
+}
+
 // Load cached env vars if the .env.local.php file exists
 // Run "composer dump-env prod" to create it (requires symfony/flex >=1.2)
 // $_SERVER['APP_ENV'] != dev
