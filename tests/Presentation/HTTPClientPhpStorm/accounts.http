@@ -1,0 +1,4 @@
+GET http://localhost:8080/v1/accounts/
+Accept: application/json
+
+###
