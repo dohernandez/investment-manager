@@ -22,6 +22,8 @@ doctrine:
             currency: App\DBAL\CurrencyType
             wallet_metadata: App\DBAL\WalletMetadataType
             position_metadata: App\DBAL\PositionMetadataType
+            changed_payload: App\DBAL\ChangedPayloadType
+            changed_metadata: App\DBAL\ChangedMetadataType
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore
@@ -33,3 +35,8 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+            Infrastructure:
+                is_bundle: false
+                type: xml
+                dir: '%kernel.project_dir%/src/Infrastructure/Resources/config/doctrine'
+                prefix: 'App\Infrastructure'
