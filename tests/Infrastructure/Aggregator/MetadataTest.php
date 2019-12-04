@@ -4,21 +4,24 @@ namespace App\Tests\Infrastructure\Aggregator;
 
 use App\Infrastructure\Aggregator\Metadata;
 use PHPUnit\Framework\TestCase;
-use function random_int;
 
 class MetadataTest extends TestCase
 {
     /**
      * @dataProvider getValueDataProvider
+     *
+     * @param Metadata $metadata
+     * @param string $key
+     * @param mixed $value
      */
-    public function testShouldGetValue(Metadata $metadata, string $key, ?Metadata\Value $value)
+    public function testGetValue(Metadata $metadata, string $key, $value)
     {
         $this->assertEquals($value, $metadata->getValue($key));
     }
 
     public function getValueDataProvider()
     {
-        $value = $this->createValue();
+        $value = 'VALUE 1';
         $key = 'key1';
 
         return [
@@ -36,7 +39,7 @@ class MetadataTest extends TestCase
                 Metadata::withMetadata(
                     null,
                     'key2',
-                    $this->createValue()
+                    'VALUE 2'
                 ),
                 $key,
                 null,
@@ -46,94 +49,8 @@ class MetadataTest extends TestCase
                 Metadata::withMetadata(
                     $metadata,
                     'key2',
-                    $this->createValue()
+                    'VALUE 2'
                 ),
-                $key,
-                $value,
-            ],
-        ];
-    }
-
-    private function createValue(): Metadata\Value
-    {
-        return new class(random_int(0, 100)) implements Metadata\Value {
-            /**
-             * @var int
-             */
-            private $num;
-
-            public function __construct($num)
-            {
-                $this->num = $num;
-            }
-
-            /**
-             * @inheritDoc
-             */
-            public function serialize(): array
-            {
-                return [
-                    'class' => get_class($this),
-                    'context' => [
-                        'num' => $this->num,
-                    ],
-                ];
-            }
-
-            /**
-             * @inheritDoc
-             */
-            static public function deserialize(array $value)
-            {
-                return new static($value['num']);
-            }
-
-            public function getNum(): int
-            {
-                return $this->num;
-            }
-        };
-    }
-
-    /**
-     * @dataProvider fromArrayDataProvider
-     */
-    public function testShouldCreateFromArray(array $metadata, string $key, Metadata\Value $value)
-    {
-        $metadata = Metadata::fromArray($metadata);
-
-        $valueFromArray = $metadata->getValue($key);
-
-        $this->assertEquals($value->getNum(), $valueFromArray->getNum());
-    }
-
-    public function fromArrayDataProvider()
-    {
-        $value = $this->createValue();
-        $parent = $this->createValue();
-        $key = 'key1';
-
-        return [
-            'from array value' => [
-                [
-                    'parent' => null,
-                    'key' => $key,
-                    'value' => $value->serialize(),
-                ],
-                $key,
-                $value,
-            ],
-
-            'from array value with parent' => [
-                [
-                    'parent' => [
-                        'parent' => null,
-                        'key' => $key,
-                        'value' => $value->serialize(),
-                    ],
-                    'key' => 'key2',
-                    'value' => $parent->serialize(),
-                ],
                 $key,
                 $value,
             ],

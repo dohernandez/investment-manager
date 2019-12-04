@@ -2,14 +2,10 @@
 
 namespace App\Infrastructure\Aggregator;
 
-use App\Infrastructure\Aggregator\Metadata\InvalidValueException;
-use App\Infrastructure\Aggregator\Metadata\Value;
-use function forward_static_call;
-
 final class Metadata
 {
     /**
-     * @var Value
+     * @var mixed
      */
     private $value = null;
 
@@ -26,11 +22,11 @@ final class Metadata
     /**
      * @param Metadata $parent
      * @param string $key
-     * @param $value
+     * @param mixed $value
      *
      * @return Metadata
      */
-    static public function withMetadata(?Metadata $parent, string $key, Value $value): Metadata
+    public static function withMetadata(?Metadata $parent, string $key, $value): Metadata
     {
         $self = new Metadata();
 
@@ -41,41 +37,12 @@ final class Metadata
         return $self;
     }
 
-    public function getValue(string $key): ?Value
+    public function getValue(string $key)
     {
         if ($this->key === $key) {
             return $this->value;
         }
 
         return ($this->parent) ? $this->parent->getValue($key) : null;
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'parent' => $this->parent->toArray(),
-            'key' => $this->key,
-            'value' => $this->value->toArray(),
-        ];
-    }
-
-    /**
-     * @param array $metadata
-     *
-     * @return static
-     *
-     * @throws InvalidValueException
-     */
-    static public function fromArray(array $metadata): self
-    {
-        $self = new Metadata();
-
-        $self->parent = (!empty($metadata['parent'])) ? Metadata::fromArray($metadata['parent']) : null;
-        $self->key = $metadata['key'];
-
-        $valueClass = $metadata['value']['class'];
-        $self->value = forward_static_call([$valueClass, 'deserialize'], $metadata['value']['context']);
-
-        return $self;
     }
 }

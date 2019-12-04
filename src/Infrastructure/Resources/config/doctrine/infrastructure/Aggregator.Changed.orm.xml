@@ -4,7 +4,7 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
-    <entity name="App\Infrastructure\Aggregator\Changed" table="manager_event" repository-class="App\Infrastructure\Aggregator\ChangedRepository">
+    <entity name="App\Infrastructure\Aggregator\Changed" table="manager_event" repository-class="App\Infrastructure\Aggregator\AggregateRepository">
 
         <unique-constraints>
             <unique-constraint columns="event_id" name="event_idx" />
@@ -15,10 +15,10 @@
         </id>
 
         <field name="eventId" column="event_id" type="guid" unique="true" />
-        <field name="eventName" column="event_name" column-definition="VARCHAR(100) NOT NULL" />
-        <field name="payload" column-definition="JSON NOT NULL" />
-        <field name="metadata" column-definition="JSON NOT NULL" />
-        <field name="aggregateType" column="aggregate_type" column-definition="VARCHAR(50) NOT NULL" />
+        <field name="eventName" column="event_name" column-definition="VARCHAR(256) NOT NULL" />
+        <field name="payload" type="object" />
+        <field name="metadata" type="object" />
+        <field name="aggregateType" column="aggregate_type" column-definition="VARCHAR(256) NOT NULL" />
         <field name="aggregateId" column="aggregate_id" type="guid" />
         <field name="aggregateVersion" column="aggregate_version" type="smallint" />
         <field name="createdAt" column="created_at" type="datetime" />
