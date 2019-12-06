@@ -5,7 +5,7 @@ namespace App\Tests\Infrastructure\Money;
 use App\Infrastructure\Money\Currency;
 use PHPUnit\Framework\TestCase;
 
-class CurrencyTest extends TestCase
+final class CurrencyTest extends TestCase
 {
     /**
      * @dataProvider fromCodeDataProvider

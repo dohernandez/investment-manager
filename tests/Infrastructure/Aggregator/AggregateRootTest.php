@@ -8,7 +8,7 @@ use App\Infrastructure\Aggregator\Metadata;
 use PHPUnit\Framework\TestCase;
 use App\Infrastructure\UUID;
 
-class AggregatorRootTest extends TestCase
+final class AggregatorRootTest extends TestCase
 {
     public function testRecordChange()
     {

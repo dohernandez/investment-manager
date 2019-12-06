@@ -2,15 +2,16 @@
 
 namespace App\Tests\Infrastructure\Aggregator;
 
+use App\Domain\Account\Projection\Account;
 use App\Infrastructure\Aggregator\AggregateRepository;
 use App\Infrastructure\Aggregator\AggregateRoot;
 use App\Infrastructure\Aggregator\Changed;
 use App\Infrastructure\Aggregator\Event;
 use App\Infrastructure\UUID\Generator;
+use App\Tests\Infrastructure\AppKernelTestCase;
 use Doctrine\ORM\EntityManager;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AggregateRepositoryTest extends KernelTestCase
+final class AggregateRepositoryTest extends AppKernelTestCase
 {
     /**
      * @var string
@@ -30,16 +31,11 @@ class AggregateRepositoryTest extends KernelTestCase
     protected $aggregateRepository;
 
     /**
-     * @var EntityManager
-     */
-    private $entityManager;
-
-    /**
      * @inheritDoc
      */
     protected function setUp()
     {
-        $kernel = self::bootKernel();
+        parent::setUp();
 
         $aggregateId = Generator::generate();
         $username = 'USER NAME';
@@ -78,10 +74,6 @@ class AggregateRepositoryTest extends KernelTestCase
         $this->aggregateId = $aggregateId;
         $this->username = $username;
 
-        $this->entityManager = $kernel->getContainer()
-            ->get('doctrine')
-            ->getManager();
-
         $this->aggregateRepository = $this->entityManager
             ->getRepository(Changed::class);
 
@@ -101,9 +93,8 @@ class AggregateRepositoryTest extends KernelTestCase
      */
     protected function tearDown()
     {
-        parent::tearDown();
+        $this->truncate(Account::class);
 
-        $this->entityManager->close();
-        $this->entityManager = null; // avoid memory leaks
+        parent::tearDown();
     }
 }
