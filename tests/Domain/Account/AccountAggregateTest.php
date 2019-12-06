@@ -4,7 +4,6 @@ namespace App\Tests\Domain\Account;
 
 use App\Domain\Account\AccountAggregate;
 use App\Domain\Account\Event\AccountCredited;
-use App\Domain\Account\Event\AccountDebited;
 use App\Domain\Account\Event\AccountOpened;
 use App\Infrastructure\Aggregator\Changed;
 use App\Infrastructure\Aggregator\Metadata;
@@ -13,6 +12,11 @@ use App\Infrastructure\Money\Money;
 use PHPUnit\Framework\TestCase;
 use App\Infrastructure\UUID;
 
+/**
+ * @group unit
+ * @group domain
+ * @group account
+ */
 class AccountAggregateTest extends TestCase
 {
     public function testOpen()

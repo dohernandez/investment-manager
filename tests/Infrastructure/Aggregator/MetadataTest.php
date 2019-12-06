@@ -5,6 +5,11 @@ namespace App\Tests\Infrastructure\Aggregator;
 use App\Infrastructure\Aggregator\Metadata;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group unit
+ * @group infrastructure
+ * @group aggregator
+ */
 final class MetadataTest extends TestCase
 {
     /**

@@ -9,6 +9,11 @@ use App\Infrastructure\UUID;
 use App\Tests\Infrastructure\AppKernelTestCase;
 use DateTimeImmutable;
 
+/**
+ * @group integration
+ * @group infrastructure
+ * @group storage
+ */
 class AccountRepositoryTest extends AppKernelTestCase
 {
     public function testSave()

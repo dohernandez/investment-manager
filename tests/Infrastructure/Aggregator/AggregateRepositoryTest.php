@@ -9,8 +9,12 @@ use App\Infrastructure\Aggregator\Changed;
 use App\Infrastructure\Aggregator\Event;
 use App\Infrastructure\UUID\Generator;
 use App\Tests\Infrastructure\AppKernelTestCase;
-use Doctrine\ORM\EntityManager;
 
+/**
+ * @group integration
+ * @group infrastructure
+ * @group aggregator
+ */
 final class AggregateRepositoryTest extends AppKernelTestCase
 {
     /**
