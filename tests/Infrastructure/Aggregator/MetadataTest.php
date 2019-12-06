@@ -5,7 +5,7 @@ namespace App\Tests\Infrastructure\Aggregator;
 use App\Infrastructure\Aggregator\Metadata;
 use PHPUnit\Framework\TestCase;
 
-class MetadataTest extends TestCase
+final class MetadataTest extends TestCase
 {
     /**
      * @dataProvider getValueDataProvider

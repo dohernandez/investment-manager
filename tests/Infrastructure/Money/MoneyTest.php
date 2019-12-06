@@ -7,7 +7,7 @@ use App\Infrastructure\Money\Money;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 
-class MoneyTest extends TestCase
+final class MoneyTest extends TestCase
 {
     /**
      * @dataProvider usdValueDataProvided

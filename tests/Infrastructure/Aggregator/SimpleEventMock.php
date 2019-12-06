@@ -2,7 +2,7 @@
 
 namespace App\Tests\Infrastructure\Aggregator;
 
-class SimpleEventMock
+final class SimpleEventMock
 {
     public function __construct(string $name)
     {
