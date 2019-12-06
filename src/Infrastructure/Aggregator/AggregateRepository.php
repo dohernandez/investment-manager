@@ -3,10 +3,9 @@
 namespace App\Infrastructure\Aggregator;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
-final class AggregateRepository extends ServiceEntityRepository
+final class AggregateRepository extends ServiceEntityRepository implements AggregateRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {

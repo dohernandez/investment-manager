@@ -2,6 +2,7 @@
 
 namespace App\Tests\Infrastructure;
 
+use App\Domain\Account\Projection\Account;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -17,6 +18,8 @@ abstract class AppKernelTestCase extends KernelTestCase
      */
     protected function setUp()
     {
+        parent::setUp();
+
         $kernel = self::bootKernel();
 
         $this->entityManager = $kernel->getContainer()
@@ -52,5 +55,11 @@ abstract class AppKernelTestCase extends KernelTestCase
         catch (\Exception $e) {
             $connection->rollback();
         }
+    }
+
+    protected function getRepository(string $entityName)
+    {
+        return $this->entityManager
+            ->getRepository($entityName);
     }
 }
