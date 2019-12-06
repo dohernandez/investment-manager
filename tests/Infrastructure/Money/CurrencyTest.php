@@ -5,6 +5,11 @@ namespace App\Tests\Infrastructure\Money;
 use App\Infrastructure\Money\Currency;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group unit
+ * @group infrastructure
+ * @group money
+ */
 final class CurrencyTest extends TestCase
 {
     /**

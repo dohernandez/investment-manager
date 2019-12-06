@@ -7,6 +7,11 @@ use App\Infrastructure\Money\Money;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group unit
+ * @group infrastructure
+ * @group money
+ */
 final class MoneyTest extends TestCase
 {
     /**
