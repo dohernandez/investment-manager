@@ -72,7 +72,7 @@ abstract class AggregateRoot
     /**
      * @param Changed[] $historyChanges
      */
-    public function replay(array $historyChanges)
+    public function replay(array $historyChanges): self
     {
         foreach ($historyChanges as $changed) {
             $this->version = $changed->getAggregateVersion();
@@ -80,5 +80,7 @@ abstract class AggregateRoot
 
             $this->apply($changed);
         }
+
+        return $this;
     }
 }
