@@ -73,6 +73,8 @@ class Changed
     }
 
     /**
+     * Represent the domain event
+     *
      * @var mixed
      */
     private $payload;
