@@ -6,7 +6,7 @@ use App\Domain\Account\Projection\Account;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-abstract class AppKernelTestCase extends KernelTestCase
+abstract class AppDoctrineKernelTestCase extends KernelTestCase
 {
     /**
      * @var EntityManager

@@ -6,7 +6,7 @@ use App\Domain\Account\Projection\Account;
 use App\Infrastructure\Money\Money;
 use App\Infrastructure\Storage\AccountRepository;
 use App\Infrastructure\UUID;
-use App\Tests\Infrastructure\AppKernelTestCase;
+use App\Tests\Infrastructure\AppDoctrineKernelTestCase;
 use DateTimeImmutable;
 
 /**
@@ -14,7 +14,7 @@ use DateTimeImmutable;
  * @group infrastructure
  * @group storage
  */
-class AccountRepositoryTest extends AppKernelTestCase
+class AccountRepositoryTest extends AppDoctrineKernelTestCase
 {
     public function testSave()
     {
