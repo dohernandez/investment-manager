@@ -7,7 +7,7 @@ use App\Application\Account\Handler\CreateAccountProjectionHandler;
 use App\Application\Account\Repository\AccountRepositoryInterface;
 use App\Domain\Account\Projection\Account;
 use App\Infrastructure\Money\Money;
-use DateTimeImmutable;
+use DateTime;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use App\Infrastructure\UUID;
@@ -26,7 +26,7 @@ final class CreateAccountProjectionHandlerTest extends TestCase
         $type = 'iban';
         $accountNo = 'DE67500105176511458445';
         $balance = Money::fromEURValue(0);
-        $createdAt = new DateTimeImmutable();
+        $createdAt = new DateTime();
 
         $accountRepository = $this->prophesize(AccountRepositoryInterface::class);
         $accountRepository->save(

@@ -7,7 +7,7 @@ use App\Infrastructure\Money\Money;
 use App\Infrastructure\Storage\AccountRepository;
 use App\Infrastructure\UUID;
 use App\Tests\Infrastructure\AppDoctrineKernelTestCase;
-use DateTimeImmutable;
+use DateTime;
 
 /**
  * @group integration
@@ -22,7 +22,7 @@ class AccountRepositoryTest extends AppDoctrineKernelTestCase
         $name = 'Random Iban 1';
         $type = 'iban';
         $accountNo = 'DE67500105176511458445';
-        $createdAt = new DateTimeImmutable();
+        $createdAt = new DateTime();
         $balance = Money::fromEURValue(1000);
 
         $account = (new Account($id))

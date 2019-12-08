@@ -3,11 +3,11 @@
 namespace App\Application\Account\Event;
 
 use App\Infrastructure\Money\Money;
-use DateTimeImmutable;
+use DateTime;
 
 final class AccountUpdated
 {
-    public function __construct(string $id, Money $balance, DateTimeImmutable $updatedAt)
+    public function __construct(string $id, Money $balance, DateTime $updatedAt)
     {
         $this->id = $id;
         $this->balance = $balance;
@@ -35,11 +35,11 @@ final class AccountUpdated
     }
 
     /**
-     * @var DateTimeImmutable
+     * @var DateTime
      */
     private $updatedAt;
 
-    public function getUpdatedAt(): DateTimeImmutable
+    public function getUpdatedAt(): DateTime
     {
         return $this->updatedAt;
     }

@@ -3,7 +3,7 @@
 namespace App\Application\Account\Event;
 
 use App\Infrastructure\Money\Money;
-use DateTimeImmutable;
+use DateTime;
 
 final class AccountCreated
 {
@@ -13,7 +13,7 @@ final class AccountCreated
         string $type,
         string $accountNo,
         Money $balance,
-        DateTimeImmutable $createdAt
+        DateTime $createdAt
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -64,11 +64,11 @@ final class AccountCreated
     }
 
     /**
-     * @var DateTimeImmutable
+     * @var DateTime
      */
     private $createdAt;
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }

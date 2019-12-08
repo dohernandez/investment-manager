@@ -3,7 +3,7 @@
 namespace App\Domain\Account\Projection;
 
 use App\Infrastructure\Money\Money;
-use DateTimeImmutable;
+use DateTime;
 
 class Account
 {
@@ -94,16 +94,16 @@ class Account
     }
 
     /**
-     * @var DateTimeImmutable
+     * @var DateTime
      */
     private $createdAt;
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTimeImmutable $createdAt): self
+    public function setCreatedAt(DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
 
@@ -111,16 +111,16 @@ class Account
     }
 
     /**
-     * @var DateTimeImmutable
+     * @var DateTime
      */
     private $updatedAt;
 
-    public function getUpdatedAt(): DateTimeImmutable
+    public function getUpdatedAt(): DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTimeImmutable $updatedAt): self
+    public function setUpdatedAt(DateTime $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
 

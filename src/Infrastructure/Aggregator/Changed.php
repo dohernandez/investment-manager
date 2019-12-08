@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure\Aggregator;
 
-use DateTimeImmutable;
+use DateTime;
 use Exception;
 
 class Changed
@@ -15,7 +15,7 @@ class Changed
      * @param string $aggregateType
      * @param string $aggregateId
      * @param int $aggregateVersion
-     * @param DateTimeImmutable|null $createdAt
+     * @param DateTime|null $createdAt
      *
      * @throws Exception
      */
@@ -27,7 +27,7 @@ class Changed
         string $aggregateType,
         string $aggregateId,
         int $aggregateVersion,
-        DateTimeImmutable $createdAt = null
+        DateTime $createdAt = null
     ) {
         $this->eventId = $eventId;
         $this->eventName = $eventName;
@@ -36,7 +36,7 @@ class Changed
         $this->aggregateType = $aggregateType;
         $this->aggregateId = $aggregateId;
         $this->aggregateVersion = $aggregateVersion;
-        $this->createdAt = $createdAt ?? new DateTimeImmutable();
+        $this->createdAt = $createdAt ?? new DateTime();
     }
 
     /**
@@ -132,14 +132,14 @@ class Changed
     }
 
     /**
-     * @var DateTimeImmutable
+     * @var DateTime
      */
     private $createdAt;
 
     /**
-     * @return DateTimeImmutable
+     * @return DateTime
      */
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
