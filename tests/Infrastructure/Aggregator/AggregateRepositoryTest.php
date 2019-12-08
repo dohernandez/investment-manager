@@ -8,14 +8,14 @@ use App\Infrastructure\Aggregator\AggregateRoot;
 use App\Infrastructure\Aggregator\Changed;
 use App\Infrastructure\Aggregator\Event;
 use App\Infrastructure\UUID\Generator;
-use App\Tests\Infrastructure\AppKernelTestCase;
+use App\Tests\Infrastructure\AppDoctrineKernelTestCase;
 
 /**
  * @group integration
  * @group infrastructure
  * @group aggregator
  */
-final class AggregateRepositoryTest extends AppKernelTestCase
+final class AggregateRepositoryTest extends AppDoctrineKernelTestCase
 {
     /**
      * @var string
