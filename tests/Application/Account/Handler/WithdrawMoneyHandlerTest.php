@@ -9,7 +9,7 @@ use App\Domain\Account\AccountAggregate;
 use App\Infrastructure\Aggregator\AggregateRepositoryInterface;
 use App\Infrastructure\Aggregator\AggregateRoot;
 use App\Infrastructure\Money\Money;
-use DateTimeImmutable;
+use DateTime;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use stdClass;
@@ -27,7 +27,7 @@ final class WithdrawMoneyHandlerTest extends TestCase
     public function testInvoke()
     {
         $id = UUID\Generator::generate();
-        $updateAt = new DateTimeImmutable();
+        $updateAt = new DateTime();
         $balance = Money::fromEURValue(1500);
 
         $aggregateAggregate = $this->prophesize(AccountAggregate::class);

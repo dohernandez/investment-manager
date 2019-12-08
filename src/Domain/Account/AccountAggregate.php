@@ -10,7 +10,7 @@ use App\Infrastructure\Aggregator\Changed;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
-use DateTimeImmutable;
+use DateTime;
 
 class AccountAggregate extends AggregateRoot
 {
@@ -58,21 +58,21 @@ class AccountAggregate extends AggregateRoot
     }
 
     /**
-     * @var DateTimeImmutable
+     * @var DateTime
      */
     private $createdAt;
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
     /**
-     * @var DateTimeImmutable
+     * @var DateTime
      */
     private $updatedAt;
 
-    public function getUpdatedAt(): DateTimeImmutable
+    public function getUpdatedAt(): DateTime
     {
         return $this->updatedAt;
     }
