@@ -83,4 +83,9 @@ abstract class AggregateRoot
 
         return $this;
     }
+
+    public function getLastChanged(): Changed
+    {
+        return $this->changes->last();
+    }
 }

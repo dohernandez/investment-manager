@@ -22,6 +22,12 @@
         <field name="aggregateId" column="aggregate_id" type="guid" />
         <field name="aggregateVersion" column="aggregate_version" type="smallint" />
         <field name="createdAt" column="created_at" type="datetime" />
+
+        <entity-listeners>
+            <entity-listener class="App\Infrastructure\Aggregator\AggregateRootListener">
+                <lifecycle-callback type="postPersist"   method="postPersistHandler"/>
+            </entity-listener>
+        </entity-listeners>
     </entity>
 
 </doctrine-mapping>
