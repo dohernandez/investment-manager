@@ -69,7 +69,6 @@ class AccountController extends BaseController
     }
 
     /**
-     * @Route("/", name="account_new", methods={"POST"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request

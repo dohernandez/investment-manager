@@ -1,4 +1,36 @@
 GET http://localhost:8080/v1/accounts/
 Accept: application/json
 
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+
+        //Saving a variable
+        account = response.body.items[0];
+        client.global.set("account_id", account.id);
+        client.global.set("account_name", account.name);
+        client.global.set("account_accountNo", account.accountNo);
+        client.global.set("account_alias", account.alias);
+        client.global.set("account_title", account.title);
+    });
+%}
+
+###
+GET http://localhost:8080/v1/accounts/{{account_id}}
+Accept: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+
+        // Saving a variable
+        account = response.body.item;
+        client.assert(account.name === client.global.get("account_name"), "Response item name is not equals");
+        client.assert(account.accountNo === client.global.get("account_accountNo"), "Response item accountNo is not equals");
+        client.assert(account.alias === client.global.get("account_alias"), "Response item alias is not equals");
+        client.assert(account.title === client.global.get("account_title"), "Response item title is not equals");
+    });
+
+    //
+%}
 ###
