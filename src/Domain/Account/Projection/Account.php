@@ -126,4 +126,9 @@ class Account
 
         return $this;
     }
+
+    public function getTitle(): string
+    {
+        return sprintf('%s - %s', $this->getName(), $this->getAccountNo());
+    }
 }
