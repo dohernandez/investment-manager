@@ -46,6 +46,13 @@ final class AggregateRepositoryTest extends AppDoctrineKernelTestCase
 
         // implementation of the abstract class AggregateRoot
         $anonymousAggregateRoot = new class($aggregateId) extends AggregateRoot {
+            public function __construct(string $id)
+            {
+                parent::__construct();
+
+                $this->id = $id;
+            }
+
             /**
              * @@var string $name
              */

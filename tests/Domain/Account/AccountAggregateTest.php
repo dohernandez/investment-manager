@@ -44,7 +44,7 @@ class AccountAggregateTest extends TestCase
 
         $accountOpened = new AccountOpened($id, $name, $type, $accountNo, $currency);
 
-        $accountAggregate = new AccountAggregate($id);
+        $accountAggregate = new AccountAggregate();
         $accountAggregate->replay(
                 [
                     new Changed(
@@ -83,7 +83,7 @@ class AccountAggregateTest extends TestCase
         $accountCredited = new AccountCredited($deposit);
 
 
-        $accountAggregate = new AccountAggregate($id);
+        $accountAggregate = new AccountAggregate();
         $accountAggregate->replay(
                 [
                     new Changed(

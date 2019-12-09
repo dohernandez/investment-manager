@@ -79,7 +79,8 @@ class AccountAggregate extends AggregateRoot
 
     public static function open(string $name, string $type, string $accountNo, Currency $currency): self
     {
-        $self = new static(UUID\Generator::generate());
+        $self = new static();
+        $self->id = UUID\Generator::generate();
 
         $self->recordChange(new AccountOpened($self->getId(), $name, $type, $accountNo, $currency));
 
@@ -115,6 +116,7 @@ class AccountAggregate extends AggregateRoot
                 /** @var AccountOpened $event */
                 $event = $changed->getPayload();
 
+                $this->id = $changed->getAggregateId();
                 $this->name = $event->getName();
                 $this->type = $event->getType();
                 $this->accountNo = $event->getAccountNo();
