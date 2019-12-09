@@ -7,6 +7,7 @@ parameters:
     locale: en
     upload_note_dir: '%kernel.project_dir%/public/upload/notes/files'
     margin_rate: 0.475
+    jms_serializer.camel_case_naming_strategy.class: JMS\Serializer\Naming\IdenticalPropertyNamingStrategy
 
 services:
     # default configuration for services in *this* file
@@ -39,7 +40,6 @@ services:
     # as action arguments even if you don't extend any base controller class
     App\Controller\:
         resource: '../src/Controller'
-        exclude: '../src/Controller/{AccountController}'
         tags: ['controller.service_arguments']
 
     # add more service definitions when explicit configuration is needed
@@ -80,7 +80,7 @@ services:
         resource: '../src/Presentation/*'
         # you can exclude directories or files
         # but if a service is unused, it's removed anyway
-        exclude: '../src/Presentation/{Controller,Console}'
+        exclude: '../src/Presentation/{Controller,Console,Normalizer}'
 
     # controllers are imported separately to make sure they're public
     # and have a tag that allows actions to type-hint services
