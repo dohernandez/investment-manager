@@ -19,8 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class AccountController extends BaseController
 {
     /**
-     * @Route("/", name="old_account_list", methods={"GET"}, options={"expose"=true})
-     *
      * @param AccountRepository $repo
      * @param Request $request
      *

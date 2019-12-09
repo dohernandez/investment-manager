@@ -8,9 +8,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/accounts")
- */
 class AccountController extends AbstractController
 {
     /**
@@ -24,8 +21,6 @@ class AccountController extends AbstractController
     }
 
     /**
-     * @Route("/", name="account_index", methods={"GET"})
-     *
      * @param AccountRepository $repo
      *
      * @return Response

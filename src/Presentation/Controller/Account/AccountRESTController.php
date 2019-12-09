@@ -2,8 +2,7 @@
 
 namespace App\Presentation\Controller\Account;
 
-use App\Api;
-use App\Application\Account\Storage\Finder;
+use App\Application\Account\Repository\AccountRepositoryInterface;
 use App\Presentation\Controller\RESTController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,32 +16,21 @@ final class AccountRESTController extends RESTController
     /**
      * @Route("/", name="account_list", methods={"GET"}, options={"expose"=true})
      *
-     * @param Finder $finder
+     * @param AccountRepositoryInterface $accountRepository
      * @param Request $request
      *
      * @return JsonResponse
      */
-    public function all(Finder $finder, Request $request): JsonResponse
+    public function all(AccountRepositoryInterface $accountRepository, Request $request): JsonResponse
     {
         $query = $request->query->get('q');
 
         if ($query !== null) {
-            $accounts = $finder->allMatching($query);
+            $accounts = $accountRepository->allMatching($query);
         } else {
-            $accounts = $finder->all();
+            $accounts = $accountRepository->findAll();
         }
 
-        $apiAccounts = [];
-
-        foreach ($accounts as $account) {
-            $apiAccounts[] = Api\Account::fromEntity($account);
-        }
-
-        return $this->createApiResponse(
-            [
-                'total_count' => count($apiAccounts),
-                'items' => $apiAccounts,
-            ]
-        );
+        return $this->createApiResponse($accounts);
     }
 }
