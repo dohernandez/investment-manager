@@ -2,12 +2,24 @@
 
 namespace App\Presentation\Controller;
 
+use ArrayAccess;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 abstract class RESTController extends AbstractController
 {
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
     /**
      * @param mixed $data Usually an object you want to serialize
      * @param int $statusCode
@@ -17,7 +29,18 @@ abstract class RESTController extends AbstractController
      */
     protected function createApiResponse($data, $statusCode = 200, $context = [])
     {
-        return $this->json($data, $statusCode, [], $context);
+        if (is_array($data) || $data instanceof ArrayAccess) {
+             $json = [
+                 'total_count' => count($data),
+                 'items' => $data
+             ];
+        } else {
+            $json = [
+                'item' => $data
+            ];
+        }
+
+        return new JsonResponse($this->serializer->serialize($json, 'json'), $statusCode, [], true);
     }
 
     /**
@@ -73,5 +96,10 @@ abstract class RESTController extends AbstractController
         }
 
         return $errors;
+    }
+
+    protected function getSerializer(): SerializerInterface
+    {
+        return $this->serializer;
     }
 }
