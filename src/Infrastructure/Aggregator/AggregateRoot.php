@@ -7,9 +7,8 @@ use App\Infrastructure\UUID;
 
 abstract class AggregateRoot
 {
-    public function __construct(string $id)
+    public function __construct()
     {
-        $this->id = $id;
         $this->changes = new ArrayCollection();
         $this->version = 0;
     }

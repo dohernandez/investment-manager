@@ -52,7 +52,9 @@ final class AggregatorRootTest extends TestCase
 
             public function __construct(string $id, callable $assert)
             {
-                parent::__construct($id);
+                parent::__construct();
+
+                $this->id = $id;
                 $this->assert = $assert;
             }
 
