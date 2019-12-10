@@ -22,6 +22,7 @@ doctrine:
             currency: App\DBAL\CurrencyType
             wallet_metadata: App\DBAL\WalletMetadataType
             position_metadata: App\DBAL\PositionMetadataType
+            datetime: App\Infrastructure\Doctrine\DBAL\UTCDateTimeType
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore
