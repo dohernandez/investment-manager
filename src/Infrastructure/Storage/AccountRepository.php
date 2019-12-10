@@ -41,4 +41,12 @@ final class AccountRepository extends ServiceEntityRepository implements Account
         $this->_em->persist($account);
         $this->_em->flush();
     }
+
+    public function delete($id)
+    {
+        $this->_em->createQuery('DELETE FROM ' . Account::class . ' account WHERE account.id = :id')
+            ->setParameter('id', $id)
+            ->execute()
+        ;
+    }
 }

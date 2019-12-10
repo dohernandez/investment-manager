@@ -25,5 +25,10 @@ interface AccountRepositoryInterface
      * @return Account[] The objects.
      */
     public function findAll();
+
+    /**
+     * @param mixed    $id          The identifier.
+     */
+    public function delete($id);
 }
 
