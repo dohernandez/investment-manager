@@ -50,6 +50,9 @@ final class CreateAccountType extends AbstractType
                 HiddenType::class,
                 [
                     'data' => 'iban',
+                    'constraints' => [
+                        new NotBlank()
+                    ],
                 ]
             );
     }
