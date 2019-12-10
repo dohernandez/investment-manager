@@ -2,6 +2,7 @@
 
 namespace App\Domain\Account;
 
+use App\Domain\Account\Event\AccountClosed;
 use App\Domain\Account\Event\AccountCredited;
 use App\Domain\Account\Event\AccountDebited;
 use App\Domain\Account\Event\AccountOpened;
@@ -109,6 +110,13 @@ class AccountAggregate extends AggregateRoot
         return $this;
     }
 
+    public function close()
+    {
+        $this->recordChange(new AccountClosed($this->id));
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         switch ($changed->getEventName()) {
@@ -141,6 +149,11 @@ class AccountAggregate extends AggregateRoot
 
                 $this->balance = $this->balance->decrease($event->getMoney());
                 $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+
+            case AccountClosed::class:
+                $this->id = null;
 
                 break;
         }
