@@ -48,5 +48,7 @@ final class OpenAccountCommandHandler implements MessageHandlerInterface
                 $accountAggregate->getCreatedAt()
             )
         );
+
+        return $accountAggregate;
     }
 }
