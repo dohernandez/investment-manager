@@ -7,6 +7,7 @@ use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class RESTController extends AbstractController
 {
@@ -98,8 +99,13 @@ abstract class RESTController extends AbstractController
         return $errors;
     }
 
-    protected function getSerializer(): SerializerInterface
+    public function decodeRequestData(Request $request): array
     {
-        return $this->serializer;
+        $data = json_decode($request->getContent(), true);
+        if ($data === null) {
+            throw new InvalidJsonRequestException('Invalid JSON');
+        }
+
+        return $data;
     }
 }

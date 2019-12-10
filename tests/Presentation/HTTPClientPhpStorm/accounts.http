@@ -1,18 +1,31 @@
-GET http://localhost:8080/v1/accounts/
+POST http://localhost:8080/v1/accounts/
 Accept: application/json
+
+{ "name" : "Test account 1", "accountNo": "NL94ABNA8247360527", "type": "iban"}
 
 > {%
     client.test("Request executed successfully", function() {
-        client.assert(response.status === 200, "Response status is not 200");
+        var status = response.status;
+        client.assert(status === 201, "Expected `201` but received '"+ status + "'");
 
-        //Saving a variable
-        account = response.body.items[0];
-        client.global.set("account_id", account.id);
-        client.global.set("account_name", account.name);
-        client.global.set("account_accountNo", account.accountNo);
-        client.global.set("account_alias", account.alias);
-        client.global.set("account_title", account.title);
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+
+        var name = "Test account 1";
+        var accountNo = "NL94ABNA8247360527";
+        var title = "Test account 1 - NL94ABNA8247360527";
+
+        // Saving a variable
+        account = response.body.item;
+        client.assert(account.name === name, "Expected '" + name + "' but received '" + account.name + "'");
+        client.assert(account.accountNo === accountNo, "Expected '" + accountNo + "' but received '" + account.accountNo + "'");
+        client.assert(account.alias === name, "Expected '" + name + "' but received '" + account.alias + "'");
+        client.assert(account.title === title, "Expected '" + title + "' but received '" + account.title + "'");
+
+        client.global.set("account_id", account.id)
     });
+
+    //
 %}
 
 ###
@@ -21,7 +34,11 @@ Accept: application/json
 
 > {%
     client.test("Request executed successfully", function() {
-        client.assert(response.status === 200, "Response status is not 200");
+        var status = response.status;
+        client.assert(status === 200, "Expected `200` but received '"+ status + "'");
+
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
 
         // Saving a variable
         account = response.body.item;
@@ -33,4 +50,19 @@ Accept: application/json
 
     //
 %}
+
+###
+GET http://localhost:8080/v1/accounts/
+Accept: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        var status = response.status;
+        client.assert(status === 200, "Expected `200` but received '"+ status + "'");
+
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
 ###

@@ -2,12 +2,13 @@
 
 namespace App\Presentation\Form\Account;
 
-use App\Entity\Account;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Iban;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 final class CreateAccountType extends AbstractType
 {
@@ -25,6 +26,9 @@ final class CreateAccountType extends AbstractType
                         'placeholder'  => 'Enter name',
                         'autocomplete' => "off",
                     ],
+                    'constraints' => [
+                        new NotBlank()
+                    ],
                 ]
             )
             ->add(
@@ -36,15 +40,8 @@ final class CreateAccountType extends AbstractType
                         'placeholder'  => 'Enter IBAN',
                         'autocomplete' => "off",
                     ],
-                ]
-            )
-            ->add(
-                'alias',
-                TextType::class,
-                [
-                    'attr' => [
-                        'placeholder'  => 'Enter alias',
-                        'autocomplete' => "off",
+                    'constraints' => [
+                        new Iban()
                     ],
                 ]
             )
@@ -61,7 +58,7 @@ final class CreateAccountType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class' => Account::class,
+                'csrf_protection' => false,
             ]
         );
     }
