@@ -4,65 +4,93 @@ Accept: application/json
 { "name" : "Test account 1", "accountNo": "NL94ABNA8247360527", "type": "iban"}
 
 > {%
-    client.test("Request executed successfully", function() {
+    client.test("Response status", function() {
         var status = response.status;
         client.assert(status === 201, "Expected `201` but received '"+ status + "'");
+    });
 
+    client.test("Response mimeType", function() {
         var type = response.contentType.mimeType;
         client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
 
-        var name = "Test account 1";
-        var accountNo = "NL94ABNA8247360527";
-        var title = "Test account 1 - NL94ABNA8247360527";
+    var name = "Test account 1";
+    var accountNo = "NL94ABNA8247360527";
+    var title = "Test account 1 - NL94ABNA8247360527";
 
-        // Saving a variable
-        account = response.body.item;
+    var account = response.body.item;
+
+    client.test("Response item", function() {
+        client.assert(account !== undefined, "Response item is null");
+
         client.assert(account.name === name, "Expected '" + name + "' but received '" + account.name + "'");
         client.assert(account.accountNo === accountNo, "Expected '" + accountNo + "' but received '" + account.accountNo + "'");
         client.assert(account.alias === name, "Expected '" + name + "' but received '" + account.alias + "'");
         client.assert(account.title === title, "Expected '" + title + "' but received '" + account.title + "'");
 
-        client.global.set("account_id", account.id)
+        client.global.set("account_id", account.id);
+        client.global.set("account_name", name);
+        client.global.set("account_accountNo", accountNo);
+        client.global.set("account_alias", name);
+        client.global.set("account_title", title);
     });
 
-    //
 %}
-
 ###
+
 GET http://localhost:8080/v1/accounts/{{account_id}}
 Accept: application/json
 
 > {%
-    client.test("Request executed successfully", function() {
+    client.test("Response status", function() {
         var status = response.status;
         client.assert(status === 200, "Expected `200` but received '"+ status + "'");
+    });
 
+    client.test("Response mimeType", function() {
         var type = response.contentType.mimeType;
         client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
 
-        // Saving a variable
-        account = response.body.item;
+    var account = response.body.item;
+    client.test("Response item", function() {
+        client.assert(account !== undefined, "Response item is null");
         client.assert(account.name === client.global.get("account_name"), "Response item name is not equals");
         client.assert(account.accountNo === client.global.get("account_accountNo"), "Response item accountNo is not equals");
         client.assert(account.alias === client.global.get("account_alias"), "Response item alias is not equals");
         client.assert(account.title === client.global.get("account_title"), "Response item title is not equals");
     });
-
-    //
 %}
-
 ###
+
+DELETE http://localhost:8080/v1/accounts/{{account_id}}
+Accept: application/json
+
+> {%
+    client.test("Response status", function() {
+        var status = response.status;
+        client.assert(status === 204, "Expected `204` but received '"+ status + "'");
+    });
+
+    client.test("Response mimeType", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "text/plain", "Expected 'text/plain' but received '" + type + "'");
+    });
+%}
+###
+
 GET http://localhost:8080/v1/accounts/
 Accept: application/json
 
 > {%
-    client.test("Request executed successfully", function() {
+    client.test("Response status", function() {
         var status = response.status;
         client.assert(status === 200, "Expected `200` but received '"+ status + "'");
+    });
 
+    client.test("Response mimeType", function() {
         var type = response.contentType.mimeType;
         client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
     });
 %}
-
 ###
