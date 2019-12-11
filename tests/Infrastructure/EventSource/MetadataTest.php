@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests\Infrastructure\Aggregator;
+namespace App\Tests\Infrastructure\EventSource;
 
-use App\Infrastructure\Aggregator\Metadata;
+use App\Infrastructure\EventSource\Metadata;
 use PHPUnit\Framework\TestCase;
 
 /**

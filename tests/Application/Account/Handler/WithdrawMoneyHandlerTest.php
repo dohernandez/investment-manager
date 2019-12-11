@@ -6,8 +6,8 @@ use App\Application\Account\Event\AccountUpdated;
 use App\Application\Account\Command\WithdrawMoneyCommand;
 use App\Application\Account\Handler\WithdrawMoneyCommandHandler;
 use App\Domain\Account\AccountAggregate;
-use App\Infrastructure\Aggregator\AggregateRepositoryInterface;
-use App\Infrastructure\Aggregator\AggregateRoot;
+use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
+use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\Money\Money;
 use DateTime;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +36,7 @@ final class WithdrawMoneyHandlerTest extends TestCase
         $aggregateAggregate->getUpdatedAt()->willReturn($updateAt)->shouldBeCalled();
         $aggregateAggregate->withdraw($balance)->shouldBeCalled();
 
-        $accountRepository = $this->prophesize(AggregateRepositoryInterface::class);
+        $accountRepository = $this->prophesize(EventSourceRepositoryInterface::class);
         $accountRepository->load($id, AccountAggregate::class)->willReturn($aggregateAggregate);
         $accountRepository->store(
             Argument::that(

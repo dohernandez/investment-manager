@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Infrastructure\Aggregator;
+namespace App\Infrastructure\EventSource;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
-final class AggregateRepository extends ServiceEntityRepository implements AggregateRepositoryInterface
+final class EventSourceRepository extends ServiceEntityRepository implements EventSourceRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {

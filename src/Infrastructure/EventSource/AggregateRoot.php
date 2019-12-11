@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Infrastructure\Aggregator;
+namespace App\Infrastructure\EventSource;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Infrastructure\UUID;

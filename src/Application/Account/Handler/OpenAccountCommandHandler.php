@@ -5,14 +5,14 @@ namespace App\Application\Account\Handler;
 use App\Domain\Account\AccountAggregate;
 use App\Application\Account\Event\AccountCreated;
 use App\Application\Account\Command\OpenAccountCommand;
-use App\Infrastructure\Aggregator\AggregateRepositoryInterface;
+use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class OpenAccountCommandHandler implements MessageHandlerInterface
 {
     /**
-     * @var AggregateRepositoryInterface
+     * @var EventSourceRepositoryInterface
      */
     private $aggregateRepository;
 
@@ -21,7 +21,7 @@ final class OpenAccountCommandHandler implements MessageHandlerInterface
      */
     private $bus;
 
-    public function __construct(AggregateRepositoryInterface $aggregateRepository, MessageBusInterface $bus)
+    public function __construct(EventSourceRepositoryInterface $aggregateRepository, MessageBusInterface $bus)
     {
         $this->aggregateRepository = $aggregateRepository;
         $this->bus = $bus;

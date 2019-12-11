@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Infrastructure\Aggregator;
+namespace App\Infrastructure\EventSource;
 
-interface AggregateRepositoryInterface
+interface EventSourceRepositoryInterface
 {
     public function load(string $id, string $typeName, int $fromNumber = 1, int $count = null);
 

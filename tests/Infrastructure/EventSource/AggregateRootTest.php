@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Tests\Infrastructure\Aggregator;
+namespace App\Tests\Infrastructure\EventSource;
 
-use App\Infrastructure\Aggregator\AggregateRoot;
-use App\Infrastructure\Aggregator\Changed;
-use App\Infrastructure\Aggregator\Metadata;
+use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\Changed;
+use App\Infrastructure\EventSource\Metadata;
 use PHPUnit\Framework\TestCase;
 use App\Infrastructure\UUID;
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Infrastructure\Aggregator;
+namespace App\Infrastructure\EventSource;
 
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-final class AggregateRootListener
+final class EventSourceListener
 {
     /**
      * @var EventDispatcherInterface

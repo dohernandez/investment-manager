@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Tests\Infrastructure\Aggregator;
+namespace App\Tests\Infrastructure\EventSource;
 
 use App\Domain\Account\Event\AccountOpened;
-use App\Infrastructure\Aggregator\AggregateRoot;
-use App\Infrastructure\Aggregator\Changed;
-use App\Infrastructure\Aggregator\Metadata;
+use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\Changed;
+use App\Infrastructure\EventSource\Metadata;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\UUID;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AggregateRootListenerTest extends KernelTestCase
+class EventSourceListenerTest extends KernelTestCase
 {
     /**
      * @var EntityManager

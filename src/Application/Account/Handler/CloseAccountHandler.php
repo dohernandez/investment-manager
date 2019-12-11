@@ -4,17 +4,17 @@ namespace App\Application\Account\Handler;
 
 use App\Application\Account\Command\CloseAccount;
 use App\Domain\Account\AccountAggregate;
-use App\Infrastructure\Aggregator\AggregateRepositoryInterface;
+use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class CloseAccountHandler implements MessageHandlerInterface
 {
     /**
-     * @var AggregateRepositoryInterface
+     * @var EventSourceRepositoryInterface
      */
     private $aggregateRepository;
 
-    public function __construct(AggregateRepositoryInterface $aggregateRepository)
+    public function __construct(EventSourceRepositoryInterface $aggregateRepository)
     {
         $this->aggregateRepository = $aggregateRepository;
     }

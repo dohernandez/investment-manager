@@ -116,11 +116,11 @@ services:
         exclude: '../src/Infrastructure/{Aggregator,Money}'
 
     # Aggregator
-    App\Infrastructure\Aggregator\AggregateRepositoryInterface: '@App\Infrastructure\Aggregator\AggregateRepository'
-    App\Infrastructure\Aggregator\AggregateRepository: ~
+    App\Infrastructure\EventSource\EventSourceRepositoryInterface: '@App\Infrastructure\EventSource\EventSourceRepository'
+    App\Infrastructure\EventSource\EventSourceRepository: ~
 
     app.doctrine.entity_listener:
-        class: App\Infrastructure\Aggregator\AggregateRootListener
+        class: App\Infrastructure\EventSource\EventSourceListener
         arguments: ['@event_dispatcher']
         public: true
 
@@ -128,7 +128,7 @@ services:
         class: App\Infrastructure\Doctrine\EntityListenerResolver
         arguments: [ '@service_container' ]
         calls:
-            - [addMapping, ['App\Infrastructure\Aggregator\AggregateRootListener', 'app.doctrine.entity_listener']]
+            - [addMapping, ['App\Infrastructure\EventSource\EventSourceListener', 'app.doctrine.entity_listener']]
 
     # Storage
     App\Infrastructure\Storage\AccountRepository: ~
