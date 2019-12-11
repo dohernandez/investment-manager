@@ -155,7 +155,6 @@ class AccountController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="account_delete", methods={"DELETE"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Entity\Account $account
