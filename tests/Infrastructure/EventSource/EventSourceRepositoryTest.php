@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Tests\Infrastructure\Aggregator;
+namespace App\Tests\Infrastructure\EventSource;
 
 use App\Domain\Account\Projection\Account;
-use App\Infrastructure\Aggregator\AggregateRepository;
-use App\Infrastructure\Aggregator\AggregateRoot;
-use App\Infrastructure\Aggregator\Changed;
-use App\Infrastructure\Aggregator\Event;
+use App\Infrastructure\EventSource\EventSourceRepository;
+use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\UUID\Generator;
 use App\Tests\Infrastructure\AppDoctrineKernelTestCase;
 
@@ -15,7 +14,7 @@ use App\Tests\Infrastructure\AppDoctrineKernelTestCase;
  * @group infrastructure
  * @group aggregator
  */
-final class AggregateRepositoryTest extends AppDoctrineKernelTestCase
+final class EventSourceRepositoryTest extends AppDoctrineKernelTestCase
 {
     /**
      * @var string
@@ -30,7 +29,7 @@ final class AggregateRepositoryTest extends AppDoctrineKernelTestCase
     protected $aggregateType;
 
     /**
-     * @var AggregateRepository
+     * @var EventSourceRepository
      */
     protected $aggregateRepository;
 

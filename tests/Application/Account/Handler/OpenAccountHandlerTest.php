@@ -5,8 +5,8 @@ namespace App\Tests\Application\Account\Handler;
 use App\Application\Account\Event\AccountCreated;
 use App\Application\Account\Command\OpenAccountCommand;
 use App\Application\Account\Handler\OpenAccountCommandHandler;
-use App\Infrastructure\Aggregator\AggregateRepositoryInterface;
-use App\Infrastructure\Aggregator\AggregateRoot;
+use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
+use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\Money\Currency;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -28,7 +28,7 @@ final class OpenAccountHandlerTest extends TestCase
         $accountNo = 'DE67500105176511458445';
         $currency = Currency::eur();
 
-        $aggregateRepository = $this->prophesize(AggregateRepositoryInterface::class);
+        $aggregateRepository = $this->prophesize(EventSourceRepositoryInterface::class);
 
         $aggregateRepository->store(
             Argument::that(

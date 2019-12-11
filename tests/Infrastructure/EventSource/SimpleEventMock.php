@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Infrastructure\Aggregator;
+namespace App\Tests\Infrastructure\EventSource;
 
 final class SimpleEventMock
 {

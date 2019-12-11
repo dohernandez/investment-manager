@@ -6,8 +6,8 @@ use App\Application\Account\Event\AccountUpdated;
 use App\Application\Account\Command\DepositMoneyCommand;
 use App\Application\Account\Handler\DepositMoneyCommandHandler;
 use App\Domain\Account\AccountAggregate;
-use App\Infrastructure\Aggregator\AggregateRepositoryInterface;
-use App\Infrastructure\Aggregator\AggregateRoot;
+use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
+use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\Money\Money;
 use DateTime;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +36,7 @@ final class DepositMoneyHandlerTest extends TestCase
         $accountAggregate->getUpdatedAt()->willReturn($updateAt)->shouldBeCalled();
         $accountAggregate->deposit($balance)->shouldBeCalled();
 
-        $aggregateRepository = $this->prophesize(AggregateRepositoryInterface::class);
+        $aggregateRepository = $this->prophesize(EventSourceRepositoryInterface::class);
         $aggregateRepository->load($id, AccountAggregate::class)->willReturn($accountAggregate);
         $aggregateRepository->store(
             Argument::that(

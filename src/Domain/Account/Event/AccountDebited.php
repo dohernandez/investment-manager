@@ -2,7 +2,7 @@
 
 namespace App\Domain\Account\Event;
 
-use App\Infrastructure\Aggregator\Event;
+use App\Infrastructure\EventSource\Event;
 use App\Infrastructure\Money\Money;
 
 final class AccountDebited

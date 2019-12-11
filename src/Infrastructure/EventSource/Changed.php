@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Infrastructure\Aggregator;
+namespace App\Infrastructure\EventSource;
 
 use DateTime;
 use Exception;
