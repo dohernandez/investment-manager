@@ -15,6 +15,13 @@ use DateTime;
 
 class AccountAggregate extends AggregateRoot
 {
+    public function __construct(string $id)
+    {
+        parent::__construct();
+
+        $this->id = $id;
+    }
+
     /**
      * @var string
      */
@@ -80,10 +87,11 @@ class AccountAggregate extends AggregateRoot
 
     public static function open(string $name, string $type, string $accountNo, Currency $currency): self
     {
-        $self = new static();
-        $self->id = UUID\Generator::generate();
+        $id = UUID\Generator::generate();
 
-        $self->recordChange(new AccountOpened($self->getId(), $name, $type, $accountNo, $currency));
+        $self = new static($id);
+
+        $self->recordChange(new AccountOpened($id, $name, $type, $accountNo, $currency));
 
         return $self;
     }
@@ -94,7 +102,7 @@ class AccountAggregate extends AggregateRoot
             return $this;
         }
 
-        $this->recordChange(new AccountDebited($money));
+        $this->recordChange(new AccountDebited($this->id, $money));
 
         return $this;
     }
@@ -105,7 +113,7 @@ class AccountAggregate extends AggregateRoot
             return $this;
         }
 
-        $this->recordChange(new AccountCredited($money));
+        $this->recordChange(new AccountCredited($this->id, $money));
 
         return $this;
     }
