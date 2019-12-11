@@ -7,9 +7,20 @@ use App\Infrastructure\Money\Money;
 
 final class AccountCredited
 {
-    public function __construct(Money $money)
+    public function __construct(string $id, Money $money)
     {
+        $this->id = $id;
         $this->money = $money;
+    }
+
+    /**
+     * @var string
+     */
+    private $id;
+
+    public function getId(): string
+    {
+        return $this->id;
     }
 
     /**

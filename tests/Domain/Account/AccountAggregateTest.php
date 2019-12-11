@@ -44,7 +44,7 @@ class AccountAggregateTest extends TestCase
 
         $accountOpened = new AccountOpened($id, $name, $type, $accountNo, $currency);
 
-        $accountAggregate = new AccountAggregate();
+        $accountAggregate = new AccountAggregate($id);
         $accountAggregate->replay(
                 [
                     new Changed(
@@ -63,6 +63,7 @@ class AccountAggregateTest extends TestCase
         $deposit = Money::fromEURValue(1500);
         $accountAggregate->deposit($deposit);
 
+        $this->assertEquals($id, $accountAggregate->getId());
         $this->assertEquals($name, $accountAggregate->getName());
         $this->assertEquals($type, $accountAggregate->getType());
         $this->assertEquals($accountNo, $accountAggregate->getAccountNo());
@@ -80,10 +81,10 @@ class AccountAggregateTest extends TestCase
         $accountOpened = new AccountOpened($id, $name, $type, $accountNo, $currency);
 
         $deposit = Money::fromEURValue(1500);
-        $accountCredited = new AccountCredited($deposit);
+        $accountCredited = new AccountCredited($id, $deposit);
 
 
-        $accountAggregate = new AccountAggregate();
+        $accountAggregate = new AccountAggregate($id);
         $accountAggregate->replay(
                 [
                     new Changed(
@@ -111,6 +112,7 @@ class AccountAggregateTest extends TestCase
         $credited = Money::fromEURValue(500);
         $accountAggregate->withdraw($credited);
 
+        $this->assertEquals($id, $accountAggregate->getId());
         $this->assertEquals($name, $accountAggregate->getName());
         $this->assertEquals($type, $accountAggregate->getType());
         $this->assertEquals($accountNo, $accountAggregate->getAccountNo());
