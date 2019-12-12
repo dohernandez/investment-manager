@@ -6,6 +6,7 @@ use App\Domain\Account\Event\AccountClosed;
 use App\Domain\Account\Event\AccountCredited;
 use App\Domain\Account\Event\AccountDebited;
 use App\Domain\Account\Event\AccountOpened;
+use App\Domain\Account\Exception\AccountClosedException;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\Money\Currency;
@@ -78,6 +79,24 @@ class Account extends AggregateRoot
         return $this->updatedAt;
     }
 
+    /**
+     * @var bool
+     */
+    protected $isClosed;
+
+    /**
+     * @return bool
+     */
+    public function isClosed(): bool
+    {
+        return $this->isClosed;
+    }
+
+    public function getTitle()
+    {
+        return sprintf('%s - %s', $this->getName(), $this->getAccountNo());
+    }
+
     public static function open(string $name, string $type, string $accountNo, Currency $currency): self
     {
         $id = UUID\Generator::generate();
@@ -91,6 +110,10 @@ class Account extends AggregateRoot
 
     public function withdraw(Money $money): self
     {
+        if ($this->isClosed) {
+            throw new AccountClosedException('Withdraw not possible, account closed');
+        }
+
         if ($money->getValue() == 0) {
             return $this;
         }
@@ -102,6 +125,10 @@ class Account extends AggregateRoot
 
     public function deposit(Money $money): self
     {
+        if ($this->isClosed) {
+            throw new AccountClosedException('Deposit not possible, account closed');
+        }
+
         if ($money->getValue() == 0) {
             return $this;
         }
@@ -132,6 +159,7 @@ class Account extends AggregateRoot
                 $this->createdAt = $changed->getCreatedAt();
                 $this->updatedAt = $changed->getCreatedAt();
                 $this->balance = new Money($event->getCurrency());
+                $this->isClosed = false;
 
                 break;
 
@@ -154,7 +182,7 @@ class Account extends AggregateRoot
                 break;
 
             case AccountClosed::class:
-                $this->id = null;
+                $this->isClosed = true;
 
                 break;
         }

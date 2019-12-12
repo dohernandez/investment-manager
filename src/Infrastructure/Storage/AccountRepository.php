@@ -41,6 +41,7 @@ final class AccountRepository implements AccountRepositoryInterface
             'balance' => $account->getBalance(),
             'createdAt' => $account->getCreatedAt(),
             'updatedAt' => $account->getUpdatedAt(),
+            'isClosed' => $account->isClosed(),
         ]);
 
         return $account;
@@ -51,17 +52,6 @@ final class AccountRepository implements AccountRepositoryInterface
         $this->eventSource->saveEvents($account->getChanges());
 
         $this->em->persist($account);
-        $this->em->flush();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function remove(Account $account)
-    {
-        $this->eventSource->saveEvents($account->getChanges());
-
-        $this->em->remove($account);
         $this->em->flush();
     }
 }

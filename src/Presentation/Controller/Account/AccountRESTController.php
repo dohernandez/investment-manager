@@ -5,7 +5,7 @@ namespace App\Presentation\Controller\Account;
 use App\Application\Account\Command\CloseAccount;
 use App\Application\Account\Command\OpenAccountCommand;
 use App\Application\Account\Repository\AccountRepositoryInterface;
-use App\Domain\Account\AccountAggregate;
+use App\Domain\Account\Account;
 use App\Infrastructure\Money\Currency;
 use App\Presentation\Controller\InvalidJsonRequestException;
 use App\Presentation\Controller\RESTController;
@@ -138,14 +138,8 @@ final class AccountRESTController extends RESTController
 
         // get the value that was returned by the last message handler
         $handledStamp = $envelope->last(HandledStamp::class);
-        /** @var AccountAggregate $accountAggregate */
-        $accountAggregate = $handledStamp->getResult();
-
-        try {
-            $account = $accountRepository->find($accountAggregate->getId());
-        } catch (\Exception $e) {
-            return $this->createApiErrorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        /** @var Account $account */
+        $account = $handledStamp->getResult();
 
         return $this->createApiResponse($account, Response::HTTP_CREATED);
     }

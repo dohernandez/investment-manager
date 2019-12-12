@@ -2,53 +2,35 @@
 
 namespace App\Application\Account\Handler;
 
-use App\Domain\Account\AccountAggregate;
+use App\Application\Account\Repository\AccountRepositoryInterface;
+use App\Domain\Account\Account;
 use App\Application\Account\Event\AccountCreated;
 use App\Application\Account\Command\OpenAccountCommand;
-use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class OpenAccountCommandHandler implements MessageHandlerInterface
 {
     /**
-     * @var EventSourceRepositoryInterface
+     * @var AccountRepositoryInterface
      */
-    private $aggregateRepository;
+    private $accountRepository;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $bus;
-
-    public function __construct(EventSourceRepositoryInterface $aggregateRepository, MessageBusInterface $bus)
-    {
-        $this->aggregateRepository = $aggregateRepository;
-        $this->bus = $bus;
+    public function __construct(AccountRepositoryInterface $accountRepository) {
+        $this->accountRepository = $accountRepository;
     }
 
     public function __invoke(OpenAccountCommand $message)
     {
-        $accountAggregate = AccountAggregate::open(
+        $account = Account::open(
             $message->getName(),
             $message->getType(),
             $message->getAccountNo(),
             $message->getCurrency()
         );
 
-        $this->aggregateRepository->store($accountAggregate);
+        $this->accountRepository->save($account);
 
-        $this->bus->dispatch(
-            new AccountCreated(
-                $accountAggregate->getId(),
-                $accountAggregate->getName(),
-                $accountAggregate->getType(),
-                $accountAggregate->getAccountNo(),
-                $accountAggregate->getBalance(),
-                $accountAggregate->getCreatedAt()
-            )
-        );
-
-        return $accountAggregate;
+        return $account;
     }
 }

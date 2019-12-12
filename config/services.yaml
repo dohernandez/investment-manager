@@ -101,9 +101,12 @@ services:
 
     ##### APPLICATION LAYER START
 
+    # Interfaces
+    App\Application\Account\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\AccountRepository'
+
     ##### APPLICATION LAYER END
 
-    App\Application\Account\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\AccountRepository'
+#    App\Application\Account\Repository\ProjectionAccountRepositoryInterface: '@App\Infrastructure\Storage\AccountRepository'
 
     ##### INFRASTRUCTURE LAYER START
 
@@ -114,10 +117,6 @@ services:
         # you can exclude directories or files
         # but if a service is unused, it's removed anyway
         exclude: '../src/Infrastructure/{Aggregator,Money}'
-
-    # Aggregator
-    App\Infrastructure\EventSource\EventSourceRepositoryInterface: '@App\Infrastructure\EventSource\EventSourceRepository'
-    App\Infrastructure\EventSource\EventSourceRepository: ~
 
     app.doctrine.entity_listener:
         class: App\Infrastructure\EventSource\EventSourceListener
@@ -131,6 +130,7 @@ services:
             - [addMapping, ['App\Infrastructure\EventSource\EventSourceListener', 'app.doctrine.entity_listener']]
 
     # Storage
+#    App\Infrastructure\Storage\AccountAggregateRepository: ~
     App\Infrastructure\Storage\AccountRepository: ~
 
     ##### INFRASTRUCTURE LAYER END

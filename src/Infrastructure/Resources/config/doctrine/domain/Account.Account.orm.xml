@@ -18,6 +18,11 @@
         <field name="balance" column="balance" type="object" />
         <field name="createdAt" column="created_at" type="datetime" />
         <field name="updatedAt" column="updated_at" type="datetime" />
+        <field name="isClosed" column="closed" type="boolean">
+            <options>
+                <option name="default">0</option>
+            </options>
+        </field>
     </entity>
 
 </doctrine-mapping>

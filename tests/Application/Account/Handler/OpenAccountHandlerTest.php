@@ -2,17 +2,13 @@
 
 namespace App\Tests\Application\Account\Handler;
 
-use App\Application\Account\Event\AccountCreated;
 use App\Application\Account\Command\OpenAccountCommand;
 use App\Application\Account\Handler\OpenAccountCommandHandler;
-use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
-use App\Infrastructure\EventSource\AggregateRoot;
+use App\Application\Account\Repository\AccountRepositoryInterface;
+use App\Domain\Account\Account;
 use App\Infrastructure\Money\Currency;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use stdClass;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @group unit
@@ -28,36 +24,23 @@ final class OpenAccountHandlerTest extends TestCase
         $accountNo = 'DE67500105176511458445';
         $currency = Currency::eur();
 
-        $aggregateRepository = $this->prophesize(EventSourceRepositoryInterface::class);
+        $accountRepository = $this->prophesize(AccountRepositoryInterface::class);
 
-        $aggregateRepository->store(
+        $accountRepository->save(
             Argument::that(
-                function (AggregateRoot $accountAggregate) use ($name, $type, $accountNo, $currency) {
-                    $this->assertEquals($name, $accountAggregate->getName());
-                    $this->assertEquals($type, $accountAggregate->getType());
-                    $this->assertEquals($accountNo, $accountAggregate->getAccountNo());
-                    $this->assertEquals($currency, $accountAggregate->getBalance()->getCurrency());
-                    $this->assertEquals(0, $accountAggregate->getBalance()->getValue());
+                function (Account $account) use ($name, $type, $accountNo, $currency) {
+                    $this->assertEquals($name, $account->getName());
+                    $this->assertEquals($type, $account->getType());
+                    $this->assertEquals($accountNo, $account->getAccountNo());
+                    $this->assertEquals($currency, $account->getBalance()->getCurrency());
+                    $this->assertEquals(0, $account->getBalance()->getValue());
 
                     return true;
                 }
             )
         )->shouldBeCalled();
 
-        $bus = $this->prophesize(MessageBusInterface::class);
-        $bus->dispatch(Argument::that(function (AccountCreated $event) use ($name, $type, $accountNo, $currency) {
-            $this->assertNotEmpty($event->getId());
-            $this->assertEquals($name, $event->getName());
-            $this->assertEquals($type, $event->getType());
-            $this->assertEquals($accountNo, $event->getAccountNo());
-            $this->assertEquals($currency, $event->getBalance()->getCurrency());
-            $this->assertEquals(0, $event->getBalance()->getValue());
-            $this->assertNotEmpty($event->getCreatedAt());
-
-            return true;
-        }))->willReturn(new Envelope(new stdClass()))->shouldBeCalled();
-
-        $handler = new OpenAccountCommandHandler($aggregateRepository->reveal(), $bus->reveal());
+        $handler = new OpenAccountCommandHandler($accountRepository->reveal());
         $handler(new OpenAccountCommand($name, $type,  $accountNo, $currency));
     }
 }

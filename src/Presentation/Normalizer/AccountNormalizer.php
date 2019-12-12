@@ -2,7 +2,7 @@
 
 namespace App\Presentation\Normalizer;
 
-use App\Domain\Account\Projection\Account;
+use App\Domain\Account\Account;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
