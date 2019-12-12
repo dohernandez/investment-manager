@@ -5,10 +5,11 @@ namespace App\Infrastructure\EventSource;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Infrastructure\UUID;
 
-abstract class AggregateRoot
+abstract class AggregateRoot implements EventSourcedAggregateRoot
 {
-    public function __construct()
+    public function __construct(string $id)
     {
+        $this->id = $id;
         $this->changes = new ArrayCollection();
         $this->version = 0;
     }
@@ -69,22 +70,19 @@ abstract class AggregateRoot
     abstract protected function apply(Changed $changed);
 
     /**
-     * @param Changed[] $historyChanges
+     * @inheritDoc
      */
-    public function replay(array $historyChanges): self
+    public static function reconstitute(string $id, array $changes)
     {
-        foreach ($historyChanges as $changed) {
-            $this->version = $changed->getAggregateVersion();
-            $this->changes->add($changed);
+        $self = new static($id);
 
-            $this->apply($changed);
+        foreach ($changes as $changed) {
+            $self->version = $changed->getAggregateVersion();
+            $self->changes->add($changed);
+
+            $self->apply($changed);
         }
 
-        return $this;
-    }
-
-    public function getLastChanged(): Changed
-    {
-        return $this->changes->last();
+        return $self;
     }
 }
