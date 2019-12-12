@@ -19,7 +19,7 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
      */
     protected $id;
 
-    public function getId(): string
+    public function getId(): ?string
     {
         return $this->id;
     }
@@ -72,17 +72,15 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
     /**
      * @inheritDoc
      */
-    public static function reconstitute(string $id, array $changes)
+    public function replay(array $changes)
     {
-        $self = new static($id);
-
         foreach ($changes as $changed) {
-            $self->version = $changed->getAggregateVersion();
-            $self->changes->add($changed);
+            $this->version = $changed->getAggregateVersion();
+            $this->changes->add($changed);
 
-            $self->apply($changed);
+            $this->apply($changed);
         }
 
-        return $self;
+        return $this;
     }
 }

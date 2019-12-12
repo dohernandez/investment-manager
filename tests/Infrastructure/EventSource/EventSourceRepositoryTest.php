@@ -45,13 +45,6 @@ final class EventSourceRepositoryTest extends AppDoctrineKernelTestCase
 
         // implementation of the abstract class AggregateRoot
         $anonymous = new class($aggregateId) extends AggregateRoot {
-            public function __construct(string $id)
-            {
-                parent::__construct();
-
-                $this->id = $id;
-            }
-
             /**
              * @@var string $name
              */

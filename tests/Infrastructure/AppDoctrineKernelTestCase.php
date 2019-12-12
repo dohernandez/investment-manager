@@ -5,6 +5,7 @@ namespace App\Tests\Infrastructure;
 use App\Domain\Account\Projection\Account;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 abstract class AppDoctrineKernelTestCase extends KernelTestCase
 {
@@ -57,9 +58,8 @@ abstract class AppDoctrineKernelTestCase extends KernelTestCase
         }
     }
 
-    protected function getRepository(string $entityName)
+    protected function getRepository(string $className)
     {
-        return $this->entityManager
-            ->getRepository($entityName);
+        return self::$container->get($className);
     }
 }
