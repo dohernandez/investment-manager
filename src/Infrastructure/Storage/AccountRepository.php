@@ -3,50 +3,65 @@
 namespace App\Infrastructure\Storage;
 
 use App\Application\Account\Repository\AccountRepositoryInterface;
-use App\Domain\Account\Projection\Account;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use App\Domain\Account\Account;
+use App\Domain\Account\AccountAggregate;
+use App\Infrastructure\EventSource\AggregateRootRepository;
+use App\Infrastructure\EventSource\EventSourceRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
-/**
- * @method Account|null find($id, $lockMode = null, $lockVersion = null)
- * @method Account|null findOneBy(array $criteria, array $orderBy = null)
- * @method Account[]    findAll()
- * @method Account[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
-final class AccountRepository extends ServiceEntityRepository implements AccountRepositoryInterface
+final class AccountRepository implements AccountRepositoryInterface
 {
-    public function __construct(RegistryInterface $registry)
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
+
+    /**
+     * @var EventSourceRepository
+     */
+    private $eventSource;
+
+    public function __construct(EntityManagerInterface $em, EventSourceRepository $eventSource)
     {
-        parent::__construct($registry, Account::class);
+        $this->em = $em;
+        $this->eventSource = $eventSource;
+    }
+
+    public function find(string $id): Account
+    {
+        $changes = $this->eventSource->findEvents($id, Account::class);
+
+        $account = (new Account($id))->replay($changes);
+
+        $this->em->getUnitOfWork()->registerManaged($account, ['id' => $id], [
+            'id' => $account->getId(),
+            'name' => $account->getName(),
+            'type' => $account->getType(),
+            'accountNo' => $account->getAccountNo(),
+            'balance' => $account->getBalance(),
+            'createdAt' => $account->getCreatedAt(),
+            'updatedAt' => $account->getUpdatedAt(),
+        ]);
+
+        return $account;
+    }
+
+    public function save(Account $account)
+    {
+        $this->eventSource->saveEvents($account->getChanges());
+
+        $this->em->persist($account);
+        $this->em->flush();
     }
 
     /**
      * @inheritDoc
      */
-    public function allMatching(string $query, int $limit = 5): array
+    public function remove(Account $account)
     {
-        return $this->createQueryBuilder('a')
-            ->andWhere('a.accountNo LIKE :accountNo OR a.name LIKE :name')
-            ->setParameter('accountNo', '%'.$query.'%')
-            ->setParameter('name', '%'.$query.'%')
-            ->orderBy('a.name', 'ASC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult()
-            ;
-    }
+        $this->eventSource->saveEvents($account->getChanges());
 
-    public function save(Account $account)
-    {
-        $this->_em->persist($account);
-        $this->_em->flush();
-    }
-
-    public function delete($id)
-    {
-        $this->_em->createQuery('DELETE FROM ' . Account::class . ' account WHERE account.id = :id')
-            ->setParameter('id', $id)
-            ->execute()
-        ;
+        $this->em->remove($account);
+        $this->em->flush();
     }
 }

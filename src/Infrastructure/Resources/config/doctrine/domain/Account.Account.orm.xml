@@ -4,7 +4,7 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
-    <entity name="App\Domain\Account\Projection\Account" table="projection_account" repository-class="App\Infrastructure\Storage\AccountRepository">
+    <entity name="App\Domain\Account\Account" table="projection_account">
 
         <unique-constraints>
             <unique-constraint columns="name" name="name_idx" />

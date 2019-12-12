@@ -13,15 +13,8 @@ use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
 
-class AccountAggregate extends AggregateRoot
+class Account extends AggregateRoot
 {
-    public function __construct(string $id)
-    {
-        parent::__construct();
-
-        $this->id = $id;
-    }
-
     /**
      * @var string
      */
