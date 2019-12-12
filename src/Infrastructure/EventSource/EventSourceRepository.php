@@ -3,6 +3,7 @@
 namespace App\Infrastructure\EventSource;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
 final class EventSourceRepository extends ServiceEntityRepository implements EventSourceRepositoryInterface
@@ -12,10 +13,12 @@ final class EventSourceRepository extends ServiceEntityRepository implements Eve
         parent::__construct($registry, Changed::class);
     }
 
-    public function load(string $id, string $typeName, int $fromNumber = 1, int $count = null)
+    /**
+     * @inheritDoc
+     */
+    public function findEvents(string $id, string $typeName, int $fromNumber = 1, int $count = null): array
     {
-        /** @var Changed[] $changes */
-        $changes = $this->createQueryBuilder('c')
+        return $this->createQueryBuilder('c')
             ->andWhere('c.aggregateId = :id')
             ->setParameter('id', $id)
             ->andWhere('c.aggregateType = :typeName')
@@ -24,27 +27,19 @@ final class EventSourceRepository extends ServiceEntityRepository implements Eve
             ->setParameter('fromNumber', $fromNumber)
             ->setMaxResults($count)
             ->getQuery()
-            ->getResult();
-
-        if (empty($changes)) {
-            return null;
-        }
-
-        /** @var AggregateRoot $aggregate */
-        $aggregate = new $typeName($id);
-        $aggregate->replay($changes);
-
-        return $aggregate;
+            ->getResult()
+        ;
     }
 
-    public function store(AggregateRoot $aggregateRoot)
+    /**
+     * @inheritDoc
+     */
+    public function saveEvents(ArrayCollection $changes)
     {
-        $em = $this->getEntityManager();
-
-        foreach ($aggregateRoot->getChanges() as $change) {
-            $em->persist($change);
+        foreach ($changes as $change) {
+            $this->_em->persist($change);
         }
 
-        $em->flush();
+        $this->_em->flush();
     }
 }

@@ -4,7 +4,7 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                           https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
-    <entity name="App\Infrastructure\EventSource\Changed" table="event_source" repository-class="App\Infrastructure\EventSource\EventSourceRepository">
+    <entity name="App\Infrastructure\EventSource\Changed" table="event_source">
 
         <unique-constraints>
             <unique-constraint columns="event_id" name="event_idx" />

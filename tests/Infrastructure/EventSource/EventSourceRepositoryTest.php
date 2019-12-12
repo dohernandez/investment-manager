@@ -2,7 +2,7 @@
 
 namespace App\Tests\Infrastructure\EventSource;
 
-use App\Domain\Account\Projection\Account;
+use App\Domain\Account\Account;
 use App\Infrastructure\EventSource\EventSourceRepository;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -31,7 +31,7 @@ final class EventSourceRepositoryTest extends AppDoctrineKernelTestCase
     /**
      * @var EventSourceRepository
      */
-    protected $aggregateRepository;
+    protected $eventSourceRepository;
 
     /**
      * @inheritDoc
@@ -44,7 +44,7 @@ final class EventSourceRepositoryTest extends AppDoctrineKernelTestCase
         $username = 'USER NAME';
 
         // implementation of the abstract class AggregateRoot
-        $anonymousAggregateRoot = new class($aggregateId) extends AggregateRoot {
+        $anonymous = new class($aggregateId) extends AggregateRoot {
             public function __construct(string $id)
             {
                 parent::__construct();
@@ -78,24 +78,23 @@ final class EventSourceRepositoryTest extends AppDoctrineKernelTestCase
             }
         };
 
-        $anonymousAggregateRoot->create($username);
+        $anonymous->create($username);
 
-        $this->aggregateType = get_class($anonymousAggregateRoot);
+        $this->aggregateType = get_class($anonymous);
         $this->aggregateId = $aggregateId;
         $this->username = $username;
 
-        $this->aggregateRepository = $this->entityManager
-            ->getRepository(Changed::class);
+        $this->eventSourceRepository = $this->getRepository(EventSourceRepository::class);
 
-        $this->aggregateRepository->store($anonymousAggregateRoot);
+        $this->eventSourceRepository->saveEvents($anonymous->getChanges());
     }
 
     public function testLoad()
     {
         /** @var AggregateRoot $aggregateRoot */
-        $aggregateRoot = $this->aggregateRepository->load($this->aggregateId, $this->aggregateType);
+        $changes = $this->eventSourceRepository->findEvents($this->aggregateId, $this->aggregateType);
 
-        $this->assertCount(1, $aggregateRoot->getChanges());
+        $this->assertCount(1, $changes);
     }
 
     /**
@@ -103,7 +102,7 @@ final class EventSourceRepositoryTest extends AppDoctrineKernelTestCase
      */
     protected function tearDown()
     {
-        $this->truncate(Account::class);
+        $this->truncate(Changed::class);
 
         parent::tearDown();
     }
