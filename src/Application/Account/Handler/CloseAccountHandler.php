@@ -3,29 +3,28 @@
 namespace App\Application\Account\Handler;
 
 use App\Application\Account\Command\CloseAccount;
+use App\Application\Account\Repository\AccountRepositoryInterface;
 use App\Domain\Account\AccountAggregate;
-use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class CloseAccountHandler implements MessageHandlerInterface
 {
     /**
-     * @var EventSourceRepositoryInterface
+     * @var AccountRepositoryInterface
      */
-    private $aggregateRepository;
+    private $accountRepository;
 
-    public function __construct(EventSourceRepositoryInterface $aggregateRepository)
+    public function __construct(AccountRepositoryInterface $accountRepository)
     {
-        $this->aggregateRepository = $aggregateRepository;
+        $this->accountRepository = $accountRepository;
     }
 
     public function __invoke(CloseAccount $message)
     {
-        /** @var AccountAggregate $accountAggregate */
-        $accountAggregate = $this->aggregateRepository->load($message->getId(), AccountAggregate::class);
+        $account = $this->accountRepository->find($message->getId());
 
-        $accountAggregate->close();
+        $account->close();
 
-        $this->aggregateRepository->store($accountAggregate);
+        $this->accountRepository->save($account);
     }
 }

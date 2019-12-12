@@ -44,19 +44,21 @@ class AccountTest extends TestCase
 
         $accountOpened = new AccountOpened($id, $name, $type, $accountNo, $currency);
 
-        $account = Account::replay(
-            [
-                new Changed(
-                    UUID\Generator::generate(),
-                    get_class($accountOpened),
-                    $accountOpened,
-                    new Metadata(),
-                    Account::class,
-                    $id,
-                    1
-                )
-            ]
-        );
+        $account = new Account($id);
+        $account->replay(
+                [
+                    new Changed(
+                        UUID\Generator::generate(),
+                        get_class($accountOpened),
+                        $accountOpened,
+                        new Metadata(),
+                        get_class($account),
+                        $id,
+                        1
+                    )
+                ]
+            )
+        ;
 
         $deposit = Money::fromEURValue(1500);
         $account->deposit($deposit);
@@ -81,28 +83,31 @@ class AccountTest extends TestCase
         $deposit = Money::fromEURValue(1500);
         $accountCredited = new AccountCredited($id, $deposit);
 
-        $account = Account::replay(
-            [
-                new Changed(
-                    UUID\Generator::generate(),
-                    get_class($accountOpened),
-                    $accountOpened,
-                    new Metadata(),
-                    Account::class,
-                    $id,
-                    1
-                ),
-                new Changed(
-                    UUID\Generator::generate(),
-                    get_class($accountCredited),
-                    $accountCredited,
-                    new Metadata(),
-                    Account::class,
-                    $id,
-                    1
-                )
-            ]
-        );
+
+        $account = new Account($id);
+        $account->replay(
+                [
+                    new Changed(
+                        UUID\Generator::generate(),
+                        get_class($accountOpened),
+                        $accountOpened,
+                        new Metadata(),
+                        get_class($account),
+                        $id,
+                        1
+                    ),
+                    new Changed(
+                        UUID\Generator::generate(),
+                        get_class($accountCredited),
+                        $accountCredited,
+                        new Metadata(),
+                        get_class($account),
+                        $id,
+                        1
+                    )
+                ]
+            )
+        ;
 
         $credited = Money::fromEURValue(500);
         $account->withdraw($credited);
@@ -124,6 +129,6 @@ class AccountTest extends TestCase
         $account = Account::open($name, $type, $accountNo, $currency);
         $account->close();
 
-        $this->assertNull($account->getId());
+        $this->assertTrue($account->isClosed());
     }
 }

@@ -112,24 +112,6 @@ final class AccountRepositoryTest extends AppDoctrineKernelTestCase
         $this->assertEquals($account->getBalance(), $result->getBalance());
     }
 
-    public function testRemove()
-    {
-        $account = $this->provideAccount();
-
-        /** @var AccountRepository $repo */
-        $repo = $this->getRepository(AccountRepository::class);
-
-        $repo->save($account);
-
-        $repo->remove($account);
-
-        // Clearing the em in memory.
-        $this->entityManager->clear();
-        $result = $this->entityManager->find(Account::class, $account->getId());
-
-        $this->assertNull($result);
-    }
-
     /**
      * @inheritDoc
      */

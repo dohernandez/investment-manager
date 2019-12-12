@@ -4,8 +4,8 @@ namespace App\Tests\Application\Account\Handler;
 
 use App\Application\Account\Command\CloseAccount;
 use App\Application\Account\Handler\CloseAccountHandler;
-use App\Domain\Account\AccountAggregate;
-use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
+use App\Application\Account\Repository\AccountRepositoryInterface;
+use App\Domain\Account\Account;
 use App\Infrastructure\EventSource\AggregateRoot;
 use PHPUnit\Framework\TestCase;
 use App\Infrastructure\UUID;
@@ -18,23 +18,23 @@ final class CloseAccountHandlerTest extends TestCase
         $id = UUID\Generator::generate();
         $event = new CloseAccount($id);
 
-        $accountAggregate = $this->prophesize(AccountAggregate::class);
-        $accountAggregate->close()->shouldBeCalled();
-        $accountAggregate->getId()->willReturn($id)->shouldBeCalled();
+        $account = $this->prophesize(Account::class);
+        $account->getId()->willReturn($id)->shouldBeCalled();
+        $account->close()->shouldBeCalled();
 
-        $repo = $this->prophesize(EventSourceRepositoryInterface::class);
-        $repo->load($id, AccountAggregate::class)->willReturn($accountAggregate->reveal())->shouldBeCalled();
-        $repo->store(
+        $accountRepository = $this->prophesize(AccountRepositoryInterface::class);
+        $accountRepository->find($id)->willReturn($account->reveal())->shouldBeCalled();
+        $accountRepository->save(
             Argument::that(
-                function (AggregateRoot $accountAggregate) use ($id) {
-                    $this->assertEquals($id, $accountAggregate->getId());
+                function (Account $account) use ($id) {
+                    $this->assertEquals($id, $account->getId());
 
                     return true;
                 }
             )
         )->shouldBeCalled();
 
-        $handler = new CloseAccountHandler($repo->reveal());
+        $handler = new CloseAccountHandler($accountRepository->reveal());
         $handler($event);
     }
 }

@@ -5,8 +5,8 @@ namespace App\Tests\Application\Account\Handler;
 use App\Application\Account\Event\AccountUpdated;
 use App\Application\Account\Command\WithdrawMoneyCommand;
 use App\Application\Account\Handler\WithdrawMoneyCommandHandler;
-use App\Domain\Account\AccountAggregate;
-use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
+use App\Application\Account\Repository\AccountRepositoryInterface;
+use App\Domain\Account\Account;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\Money\Money;
 use DateTime;
@@ -30,38 +30,23 @@ final class WithdrawMoneyHandlerTest extends TestCase
         $updateAt = new DateTime();
         $balance = Money::fromEURValue(1500);
 
-        $aggregateAggregate = $this->prophesize(AccountAggregate::class);
-        $aggregateAggregate->getId()->willReturn($id)->shouldBeCalled();
-        $aggregateAggregate->getBalance()->willReturn($balance)->shouldBeCalled();
-        $aggregateAggregate->getUpdatedAt()->willReturn($updateAt)->shouldBeCalled();
-        $aggregateAggregate->withdraw($balance)->shouldBeCalled();
+        $account = $this->prophesize(Account::class);
+        $account->getId()->willReturn($id)->shouldBeCalled();
+        $account->withdraw($balance)->shouldBeCalled();
 
-        $accountRepository = $this->prophesize(EventSourceRepositoryInterface::class);
-        $accountRepository->load($id, AccountAggregate::class)->willReturn($aggregateAggregate);
-        $accountRepository->store(
+        $accountRepository = $this->prophesize(AccountRepositoryInterface::class);
+        $accountRepository->find($id)->willReturn($account);
+        $accountRepository->save(
             Argument::that(
-                function (AggregateRoot $accountAggregate) use ($id) {
-                    $this->assertEquals($id, $accountAggregate->getId());
+                function (Account $account) use ($id) {
+                    $this->assertEquals($id, $account->getId());
 
                     return true;
                 }
             )
         )->shouldBeCalled();
 
-        $bus = $this->prophesize(MessageBusInterface::class);
-        $bus->dispatch(
-            Argument::that(
-                function (AccountUpdated $event) use ($id, $updateAt, $balance) {
-                    $this->assertEquals($id, $event->getId());
-                    $this->assertEquals($updateAt, $event->getUpdatedAt());
-                    $this->assertEquals($balance, $event->getBalance());
-
-                    return true;
-                }
-            )
-        )->willReturn(new Envelope(new stdClass()))->shouldBeCalled();
-
-        $handler = new WithdrawMoneyCommandHandler($accountRepository->reveal(), $bus->reveal());
+        $handler = new WithdrawMoneyCommandHandler($accountRepository->reveal());
         $handler(new WithdrawMoneyCommand($id, $balance));
     }
 }
