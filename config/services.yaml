@@ -103,10 +103,10 @@ services:
 
     # Interfaces
     App\Application\Account\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\AccountRepository'
+    App\Application\Account\Repository\ProjectionAccountRepositoryInterface: '@App\Infrastructure\Storage\ProjectionAccountRepository'
 
     ##### APPLICATION LAYER END
 
-#    App\Application\Account\Repository\ProjectionAccountRepositoryInterface: '@App\Infrastructure\Storage\AccountRepository'
 
     ##### INFRASTRUCTURE LAYER START
 
@@ -130,7 +130,7 @@ services:
             - [addMapping, ['App\Infrastructure\EventSource\EventSourceListener', 'app.doctrine.entity_listener']]
 
     # Storage
-#    App\Infrastructure\Storage\AccountAggregateRepository: ~
+    App\Infrastructure\Storage\ProjectionAccountRepository: ~
     App\Infrastructure\Storage\AccountRepository: ~
 
     ##### INFRASTRUCTURE LAYER END
