@@ -29,7 +29,7 @@ final class ProjectionAccountRepository extends ServiceEntityRepository implemen
             ->andWhere('a.accountNo LIKE :accountNo OR a.name LIKE :name')
             ->setParameter('accountNo', '%'.$query.'%')
             ->setParameter('name', '%'.$query.'%')
-            ->andWhere('a.isClose = true')
+            ->andWhere('a.isClosed = false')
             ->orderBy('a.name', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
