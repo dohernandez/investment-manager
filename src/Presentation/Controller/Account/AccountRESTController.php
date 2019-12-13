@@ -5,6 +5,7 @@ namespace App\Presentation\Controller\Account;
 use App\Application\Account\Command\CloseAccount;
 use App\Application\Account\Command\OpenAccountCommand;
 use App\Application\Account\Repository\AccountRepositoryInterface;
+use App\Application\Account\Repository\ProjectionAccountRepositoryInterface;
 use App\Domain\Account\Account;
 use App\Infrastructure\Money\Currency;
 use App\Presentation\Controller\InvalidJsonRequestException;
@@ -26,19 +27,21 @@ final class AccountRESTController extends RESTController
     /**
      * @Route("/", name="account_list", methods={"GET"}, options={"expose"=true})
      *
-     * @param AccountRepositoryInterface $accountRepository
+     * @param ProjectionAccountRepositoryInterface $projectionAccountRepository
      * @param Request $request
      *
      * @return JsonResponse
      */
-    public function all(AccountRepositoryInterface $accountRepository, Request $request): JsonResponse
-    {
+    public function all(
+        ProjectionAccountRepositoryInterface $projectionAccountRepository,
+        Request $request
+    ): JsonResponse {
         $query = $request->query->get('q');
 
         if ($query !== null) {
-            $accounts = $accountRepository->allMatching($query);
+            $accounts = $projectionAccountRepository->findAllOpenMatching($query);
         } else {
-            $accounts = $accountRepository->findAll();
+            $accounts = $projectionAccountRepository->findAllOpen();
         }
 
         return $this->createApiResponse($accounts);
@@ -48,18 +51,18 @@ final class AccountRESTController extends RESTController
      * @Route("/{id}", name="account_get", methods={"GET"}, options={"expose"=true})
      *
      * @param string $id
-     * @param AccountRepositoryInterface $accountRepository
+     * @param ProjectionAccountRepositoryInterface $projectionAccountRepository
      *
      * @return JsonResponse
      */
-    public function one(string $id, AccountRepositoryInterface $accountRepository): JsonResponse
+    public function one(string $id, ProjectionAccountRepositoryInterface $projectionAccountRepository): JsonResponse
     {
         if ($id == '') {
             return $this->createApiErrorResponse('Account not found', Response::HTTP_NOT_FOUND);
         }
 
         try {
-            $account = $accountRepository->find($id);
+            $account = $projectionAccountRepository->find($id);
         } catch (\Exception $e) {
             return $this->createApiErrorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
