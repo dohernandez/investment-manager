@@ -21,7 +21,7 @@ final class AccountRepositoryTest extends AppDoctrineKernelTestCase
 {
     public function testSave()
     {
-        $account = $this->provideAccount();
+        $account = AccountProvider::provide('Random Iban 1', 'iban', 'DE67500105176511458445');
 
         /** @var AccountRepository $repo */
         $repo = $this->getRepository(AccountRepository::class);
@@ -45,24 +45,9 @@ final class AccountRepositoryTest extends AppDoctrineKernelTestCase
 
     }
 
-    private function provideAccount(): Account
-    {
-        $id = UUID\Generator::generate();
-        $name = 'Random Iban 1';
-        $type = 'iban';
-        $accountNo = 'DE67500105176511458445';
-        $balance = Money::fromEURValue(1000);
-
-        $account = Account::open($id, $type, $accountNo, Currency::eur());
-
-        $account->deposit($balance);
-
-        return $account;
-    }
-
     public function testLoadAndSafe()
     {
-        $account = $this->provideAccount();
+        $account = AccountProvider::provide('Random Iban 1', 'iban', 'DE67500105176511458445');
 
         /** @var AccountRepository $repo */
         $repo = $this->getRepository(AccountRepository::class);
@@ -92,7 +77,12 @@ final class AccountRepositoryTest extends AppDoctrineKernelTestCase
 
     public function testFind()
     {
-        $account = $this->provideAccount();
+        $account = AccountProvider::provideWithDeposit(
+            'Random Iban 1',
+            'iban',
+            'DE67500105176511458445',
+            1000
+        );
 
         /** @var AccountRepository $repo */
         $repo = $this->getRepository(AccountRepository::class);
