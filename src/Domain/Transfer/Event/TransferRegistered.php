@@ -2,6 +2,7 @@
 
 namespace App\Domain\Transfer\Event;
 
+use App\Domain\Transfer\Account;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
@@ -9,8 +10,8 @@ final class TransferRegistered
 {
     public function __construct(
         string $id,
-        string $beneficiaryParty,
-        string $debtorParty,
+        Account $beneficiaryParty,
+        Account $debtorParty,
         Money $amount,
         DateTime $date
     ) {
@@ -35,27 +36,21 @@ final class TransferRegistered
     }
 
     /**
-     * @var string
+     * @var Account
      */
     private $beneficiaryParty;
 
-    /**
-     * @return string
-     */
-    public function getBeneficiaryParty(): string
+    public function getBeneficiaryParty(): Account
     {
         return $this->beneficiaryParty;
     }
 
     /**
-     * @var string
+     * @var Account
      */
     private $debtorParty;
 
-    /**
-     * @return string
-     */
-    public function getDebtorParty(): string
+    public function getDebtorParty(): Account
     {
         return $this->debtorParty;
     }
