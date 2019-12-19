@@ -19,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class TransferController extends BaseController
 {
     /**
-     * @Route("/", name="transfer_list", methods={"GET"}, options={"expose"=true})
      *
      * @param TransferRepository $repo
      *
