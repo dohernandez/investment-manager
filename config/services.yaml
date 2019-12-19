@@ -105,6 +105,10 @@ services:
     App\Application\Account\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\AccountRepository'
     App\Application\Account\Repository\ProjectionAccountRepositoryInterface: '@App\Infrastructure\Storage\ProjectionAccountRepository'
 
+    App\Application\Trasnfer\Repository\TransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\TransferRepository'
+    App\Application\Trasnfer\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\Transfer\AccountRepository'
+    App\Application\Trasnfer\Repository\ProjectionTransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\ProjectionTransferRepository'
+
     ##### APPLICATION LAYER END
 
 
@@ -132,5 +136,9 @@ services:
     # Storage
     App\Infrastructure\Storage\ProjectionAccountRepository: ~
     App\Infrastructure\Storage\AccountRepository: ~
+
+    App\Infrastructure\Storage\Transfer\TransferRepository: ~
+    App\Infrastructure\Storage\Transfer\AccountRepository: ~
+    App\Infrastructure\Storage\Transfer\ProjectionTransferRepository: ~
 
     ##### INFRASTRUCTURE LAYER END
