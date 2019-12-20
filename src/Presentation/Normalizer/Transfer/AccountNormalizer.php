@@ -37,6 +37,7 @@ final class AccountNormalizer implements SubscribingHandlerInterface
             'id' => $account->getId(),
             'name' => $account->getName(),
             'accountNo' => $account->getAccountNo(),
+            'title' => $account->getTitle(),
         ];
     }
 }

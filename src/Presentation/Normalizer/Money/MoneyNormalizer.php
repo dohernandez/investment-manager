@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Presentation\Normalizer\Transfer;
+namespace App\Presentation\Normalizer\Money;
 
-use App\Domain\Transfer\Transfer;
+use App\Infrastructure\Money\Money;
 use JMS\Serializer\ArrayTransformerInterface;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigatorInterface;
@@ -14,7 +14,7 @@ use JMS\Serializer\JsonSerializationVisitor;
  *
  * @see http://jmsyst.com/libs/serializer/master/handlers
  */
-final class TransferNormalizer implements SubscribingHandlerInterface
+class MoneyNormalizer implements SubscribingHandlerInterface
 {
     /**
      * @var ArrayTransformerInterface
@@ -35,21 +35,19 @@ final class TransferNormalizer implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
                 'format'    => 'json',
-                'type'      => Transfer::class,
-                'method'    => 'serializeTransferToJson',
+                'type'      => Money::class,
+                'method'    => 'serializeMoneyToJson',
             ],
         ];
     }
 
-    public function serializeTransferToJson(JsonSerializationVisitor $visitor, Transfer $transfer, array $type, Context $context)
+    public function serializeMoneyToJson(JsonSerializationVisitor $visitor, Money $money, array $type, Context $context)
     {
         return [
-            'id' => $transfer->getId(),
-            'beneficiary' => $this->serializer->toArray($transfer->getBeneficiaryParty()),
-            'debtor' => $this->serializer->toArray($transfer->getDebtorParty()),
-            'amount' => $this->serializer->toArray($transfer->getAmount()),
-            'date' => $transfer->getDate()->format('c'),
-            'title' => $transfer->getTitle(),
+            'currency' => $this->serializer->toArray($money->getCurrency()),
+            'value' => $money->getValue(),
+            'precision' => $money->getPrecision(),
+            'preciseValue' => $money->getPreciseValue(),
         ];
     }
 }

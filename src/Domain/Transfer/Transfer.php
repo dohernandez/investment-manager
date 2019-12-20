@@ -78,6 +78,11 @@ final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->updatedAt;
     }
 
+    public function getTitle(): string
+    {
+        return sprintf('%s [%s]', $this->getDebtorParty()->getTitle(), $this->getAmount()->getValue());
+    }
+
     public static function transfer(Account $beneficiaryParty, Account $debtorParty, Money $amount, DateTime $date): self
     {
         $id = UUID\Generator::generate();

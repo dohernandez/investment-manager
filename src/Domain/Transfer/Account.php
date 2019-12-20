@@ -38,4 +38,9 @@ final class Account
     {
         return $this->accountNo;
     }
+
+    public function getTitle()
+    {
+        return sprintf('%s - %s', $this->getName(), $this->getAccountNo());
+    }
 }
