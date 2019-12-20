@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Infrastructure\Storage\Transfer;
+namespace App\Tests\Application\Transfer;
 
 use App\Domain\Transfer\Account;
 use App\Domain\Transfer\Transfer;
