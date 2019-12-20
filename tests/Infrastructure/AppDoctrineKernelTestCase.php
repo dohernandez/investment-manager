@@ -3,7 +3,9 @@
 namespace App\Tests\Infrastructure;
 
 use App\Domain\Account\Projection\Account;
+use App\Infrastructure\EventSource\Changed;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -26,6 +28,17 @@ abstract class AppDoctrineKernelTestCase extends KernelTestCase
         $this->entityManager = $kernel->getContainer()
             ->get('doctrine')
             ->getManager();
+
+        // Disabling lifecycle-callback
+        $eventSourceListener = new class() {
+            public function postPersistHandler(Changed $changed, LifecycleEventArgs $event)
+            {
+                return;
+            }
+        };
+
+        $container = $kernel->getContainer();
+        $container->set('app.doctrine.entity_listener', $eventSourceListener);
     }
 
     /**
