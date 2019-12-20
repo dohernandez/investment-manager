@@ -130,6 +130,7 @@ final class AccountRESTController extends RESTController
             );
         }
 
+        $data = $form->getData();
         $envelope = $bus->dispatch(
             new OpenAccountCommand(
                 $data['name'],

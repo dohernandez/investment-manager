@@ -1,0 +1,17 @@
+### Successful test: check response status is 201 account was created
+POST http://localhost:8080/v1/transfers/
+Accept: application/json
+
+{
+    "beneficiaryParty" : "{{beneficiary_id}}",
+    "debtorParty": "{{debtor_id}}",
+    "amount": "1000",
+    "date": "17/12/2019"
+}
+
+> {%
+    client.test("Response status", function() {
+        var status = response.status;
+        client.assert(status === 201, "Expected `201` but received '"+ status + "'");
+    });
+%}

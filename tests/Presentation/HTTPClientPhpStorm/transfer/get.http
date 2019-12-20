@@ -1,3 +1,4 @@
+### Successful test: check response status is 200 transfers
 GET http://localhost:8080/v1/transfers/
 Accept: application/json
 

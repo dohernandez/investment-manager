@@ -2,7 +2,7 @@
 
 namespace App\Tests\Application\Trasnfer\Handler;
 
-use App\Application\Trasnfer\Command\RegisterTrasnfer;
+use App\Application\Trasnfer\Command\RegisterTransfer;
 use App\Application\Trasnfer\Handler\RegisterTransferHandler;
 use App\Application\Trasnfer\Repository\AccountRepositoryInterface;
 use App\Application\Trasnfer\Repository\TransferRepositoryInterface;
@@ -46,6 +46,6 @@ class RegisterTransferHandlerTest extends TestCase
         )->shouldBeCalled();
 
         $handler = new RegisterTransferHandler($transferRepo->reveal(), $accountRepo->reveal());
-        $handler(new RegisterTrasnfer($beneficiaryId, $debtorId, $amount, $date));
+        $handler(new RegisterTransfer($beneficiaryId, $debtorId, $amount, $date));
     }
 }

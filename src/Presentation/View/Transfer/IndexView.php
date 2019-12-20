@@ -38,12 +38,12 @@ final class IndexView extends AbstractView
                 'col_with' => '120',
             ],
             [
-                'name' => 'beneficiaryParty',
+                'name' => 'beneficiary',
                 'label' => 'Beneficiary',
                 'render' => 'account',
             ],
             [
-                'name' => 'debtorParty',
+                'name' => 'debtor',
                 'label' => 'Debtor',
                 'render' => 'account',
             ],

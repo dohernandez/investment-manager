@@ -63,7 +63,6 @@ class TransferController extends BaseController
     }
 
     /**
-     * @Route("/", name="transfer_new", methods={"POST"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request
