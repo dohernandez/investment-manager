@@ -1,0 +1,39 @@
+### Successful test: check response status is 201 account was created
+POST http://localhost:8080/v1/accounts/
+Accept: application/json
+
+{ "name" : "Test account 1", "accountNo": "NL94ABNA8247360527", "type": "iban"}
+
+> {%
+    client.test("Response status", function() {
+        var status = response.status;
+        client.assert(status === 201, "Expected `201` but received '"+ status + "'");
+    });
+
+    client.test("Response mimeType", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+
+    var name = "Test account 1";
+    var accountNo = "NL94ABNA8247360527";
+    var title = "Test account 1 - NL94ABNA8247360527";
+
+    var account = response.body.item;
+
+    client.test("Response item", function() {
+        client.assert(account !== undefined, "Response item is null");
+
+        client.assert(account.name === name, "Expected '" + name + "' but received '" + account.name + "'");
+        client.assert(account.accountNo === accountNo, "Expected '" + accountNo + "' but received '" + account.accountNo + "'");
+        client.assert(account.alias === name, "Expected '" + name + "' but received '" + account.alias + "'");
+        client.assert(account.title === title, "Expected '" + title + "' but received '" + account.title + "'");
+
+        client.global.set("account_id", account.id);
+        client.global.set("account_name", name);
+        client.global.set("account_accountNo", accountNo);
+        client.global.set("account_alias", name);
+        client.global.set("account_title", title);
+    });
+
+%}
