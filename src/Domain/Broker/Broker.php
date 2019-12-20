@@ -2,7 +2,7 @@
 
 namespace App\Domain\Broker;
 
-use App\Domain\Transfer\Account;
+use App\Domain\Broker\Event\BrokerRegistered;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
@@ -30,16 +30,6 @@ class Broker extends AggregateRoot implements EventSourcedAggregateRoot
     public function getSite(): string
     {
         return $this->site;
-    }
-
-    /**
-     * @var Account
-     */
-    private $account;
-
-    public function getAccount(): Account
-    {
-        return $this->account;
     }
 
     /**
@@ -75,8 +65,32 @@ class Broker extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->updatedAt;
     }
 
+    public static function register(string $name, string $site, Currency $currency): self
+    {
+        $id = UUID\Generator::generate();
+
+        $self = new static($id);
+
+        $self->recordChange(new BrokerRegistered($id, $name, $site, $currency));
+
+        return $self;
+    }
+
     protected function apply(Changed $changed)
     {
-        // TODO: Implement apply() method.
+        switch ($changed->getEventName()) {
+            case BrokerRegistered::class:
+                /** @var BrokerRegistered $event */
+                $event = $changed->getPayload();
+
+                $this->id = $changed->getAggregateId();
+                $this->name = $event->getName();
+                $this->site = $event->getSite();
+                $this->currency = $event->getCurrency();
+                $this->createdAt = $changed->getCreatedAt();
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+        }
     }
 }
