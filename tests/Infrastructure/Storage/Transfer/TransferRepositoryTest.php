@@ -3,10 +3,10 @@
 namespace App\Tests\Infrastructure\Storage\Transfer;
 
 use App\Domain\Transfer\Transfer;
-use App\Infrastructure\Doctrine\DBAL\UTCDateTimeType;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\Money\Money;
 use App\Infrastructure\Storage\Transfer\TransferRepository;
+use App\Tests\Application\Transfer\TransferProvider;
 use App\Tests\Infrastructure\AppDoctrineKernelTestCase;
 use App\Infrastructure\UUID;
 use DateTime;
