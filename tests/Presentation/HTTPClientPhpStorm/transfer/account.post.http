@@ -1,0 +1,51 @@
+### Successful test: check response status is 201 beneficiary was created
+POST http://localhost:8080/v1/accounts/
+Accept: application/json
+
+{ "name" : "Beneficiary", "accountNo": "NL94ABNA8247360527", "type": "iban"}
+
+> {%
+    client.test("Response status", function() {
+        var status = response.status;
+        client.assert(status === 201, "Expected `201` but received '"+ status + "'");
+    });
+
+    client.test("Response mimeType", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+
+    var account = response.body.item;
+
+    client.global.set("beneficiary_id", account.id);
+    client.global.set("beneficiary_name", account.name);
+    client.global.set("beneficiary_accountNo", account.accountNo);
+
+%}
+
+### Successful test: check response status is 201 debtor was created
+POST http://localhost:8080/v1/accounts/
+Accept: application/json
+
+{ "name" : "Debtor", "accountNo": "ES8114658452192577593852", "type": "iban"}
+
+> {%
+    client.test("Response status", function() {
+        var status = response.status;
+        client.assert(status === 201, "Expected `201` but received '"+ status + "'");
+    });
+
+    client.test("Response mimeType", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+
+    var account = response.body.item;
+
+    client.global.set("debtor_id", account.id);
+    client.global.set("debtor_name", account.name);
+    client.global.set("debtor_accountNo", account.accountNo);
+
+%}
+
+###

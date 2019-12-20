@@ -2,11 +2,10 @@
 
 namespace App\Presentation\Form\Transfer;
 
-use App\Entity\Transfer;
-use App\Form\AccountChoiceType;
-use App\Form\MoneyType;
+use App\Presentation\Form\MoneyType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -15,13 +14,19 @@ final class CreateTransferType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('beneficiaryParty', AccountChoiceType::class, [
+            ->add('beneficiaryParty', TextType::class, [
                 'label' => 'Beneficiary',
-                'placeholder' => 'Choose a beneficiary',
+                'attr' => [
+                    'placeholder' => 'Choose a beneficiary',
+                    'autocomplete' => "off",
+                ],
             ])
-            ->add('debtorParty', AccountChoiceType::class, [
+            ->add('debtorParty', TextType::class, [
                 'label' => 'Debtor',
-                'placeholder' => 'Choose a debtor',
+                'attr' => [
+                    'placeholder' => 'Choose a debtor',
+                    'autocomplete' => "off",
+                ],
             ])
             ->add('amount', MoneyType::class, [
                 'attr' => [
@@ -50,9 +55,11 @@ final class CreateTransferType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-            'data_class' => Transfer::class,
-        ]);
+        $resolver->setDefaults(
+            [
+                'csrf_protection' => false,
+            ]
+        );
     }
 
     /**

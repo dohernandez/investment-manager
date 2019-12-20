@@ -2,7 +2,7 @@
 
 namespace App\Application\Trasnfer\Handler;
 
-use App\Application\Trasnfer\Command\RegisterTrasnfer;
+use App\Application\Trasnfer\Command\RegisterTransfer;
 use App\Application\Trasnfer\Repository\AccountRepositoryInterface;
 use App\Application\Trasnfer\Repository\TransferRepositoryInterface;
 use App\Domain\Transfer\Transfer;
@@ -28,7 +28,7 @@ class RegisterTransferHandler implements MessageHandlerInterface
         $this->accountRepository = $accountRepository;
     }
 
-    public function __invoke(RegisterTrasnfer $message)
+    public function __invoke(RegisterTransfer $message)
     {
         $beneficiary = $this->accountRepository->find($message->getBeneficiary());
         $debtor = $this->accountRepository->find($message->getDebtor());
@@ -38,5 +38,7 @@ class RegisterTransferHandler implements MessageHandlerInterface
         $transfer = Transfer::transfer($beneficiary, $debtor, $amount, $date);
 
         $this->transferRepository->save($transfer);
+
+        return $transfer;
     }
 }

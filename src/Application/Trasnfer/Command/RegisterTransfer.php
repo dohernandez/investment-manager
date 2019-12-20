@@ -5,7 +5,7 @@ namespace App\Application\Trasnfer\Command;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-final class RegisterTrasnfer
+final class RegisterTransfer
 {
     public function __construct(string $beneficiary, string $debtor, Money $amount, DateTime $date)
     {
