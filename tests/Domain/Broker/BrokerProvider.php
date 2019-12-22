@@ -8,8 +8,8 @@ use App\Infrastructure\Money\Currency;
 
 final class BrokerProvider
 {
-    public static function provide(Account $account, string $name, string $site, Currency $currency): Transfer
+    public static function provide(string $name, string $site, Currency $currency): Broker
     {
-        return Broker::register($account, $name, $site, $currency);
+        return Broker::register($name, $site, $currency);
     }
 }
