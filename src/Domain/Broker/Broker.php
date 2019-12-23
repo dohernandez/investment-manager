@@ -76,6 +76,11 @@ class Broker extends AggregateRoot implements EventSourcedAggregateRoot
         return $self;
     }
 
+    public function getTitle()
+    {
+        return $this->name;
+    }
+
     protected function apply(Changed $changed)
     {
         switch ($changed->getEventName()) {
