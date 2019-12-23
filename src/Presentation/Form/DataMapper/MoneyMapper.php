@@ -38,7 +38,7 @@ final class MoneyMapper extends MoneyToLocalizedStringTransformer
         }
 
         if (!$value instanceof Money) {
-            throw new \LogicException('The AccountChoiceType can only be used with Account objects');
+            throw new \LogicException('The MoneyChoiceType can only be used with Money objects');
         }
 
         return parent::transform($value->getPreciseValue());

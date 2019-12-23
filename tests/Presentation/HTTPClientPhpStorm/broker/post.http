@@ -1,0 +1,41 @@
+### Successful test: check response status is 201 broker was created
+POST http://localhost:8080/v1/brokers/
+Accept: application/json
+
+{ "name" : "Broker", "site": "www.broker.com", "currency": "EUR"}
+
+> {%
+    client.test("Response status", function() {
+        var status = response.status;
+        client.assert(status === 201, "Expected `201` but received '"+ status + "'");
+    });
+
+    client.test("Response mimeType", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+
+    var name = "Broker";
+    var site = "www.broker.com";
+    var currency = "EUR";
+
+    var broker = response.body.item;
+
+    client.test("Response item", function() {
+        client.assert(broker !== undefined, "Response item is null");
+
+        client.assert(broker.name === name, "Expected '" + name + "' but received '" + broker.name + "'");
+        client.assert(broker.site === site, "Expected '" + site + "' but received '" + broker.site + "'");
+        client.assert(broker.currency === currency, "Expected '" + currency + "' but received '" + broker.currency + "'");
+        client.assert(broker.title === name, "Expected '" + name + "' but received '" + broker.title + "'");
+
+        client.global.set("broker_id", broker.id);
+        client.global.set("broker_name", name);
+        client.global.set("broker_site", site);
+        client.global.set("broker_currency", currency);
+        client.global.set("broker_title", broker.title);
+    });
+
+%}
+
+###

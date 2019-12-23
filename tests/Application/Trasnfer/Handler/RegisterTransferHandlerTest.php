@@ -9,9 +9,9 @@ use App\Application\Trasnfer\Repository\TransferRepositoryInterface;
 use App\Domain\Transfer\Account;
 use App\Domain\Transfer\Transfer;
 use App\Infrastructure\Money\Money;
+use App\Infrastructure\UUID;
 use DateTime;
 use PHPUnit\Framework\TestCase;
-use App\Infrastructure\UUID;
 use Prophecy\Argument;
 
 class RegisterTransferHandlerTest extends TestCase
