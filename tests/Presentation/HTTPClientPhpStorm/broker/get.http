@@ -1,0 +1,49 @@
+### Successful test: check response status is 200 broker
+GET http://localhost:8080/v1/brokers/{{broker_id}}
+Accept: application/json
+
+> {%
+    client.test("Response status", function() {
+        var status = response.status;
+        client.assert(status === 200, "Expected `200` but received '"+ status + "'");
+    });
+
+    client.test("Response mimeType", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+
+    var broker = response.body.item;
+    client.test("Response item", function() {
+        client.assert(broker !== undefined, "Response item is null");
+
+        var id = client.global.get("broker_id");
+        var name = client.global.get("broker_name");
+        var site = client.global.get("broker_site");
+        var currency = client.global.get("broker_currency");
+        var title = client.global.get("broker_title");
+
+        client.assert(broker.id === id, "Expected '" + id + "' but received '" + broker.id + "'");
+        client.assert(broker.name === name, "Expected '" + name + "' but received '" + broker.name + "'");
+        client.assert(broker.site === site, "Expected '" + site + "' but received '" + broker.site + "'");
+        client.assert(broker.currency === currency, "Expected '" + currency + "' but received '" + broker.currency + "'");
+        client.assert(broker.title === title, "Expected '" + title + "' but received '" + broker.title + "'");
+    });
+%}
+
+### Successful test: check response status is 200 accounts
+GET http://localhost:8080/v1/brokers/
+Accept: application/json
+
+> {%
+    client.test("Response status", function() {
+        var status = response.status;
+        client.assert(status === 200, "Expected `200` but received '"+ status + "'");
+    });
+
+    client.test("Response mimeType", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+###
