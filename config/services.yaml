@@ -110,6 +110,7 @@ services:
     App\Application\Trasnfer\Repository\ProjectionTransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\ProjectionTransferRepository'
 
     App\Application\Broker\Repository\BrokerRepositoryInterface: '@App\Infrastructure\Storage\Broker\BrokerRepository'
+    App\Application\Broker\Repository\ProjectionBrokerRepositoryInterface: '@App\Infrastructure\Storage\Broker\ProjectionBrokerRepository'
 
     ##### APPLICATION LAYER END
 
@@ -143,8 +144,9 @@ services:
     App\Infrastructure\Storage\Transfer\AccountRepository: ~
     App\Infrastructure\Storage\Transfer\ProjectionTransferRepository: ~
 
-    App\Infrastructure\Storage\Broker\BrokerRepository:
-        class: App\Infrastructure\Storage\Broker\BrokerRepository
+    App\Infrastructure\Storage\Broker\BrokerRepository: ~
+    App\Infrastructure\Storage\Broker\ProjectionBrokerRepository:
+        class: App\Infrastructure\Storage\Broker\ProjectionBrokerRepository
         public: true
 
     ##### INFRASTRUCTURE LAYER END
