@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Tests\Application\Trasnfer\Handler;
+namespace App\Tests\Application\Transfer\Handler;
 
-use App\Application\Trasnfer\Command\RegisterTransfer;
-use App\Application\Trasnfer\Handler\RegisterTransferHandler;
-use App\Application\Trasnfer\Repository\AccountRepositoryInterface;
-use App\Application\Trasnfer\Repository\TransferRepositoryInterface;
+use App\Application\Transfer\Command\RegisterTransfer;
+use App\Application\Transfer\Handler\RegisterTransferHandler;
+use App\Application\Transfer\Repository\AccountRepositoryInterface;
+use App\Application\Transfer\Repository\TransferRepositoryInterface;
 use App\Domain\Transfer\Account;
 use App\Domain\Transfer\Transfer;
 use App\Infrastructure\Money\Money;

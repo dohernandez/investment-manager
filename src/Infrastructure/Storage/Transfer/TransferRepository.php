@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure\Storage\Transfer;
 
-use App\Application\Trasnfer\Repository\TransferRepositoryInterface;
+use App\Application\Transfer\Repository\TransferRepositoryInterface;
 use App\Domain\Transfer\Transfer;
 use App\Infrastructure\EventSource\EventSourceRepository;
 use Doctrine\ORM\EntityManagerInterface;

@@ -2,9 +2,9 @@
 
 namespace App\Presentation\Controller\Transfer;
 
-use App\Application\Trasnfer\Command\RegisterTransfer;
-use App\Application\Trasnfer\Repository\ProjectionTransferRepositoryInterface;
-use App\Application\Trasnfer\Repository\TransferRepositoryInterface;
+use App\Application\Transfer\Command\RegisterTransfer;
+use App\Application\Transfer\Repository\ProjectionTransferRepositoryInterface;
+use App\Application\Transfer\Repository\TransferRepositoryInterface;
 use App\Domain\Transfer\Transfer;
 use App\Presentation\Controller\InvalidJsonRequestException;
 use App\Presentation\Controller\RESTController;

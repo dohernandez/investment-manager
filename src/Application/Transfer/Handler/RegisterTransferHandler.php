@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Application\Trasnfer\Handler;
+namespace App\Application\Transfer\Handler;
 
-use App\Application\Trasnfer\Command\RegisterTransfer;
-use App\Application\Trasnfer\Repository\AccountRepositoryInterface;
-use App\Application\Trasnfer\Repository\TransferRepositoryInterface;
+use App\Application\Transfer\Command\RegisterTransfer;
+use App\Application\Transfer\Repository\AccountRepositoryInterface;
+use App\Application\Transfer\Repository\TransferRepositoryInterface;
 use App\Domain\Transfer\Transfer;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 

@@ -105,9 +105,9 @@ services:
     App\Application\Account\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\AccountRepository'
     App\Application\Account\Repository\ProjectionAccountRepositoryInterface: '@App\Infrastructure\Storage\ProjectionAccountRepository'
 
-    App\Application\Trasnfer\Repository\TransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\TransferRepository'
-    App\Application\Trasnfer\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\Transfer\AccountRepository'
-    App\Application\Trasnfer\Repository\ProjectionTransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\ProjectionTransferRepository'
+    App\Application\Transfer\Repository\TransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\TransferRepository'
+    App\Application\Transfer\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\Transfer\AccountRepository'
+    App\Application\Transfer\Repository\ProjectionTransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\ProjectionTransferRepository'
 
     App\Application\Broker\Repository\BrokerRepositoryInterface: '@App\Infrastructure\Storage\Broker\BrokerRepository'
     App\Application\Broker\Repository\ProjectionBrokerRepositoryInterface: '@App\Infrastructure\Storage\Broker\ProjectionBrokerRepository'
