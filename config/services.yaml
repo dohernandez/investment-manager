@@ -145,8 +145,6 @@ services:
     App\Infrastructure\Storage\Transfer\ProjectionTransferRepository: ~
 
     App\Infrastructure\Storage\Broker\BrokerRepository: ~
-    App\Infrastructure\Storage\Broker\ProjectionBrokerRepository:
-        class: App\Infrastructure\Storage\Broker\ProjectionBrokerRepository
-        public: true
+    App\Infrastructure\Storage\Broker\ProjectionBrokerRepository: ~
 
     ##### INFRASTRUCTURE LAYER END
