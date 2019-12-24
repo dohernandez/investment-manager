@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure\Storage\Transfer;
 
-use App\Application\Trasnfer\Repository\AccountRepositoryInterface;
+use App\Application\Transfer\Repository\AccountRepositoryInterface;
 use App\Domain\Account\Account as ProjectionAccount;
 use App\Domain\Transfer\Account;
 use App\Infrastructure\Storage\ProjectionAccountRepository;

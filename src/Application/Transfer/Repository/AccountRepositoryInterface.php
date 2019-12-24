@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Trasnfer\Repository;
+namespace App\Application\Transfer\Repository;
 
 use App\Domain\Transfer\Account;
 

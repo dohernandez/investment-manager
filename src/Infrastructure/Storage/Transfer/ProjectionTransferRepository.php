@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure\Storage\Transfer;
 
-use App\Application\Trasnfer\Repository\ProjectionTransferRepositoryInterface;
+use App\Application\Transfer\Repository\ProjectionTransferRepositoryInterface;
 use App\Domain\Transfer\Transfer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;

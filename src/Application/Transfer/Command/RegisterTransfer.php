@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Trasnfer\Command;
+namespace App\Application\Transfer\Command;
 
 use App\Infrastructure\Money\Money;
 use DateTime;
