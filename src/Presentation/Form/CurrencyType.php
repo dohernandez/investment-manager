@@ -37,7 +37,13 @@ final class CurrencyType extends AbstractType implements DataTransformerInterfac
         $resolver->setDefaults(
             [
                 'class' => Currency::class,
-                'choices' => [],
+                'choices' => [
+                    Currency::eur(),
+                    Currency::usd(),
+                    Currency::cad(),
+                ],
+                'choice_label' => 'currencyCode',
+                'choice_value' => 'currencyCode',
             ]
         );
     }
