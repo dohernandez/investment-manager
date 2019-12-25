@@ -19,17 +19,10 @@ class RegisterTransferHandlerTest extends TestCase
 
     public function testInvoke()
     {
-        $beneficiaryId = UUID\Generator::generate();
-        $debtorId = UUID\Generator::generate();
-
-        $beneficiary = new Account($beneficiaryId, 'Beneficiary', 'Account No');
-        $debtor = new Account($debtorId, 'Debtor', 'Account No');
+        $beneficiary = new Account(UUID\Generator::generate(), 'Beneficiary', 'Account No');
+        $debtor = new Account(UUID\Generator::generate(), 'Debtor', 'Account No');
         $amount = Money::fromEURValue(1000);
         $date = new DateTime();
-
-        $accountRepo = $this->prophesize(AccountRepositoryInterface::class);
-        $accountRepo->find($beneficiaryId)->willReturn($beneficiary)->shouldBeCalled();
-        $accountRepo->find($debtorId)->willReturn($debtor)->shouldBeCalled();
 
         $transferRepo = $this->prophesize(TransferRepositoryInterface::class);
         $transferRepo->save(
@@ -45,7 +38,7 @@ class RegisterTransferHandlerTest extends TestCase
             )
         )->shouldBeCalled();
 
-        $handler = new RegisterTransferHandler($transferRepo->reveal(), $accountRepo->reveal());
-        $handler(new RegisterTransfer($beneficiaryId, $debtorId, $amount, $date));
+        $handler = new RegisterTransferHandler($transferRepo->reveal());
+        $handler(new RegisterTransfer($beneficiary, $debtor, $amount, $date));
     }
 }
