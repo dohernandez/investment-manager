@@ -19,6 +19,8 @@ class BrokerForm extends SwalForm {
 
         this.select2AccountTemplate = new Select2AccountTemplate();
 
+        this.table = table;
+
         eventBus.on("entity_created", this.onCreated.bind(this));
         eventBus.on("entity_updated", this.onUpdated.bind(this));
         eventBus.on("entity_deleted", this.onDeleted.bind(this));
