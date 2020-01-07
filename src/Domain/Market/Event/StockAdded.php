@@ -6,7 +6,7 @@ use App\Domain\Market\StockInfo;
 use App\Domain\Market\StockMarket;
 use App\Infrastructure\Money\Money;
 
-class StockAdded
+final class StockAdded
 {
     /**
      * @var string

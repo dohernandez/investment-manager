@@ -7,7 +7,12 @@ use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use PHPUnit\Framework\TestCase;
 
-class StockTest extends TestCase
+/**
+ * @group unit
+ * @group domain
+ * @group market
+ */
+final class StockTest extends TestCase
 {
     public function testAdd()
     {
@@ -18,6 +23,8 @@ class StockTest extends TestCase
 
         $stock = Stock::add($name, $symbol, $market, $value);
 
+        $this->assertInstanceOf(Stock::class, $stock);
+        $this->assertNotNull($stock->getId());
         $this->assertEquals($name, $stock->getName());
         $this->assertEquals($symbol, $stock->getSymbol());
         $this->assertEquals($market, $stock->getMarket());

@@ -4,7 +4,7 @@ namespace App\Domain\Market;
 
 use App\Infrastructure\Money\Money;
 
-class StockPrice
+final class StockPrice
 {
     /**
      * @var Money
