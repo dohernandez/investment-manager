@@ -19,7 +19,7 @@ final class StockTest extends TestCase
         $name = 'Stock';
         $symbol = 'STK';
         $market = StockMarketProvider::provide('Stock Market', Currency::usd(), 'US', 'NasdaqGS');
-        $value = Money::fromEURValue(10);
+        $value = Money::fromEURValue(1000);
 
         $stock = Stock::add($name, $symbol, $market, $value);
 

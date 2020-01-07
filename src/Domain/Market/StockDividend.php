@@ -2,10 +2,12 @@
 
 namespace App\Domain\Market;
 
+use App\Domain\Market\Event\StockDividendAdded;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Money;
+use App\Infrastructure\UUID;
 use DateTime;
 
 class StockDividend extends AggregateRoot implements EventSourcedAggregateRoot
@@ -126,8 +128,41 @@ class StockDividend extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->updatedAt;
     }
 
+    public static function add(
+        Stock $stock,
+        Money $value,
+        DateTime $exDate,
+        string $status = self::STATUS_PROJECTED,
+        ?DateTime $paymentDate = null,
+        ?DateTime $recordDate = null
+    ) {
+        $id = UUID\Generator::generate();
+
+        $self = new static($id);
+
+        $self->recordChange(new StockDividendAdded($id, $stock, $value, $exDate, $status, $paymentDate, $recordDate));
+
+        return $self;
+    }
+
     protected function apply(Changed $changed)
     {
-        // TODO: Implement apply() method.
+        switch ($changed->getEventName()) {
+            case StockDividendAdded::class:
+                /** @var StockDividendAdded $event */
+                $event = $changed->getPayload();
+
+                $this->id = $changed->getAggregateId();
+                $this->stock = $event->getStock();
+                $this->value = $event->getValue();
+                $this->exDate = $event->getExDate();
+                $this->status = $event->getStatus();
+                $this->paymentDate = $event->getPaymentDate();
+                $this->recordDate = $event->getRecordDate();
+                $this->createdAt = $changed->getCreatedAt();
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+        }
     }
 }
