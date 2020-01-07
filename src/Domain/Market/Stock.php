@@ -2,15 +2,25 @@
 
 namespace App\Domain\Market;
 
+use App\Domain\Market\Event\StockAdded;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
+use App\Infrastructure\UUID;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 {
+    public function __construct(string $id)
+    {
+        parent::__construct($id);
+
+        $this->dividends = new ArrayCollection();
+    }
+
     /**
      * @var string
      */
@@ -32,16 +42,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
-     * @var Money
-     */
-    private $value;
-
-    public function getValue(): Money
-    {
-        return $this->value;
-    }
-
-    /**
      * @var StockMarket
      */
     private $market;
@@ -52,11 +52,21 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
+     * @var Money
+     */
+    private $value;
+
+    public function getValue(): ?Money
+    {
+        return $this->value;
+    }
+
+    /**
      * @var string
      */
     private $description;
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -66,7 +76,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
      */
     private $type;
 
-    public function getType(): StockInfo
+    public function getType(): ?StockInfo
     {
         return $this->type;
     }
@@ -76,7 +86,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
      */
     private $sector;
 
-    public function getSector(): StockInfo
+    public function getSector(): ?StockInfo
     {
         return $this->sector;
     }
@@ -86,17 +96,17 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
      */
     private $industry;
 
-    public function getIndustry(): StockInfo
+    public function getIndustry(): ?StockInfo
     {
         return $this->industry;
     }
 
     /**
-     * @var StockDividend
+     * @var ArrayCollection|StockDividend[]
      */
     private $dividends;
 
-    public function getDividends(): StockDividend
+    public function getDividends(): ArrayCollection
     {
         return $this->dividends;
     }
@@ -106,7 +116,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
      */
     private $notes;
 
-    public function getDotes(): string
+    public function getNotes(): string
     {
         return $this->notes;
     }
@@ -116,9 +126,29 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
      */
     private $metadata;
 
-    public function getMetadata(): StockMetadata
+    public function getMetadata(): ?StockMetadata
     {
         return $this->metadata;
+    }
+
+    /**
+     * @var StockDividend
+     */
+    private $nextDividend;
+
+    public function getNextDividend(): ?StockDividend
+    {
+        return $this->nextDividend;
+    }
+
+    /**
+     * @var StockDividend
+     */
+    private $toPayDividend;
+
+    public function getToPayDividend(): ?StockDividend
+    {
+        return $this->toPayDividend;
     }
 
     /**
@@ -132,26 +162,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
-     * @var StockDividend
-     */
-    private $nextDividend;
-
-    public function getNextDividend(): StockDividend
-    {
-        return $this->nextDividend;
-    }
-
-    /**
-     * @var StockDividend
-     */
-    private $toPayDividend;
-
-    public function getToPayDividend(): StockDividend
-    {
-        return $this->toPayDividend;
-    }
-
-    /**
      * @var DateTime
      */
     private $updatedAt;
@@ -161,23 +171,82 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->updatedAt;
     }
 
-    public function getCurrency(): Currency
-    {
-        return $this->getMarket()->getCurrency();
-    }
-
     /**
      * @var DateTime
      */
     private $updatedPriceAt;
 
-    public function getUpdatedPriceAt(): DateTime
+    public function getUpdatedPriceAt(): ?DateTime
     {
         return $this->updatedPriceAt;
     }
 
+    /**
+     * @var DateTime
+     */
+    private $updatedDividendAt;
+
+    public function getUpdatedDividendAt(): ?DateTime
+    {
+        return $this->updatedDividendAt;
+    }
+
+    public function getCurrency(): Currency
+    {
+        return $this->getMarket()->getCurrency();
+    }
+
+    public function add(
+        string $name,
+        string $symbol,
+        StockMarket $market,
+        ?Money $value = null,
+        ?string $description = null,
+        ?StockInfo $type = null,
+        ?StockInfo $sector = null,
+        ?StockInfo $industry = null
+    ): self {
+        $id = UUID\Generator::generate();
+
+        $self = new static($id);
+
+        $self->recordChange(
+            new StockAdded(
+                $id,
+                $name,
+                $symbol,
+                $market,
+                $value,
+                $description,
+                $type,
+                $sector,
+                $industry
+            )
+        );
+
+        return $self;
+    }
+
     protected function apply(Changed $changed)
     {
-        // TODO: Implement apply() method.
+        switch ($changed->getEventName()) {
+            case StockAdded::class:
+                /** @var StockAdded $event */
+                $event = $changed->getPayload();
+
+                $this->id = $changed->getAggregateId();
+                $this->name = $event->getName();
+                $this->symbol = $event->getSymbol();
+                $this->market = $event->getMarket();
+                $this->value = $event->getValue();
+                $this->description = $event->getDescription();
+                $this->type = $event->getType();
+                $this->sector = $event->getSector();
+                $this->industry = $event->getIndustry();
+                $this->createdAt = $changed->getCreatedAt();
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+        }
     }
 }
