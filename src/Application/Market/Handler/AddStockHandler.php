@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 
-class AddStockHandler implements MessageHandlerInterface
+final class AddStockHandler implements MessageHandlerInterface
 {
     /**
      * @var MessageBusInterface

@@ -7,7 +7,7 @@ use App\Application\Transfer\Repository\TransferRepositoryInterface;
 use App\Domain\Transfer\Transfer;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-class RegisterTransferHandler implements MessageHandlerInterface
+final class RegisterTransferHandler implements MessageHandlerInterface
 {
     /**
      * @var TransferRepositoryInterface
