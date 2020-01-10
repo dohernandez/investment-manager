@@ -2,6 +2,7 @@
 
 namespace App\Domain\Broker;
 
+use App\Domain\Broker\Event\BrokerChanged;
 use App\Domain\Broker\Event\BrokerRegistered;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -81,6 +82,11 @@ class Broker extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->name;
     }
 
+    public function change(string $name, string $site, Currency $currency)
+    {
+        $this->recordChange(new BrokerChanged($this->getId(), $name, $site, $currency));
+    }
+
     protected function apply(Changed $changed)
     {
         switch ($changed->getEventName()) {
@@ -93,6 +99,16 @@ class Broker extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->site = $event->getSite();
                 $this->currency = $event->getCurrency();
                 $this->createdAt = $changed->getCreatedAt();
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+            case BrokerChanged::class:
+                /** @var BrokerChanged $event */
+                $event = $changed->getPayload();
+
+                $this->name = $event->getName();
+                $this->site = $event->getSite();
+                $this->currency = $event->getCurrency();
                 $this->updatedAt = $changed->getCreatedAt();
 
                 break;

@@ -141,7 +141,6 @@ class BrokerController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="broker_edit", methods={"PUT"}, options={"expose"=true})
      *
      * @param Entity\Broker $broker
      * @param EntityManagerInterface $em

@@ -2,18 +2,16 @@
 
 namespace App\Presentation\Controller\Broker;
 
+use App\Application\Broker\Command\ChangeBroker;
 use App\Application\Broker\Command\RegisterBroker;
 use App\Application\Broker\Repository\ProjectionBrokerRepositoryInterface;
-use App\Domain\Transfer\Transfer;
-use App\Presentation\Controller\InvalidJsonRequestException;
 use App\Presentation\Controller\RESTController;
 use App\Presentation\Form\Broker\CreateBrokerType;
-use Symfony\Component\Form\Form;
+use App\Presentation\Form\Broker\EditBrokerType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -70,62 +68,46 @@ final class BrokerRESTController extends RESTController
     ): Response {
         $form = $this->createForm(CreateBrokerType::class);
 
-        return $this->save($form, $request, $bus);
+        return $this->save(
+            $form,
+            $request,
+            $bus,
+            function ($data) {
+                return new RegisterBroker(
+                    $data['name'],
+                    $data['site'],
+                    $data['currency']
+                );
+            },
+            Response::HTTP_CREATED
+        );
     }
 
     /**
-     * @param Form $form
+     * @Route("/{id}", name="broker_edit", methods={"PUT"}, options={"expose"=true})
+     *
+     * @param string $id
      * @param Request $request
      * @param MessageBusInterface $bus
      *
      * @return Response
      */
-    protected function save(
-        Form $form,
-        Request $request,
-        MessageBusInterface $bus
-    ): Response {
-        try {
-            $data = $this->decodeRequestData($request);
-            $form->submit($data);
-        } catch (\Exception $e) {
-            $status = $e instanceof InvalidJsonRequestException ?
-                Response::HTTP_BAD_REQUEST :
-                Response::HTTP_INTERNAL_SERVER_ERROR;
+    public function edit(string $id, Request $request, MessageBusInterface $bus): Response
+    {
+        $form = $this->createForm(EditBrokerType::class);
 
-            return $this->json(
-                [
-                    'message' => $e->getMessage(),
-                ],
-                $status
-            );
-        }
-
-        if (!$form->isValid()) {
-            $errors = $this->getErrorsFromForm($form);
-
-            return $this->createApiResponse(
-                [
-                    'errors' => $errors
-                ],
-                Response::HTTP_BAD_REQUEST
-            );
-        }
-
-        $data = $form->getData();
-        $envelope = $bus->dispatch(
-            new RegisterBroker(
-                $data['name'],
-                $data['site'],
-                $data['currency']
-            )
+        return $this->save(
+            $form,
+            $request,
+            $bus,
+            function ($data) use ($id) {
+                return new ChangeBroker(
+                    $id,
+                    $data['name'],
+                    $data['site'],
+                    $data['currency']
+                );
+            }
         );
-
-        // get the value that was returned by the last message handler
-        $handledStamp = $envelope->last(HandledStamp::class);
-        /** @var Transfer $transfer */
-        $transfer = $handledStamp->getResult();
-
-        return $this->createApiResponse($transfer, Response::HTTP_CREATED);
     }
 }

@@ -26,4 +26,19 @@ class BrokerTest extends TestCase
         $this->assertEquals($site, $broker->getSite());
         $this->assertEquals($currency, $broker->getCurrency());
     }
+
+    public function testChange()
+    {
+        $name = 'Broker USD';
+        $site = 'www.brokerusd.com';
+        $currency = Currency::usd();
+
+        $broker = BrokerProvider::provide('Broker', 'www.broker.com', Currency::eur());
+
+        $broker->change($name, $site, $currency);
+
+        $this->assertEquals($name, $broker->getName());
+        $this->assertEquals($site, $broker->getSite());
+        $this->assertEquals($currency, $broker->getCurrency());
+    }
 }
