@@ -4,19 +4,14 @@ namespace App\Presentation\Controller\Account;
 
 use App\Application\Account\Command\CloseAccount;
 use App\Application\Account\Command\OpenAccountCommand;
-use App\Application\Account\Repository\AccountRepositoryInterface;
 use App\Application\Account\Repository\ProjectionAccountRepositoryInterface;
-use App\Domain\Account\Account;
 use App\Infrastructure\Money\Currency;
-use App\Presentation\Controller\InvalidJsonRequestException;
 use App\Presentation\Controller\RESTController;
 use App\Presentation\Form\Account\CreateAccountType;
-use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -75,77 +70,29 @@ final class AccountRESTController extends RESTController
      *
      * @param Request $request
      * @param MessageBusInterface $bus
-     * @param AccountRepositoryInterface $accountRepository
      *
      * @return Response
      */
     public function new(
         Request $request,
-        MessageBusInterface $bus,
-        AccountRepositoryInterface $accountRepository
+        MessageBusInterface $bus
     ): Response {
         $form = $this->createForm(CreateAccountType::class);
 
-        return $this->save($form, $request, $bus, $accountRepository);
-    }
-
-    /**
-     * @param Form $form
-     * @param Request $request
-     * @param MessageBusInterface $bus
-     * @param AccountRepositoryInterface $accountRepository
-     *
-     * @return Response
-     */
-    protected function save(
-        Form $form,
-        Request $request,
-        MessageBusInterface $bus,
-        AccountRepositoryInterface $accountRepository
-    ): Response {
-        try {
-            $data = $this->decodeRequestData($request);
-            $form->submit($data);
-        } catch (\Exception $e) {
-            $status = $e instanceof InvalidJsonRequestException ?
-                Response::HTTP_BAD_REQUEST :
-                Response::HTTP_INTERNAL_SERVER_ERROR;
-
-            return $this->json(
-                [
-                    'message' => $e->getMessage(),
-                ],
-                $status
-            );
-        }
-
-        if (!$form->isValid()) {
-            $errors = $this->getErrorsFromForm($form);
-
-            return $this->createApiResponse(
-                [
-                    'errors' => $errors
-                ],
-                Response::HTTP_BAD_REQUEST
-            );
-        }
-
-        $data = $form->getData();
-        $envelope = $bus->dispatch(
-            new OpenAccountCommand(
-                $data['name'],
-                $data['type'],
-                $data['accountNo'],
-                Currency::eur()
-            )
+        return $this->save(
+            $form,
+            $request,
+            $bus,
+            function ($data) {
+                return new OpenAccountCommand(
+                    $data['name'],
+                    $data['type'],
+                    $data['accountNo'],
+                    Currency::eur()
+                );
+            },
+            Response::HTTP_CREATED
         );
-
-        // get the value that was returned by the last message handler
-        $handledStamp = $envelope->last(HandledStamp::class);
-        /** @var Account $account */
-        $account = $handledStamp->getResult();
-
-        return $this->createApiResponse($account, Response::HTTP_CREATED);
     }
 
     /**
