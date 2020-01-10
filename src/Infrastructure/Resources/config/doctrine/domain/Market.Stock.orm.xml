@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Domain\Market\Stock" table="projection_stock">
+
+        <id name="id" type="guid" column="id"/>
+
+        <field name="name" column="name" type="string" />
+        <field name="symbol" column="symbol" type="string" />
+
+        <many-to-one field="market" target-entity="App\Domain\Market\StockMarket" />
+
+        <field name="value" column="value" type="object" />
+        <field name="description" column="description" type="string" nullable="true"/>
+
+        <many-to-one field="type" target-entity="App\Domain\Market\StockInfo" />
+        <many-to-one field="sector" target-entity="App\Domain\Market\StockInfo" />
+        <many-to-one field="industry" target-entity="App\Domain\Market\StockInfo" />
+
+        <field name="notes" column="notes" type="text" />
+        <field name="metadata" column="metadata" type="object" />
+        <field name="createdAt" column="created_at" type="datetime" />
+        <field name="updatedAt" column="updated_at" type="datetime" />
+        <field name="updatedPriceAt" column="updated_price_at" type="datetime" />
+        <field name="updatedDividendAt" column="updated_dividend_at" type="datetime" />
+
+        <unique-constraints>
+            <unique-constraint columns="symbol,market_id" name="stock_market_idx" />
+        </unique-constraints>
+    </entity>
+
+</doctrine-mapping>

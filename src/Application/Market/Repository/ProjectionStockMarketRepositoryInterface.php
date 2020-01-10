@@ -6,5 +6,12 @@ use App\Domain\Market\StockMarket;
 
 interface ProjectionStockMarketRepositoryInterface
 {
-    public function find(string $id): StockMarket;
+    /**
+     * Finds an object by its primary key / identifier.
+     *
+     * @param string $id The identifier.
+     *
+     * @return StockMarket|null The broker.
+     */
+    public function find($id);
 }

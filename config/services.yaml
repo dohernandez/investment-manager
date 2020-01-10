@@ -112,6 +112,12 @@ services:
     App\Application\Broker\Repository\BrokerRepositoryInterface: '@App\Infrastructure\Storage\Broker\BrokerRepository'
     App\Application\Broker\Repository\ProjectionBrokerRepositoryInterface: '@App\Infrastructure\Storage\Broker\ProjectionBrokerRepository'
 
+    App\Application\Market\Repository\ProjectionStockInfoRepositoryInterface: '@App\Infrastructure\Storage\Market\ProjectionStockInfoRepository'
+    App\Application\Market\Repository\ProjectionStockMarketRepositoryInterface: '@App\Infrastructure\Storage\Market\ProjectionStockMarketRepository'
+    App\Application\Market\Repository\StockInfoRepositoryInterface: '@App\Infrastructure\Storage\Market\StockInfoRepository'
+    App\Application\Market\Repository\StockMarketRepositoryInterface: '@App\Infrastructure\Storage\Market\StockMarketRepository'
+    App\Application\Market\Repository\StockRepositoryInterface: '@App\Infrastructure\Storage\Market\StockRepository'
+
     ##### APPLICATION LAYER END
 
 
@@ -146,5 +152,12 @@ services:
 
     App\Infrastructure\Storage\Broker\BrokerRepository: ~
     App\Infrastructure\Storage\Broker\ProjectionBrokerRepository: ~
+
+
+    App\Infrastructure\Storage\Market\ProjectionStockInfoRepository: ~
+    App\Infrastructure\Storage\Market\ProjectionStockMarketRepository: ~
+    App\Infrastructure\Storage\Market\StockInfoRepository: ~
+    App\Infrastructure\Storage\Market\StockMarketRepository: ~
+    App\Infrastructure\Storage\Market\StockRepository: ~
 
     ##### INFRASTRUCTURE LAYER END

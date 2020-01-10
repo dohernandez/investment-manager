@@ -116,7 +116,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
      */
     private $notes;
 
-    public function getNotes(): string
+    public function getNotes(): ?string
     {
         return $this->notes;
     }
