@@ -19,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class StockMarketController extends BaseController
 {
     /**
-     * @Route("/", name="stock_market_list", methods={"GET"}, options={"expose"=true})
      *
      * @param StockMarketRepository $repo
      * @param Request $request
@@ -71,7 +70,6 @@ class StockMarketController extends BaseController
     }
 
     /**
-     * @Route("/", name="stock_market_new", methods={"POST"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request
@@ -142,7 +140,6 @@ class StockMarketController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="stock_market_edit", methods={"PUT"}, options={"expose"=true})
      *
      * @param Entity\StockMarket $stockMarket
      * @param EntityManagerInterface $em
@@ -158,7 +155,6 @@ class StockMarketController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="stock_market_delete", methods={"DELETE"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Entity\StockMarket $stockMarket

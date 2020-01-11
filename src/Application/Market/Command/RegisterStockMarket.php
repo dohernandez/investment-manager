@@ -31,7 +31,7 @@ final class RegisterStockMarket
      */
     private $yahooSymbol;
 
-    public function __construct(string $name, Currency $currency, string $country, string $symbol, string $yahooSymbol)
+    public function __construct(string $name, Currency $currency, string $country, string $symbol, ?string $yahooSymbol)
     {
         $this->name = $name;
         $this->currency = $currency;
@@ -60,7 +60,7 @@ final class RegisterStockMarket
         return $this->symbol;
     }
 
-    public function getYahooSymbol(): string
+    public function getYahooSymbol(): ?string
     {
         return $this->yahooSymbol;
     }
