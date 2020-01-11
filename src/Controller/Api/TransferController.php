@@ -148,7 +148,6 @@ class TransferController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="transfer_delete", methods={"DELETE"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request

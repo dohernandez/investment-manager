@@ -2,8 +2,10 @@
 
 namespace App\Domain\Transfer;
 
+use App\Domain\Transfer\Exception\TransferRemovedException;
 use App\Domain\Transfer\Event\TransferChanged;
 use App\Domain\Transfer\Event\TransferRegistered;
+use App\Domain\Transfer\Event\TransferRemoved;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
@@ -79,6 +81,16 @@ final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->updatedAt;
     }
 
+    /**
+     * @var bool
+     */
+    private $removed = false;
+
+    public function isRemoved(): bool
+    {
+        return $this->removed;
+    }
+
     public function getTitle(): string
     {
         return sprintf('%s [%s]', $this->getDebtorParty()->getTitle(), $this->getAmount()->getValue());
@@ -97,7 +109,20 @@ final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
 
     public function change(Account $beneficiaryParty, Account $debtorParty, Money $amount, DateTime $date)
     {
+        if ($this->removed) {
+            throw new TransferRemovedException('Change not possible, transfer removed.');
+        }
+
         $this->recordChange(new TransferChanged($this->getId(), $beneficiaryParty, $debtorParty, $amount, $date));
+    }
+
+    public function remove()
+    {
+        if ($this->removed) {
+            throw new TransferRemovedException('Remove not possible, transfer removed.');
+        }
+
+        $this->recordChange(new TransferRemoved($this->getId()));
     }
 
     protected function apply(Changed $changed)
@@ -126,6 +151,11 @@ final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->amount = $event->getAmount();
                 $this->date = $event->getDate();
                 $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+
+            case TransferRemoved::class:
+                $this->removed = true;
 
                 break;
         }

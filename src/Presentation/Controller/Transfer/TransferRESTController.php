@@ -4,6 +4,7 @@ namespace App\Presentation\Controller\Transfer;
 
 use App\Application\Transfer\Command\ChangeTransfer;
 use App\Application\Transfer\Command\RegisterTransfer;
+use App\Application\Transfer\Command\RemoveTransfer;
 use App\Application\Transfer\Repository\ProjectionTransferRepositoryInterface;
 use App\Application\Transfer\Repository\TransferRepositoryInterface;
 use App\Presentation\Controller\RESTController;
@@ -89,5 +90,24 @@ final class TransferRESTController extends RESTController
                 );
             }
         );
+    }
+
+    /**
+     * @Route("/{id}", name="transfer_delete", methods={"DELETE"}, options={"expose"=true})
+     *
+     * @param string $id
+     * @param MessageBusInterface $bus
+     *
+     * @return Response
+     */
+    public function delete(string $id, MessageBusInterface $bus): Response
+    {
+        if ($id == '' || $id == null) {
+            return $this->createApiErrorResponse('Transfer not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $bus->dispatch(new RemoveTransfer($id));
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 }
