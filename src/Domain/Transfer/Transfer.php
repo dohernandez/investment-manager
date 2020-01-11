@@ -2,6 +2,7 @@
 
 namespace App\Domain\Transfer;
 
+use App\Domain\Transfer\Event\TransferChanged;
 use App\Domain\Transfer\Event\TransferRegistered;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -94,6 +95,11 @@ final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
         return $self;
     }
 
+    public function change(Account $beneficiaryParty, Account $debtorParty, Money $amount, DateTime $date)
+    {
+        $this->recordChange(new TransferChanged($this->getId(), $beneficiaryParty, $debtorParty, $amount, $date));
+    }
+
     protected function apply(Changed $changed)
     {
         switch ($changed->getEventName()) {
@@ -107,6 +113,18 @@ final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->amount = $event->getAmount();
                 $this->date = $event->getDate();
                 $this->createdAt = $changed->getCreatedAt();
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+
+            case TransferChanged::class:
+                /** @var TransferChanged $event */
+                $event = $changed->getPayload();
+
+                $this->beneficiaryParty = $event->getBeneficiaryParty();
+                $this->debtorParty = $event->getDebtorParty();
+                $this->amount = $event->getAmount();
+                $this->date = $event->getDate();
                 $this->updatedAt = $changed->getCreatedAt();
 
                 break;

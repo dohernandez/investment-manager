@@ -2,11 +2,13 @@
 
 namespace App\Presentation\Controller\Transfer;
 
+use App\Application\Transfer\Command\ChangeTransfer;
 use App\Application\Transfer\Command\RegisterTransfer;
 use App\Application\Transfer\Repository\ProjectionTransferRepositoryInterface;
 use App\Application\Transfer\Repository\TransferRepositoryInterface;
 use App\Presentation\Controller\RESTController;
 use App\Presentation\Form\Transfer\CreateTransferType;
+use App\Presentation\Form\Transfer\EditTransferType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,6 +59,35 @@ final class TransferRESTController extends RESTController
                 );
             },
             Response::HTTP_CREATED
+        );
+    }
+
+    /**
+     * @Route("/{id}", name="transfer_edit", methods={"PUT"}, options={"expose"=true})
+     *
+     * @param string $id
+     * @param Request $request
+     * @param MessageBusInterface $bus
+     *
+     * @return Response
+     */
+    public function edit(string $id, Request $request, MessageBusInterface $bus): Response
+    {
+        $form = $this->createForm(EditTransferType::class);
+
+        return $this->save(
+            $form,
+            $request,
+            $bus,
+            function ($data) use ($id) {
+                return new ChangeTransfer(
+                    $id,
+                    $data['beneficiaryParty'],
+                    $data['debtorParty'],
+                    $data['amount'],
+                    $data['date']
+                );
+            }
         );
     }
 }

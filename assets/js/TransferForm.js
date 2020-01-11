@@ -49,7 +49,9 @@ class TransferForm extends SwalForm {
                     continue;
                 }
 
-                if (property === 'beneficiaryParty' || property === 'debtorParty' ) {
+                if (property === 'beneficiary' || property === 'debtor' ) {
+                    let $input = $form.find('#' + property + 'Party');
+
                     let inputData = data[property];
                     $input.append(new Option(inputData.name + " - " + inputData.accountNo, inputData.id));
 

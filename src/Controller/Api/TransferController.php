@@ -133,7 +133,6 @@ class TransferController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="transfer_edit", methods={"PUT"}, options={"expose"=true})
      *
      * @param Entity\Transfer $transfer
      * @param EntityManagerInterface $em
