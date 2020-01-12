@@ -2,10 +2,10 @@
 
 namespace App\Domain\Transfer;
 
-use App\Domain\Transfer\Exception\TransferRemovedException;
 use App\Domain\Transfer\Event\TransferChanged;
 use App\Domain\Transfer\Event\TransferRegistered;
 use App\Domain\Transfer\Event\TransferRemoved;
+use App\Domain\Transfer\Exception\TransferRemovedException;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
@@ -96,8 +96,12 @@ final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
         return sprintf('%s [%s]', $this->getDebtorParty()->getTitle(), $this->getAmount()->getValue());
     }
 
-    public static function transfer(Account $beneficiaryParty, Account $debtorParty, Money $amount, DateTime $date): self
-    {
+    public static function transfer(
+        Account $beneficiaryParty,
+        Account $debtorParty,
+        Money $amount,
+        DateTime $date
+    ): self {
         $id = UUID\Generator::generate();
 
         $self = new static($id);
@@ -113,7 +117,19 @@ final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
             throw new TransferRemovedException('Change not possible, transfer removed.');
         }
 
-        $this->recordChange(new TransferChanged($this->getId(), $beneficiaryParty, $debtorParty, $amount, $date));
+        $this->recordChange(
+            new TransferChanged(
+                $this->getId(),
+                $beneficiaryParty,
+                $this->getBeneficiaryParty(),
+                $debtorParty,
+                $this->getDebtorParty(),
+                $amount,
+                $this->getAmount(),
+                $date,
+                $this->getDate()
+            )
+        );
     }
 
     public function remove()
@@ -122,7 +138,14 @@ final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
             throw new TransferRemovedException('Remove not possible, transfer removed.');
         }
 
-        $this->recordChange(new TransferRemoved($this->getId()));
+        $this->recordChange(
+            new TransferRemoved(
+                $this->getId(),
+                $this->getBeneficiaryParty(),
+                $this->getDebtorParty(),
+                $this->getAmount()
+            )
+        );
     }
 
     protected function apply(Changed $changed)
@@ -146,10 +169,10 @@ final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
                 /** @var TransferChanged $event */
                 $event = $changed->getPayload();
 
-                $this->beneficiaryParty = $event->getBeneficiaryParty();
-                $this->debtorParty = $event->getDebtorParty();
-                $this->amount = $event->getAmount();
-                $this->date = $event->getDate();
+                $this->beneficiaryParty = $event->getNewBeneficiary();
+                $this->debtorParty = $event->getNewDebtor();
+                $this->amount = $event->getNewAmount();
+                $this->date = $event->getNewDate();
                 $this->updatedAt = $changed->getCreatedAt();
 
                 break;

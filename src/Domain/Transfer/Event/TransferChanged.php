@@ -10,16 +10,24 @@ final class TransferChanged
 {
     public function __construct(
         string $id,
-        Account $beneficiaryParty,
-        Account $debtorParty,
-        Money $amount,
-        DateTime $date
+        Account $newBeneficiary,
+        Account $oldBeneficiary,
+        Account $newDebtor,
+        Account $oldDebtor,
+        Money $newAmount,
+        Money $oldAmount,
+        DateTime $newDate,
+        DateTime $oldDate
     ) {
         $this->id = $id;
-        $this->beneficiaryParty = $beneficiaryParty;
-        $this->debtorParty = $debtorParty;
-        $this->amount = $amount;
-        $this->date = $date;
+        $this->newBeneficiary = $newBeneficiary;
+        $this->oldBeneficiary = $oldBeneficiary;
+        $this->newDebtor = $newDebtor;
+        $this->oldDebtor = $oldDebtor;
+        $this->newAmount = $newAmount;
+        $this->oldAmount = $oldAmount;
+        $this->newDate = $newDate;
+        $this->oldDate = $oldDate;
     }
 
     /**
@@ -38,46 +46,92 @@ final class TransferChanged
     /**
      * @var Account
      */
-    private $beneficiaryParty;
+    private $newBeneficiary;
 
-    public function getBeneficiaryParty(): Account
+    public function getNewBeneficiary(): Account
     {
-        return $this->beneficiaryParty;
+        return $this->newBeneficiary;
     }
 
     /**
      * @var Account
      */
-    private $debtorParty;
+    private $oldBeneficiary;
 
-    public function getDebtorParty(): Account
+    public function getOldBeneficiary(): Account
     {
-        return $this->debtorParty;
+        return $this->oldBeneficiary;
+    }
+
+    /**
+     * @var Account
+     */
+    private $newDebtor;
+
+    public function getNewDebtor(): Account
+    {
+        return $this->newDebtor;
+    }
+
+    /**
+     * @var Account
+     */
+    private $oldDebtor;
+
+    public function getOldDebtor(): Account
+    {
+        return $this->oldDebtor;
     }
 
     /**
      * @var Money
      */
-    private $amount;
+    private $newAmount;
 
     /**
      * @return Money
      */
-    public function getAmount(): Money
+    public function getNewAmount(): Money
     {
-        return $this->amount;
+        return $this->newAmount;
+    }
+
+    /**
+     * @var Money
+     */
+    private $oldAmount;
+
+    /**
+     * @return Money
+     */
+    public function getOldAmount(): Money
+    {
+        return $this->oldAmount;
     }
 
     /**
      * @var DateTime
      */
-    private $date;
+    private $newDate;
 
     /**
      * @return DateTime
      */
-    public function getDate(): DateTime
+    public function getNewDate(): DateTime
     {
-        return $this->date;
+        return $this->newDate;
+    }
+
+    /**
+     * @var DateTime
+     */
+    private $oldDate;
+
+    /**
+     * @return DateTime
+     */
+    public function getOldDate(): DateTime
+    {
+        return $this->oldDate;
     }
 }
