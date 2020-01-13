@@ -53,7 +53,6 @@ final class StockMarketRepository implements StockMarketRepositoryInterface
     {
         $this->eventSource->saveEvents($market->getChanges());
 
-        $this->em->persist($market);
-        $this->em->flush();
+        $this->em->getUnitOfWork()->commit($market);
     }
 }

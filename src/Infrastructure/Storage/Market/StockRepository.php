@@ -63,7 +63,6 @@ final class StockRepository implements StockRepositoryInterface
     {
         $this->eventSource->saveEvents($stock->getChanges());
 
-        $this->em->persist($stock);
-        $this->em->flush();
+        $this->em->getUnitOfWork()->commit($stock);
     }
 }

@@ -48,15 +48,13 @@ final class TransferRepository implements TransferRepositoryInterface
     {
         $this->eventSource->saveEvents($transfer->getChanges());
 
-        $this->em->persist($transfer);
-        $this->em->flush();
+        $this->em->getUnitOfWork()->commit($transfer);
     }
 
     public function delete(Transfer $transfer)
     {
         $this->eventSource->saveEvents($transfer->getChanges());
 
-        $this->em->remove($transfer);
-        $this->em->flush();
+        $this->em->getUnitOfWork()->remove($transfer);
     }
 }

@@ -47,7 +47,6 @@ final class BrokerRepository implements BrokerRepositoryInterface
     {
         $this->eventSource->saveEvents($broker->getChanges());
 
-        $this->em->persist($broker);
-        $this->em->flush();
+        $this->em->getUnitOfWork()->commit($broker);
     }
 }

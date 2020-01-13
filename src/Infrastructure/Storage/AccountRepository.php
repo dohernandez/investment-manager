@@ -51,7 +51,6 @@ final class AccountRepository implements AccountRepositoryInterface
     {
         $this->eventSource->saveEvents($account->getChanges());
 
-        $this->em->persist($account);
-        $this->em->flush();
+        $this->em->getUnitOfWork()->commit($account);
     }
 }
