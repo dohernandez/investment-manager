@@ -29,27 +29,19 @@ final class StockInfoRepository implements StockInfoRepositoryInterface
     {
         $changes = $this->eventSource->findEvents($id, StockInfo::class);
 
-        $stock = (new StockInfo($id))->replay($changes);
+        $stockInfo = (new StockInfo($id))->replay($changes);
 
-        // manual register tuple loaded into the Entity Manager.
-        $this->em->getUnitOfWork()->registerManaged(
-            $stock,
-            ['id' => $id],
-            [
-                'id'        => $stock->getId(),
-                'name'      => $stock->getName(),
-                'type'      => $stock->getType(),
-                'createdAt' => $stock->getCreatedAt(),
-            ]
-        );
+        /** @var StockInfo $stockInfo */
+        $stockInfo = $this->em->merge($stockInfo);
 
-        return $stock;
+        return $stockInfo;
     }
 
     public function save(StockInfo $stockInfo)
     {
         $this->eventSource->saveEvents($stockInfo->getChanges());
 
-        $this->em->getUnitOfWork()->commit($stockInfo);
+        $this->em->persist($stockInfo);
+        $this->em->flush();
     }
 }

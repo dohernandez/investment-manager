@@ -31,15 +31,8 @@ final class TransferRepository implements TransferRepositoryInterface
 
         $transfer = (new Transfer($id))->replay($changes);
 
-        $this->em->getUnitOfWork()->registerManaged($transfer, ['id' => $id], [
-            'id' => $transfer->getId(),
-            'beneficiaryParty' => $transfer->getBeneficiaryParty(),
-            'debtorParty' => $transfer->getDebtorParty(),
-            'amount' => $transfer->getAmount(),
-            'date' => $transfer->getDate(),
-            'createdAt' => $transfer->getCreatedAt(),
-            'updatedAt' => $transfer->getUpdatedAt(),
-        ]);
+        /** @var Transfer $transfer */
+        $transfer = $this->em->merge($transfer);
 
         return $transfer;
     }
@@ -48,13 +41,15 @@ final class TransferRepository implements TransferRepositoryInterface
     {
         $this->eventSource->saveEvents($transfer->getChanges());
 
-        $this->em->getUnitOfWork()->commit($transfer);
+        $this->em->persist($transfer);
+        $this->em->flush();
     }
 
     public function delete(Transfer $transfer)
     {
         $this->eventSource->saveEvents($transfer->getChanges());
 
-        $this->em->getUnitOfWork()->remove($transfer);
+        $this->em->remove($transfer);
+        $this->em->flush();
     }
 }

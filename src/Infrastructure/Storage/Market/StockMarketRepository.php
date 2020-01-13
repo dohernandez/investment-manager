@@ -29,30 +29,19 @@ final class StockMarketRepository implements StockMarketRepositoryInterface
     {
         $changes = $this->eventSource->findEvents($id, StockMarket::class);
 
-        $stock = (new StockMarket($id))->replay($changes);
+        $market = (new StockMarket($id))->replay($changes);
 
-        // manual register tuple loaded into the Entity Manager.
-        $this->em->getUnitOfWork()->registerManaged(
-            $stock,
-            ['id' => $id],
-            [
-                'id'        => $stock->getId(),
-                'currency'  => $stock->getCurrency(),
-                'country'   => $stock->getCountry(),
-                'symbol'    => $stock->getSymbol(),
-                'metadata'  => $stock->getMetadata(),
-                'createdAt' => $stock->getCreatedAt(),
-                'updatedAt' => $stock->getUpdatedAt(),
-            ]
-        );
+        /** @var StockMarket $market */
+        $market = $this->em->merge($market);
 
-        return $stock;
+        return $market;
     }
 
     public function save(StockMarket $market)
     {
         $this->eventSource->saveEvents($market->getChanges());
 
-        $this->em->getUnitOfWork()->commit($market);
+        $this->em->persist($market);
+        $this->em->flush();
     }
 }

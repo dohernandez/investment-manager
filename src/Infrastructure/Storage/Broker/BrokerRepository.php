@@ -31,14 +31,8 @@ final class BrokerRepository implements BrokerRepositoryInterface
 
         $broker = (new Broker($id))->replay($changes);
 
-        $this->em->getUnitOfWork()->registerManaged($broker, ['id' => $id], [
-            'id' => $broker->getId(),
-            'name' => $broker->getName(),
-            'site' => $broker->getSite(),
-            'currency' => $broker->getCurrency(),
-            'createdAt' => $broker->getCreatedAt(),
-            'updatedAt' => $broker->getUpdatedAt(),
-        ]);
+        /** @var Broker $broker */
+        $broker = $this->em->merge($broker);
 
         return $broker;
     }
@@ -47,6 +41,7 @@ final class BrokerRepository implements BrokerRepositoryInterface
     {
         $this->eventSource->saveEvents($broker->getChanges());
 
-        $this->em->getUnitOfWork()->commit($broker);
+        $this->em->persist($broker);
+        $this->em->flush();
     }
 }

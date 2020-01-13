@@ -33,16 +33,8 @@ final class AccountRepository implements AccountRepositoryInterface
 
         $account = (new Account($id))->replay($changes);
 
-        $this->em->getUnitOfWork()->registerManaged($account, ['id' => $id], [
-            'id' => $account->getId(),
-            'name' => $account->getName(),
-            'type' => $account->getType(),
-            'accountNo' => $account->getAccountNo(),
-            'balance' => $account->getBalance(),
-            'createdAt' => $account->getCreatedAt(),
-            'updatedAt' => $account->getUpdatedAt(),
-            'isClosed' => $account->isClosed(),
-        ]);
+        /** @var Account $account */
+        $account = $this->em->merge($account);
 
         return $account;
     }
@@ -51,6 +43,7 @@ final class AccountRepository implements AccountRepositoryInterface
     {
         $this->eventSource->saveEvents($account->getChanges());
 
-        $this->em->getUnitOfWork()->commit($account);
+        $this->em->persist($account);
+        $this->em->flush();
     }
 }

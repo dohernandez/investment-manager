@@ -31,30 +31,8 @@ final class StockRepository implements StockRepositoryInterface
 
         $stock = (new Stock($id))->replay($changes);
 
-        // manual register tuple loaded into the Entity Manager.
-        $this->em->getUnitOfWork()->registerManaged(
-            $stock,
-            ['id' => $id],
-            [
-                'id'                => $stock->getId(),
-                'name'              => $stock->getName(),
-                'symbol'            => $stock->getSymbol(),
-                'market'            => $stock->getMarket(),
-                'value'             => $stock->getValue(),
-                'description'       => $stock->getDescription(),
-                'type'              => $stock->getType(),
-                'sector'            => $stock->getSector(),
-                'industry'          => $stock->getIndustry(),
-                'notes'             => $stock->getNotes(),
-                'metadata'          => $stock->getMetadata(),
-                'nextDividend'      => $stock->getNextDividend(),
-                'toPayDividend'     => $stock->getToPayDividend(),
-                'createdAt'         => $stock->getCreatedAt(),
-                'updatedAt'         => $stock->getUpdatedAt(),
-                'updatedPriceAt'    => $stock->getUpdatedPriceAt(),
-                'updatedDividendAt' => $stock->getUpdatedDividendAt(),
-            ]
-        );
+        /** @var Stock $stock */
+        $stock = $this->em->merge($stock);
 
         return $stock;
     }
@@ -63,6 +41,7 @@ final class StockRepository implements StockRepositoryInterface
     {
         $this->eventSource->saveEvents($stock->getChanges());
 
-        $this->em->getUnitOfWork()->commit($stock);
+        $this->em->persist($stock);
+        $this->em->flush();
     }
 }
