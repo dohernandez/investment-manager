@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Presentation\View\Market;
+namespace App\Presentation\View\Market\Market;
 
 use App\Domain\Market\StockMarket;
 use App\Presentation\Form\Market\CreateStockMarketType;
@@ -16,7 +16,7 @@ final class IndexView extends AbstractView
     /**
      * @inheritDoc
      */
-    protected $prefixRoute = 'transfer';
+    protected $prefixRoute = 'market';
 
     /**
      * @inheritDoc

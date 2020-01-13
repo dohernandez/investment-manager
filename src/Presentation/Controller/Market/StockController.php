@@ -2,15 +2,15 @@
 
 namespace App\Presentation\Controller\Market;
 
-use App\Presentation\View\Market\Market\IndexView;
+use App\Presentation\View\Market\Stock\IndexView;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/stock_markets")
+ * @Route("/stocks")
  */
-final class StockMarketController extends AbstractController
+final class StockController extends AbstractController
 {
     /**
      * @var IndexView
@@ -23,12 +23,12 @@ final class StockMarketController extends AbstractController
     }
 
     /**
-     * @Route("/", name="stock_market_index", methods={"GET"})
+     * @Route("/", name="stock_index", methods={"GET"})
      *
      * @return Response
      */
     public function index(): Response
     {
-        return $this->render('stock_market/index.html.twig', $this->indexView->index());
+        return $this->render('stocks/index.html.twig', $this->indexView->index());
     }
 }
