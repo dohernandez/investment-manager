@@ -2,7 +2,7 @@
 
 namespace App\Presentation\View\Account;
 
-use App\Entity\Account;
+use App\Domain\Account\Account;
 use App\Presentation\Form\Account\CreateAccountType;
 use App\Presentation\View\AbstractView;
 
@@ -36,6 +36,11 @@ final class IndexView extends AbstractView
             [
                 'name'  => 'accountNo',
                 'label' => 'Account No',
+            ],
+            [
+                'name'  => 'balance',
+                'col_with' => '84',
+                'render' => 'money',
             ],
         ];
     }

@@ -3,6 +3,7 @@
 namespace App\Presentation\Normalizer;
 
 use App\Domain\Account\Account;
+use JMS\Serializer\ArrayTransformerInterface;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
@@ -17,6 +18,16 @@ use JMS\Serializer\JsonSerializationVisitor;
  */
 final class AccountNormalizer implements SubscribingHandlerInterface
 {
+    /**
+     * @var ArrayTransformerInterface
+     */
+    private $serializer;
+
+    public function __construct(ArrayTransformerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
     /**
      * @inheritDoc
      */
@@ -40,6 +51,7 @@ final class AccountNormalizer implements SubscribingHandlerInterface
             'accountNo' => $account->getAccountNo(),
             'alias' => $account->getName(),
             'title' => $account->getTitle(),
+            'balance' => $this->serializer->toArray($account->getBalance()),
         ];
     }
 }

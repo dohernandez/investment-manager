@@ -27,7 +27,6 @@ class CurrencyNormalizer implements SubscribingHandlerInterface
 
     public function serializeCurrencyToJson(JsonSerializationVisitor $visitor, Currency $currency, array $type, Context $context)
     {
-        dump('serializeCurrencyToJson', $currency);
         return [
             'symbol' => $currency->getSymbol(),
             'currencyCode' => $currency->getCurrencyCode(),
