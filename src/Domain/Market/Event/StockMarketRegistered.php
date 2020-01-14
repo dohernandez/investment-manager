@@ -37,14 +37,27 @@ final class StockMarketRegistered
      */
     private $metadata;
 
-    public function __construct(string $id, string $name, Currency $currency, string $country, string $symbol, StockMarketMetadata $metadata)
-    {
+    /**
+     * @var string|null
+     */
+    private $yahooSymbol;
+
+    public function __construct(
+        string $id,
+        string $name,
+        Currency $currency,
+        string $country,
+        string $symbol,
+        StockMarketMetadata $metadata,
+        ?string $yahooSymbol = null
+    ) {
         $this->id = $id;
         $this->name = $name;
         $this->currency = $currency;
         $this->country = $country;
         $this->symbol = $symbol;
         $this->metadata = $metadata;
+        $this->yahooSymbol = $yahooSymbol;
     }
 
     /**
@@ -93,5 +106,10 @@ final class StockMarketRegistered
     public function getMetadata(): StockMarketMetadata
     {
         return $this->metadata;
+    }
+
+    public function getYahooSymbol(): ?string
+    {
+        return $this->yahooSymbol;
     }
 }

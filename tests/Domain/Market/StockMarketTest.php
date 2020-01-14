@@ -20,8 +20,9 @@ final class StockMarketTest extends TestCase
         $currency = Currency::usd();
         $country = 'US';
         $symbol = 'NasdaqGS';
+        $yahooSymbol = 'NasdaqGS.A';
 
-        $stockMarket = StockMarket::register($name, $currency, $country, $symbol);
+        $stockMarket = StockMarket::register($name, $currency, $country, $symbol, $yahooSymbol);
 
         $this->assertInstanceOf(StockMarket::class, $stockMarket);
         $this->assertNotNull($stockMarket->getId());
@@ -29,5 +30,6 @@ final class StockMarketTest extends TestCase
         $this->assertEquals($currency, $stockMarket->getCurrency());
         $this->assertEquals($country, $stockMarket->getCountry());
         $this->assertEquals($symbol, $stockMarket->getSymbol());
+        $this->assertEquals($yahooSymbol, $stockMarket->getYahooSymbol());
     }
 }

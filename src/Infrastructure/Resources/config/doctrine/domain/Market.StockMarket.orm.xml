@@ -12,6 +12,7 @@
         <field name="currency" column="currency" type="object" />
         <field name="country" column="country" type="string" length="2"/>
         <field name="symbol" column="symbol" type="string" />
+        <field name="yahooSymbol" column="yahoo_symbol" type="string" />
         <field name="metadata" column="metadata" type="object" />
         <field name="createdAt" column="created_at" type="datetime" />
         <field name="updatedAt" column="updated_at" type="datetime" />

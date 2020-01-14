@@ -69,6 +69,16 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
+     * @var string
+     */
+    private $yahooSymbol;
+
+    public function getYahooSymbol(): string
+    {
+        return $this->yahooSymbol;
+    }
+
+    /**
      * @var DateTime
      */
     private $createdAt;
@@ -104,8 +114,10 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
 
         $self = new static($id);
 
-        $metadata = new StockMarketMetadata($yahooSymbol);
-        $self->recordChange(new StockMarketRegistered($id, $name, $currency, $country, $symbol, $metadata));
+        $metadata = new StockMarketMetadata();
+        $self->recordChange(
+            new StockMarketRegistered($id, $name, $currency, $country, $symbol, $metadata, $yahooSymbol)
+        );
 
         return $self;
     }
@@ -123,6 +135,8 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->currency = $event->getCurrency();
                 $this->symbol = $event->getSymbol();
                 $this->metadata = $event->getMetadata();
+                $this->metadata = $event->getMetadata();
+                $this->yahooSymbol = $event->getYahooSymbol();
                 $this->createdAt = $changed->getCreatedAt();
                 $this->updatedAt = $changed->getCreatedAt();
 
