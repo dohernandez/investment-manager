@@ -196,6 +196,16 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->getMarket()->getCurrency();
     }
 
+    public function getTitle(): string
+    {
+        return sprintf(
+            '%s (%s:%s)',
+            $this->getName(),
+            $this->getSymbol(),
+            $this->getMarket()->getSymbol()
+        );
+    }
+
     public static function add(
         string $name,
         string $symbol,

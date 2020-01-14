@@ -21,7 +21,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class StockController extends BaseController
 {
     /**
-     * @Route("/", name="stock_list", methods={"GET"}, options={"expose"=true})
      *
      * @param StockRepository $repo
      * @param Request $request
