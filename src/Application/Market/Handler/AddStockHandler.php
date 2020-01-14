@@ -13,19 +13,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 final class AddStockHandler implements MessageHandlerInterface
 {
     /**
-     * @var MessageBusInterface
-     */
-    private $bus;
-
-    /**
      * @var StockRepositoryInterface
      */
     private $stockRepository;
-
-    /**
-     * @var ProjectionStockMarketRepositoryInterface
-     */
-    private $projectionStockMarketRepository;
 
     /**
      * @var StockInfoRepositoryInterface
@@ -33,14 +23,10 @@ final class AddStockHandler implements MessageHandlerInterface
     private $stockInfoRepository;
 
     public function __construct(
-        MessageBusInterface $bus,
         StockRepositoryInterface $stockRepository,
-        ProjectionStockMarketRepositoryInterface $projectionStockMarketRepository,
         StockInfoRepositoryInterface $stockInfoRepository
     ) {
-        $this->bus = $bus;
         $this->stockRepository = $stockRepository;
-        $this->projectionStockMarketRepository = $projectionStockMarketRepository;
         $this->stockInfoRepository = $stockInfoRepository;
     }
 

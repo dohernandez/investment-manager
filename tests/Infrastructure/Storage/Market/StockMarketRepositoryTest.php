@@ -16,7 +16,7 @@ final class StockMarketRepositoryTest extends AppDoctrineKernelTestCase
      */
     public function testFind()
     {
-        $market = StockMarketProvider::provide('Stock Market', Currency::usd(), 'US', 'NasdaqGS');
+        $market = StockMarketProvider::provide('Stock Market', Currency::usd(), 'US', 'NasdaqGS', 'NasdaqGS');
 
         /** @var StockMarketRepository $repo */
         $repo = $this->getRepository(StockMarketRepository::class);
@@ -41,7 +41,7 @@ final class StockMarketRepositoryTest extends AppDoctrineKernelTestCase
 
     public function testSave()
     {
-        $market = StockMarketProvider::provide('Stock Market', Currency::usd(), 'US', 'NasdaqGS');
+        $market = StockMarketProvider::provide('Stock Market', Currency::usd(), 'US', 'NasdaqGS', 'NasdaqGS');
 
         /** @var StockMarketRepository $repo */
         $repo = $this->getRepository(StockMarketRepository::class);

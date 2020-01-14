@@ -29,7 +29,7 @@ final class RegisterStockMarketHandlerTest extends TestCase
                     $this->assertEquals($currency, $market->getCurrency());
                     $this->assertEquals($country, $market->getCountry());
                     $this->assertEquals($symbol, $market->getSymbol());
-                    $this->assertEquals($yahooSymbol, $market->getMetadata()->getYahooSymbol());
+                    $this->assertEquals($yahooSymbol, $market->getYahooSymbol());
 
                     return true;
                 }

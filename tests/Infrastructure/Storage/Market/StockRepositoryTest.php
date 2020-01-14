@@ -50,7 +50,7 @@ final class StockRepositoryTest extends AppDoctrineKernelTestCase
 
     private function createMarker(): StockMarket
     {
-        $market = StockMarketProvider::provide('Stock Market', Currency::usd(), 'US', 'NasdaqGS');
+        $market = StockMarketProvider::provide('Stock Market', Currency::usd(), 'US', 'NasdaqGS', 'NasdaqGS');
 
         /** @var StockMarketRepository $repo */
         $repo = $this->getRepository(StockMarketRepository::class);
@@ -65,7 +65,6 @@ final class StockRepositoryTest extends AppDoctrineKernelTestCase
      */
     public function testFind()
     {
-
         $stock = StockProvider::provide(
             'Stock',
             'STK',
