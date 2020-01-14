@@ -2,12 +2,10 @@
 
 namespace App\Application\Account\Handler;
 
-use App\Application\Account\Event\AccountUpdated;
 use App\Application\Account\Command\WithdrawMoneyCommand;
 use App\Application\Account\Repository\AccountRepositoryInterface;
 use App\Domain\Account\AccountAggregate;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 final class WithdrawMoneyCommandHandler implements MessageHandlerInterface
 {

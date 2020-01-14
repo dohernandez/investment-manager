@@ -4,10 +4,8 @@ namespace App\Application\Account\Handler;
 
 use App\Application\Account\Repository\AccountRepositoryInterface;
 use App\Domain\Account\Account;
-use App\Application\Account\Event\AccountCreated;
 use App\Application\Account\Command\OpenAccountCommand;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 final class OpenAccountCommandHandler implements MessageHandlerInterface
 {

@@ -2,19 +2,14 @@
 
 namespace App\Tests\Application\Account\Handler;
 
-use App\Application\Account\Event\AccountUpdated;
 use App\Application\Account\Command\WithdrawMoneyCommand;
 use App\Application\Account\Handler\WithdrawMoneyCommandHandler;
 use App\Application\Account\Repository\AccountRepositoryInterface;
 use App\Domain\Account\Account;
-use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\Money\Money;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use stdClass;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
 use App\Infrastructure\UUID;
 
 /**
