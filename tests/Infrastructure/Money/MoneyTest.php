@@ -153,4 +153,18 @@ final class MoneyTest extends TestCase
             ],
         ];
     }
+
+    /**
+     * @dataProvider parserDataProvider
+     */
+    public function testParser(string $toParser, string $expected)
+    {
+        $this->assertEquals($expected, Money::parser($toParser));
+    }
+
+    public function parserDataProvider()
+    {
+        yield ['28.72', 2872];
+        yield ['28,72', 2872];
+    }
 }

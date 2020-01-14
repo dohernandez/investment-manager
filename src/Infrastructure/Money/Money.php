@@ -89,7 +89,7 @@ final class Money
     {
         $value = $this->getValue();
 
-        $exchangePaar =  $currency->getPaarExchangeRate($this->getCurrency());
+        $exchangePaar = $currency->getPaarExchangeRate($this->getCurrency());
 
         $exists = false;
         /** @var Exchange $rate */
@@ -113,7 +113,6 @@ final class Money
         if (!$this->getCurrency()->equals($value->getCurrency())) {
             throw new LogicException('can not increase money value, currency are different');
         }
-
 
         if ($this->getPrecision() == $value->getPrecision()) {
             $value = $this->getValue() + $value->getValue();
@@ -146,7 +145,8 @@ final class Money
     public function __toString(): string
     {
         switch ($this->getCurrency()->getCurrencyCode()) {
-            case Currency::CURRENCY_CODE_CAD: {
+            case Currency::CURRENCY_CODE_CAD:
+            {
                 $toString = sprintf(
                     '%.2f %s',
                     $this->getPreciseValue(),
@@ -155,7 +155,8 @@ final class Money
 
                 break;
             }
-            default: {
+            default:
+            {
                 $toString = sprintf(
                     '%s %.2f',
                     $this->getCurrency()->getSymbol(),
@@ -191,5 +192,12 @@ final class Money
             $this->getValue() / $value,
             $this->getPrecision()
         );
+    }
+
+    public static function parser(string $price, int $divisor = 100): float
+    {
+        $price = str_replace(',', '.', $price);
+
+        return floatval($price) * $divisor;
     }
 }
