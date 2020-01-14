@@ -68,7 +68,7 @@ final class BrokerRESTController extends RESTController
     ): Response {
         $form = $this->createForm(CreateBrokerType::class);
 
-        return $this->save(
+        return $this->dispatch(
             $form,
             $request,
             $bus,
@@ -96,7 +96,7 @@ final class BrokerRESTController extends RESTController
     {
         $form = $this->createForm(EditBrokerType::class);
 
-        return $this->save(
+        return $this->dispatch(
             $form,
             $request,
             $bus,

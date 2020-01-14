@@ -51,7 +51,7 @@ final class StockMarketRESTController extends RESTController
     ): Response {
         $form = $this->createForm(CreateStockMarketType::class);
 
-        return $this->save(
+        return $this->dispatch(
             $form,
             $request,
             $bus,
@@ -81,7 +81,7 @@ final class StockMarketRESTController extends RESTController
     {
         $form = $this->createForm(EditTransferType::class);
 
-        return $this->save(
+        return $this->dispatch(
             $form,
             $request,
             $bus,

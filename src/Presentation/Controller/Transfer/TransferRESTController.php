@@ -47,7 +47,7 @@ final class TransferRESTController extends RESTController
     ): Response {
         $form = $this->createForm(CreateTransferType::class);
 
-        return $this->save(
+        return $this->dispatch(
             $form,
             $request,
             $bus,
@@ -76,7 +76,7 @@ final class TransferRESTController extends RESTController
     {
         $form = $this->createForm(EditTransferType::class);
 
-        return $this->save(
+        return $this->dispatch(
             $form,
             $request,
             $bus,

@@ -79,7 +79,7 @@ final class AccountRESTController extends RESTController
     ): Response {
         $form = $this->createForm(CreateAccountType::class);
 
-        return $this->save(
+        return $this->dispatch(
             $form,
             $request,
             $bus,

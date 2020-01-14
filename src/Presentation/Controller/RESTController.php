@@ -123,7 +123,7 @@ abstract class RESTController extends AbstractController
      *
      * @return Response
      */
-    protected function save(
+    protected function dispatch(
         Form $form,
         Request $request,
         MessageBusInterface $bus,
