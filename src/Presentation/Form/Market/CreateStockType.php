@@ -3,7 +3,7 @@
 namespace App\Presentation\Form\Market;
 
 use App\Domain\Market\StockInfo;
-use App\Form\HiddenMoneyType;
+use App\Presentation\Form\HiddenMoneyType;
 use App\Presentation\Form\MoneyType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ButtonType;
