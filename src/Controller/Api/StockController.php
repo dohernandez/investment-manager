@@ -180,7 +180,6 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/quote", name="stock_yahoo_scraper", methods={"GET"}, options={"expose"=true})
      *
      * @param YahooStockScraper $scraper
      * @param Request $request

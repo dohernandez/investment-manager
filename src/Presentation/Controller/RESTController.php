@@ -36,10 +36,10 @@ abstract class RESTController extends AbstractController
     protected function createApiResponse($data, $statusCode = Response::HTTP_OK, $context = [])
     {
         if (is_array($data) || $data instanceof ArrayAccess) {
-             $json = [
-                 'total_count' => count($data),
-                 'items' => $data
-             ];
+            $json = [
+                'total_count' => count($data),
+                'items'       => $data
+            ];
         } else {
             $json = [
                 'item' => $data
@@ -81,6 +81,7 @@ abstract class RESTController extends AbstractController
      * }
      *
      * @param FormInterface $form
+     *
      * @return array|string
      */
     protected function getErrorsFromForm(FormInterface $form)
@@ -108,7 +109,10 @@ abstract class RESTController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         if ($data === null) {
-            throw new InvalidJsonRequestException('Invalid JSON');
+            $data = $request->query->all();
+            if (empty($data)) {
+                throw new InvalidJsonRequestException('Invalid request. Can not decode neither the query and the body');
+            }
         }
 
         return $data;

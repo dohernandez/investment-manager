@@ -42,7 +42,7 @@ final class StockMarketNormalizer implements SubscribingHandlerInterface
             'country'     => $market->getCountry(),
             'countryName' => $market->getCountryName(),
             'symbol'      => $market->getSymbol(),
-            'yahooSymbol' => $market->getMetadata()->getYahooSymbol(),
+            'yahooSymbol' => $market->getYahooSymbol(),
             'currency'    => $market->getCurrency()->getCurrencyCode(),
             'title'       => $market->getTitle(),
         ];

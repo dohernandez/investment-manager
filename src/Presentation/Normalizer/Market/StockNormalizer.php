@@ -112,18 +112,4 @@ final class StockNormalizer implements SubscribingHandlerInterface
             'title'                => $stock->getTitle(),
         ];
     }
-
-    private function getDisplayDividendYield(Stock $stock): string
-    {
-        $nextDividend = $stock->getNextDividend();
-        if ($nextDividend) {
-            $self->exDate = $nextDividend->getExDate();
-
-            $self->displayDividendYield = sprintf(
-                '%s (%.2f%%)',
-                $nextDividend->getValue(),
-                $self->dividendYield
-            );
-        }
-    }
 }

@@ -14,4 +14,6 @@ interface ProjectionStockMarketRepositoryInterface
      * @return StockMarket|null The broker.
      */
     public function find($id);
+
+    public function findBySymbol(string $symbol): ?StockMarket;
 }
