@@ -2,7 +2,11 @@
 
 namespace App\Application\Market\Command;
 
-class AddStock
+use App\Domain\Market\StockInfo;
+use App\Domain\Market\StockMarket;
+use App\Infrastructure\Money\Money;
+
+final class AddStock
 {
     /**
      * @var string
@@ -17,10 +21,15 @@ class AddStock
     /**
      * @var string
      */
-    private $marketId;
+    private $yahooSymbol;
 
     /**
-     * @var int|null
+     * @var StockMarket
+     */
+    private $market;
+
+    /**
+     * @var Money|null
      */
     private $value;
 
@@ -30,33 +39,35 @@ class AddStock
     private $description;
 
     /**
-     * @var string|null
+     * @var StockInfo|null
      */
     private $type;
 
     /**
-     * @var string|null
+     * @var StockInfo|null
      */
     private $sector;
 
     /**
-     * @var string|null
+     * @var StockInfo|null
      */
     private $industry;
 
     public function __construct(
         string $name,
         string $symbol,
-        string $marketId,
-        ?int $value = null,
+        string $yahooSymbol,
+        StockMarket $market,
+        ?Money $value = null,
         ?string $description = null,
-        ?string $type = null,
-        ?string $sector = null,
-        ?string $industry = null
+        ?StockInfo $type = null,
+        ?StockInfo $sector = null,
+        ?StockInfo $industry = null
     ) {
         $this->name = $name;
         $this->symbol = $symbol;
-        $this->marketId = $marketId;
+        $this->yahooSymbol = $yahooSymbol;
+        $this->market = $market;
         $this->value = $value;
         $this->description = $description;
         $this->type = $type;
@@ -74,12 +85,17 @@ class AddStock
         return $this->symbol;
     }
 
-    public function getMarketId(): string
+    public function getYahooSymbol(): string
     {
-        return $this->marketId;
+        return $this->yahooSymbol;
     }
 
-    public function getValue(): ?int
+    public function getMarket(): StockMarket
+    {
+        return $this->market;
+    }
+
+    public function getValue(): ?Money
     {
         return $this->value;
     }
@@ -89,17 +105,17 @@ class AddStock
         return $this->description;
     }
 
-    public function getType(): ?string
+    public function getType(): ?StockInfo
     {
         return $this->type;
     }
 
-    public function getSector(): ?string
+    public function getSector(): ?StockInfo
     {
         return $this->sector;
     }
 
-    public function getIndustry(): ?string
+    public function getIndustry(): ?StockInfo
     {
         return $this->industry;
     }

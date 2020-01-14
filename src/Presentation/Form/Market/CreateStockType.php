@@ -2,6 +2,7 @@
 
 namespace App\Presentation\Form\Market;
 
+use App\Domain\Market\StockInfo;
 use App\Form\HiddenMoneyType;
 use App\Presentation\Form\MoneyType;
 use Symfony\Component\Form\AbstractType;
@@ -97,6 +98,7 @@ final class CreateStockType extends AbstractType
                 StockInfoChoiceType::class,
                 [
                     'placeholder' => 'Choose type',
+                    'type'        => StockInfo::TYPE,
                     'required'    => false,
                 ]
             )
@@ -105,7 +107,7 @@ final class CreateStockType extends AbstractType
                 StockInfoChoiceType::class,
                 [
                     'placeholder' => 'Choose sector',
-                    'type'        => 'sector',
+                    'type'        => StockInfo::SECTOR,
                     'required'    => false,
                 ]
             )
@@ -114,7 +116,7 @@ final class CreateStockType extends AbstractType
                 StockInfoChoiceType::class,
                 [
                     'placeholder' => 'Choose industry',
-                    'type'        => 'industry',
+                    'type'        => StockInfo::INDUSTRY,
                     'required'    => false,
                 ]
             ) // hidden inputs

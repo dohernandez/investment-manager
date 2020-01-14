@@ -2,13 +2,13 @@
 
 namespace App\Presentation\Controller\Market;
 
+use App\Application\Market\Command\AddStock;
 use App\Application\Market\Command\LoadYahooQuote;
-use App\Application\Market\Command\RegisterStockMarket;
 use App\Application\Transfer\Command\ChangeTransfer;
 use App\Application\Transfer\Command\RemoveTransfer;
 use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
 use App\Presentation\Controller\RESTController;
-use App\Presentation\Form\Market\CreateStockMarketType;
+use App\Presentation\Form\Market\CreateStockType;
 use App\Presentation\Form\Market\LoadYahooQuoteType;
 use App\Presentation\Form\Transfer\EditTransferType;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -45,19 +45,23 @@ final class StockRESTController extends RESTController
         Request $request,
         MessageBusInterface $bus
     ): Response {
-        $form = $this->createForm(CreateStockMarketType::class);
+        $form = $this->createForm(CreateStockType::class);
 
         return $this->dispatch(
             $form,
             $request,
             $bus,
             function ($data) {
-                return new RegisterStockMarket(
+                return new AddStock(
                     $data['name'],
-                    $data['currency'],
-                    $data['country'],
                     $data['symbol'],
-                    $data['yahooSymbol']
+                    $data['yahooSymbol'],
+                    $data['market'],
+                    $data['value'],
+                    $data['description'],
+                    $data['type'],
+                    $data['sector'],
+                    $data['industry'],
                 );
             },
             Response::HTTP_CREATED

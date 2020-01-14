@@ -3,6 +3,7 @@
 namespace App\Tests\Domain\Market;
 
 use App\Domain\Market\Stock;
+use App\Domain\Market\StockInfo;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use PHPUnit\Framework\TestCase;
@@ -20,8 +21,9 @@ final class StockTest extends TestCase
         $symbol = 'STK';
         $market = StockMarketProvider::provide('Stock Market', Currency::usd(), 'US', 'NasdaqGS');
         $value = Money::fromEURValue(1000);
+        $sector = StockInfoProvider::provide('Stock Info', StockInfo::SECTOR);
 
-        $stock = Stock::add($name, $symbol, $market, $value);
+        $stock = Stock::add($name, $symbol, $market, $value, null, null, $sector);
 
         $this->assertInstanceOf(Stock::class, $stock);
         $this->assertNotNull($stock->getId());
@@ -29,5 +31,9 @@ final class StockTest extends TestCase
         $this->assertEquals($symbol, $stock->getSymbol());
         $this->assertEquals($market, $stock->getMarket());
         $this->assertEquals($value, $stock->getValue());
+        $this->assertEquals($sector, $stock->getSector());
+        $this->assertNull($stock->getDescription());
+        $this->assertNull($stock->getType());
+        $this->assertNull($stock->getIndustry());
     }
 }

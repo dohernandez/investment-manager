@@ -3,7 +3,7 @@
 namespace App\Presentation\Form\Market;
 
 use App\Application\Market\Repository\ProjectionStockInfoRepositoryInterface;
-use App\Entity\StockInfo;
+use App\Domain\Market\StockInfo;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 
@@ -12,7 +12,7 @@ class ChoiceToStockInfoTransformer implements DataTransformerInterface
     /**
      * @var ProjectionStockInfoRepositoryInterface
      */
-    private $stockInfoRepository;
+    private $projectionStockInfoRepository;
 
     /**
      * @var string
@@ -24,9 +24,12 @@ class ChoiceToStockInfoTransformer implements DataTransformerInterface
      */
     private $logger;
 
-    public function __construct(ProjectionStockInfoRepositoryInterface $stockInfoRepository, string $type, LoggerInterface $logger)
-    {
-        $this->stockInfoRepository = $stockInfoRepository;
+    public function __construct(
+        ProjectionStockInfoRepositoryInterface $projectionStockInfoRepository,
+        string $type,
+        LoggerInterface $logger
+    ) {
+        $this->projectionStockInfoRepository = $projectionStockInfoRepository;
         $this->type = $type;
         $this->logger = $logger;
     }
@@ -45,7 +48,7 @@ class ChoiceToStockInfoTransformer implements DataTransformerInterface
             throw new \LogicException('The StockInfoChoiceType can only be used with StockInfo objects');
         }
 
-        return (string) $value;
+        return (string)$value;
     }
 
     /**
@@ -57,21 +60,25 @@ class ChoiceToStockInfoTransformer implements DataTransformerInterface
             return null;
         }
 
-        $this->logger->debug('Find stock info with id', [
-            'value' => $value,
-            'type' => $this->type,
-        ]);
-        $stockInfo = $this->stockInfoRepository->find($value);
+        $this->logger->debug(
+            'Find stock info with id',
+            [
+                'value' => $value,
+                'type'  => $this->type,
+            ]
+        );
+        $stockInfo = $this->projectionStockInfoRepository->find($value);
 
         if (!$stockInfo) {
-            $this->logger->debug('Stock info not found. Creating a new', [
-                'value' => $value,
-                'type' => $this->type,
-            ]);
+            $this->logger->debug(
+                'Stock info not found. Creating a new',
+                [
+                    'value' => $value,
+                    'type'  => $this->type,
+                ]
+            );
 
-            $stockInfo = new StockInfo();
-            $stockInfo->setType($this->type);
-            $stockInfo->setName($value);
+            $stockInfo = StockInfo::add($this->type, $value);
         }
 
         return $stockInfo;
