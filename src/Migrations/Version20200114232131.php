@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200114161503 extends AbstractMigration
+final class Version20200114232131 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -23,7 +23,6 @@ final class Version20200114161503 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE event_source CHANGE event_name event_name VARCHAR(256) NOT NULL, CHANGE aggregate_type aggregate_type VARCHAR(256) NOT NULL');
-        $this->addSql('ALTER TABLE projection_stock CHANGE notes notes LONGTEXT NOT NULL, CHANGE updated_price_at updated_price_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime)\', CHANGE updated_dividend_at updated_dividend_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime)\'');
         $this->addSql('ALTER TABLE projection_stock_market ADD yahoo_symbol VARCHAR(255) NOT NULL');
     }
 
@@ -33,7 +32,6 @@ final class Version20200114161503 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE event_source CHANGE event_name event_name VARCHAR(256) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, CHANGE aggregate_type aggregate_type VARCHAR(256) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`');
-        $this->addSql('ALTER TABLE projection_stock CHANGE notes notes LONGTEXT CHARACTER SET utf8mb4 DEFAULT NULL COLLATE `utf8mb4_unicode_ci`, CHANGE updated_price_at updated_price_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime)\', CHANGE updated_dividend_at updated_dividend_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime)\'');
         $this->addSql('ALTER TABLE projection_stock_market DROP yahoo_symbol');
     }
 }

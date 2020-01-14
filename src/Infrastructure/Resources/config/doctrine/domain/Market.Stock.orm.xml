@@ -20,12 +20,12 @@
         <many-to-one field="sector" target-entity="App\Domain\Market\StockInfo" />
         <many-to-one field="industry" target-entity="App\Domain\Market\StockInfo" />
 
-        <field name="notes" column="notes" type="text" />
+        <field name="notes" column="notes" type="text" nullable="true"/>
         <field name="metadata" column="metadata" type="object" />
         <field name="createdAt" column="created_at" type="datetime" />
         <field name="updatedAt" column="updated_at" type="datetime" />
-        <field name="updatedPriceAt" column="updated_price_at" type="datetime" />
-        <field name="updatedDividendAt" column="updated_dividend_at" type="datetime" />
+        <field name="updatedPriceAt" column="updated_price_at" type="datetime" nullable="true"/>
+        <field name="updatedDividendAt" column="updated_dividend_at" type="datetime" nullable="true"/>
 
         <unique-constraints>
             <unique-constraint columns="symbol,market_id" name="stock_market_idx" />
