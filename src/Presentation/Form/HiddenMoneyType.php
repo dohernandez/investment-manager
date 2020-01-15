@@ -2,8 +2,8 @@
 
 namespace App\Presentation\Form;
 
-use App\Form\DataMapper\MoneyMapper;
 use App\Infrastructure\Money\Money;
+use App\Presentation\Form\DataMapper\MoneyMapper;
 use Symfony\Component\Form\Extension\Core\DataTransformer\NumberToLocalizedStringTransformer;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;

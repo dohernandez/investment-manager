@@ -2,62 +2,59 @@
 
 namespace App\Domain\Market;
 
-use App\Infrastructure\Money\Money;
-
 final class StockMetadata
 {
     /**
-     * @var StockPrice
+     * @var StockPrice|null
      */
     private $price;
 
     /**
-     * @var float
+     * @var float|null
      */
     private $dividendYield;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $yahooSymbol;
 
-    public function __construct(
-        StockPrice $price,
-        float $dividendYield,
-        string $yahooSymbol
-    ) {
-        $this->price = $price;
-        $this->dividendYield = $dividendYield;
-        $this->yahooSymbol = $yahooSymbol;
-    }
-
-    public function getPrice(): StockPrice
+    public function getPrice(): ?StockPrice
     {
         return $this->price;
     }
 
-    public function getDividendYield(): float
+    public function getDividendYield(): ?float
     {
         return $this->dividendYield;
     }
 
-    public function getYahooSymbol(): string
+    public function getYahooSymbol(): ?string
     {
         return $this->yahooSymbol;
     }
 
     public function updateDividendYield(float $dividendYield): self
     {
-        return new static($this->price, $dividendYield, $this->yahooSymbol);
+        $self = clone $this;
+        $self->dividendYield = $dividendYield;
+
+        return $self;
     }
 
     public function updatePrice(StockPrice $price): self
     {
-        return new static($price, $this->dividendYield, $this->yahooSymbol);
+        $self = clone $this;
+        $self->price = $price;
+
+        return $self;
     }
 
     public function updateYahooSymbol(string $yahooSymbol): self
     {
-        return new static($this->price, $this->dividendYield, $yahooSymbol);
+        $self = clone $this;
+        $self->yahooSymbol = $yahooSymbol;
+
+        return $self;
     }
 }

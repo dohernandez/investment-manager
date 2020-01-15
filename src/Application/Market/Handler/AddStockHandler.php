@@ -4,11 +4,9 @@ namespace App\Application\Market\Handler;
 
 use App\Application\Market\Command\AddStock;
 use App\Application\Market\Repository\StockInfoRepositoryInterface;
-use App\Application\Market\Repository\ProjectionStockMarketRepositoryInterface;
 use App\Application\Market\Repository\StockRepositoryInterface;
 use App\Domain\Market\Stock;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 final class AddStockHandler implements MessageHandlerInterface
 {
@@ -32,7 +30,6 @@ final class AddStockHandler implements MessageHandlerInterface
 
     public function __invoke(AddStock $message)
     {
-        dump($message);
         $name = $message->getName();
         $symbol = $message->getSymbol();
         $market = $message->getMarket();

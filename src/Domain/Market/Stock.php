@@ -2,6 +2,7 @@
 
 namespace App\Domain\Market;
 
+use App\Application\Market\Command\StockPriceUpdated;
 use App\Domain\Market\Event\StockAdded;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -253,10 +254,39 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->type = $event->getType();
                 $this->sector = $event->getSector();
                 $this->industry = $event->getIndustry();
+                $this->metadata = new StockMetadata();
                 $this->createdAt = $changed->getCreatedAt();
                 $this->updatedAt = $changed->getCreatedAt();
 
                 break;
         }
+    }
+
+    public function updatePrice(
+        Money $value,
+        ?Money $preClose = null,
+        ?Money $open = null,
+        ?float $peRatio = null,
+        ?Money $dayLow = null,
+        ?Money $dayHigh = null,
+        ?Money $week52Low = null,
+        ?Money $week52High = null
+    ): self {
+        $this->value = $value;
+
+        $price = new StockPrice(
+            $value,
+            $preClose,
+            $open,
+            $peRatio,
+            $dayLow,
+            $dayHigh,
+            $week52Low,
+            $week52High
+        );
+
+        $this->metadata = $this->metadata->updatePrice($price);
+
+        return $this;
     }
 }

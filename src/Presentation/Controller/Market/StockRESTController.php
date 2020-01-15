@@ -2,11 +2,11 @@
 
 namespace App\Presentation\Controller\Market;
 
-use App\Application\Market\Command\AddStock;
+use App\Application\Market\Command\AddStockWithPrice;
 use App\Application\Market\Command\LoadYahooQuote;
+use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
 use App\Application\Transfer\Command\ChangeTransfer;
 use App\Application\Transfer\Command\RemoveTransfer;
-use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
 use App\Presentation\Controller\RESTController;
 use App\Presentation\Form\Market\CreateStockType;
 use App\Presentation\Form\Market\LoadYahooQuoteType;
@@ -53,7 +53,7 @@ final class StockRESTController extends RESTController
             $request,
             $bus,
             function ($data) {
-                return new AddStock(
+                return new AddStockWithPrice(
                     $data['name'],
                     $data['symbol'],
                     $data['yahooSymbol'],
@@ -62,7 +62,14 @@ final class StockRESTController extends RESTController
                     $data['description'],
                     $data['type'],
                     $data['sector'],
-                    $data['industry']
+                    $data['industry'],
+                    $data['preClose'],
+                    $data['open'],
+                    $data['peRatio'],
+                    $data['dayLow'],
+                    $data['dayHigh'],
+                    $data['week52Low'],
+                    $data['week52High']
                 );
             },
             Response::HTTP_CREATED
