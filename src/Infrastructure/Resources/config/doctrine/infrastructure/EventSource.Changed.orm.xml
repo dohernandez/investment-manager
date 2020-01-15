@@ -15,10 +15,10 @@
         </id>
 
         <field name="eventId" column="event_id" type="guid" unique="true" />
-        <field name="eventName" column="event_name" column-definition="VARCHAR(256) NOT NULL" />
+        <field name="eventName" column="event_name" type="string" />
         <field name="payload" type="object" />
         <field name="metadata" type="object" />
-        <field name="aggregateType" column="aggregate_type" column-definition="VARCHAR(256) NOT NULL" />
+        <field name="aggregateType" column="aggregate_type" type="string" />
         <field name="aggregateId" column="aggregate_id" type="guid" />
         <field name="aggregateVersion" column="aggregate_version" type="smallint" />
         <field name="createdAt" column="created_at" type="datetime" />

@@ -6,5 +6,5 @@ use App\Domain\Market\StockInfo;
 
 interface ProjectionStockInfoRepositoryInterface
 {
-    public function findByName(string $name): StockInfo;
+    public function findByName(string $name): ?StockInfo;
 }

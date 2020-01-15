@@ -22,8 +22,9 @@ final class Version20200114232131 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE event_source CHANGE event_name event_name VARCHAR(256) NOT NULL, CHANGE aggregate_type aggregate_type VARCHAR(256) NOT NULL');
-        $this->addSql('ALTER TABLE projection_stock_market ADD yahoo_symbol VARCHAR(255) NOT NULL');
+        $this->addSql('ALTER TABLE event_source CHANGE event_name event_name VARCHAR(255) NOT NULL, CHANGE aggregate_type aggregate_type VARCHAR(255) NOT NULL');
+        $this->addSql('ALTER TABLE projection_stock_market ADD yahoo_symbol VARCHAR(255) NOT NULL, CHANGE description description LONGTEXT DEFAULT NULL');
+        $this->addSql('CREATE UNIQUE INDEX unique_idx ON projection_stock_info (name, type)');
     }
 
     public function down(Schema $schema) : void
@@ -32,6 +33,7 @@ final class Version20200114232131 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE event_source CHANGE event_name event_name VARCHAR(256) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, CHANGE aggregate_type aggregate_type VARCHAR(256) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`');
-        $this->addSql('ALTER TABLE projection_stock_market DROP yahoo_symbol');
+        $this->addSql('ALTER TABLE projection_stock_market DROP yahoo_symbol, CHANGE description description VARCHAR(255) CHARACTER SET utf8mb4 DEFAULT NULL COLLATE `utf8mb4_unicode_ci`');
+        $this->addSql('DROP INDEX unique_idx ON projection_stock_info');
     }
 }

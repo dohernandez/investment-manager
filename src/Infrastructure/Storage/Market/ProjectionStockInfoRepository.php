@@ -21,7 +21,7 @@ final class ProjectionStockInfoRepository extends ServiceEntityRepository implem
         parent::__construct($registry, StockInfo::class);
     }
 
-    public function findByName(string $name): StockInfo
+    public function findByName(string $name): ?StockInfo
     {
         return $this->findOneBy(['name' => $name]);
     }

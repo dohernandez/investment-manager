@@ -39,9 +39,11 @@ final class StockInfoRepository implements StockInfoRepositoryInterface
 
     public function save(StockInfo $stockInfo)
     {
-        $this->eventSource->saveEvents($stockInfo->getChanges());
+        if ($stockInfo->getChanges()) {
+            $this->eventSource->saveEvents($stockInfo->getChanges());
 
-        $this->em->persist($stockInfo);
-        $this->em->flush();
+            $this->em->persist($stockInfo);
+            $this->em->flush();
+        }
     }
 }

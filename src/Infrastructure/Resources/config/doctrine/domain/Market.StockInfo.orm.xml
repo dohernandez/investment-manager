@@ -11,6 +11,10 @@
         <field name="name" column="name" type="string" />
         <field name="type" column="type" type="string"/>
         <field name="createdAt" column="created_at" type="datetime" />
+
+        <unique-constraints>
+            <unique-constraint columns="name,type" name="unique_idx" />
+        </unique-constraints>
     </entity>
 
 </doctrine-mapping>

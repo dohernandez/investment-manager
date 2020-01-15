@@ -48,7 +48,7 @@ final class StockNormalizer implements SubscribingHandlerInterface
         Context $context
     ) {
         $metadata = $stock->getMetadata();
-        $price = $metadata->getPrice();
+        $price = $metadata ? $metadata->getPrice() : null;
 
         $displayDividendYield = null;
         $exDate = null;
@@ -75,7 +75,7 @@ final class StockNormalizer implements SubscribingHandlerInterface
         }
 
         $changePercentage = null;
-        if ($price->getPreClose() && $price->getPreClose()->getValue()) {
+        if ($price && $price->getPreClose() && $price->getPreClose()->getValue()) {
             $changePercentage = round(
                 $price->getChangePrice()->getValue() * 100 / $price->getPreClose()->getValue(),
                 3
@@ -89,25 +89,25 @@ final class StockNormalizer implements SubscribingHandlerInterface
             'value'                => $this->serializer->toArray($stock->getValue()),
             'market'               => $this->serializer->toArray($stock->getMarket()),
             'description'          => $stock->getDescription(),
-            'dividendYield'        => $metadata->getDividendYield(),
+            'dividendYield'        => $metadata ? $metadata->getDividendYield() : null,
             'displayDividendYield' => $displayDividendYield,
             'exDate'               => $exDate,
             'displayToPayDividend' => $displayToPayDividend,
             'toPayDate'            => $toPayDate,
-            'peRatio'              => $price->getPeRatio(),
-            'preClose'             => $this->serializer->toArray($price->getPreClose()),
-            'open'                 => $this->serializer->toArray($price->getOpen()),
-            'dayLow'               => $this->serializer->toArray($price->getDayLow()),
-            'dayHigh'              => $this->serializer->toArray($price->getDayHigh()),
-            'week52Low'            => $this->serializer->toArray($price->getWeek52Low()),
-            'week52High'           => $this->serializer->toArray($price->getWeek52High()),
-            'change'               => $this->serializer->toArray($price->getChangePrice()),
+            'peRatio'              => $price ? $price->getPeRatio() : null,
+            'preClose'             => $price ? $this->serializer->toArray($price->getPreClose()) : null,
+            'open'                 => $price ? $this->serializer->toArray($price->getOpen()) : null,
+            'dayLow'               => $price ? $this->serializer->toArray($price->getDayLow()) : null,
+            'dayHigh'              => $price ? $this->serializer->toArray($price->getDayHigh()) : null,
+            'week52Low'            => $price ? $this->serializer->toArray($price->getWeek52Low()) : null,
+            'week52High'           => $price ? $this->serializer->toArray($price->getWeek52High()) : null,
+            'change'               => $price ? $this->serializer->toArray($price->getChangePrice()) : null,
             'changePercentage'     => $changePercentage,
-            'type'                 => $this->serializer->toArray($stock->getType()),
-            'sector'               => $this->serializer->toArray($stock->getSector()),
-            'industry'             => $this->serializer->toArray($stock->getIndustry()),
-            'yahooSymbol'          => $metadata->getYahooSymbol(),
-            'currency'             => $stock->getCurrency()->getCurrencyCode(),
+            'type'                 => $stock->getType() ? $this->serializer->toArray($stock->getType()) : null,
+            'sector'               => $stock->getSector() ? $this->serializer->toArray($stock->getSector()): null,
+            'industry'             => $stock->getIndustry() ? $this->serializer->toArray($stock->getIndustry()): null,
+            'yahooSymbol'          => $metadata ? $metadata->getYahooSymbol() : null,
+            'currency'             => $stock->getCurrency() ? $stock->getCurrency()->getCurrencyCode(): null,
             'notes'                => $stock->getNotes(),
             'title'                => $stock->getTitle(),
         ];

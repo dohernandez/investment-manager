@@ -14,7 +14,7 @@
         <many-to-one field="market" target-entity="App\Domain\Market\StockMarket" />
 
         <field name="value" column="value" type="object" />
-        <field name="description" column="description" type="string" nullable="true"/>
+        <field name="description" column="description" type="text" nullable="true"/>
 
         <many-to-one field="type" target-entity="App\Domain\Market\StockInfo" />
         <many-to-one field="sector" target-entity="App\Domain\Market\StockInfo" />

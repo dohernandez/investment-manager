@@ -269,7 +269,9 @@ final class YahooStockScraper implements StockScraperInterface
                 $name = strtoupper($nodes->eq($i + 1)->extract('_text')[0]);
 
                 if ($stockCrawled->getSector() === null || $stockCrawled->getSector()->getName() != $name) {
-                    $stockCrawled->setSector(StockInfo::add($name, StockInfo::SECTOR));
+                    $stockInfo = $this->projectionStockInfoRepository->findByName($name);
+
+                    $stockCrawled->setSector($stockInfo ?? StockInfo::createTemporary($name, StockInfo::SECTOR));
                 }
 
                 continue;
@@ -279,7 +281,9 @@ final class YahooStockScraper implements StockScraperInterface
                 $name = strtoupper($nodes->eq($i + 1)->extract('_text')[0]);
 
                 if ($stockCrawled->getIndustry() === null || $stockCrawled->getIndustry()->getName() != $name) {
-                    $stockCrawled->setIndustry(StockInfo::add($name, StockInfo::INDUSTRY));
+                    $stockInfo = $this->projectionStockInfoRepository->findByName($name);
+
+                    $stockCrawled->setIndustry($stockInfo ?? StockInfo::createTemporary($name, StockInfo::INDUSTRY));
                 }
 
                 continue;

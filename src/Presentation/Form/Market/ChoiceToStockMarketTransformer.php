@@ -12,11 +12,11 @@ class ChoiceToStockMarketTransformer implements DataTransformerInterface
     /**
      * @var ProjectionStockMarketRepositoryInterface
      */
-    private $stockMarketRepository;
+    private $projectionStockMarketRepository;
 
     public function __construct(ProjectionStockMarketRepositoryInterface $stockMarketRepository)
     {
-        $this->stockMarketRepository = $stockMarketRepository;
+        $this->projectionStockMarketRepository = $stockMarketRepository;
     }
 
     /**
@@ -45,7 +45,7 @@ class ChoiceToStockMarketTransformer implements DataTransformerInterface
             return null;
         }
 
-        $stockMarket = $this->stockMarketRepository->find($value);
+        $stockMarket = $this->projectionStockMarketRepository->find($value);
 
         if (!$stockMarket) {
             throw new TransformationFailedException(

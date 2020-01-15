@@ -39,7 +39,7 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
      */
     private $changes;
 
-    public function getChanges(): ArrayCollection
+    public function getChanges(): ?ArrayCollection
     {
         return $this->changes;
     }

@@ -46,6 +46,16 @@ class StockInfo extends AggregateRoot implements EventSourcedAggregateRoot
         return $self;
     }
 
+    public static function createTemporary(string $name, string $type): self
+    {
+        $self = new static('');
+
+        $self->name = $name;
+        $self->type = $type;
+
+        return $self;
+    }
+
     protected function apply(Changed $changed)
     {
         switch ($changed->getEventName()) {

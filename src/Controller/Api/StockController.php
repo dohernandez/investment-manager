@@ -72,7 +72,6 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/", name="stock_new", methods={"POST"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request

@@ -19,7 +19,7 @@ final class AddStock
     private $symbol;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $yahooSymbol;
 
@@ -56,7 +56,7 @@ final class AddStock
     public function __construct(
         string $name,
         string $symbol,
-        string $yahooSymbol,
+        ?string $yahooSymbol,
         StockMarket $market,
         ?Money $value = null,
         ?string $description = null,
@@ -85,7 +85,7 @@ final class AddStock
         return $this->symbol;
     }
 
-    public function getYahooSymbol(): string
+    public function getYahooSymbol(): ?string
     {
         return $this->yahooSymbol;
     }

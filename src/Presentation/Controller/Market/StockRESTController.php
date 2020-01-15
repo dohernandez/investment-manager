@@ -35,6 +35,7 @@ final class StockRESTController extends RESTController
     }
 
     /**
+     * @Route("/", name="stock_new", methods={"POST"}, options={"expose"=true})
      *
      * @param Request $request
      * @param MessageBusInterface $bus
@@ -61,7 +62,7 @@ final class StockRESTController extends RESTController
                     $data['description'],
                     $data['type'],
                     $data['sector'],
-                    $data['industry'],
+                    $data['industry']
                 );
             },
             Response::HTTP_CREATED

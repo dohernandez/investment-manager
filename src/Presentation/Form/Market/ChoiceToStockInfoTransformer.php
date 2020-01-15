@@ -78,7 +78,7 @@ class ChoiceToStockInfoTransformer implements DataTransformerInterface
                 ]
             );
 
-            $stockInfo = StockInfo::add($this->type, $value);
+            $stockInfo = StockInfo::add($value, $this->type);
         }
 
         return $stockInfo;
