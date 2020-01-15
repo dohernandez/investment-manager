@@ -247,9 +247,21 @@ class StockForm extends SwalForm {
                 continue;
             }
 
-            if (['value', 'lastChangePrice', 'preClose', 'open', 'dayLow', 'dayHigh', 'week52Low', 'week52High']
+            if (['value', 'preClose', 'open', 'dayLow', 'dayHigh', 'week52Low', 'week52High']
                 .indexOf(property) !== -1) {
                 let inputData = data[property];
+
+                if (inputData !== null) {
+                    $input.val(inputData.preciseValue);
+                }
+
+                continue;
+            }
+
+            if (property === 'change') {
+                let inputData = data[property];
+
+                $input = $form.find('#lastChangePrice');
 
                 if (inputData !== null) {
                     $input.val(inputData.preciseValue);

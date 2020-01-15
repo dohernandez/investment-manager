@@ -4,7 +4,7 @@ namespace App\Infrastructure\Storage\Market;
 
 use App\Application\Market\Repository\StockRepositoryInterface;
 use App\Domain\Market\Stock;
-use App\Infrastructure\EventSource\EventSourceRepository;
+use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class StockRepository implements StockRepositoryInterface
@@ -15,11 +15,11 @@ final class StockRepository implements StockRepositoryInterface
     private $em;
 
     /**
-     * @var EventSourceRepository
+     * @var EventSourceRepositoryInterface
      */
     private $eventSource;
 
-    public function __construct(EntityManagerInterface $em, EventSourceRepository $eventSource)
+    public function __construct(EntityManagerInterface $em, EventSourceRepositoryInterface $eventSource)
     {
         $this->em = $em;
         $this->eventSource = $eventSource;

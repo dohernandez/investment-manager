@@ -12,29 +12,18 @@ final class StockPriceUpdated
     private $id;
 
     /**
-     * @var StockPrice|null
-     */
-    private $old;
-
-    /**
      * @var StockPrice
      */
-    private $new;
+    private $price;
 
-    public function __construct(string $id, StockPrice $new, ?StockPrice $old = null)
+    public function __construct(string $id, StockPrice $price)
     {
         $this->id = $id;
-        $this->old = $old;
-        $this->new = $new;
+        $this->price = $price;
     }
 
-    public function getOld(): ?StockPrice
+    public function getPrice(): StockPrice
     {
-        return $this->old;
-    }
-
-    public function getNew(): StockPrice
-    {
-        return $this->new;
+        return $this->price;
     }
 }

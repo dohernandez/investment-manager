@@ -143,6 +143,16 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
+     * @var StockPrice
+     */
+    private $price;
+
+    public function getPrice(): ?StockPrice
+    {
+        return $this->price;
+    }
+
+    /**
      * @var StockDividend
      */
     private $toPayDividend;
@@ -170,26 +180,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     public function getUpdatedAt(): DateTime
     {
         return $this->updatedAt;
-    }
-
-    /**
-     * @var DateTime
-     */
-    private $updatedPriceAt;
-
-    public function getUpdatedPriceAt(): ?DateTime
-    {
-        return $this->updatedPriceAt;
-    }
-
-    /**
-     * @var DateTime
-     */
-    private $updatedDividendAt;
-
-    public function getUpdatedDividendAt(): ?DateTime
-    {
-        return $this->updatedDividendAt;
     }
 
     public function getCurrency(): Currency
@@ -262,31 +252,22 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         }
     }
 
-    public function updatePrice(
-        Money $value,
-        ?Money $preClose = null,
-        ?Money $open = null,
-        ?float $peRatio = null,
-        ?Money $dayLow = null,
-        ?Money $dayHigh = null,
-        ?Money $week52Low = null,
-        ?Money $week52High = null
-    ): self {
-        $this->value = $value;
+    public function updatePrice(StockPrice $price)
+    {
+        if (!$this->price) {
+            $this->price = $price;
 
-        $price = new StockPrice(
-            $value,
-            $preClose,
-            $open,
-            $peRatio,
-            $dayLow,
-            $dayHigh,
-            $week52Low,
-            $week52High
-        );
+            return;
+        }
 
-        $this->metadata = $this->metadata->updatePrice($price);
-
-        return $this;
+        $this->price->setPrice($price->getPrice());
+        $this->price->setChangePrice($price->getChangePrice());
+        $this->price->setPeRatio($price->getPeRatio());
+        $this->price->setPreClose($price->getPreClose());
+        $this->price->setOpen($price->getOpen());
+        $this->price->setDayLow($price->getDayLow());
+        $this->price->setDayHigh($price->getDayHigh());
+        $this->price->setWeek52Low($price->getWeek52Low());
+        $this->price->setWeek52High($price->getWeek52High());
     }
 }

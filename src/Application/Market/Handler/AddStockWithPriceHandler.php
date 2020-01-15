@@ -47,7 +47,7 @@ final class AddStockWithPriceHandler implements MessageHandlerInterface
             new UpdateStockPrice(
                 $stock->getId(),
                 $message->getValue(),
-                null,
+                $message->getChangePrice(),
                 $message->getPreClose(),
                 $message->getOpen(),
                 $message->getPeRatio(),

@@ -56,6 +56,11 @@ final class AddStockWithPrice
     /**
      * @var Money|null
      */
+    private $changePrice;
+
+    /**
+     * @var Money|null
+     */
     private $preClose;
 
     /**
@@ -98,6 +103,7 @@ final class AddStockWithPrice
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
         ?StockInfo $industry = null,
+        ?Money $changePrice = null,
         ?Money $preClose = null,
         ?Money $open = null,
         ?float $peRatio = null,
@@ -115,6 +121,7 @@ final class AddStockWithPrice
         $this->type = $type;
         $this->sector = $sector;
         $this->industry = $industry;
+        $this->changePrice = $changePrice;
         $this->preClose = $preClose;
         $this->open = $open;
         $this->peRatio = $peRatio;
@@ -170,6 +177,11 @@ final class AddStockWithPrice
     public function getIndustry(): ?StockInfo
     {
         return $this->industry;
+    }
+
+    public function getChangePrice(): ?Money
+    {
+        return $this->changePrice;
     }
 
     public function getPreClose(): ?Money

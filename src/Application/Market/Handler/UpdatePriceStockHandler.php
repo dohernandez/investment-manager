@@ -5,6 +5,7 @@ namespace App\Application\Market\Handler;
 use App\Application\Market\Command\UpdateStockPrice;
 use App\Application\Market\Event\StockPriceUpdated;
 use App\Application\Market\Repository\StockRepositoryInterface;
+use App\Domain\Market\StockPrice;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
@@ -32,27 +33,26 @@ final class UpdatePriceStockHandler implements MessageHandlerInterface
     {
         $stock = $this->stockRepository->find($message->getId());
 
-        $oldPrice = $stock->getMetadata()->getPrice();
-
         $stock->updatePrice(
-            $message->getValue(),
-            $message->getPreClose(),
-            $message->getOpen(),
-            $message->getPeRatio(),
-            $message->getDayLow(),
-            $message->getDayHigh(),
-            $message->getWeek52Low(),
-            $message->getWeek52High()
+            (new StockPrice())
+                ->setPrice($message->getValue())
+                ->setChangePrice($message->getChangePrice())
+                ->setPeRatio($message->getPeRatio())
+                ->setPreClose($message->getPreClose())
+                ->setOpen($message->getOpen())
+                ->setDayLow($message->getDayLow())
+                ->setDayHigh($message->getDayHigh())
+                ->setWeek52Low($message->getWeek52Low())
+                ->setWeek52High($message->getWeek52High())
         );
 
-        dump($stock);
         $this->stockRepository->save($stock);
 
         /** Manually dispatch the application event.
          * This is because update price does not generate domain event hence it is not stored in the event source,
          * but we still want to trigger event.
          */
-        $event = new StockPriceUpdated($stock->getId(), $stock->getMetadata()->getPrice(), $oldPrice);
+        $event = new StockPriceUpdated($stock->getId(), $stock->getPrice());
         $this->dispatcher->dispatch($event);
 
         return $stock;

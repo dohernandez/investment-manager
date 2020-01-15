@@ -124,23 +124,9 @@ class StockCrawled
         return $this->symbol;
     }
 
-    public function setSymbol(string $symbol): self
-    {
-        $this->symbol = $symbol;
-
-        return $this;
-    }
-
     public function getYahooSymbol(): ?string
     {
         return $this->yahooSymbol;
-    }
-
-    public function setYahooSymbol(?string $yahooSymbol): self
-    {
-        $this->yahooSymbol = $yahooSymbol;
-
-        return $this;
     }
 
     public function getName(): ?string

@@ -143,7 +143,12 @@ services:
         calls:
             - [addMapping, ['App\Infrastructure\EventSource\EventSourceListener', 'app.doctrine.entity_listener']]
 
+    # Interface
+    App\Infrastructure\EventSource\EventSourceRepositoryInterface: '@App\Infrastructure\EventSource\EventSourceRepository'
+
     # Storage
+    App\Infrastructure\EventSource\EventSourceRepository: ~
+
     App\Infrastructure\Storage\ProjectionAccountRepository: ~
     App\Infrastructure\Storage\AccountRepository: ~
 

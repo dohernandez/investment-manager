@@ -5,11 +5,6 @@ namespace App\Domain\Market;
 final class StockMetadata
 {
     /**
-     * @var StockPrice|null
-     */
-    private $price;
-
-    /**
      * @var float|null
      */
     private $dividendYield;
@@ -18,11 +13,6 @@ final class StockMetadata
      * @var string|null
      */
     private $yahooSymbol;
-
-    public function getPrice(): ?StockPrice
-    {
-        return $this->price;
-    }
 
     public function getDividendYield(): ?float
     {
@@ -38,14 +28,6 @@ final class StockMetadata
     {
         $self = clone $this;
         $self->dividendYield = $dividendYield;
-
-        return $self;
-    }
-
-    public function updatePrice(StockPrice $price): self
-    {
-        $self = clone $this;
-        $self->price = $price;
 
         return $self;
     }

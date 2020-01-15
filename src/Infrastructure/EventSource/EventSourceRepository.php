@@ -39,7 +39,5 @@ final class EventSourceRepository extends ServiceEntityRepository implements Eve
         foreach ($changes as $change) {
             $this->_em->persist($change);
         }
-
-        $this->_em->flush();
     }
 }

@@ -53,6 +53,7 @@ final class StockRESTController extends RESTController
             $request,
             $bus,
             function ($data) {
+                dump($data);
                 return new AddStockWithPrice(
                     $data['name'],
                     $data['symbol'],
@@ -63,6 +64,7 @@ final class StockRESTController extends RESTController
                     $data['type'],
                     $data['sector'],
                     $data['industry'],
+                    $data['lastChangePrice'],
                     $data['preClose'],
                     $data['open'],
                     $data['peRatio'],

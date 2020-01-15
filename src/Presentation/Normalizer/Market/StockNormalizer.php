@@ -48,7 +48,7 @@ final class StockNormalizer implements SubscribingHandlerInterface
         Context $context
     ) {
         $metadata = $stock->getMetadata();
-        $price = $metadata ? $metadata->getPrice() : null;
+        $price = $stock->getPrice();
 
         $displayDividendYield = null;
         $exDate = null;
