@@ -4,11 +4,13 @@ namespace App\Presentation\Controller\Market;
 
 use App\Application\Market\Command\AddStockWithPrice;
 use App\Application\Market\Command\LoadYahooQuote;
+use App\Application\Market\Command\UpdateStockWithPrice;
 use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
 use App\Application\Transfer\Command\ChangeTransfer;
 use App\Application\Transfer\Command\RemoveTransfer;
 use App\Presentation\Controller\RESTController;
 use App\Presentation\Form\Market\CreateStockType;
+use App\Presentation\Form\Market\EditStockType;
 use App\Presentation\Form\Market\LoadYahooQuoteType;
 use App\Presentation\Form\Transfer\EditTransferType;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -53,7 +55,6 @@ final class StockRESTController extends RESTController
             $request,
             $bus,
             function ($data) {
-                dump($data);
                 return new AddStockWithPrice(
                     $data['name'],
                     $data['symbol'],
@@ -79,6 +80,7 @@ final class StockRESTController extends RESTController
     }
 
     /**
+     * @Route("/{id}", name="stock_edit", methods={"PUT"}, options={"expose"=true})
      *
      * @param string $id
      * @param Request $request
@@ -88,19 +90,31 @@ final class StockRESTController extends RESTController
      */
     public function edit(string $id, Request $request, MessageBusInterface $bus): Response
     {
-        $form = $this->createForm(EditTransferType::class);
+        $form = $this->createForm(EditStockType::class);
 
         return $this->dispatch(
             $form,
             $request,
             $bus,
             function ($data) use ($id) {
-                return new ChangeTransfer(
+                return new UpdateStockWithPrice(
                     $id,
-                    $data['beneficiaryParty'],
-                    $data['debtorParty'],
-                    $data['amount'],
-                    $data['date']
+                    $data['name'],
+                    $data['yahooSymbol'],
+                    $data['market'],
+                    $data['value'],
+                    $data['description'],
+                    $data['type'],
+                    $data['sector'],
+                    $data['industry'],
+                    $data['lastChangePrice'],
+                    $data['preClose'],
+                    $data['open'],
+                    $data['peRatio'],
+                    $data['dayLow'],
+                    $data['dayHigh'],
+                    $data['week52Low'],
+                    $data['week52High']
                 );
             }
         );

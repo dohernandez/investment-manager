@@ -4,32 +4,18 @@ namespace App\Infrastructure\Storage\Market;
 
 use App\Application\Market\Repository\StockRepositoryInterface;
 use App\Domain\Market\Stock;
-use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Infrastructure\Storage\Repository;
 
-final class StockRepository implements StockRepositoryInterface
+final class StockRepository extends Repository implements StockRepositoryInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
-     * @var EventSourceRepositoryInterface
-     */
-    private $eventSource;
-
-    public function __construct(EntityManagerInterface $em, EventSourceRepositoryInterface $eventSource)
-    {
-        $this->em = $em;
-        $this->eventSource = $eventSource;
-    }
-
     public function find(string $id): Stock
     {
         $changes = $this->eventSource->findEvents($id, Stock::class);
+        $this->mergeChanges($changes, ['market', 'type', 'sector', 'industry']);
 
         $stock = (new Stock($id))->replay($changes);
+
+        $stock = $this->em->merge($stock);
 
         /** @var Stock $stock */
         $stock = $this->em->merge($stock);

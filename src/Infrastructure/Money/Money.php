@@ -200,4 +200,13 @@ final class Money
 
         return floatval($price) * $divisor;
     }
+
+    public function equals(Money $money): bool
+    {
+        if (!$this->getCurrency()->equals($money->getCurrency())) {
+            return false;
+        }
+
+        return $this->getPreciseValue() !== $money->getPreciseValue();
+    }
 }

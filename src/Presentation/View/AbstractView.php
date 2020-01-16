@@ -23,7 +23,7 @@ abstract class AbstractView
     /**
      * @var string
      */
-    protected $indexFormTypeClass;
+    protected $createFormTypeClass;
 
     /**
      * @var FormFactoryInterface
@@ -60,13 +60,13 @@ abstract class AbstractView
      */
     public function index(array $entities = [], array $context = []): array
     {
-        $form = $this->form->create($this->indexFormTypeClass);
+        $createForm = $this->form->create($this->createFormTypeClass);
 
         return [
                 'entities' => $entities,
                 'fields' => $this->getFields(),
                 'entity_name' => trim(implode(' ', preg_split('/(?=[A-Z])/', $this->getEntityName()))),
-                'form' => $form->createView(),
+                'form' => $createForm->createView(),
             ] + $context;
     }
 

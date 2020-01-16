@@ -24,7 +24,7 @@ final class StockMetadata
         return $this->yahooSymbol;
     }
 
-    public function updateDividendYield(float $dividendYield): self
+    public function updateDividendYield(?float $dividendYield): self
     {
         $self = clone $this;
         $self->dividendYield = $dividendYield;
@@ -32,7 +32,7 @@ final class StockMetadata
         return $self;
     }
 
-    public function updateYahooSymbol(string $yahooSymbol): self
+    public function updateYahooSymbol(?string $yahooSymbol): self
     {
         $self = clone $this;
         $self->yahooSymbol = $yahooSymbol;

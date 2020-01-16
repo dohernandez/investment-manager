@@ -4,6 +4,7 @@ namespace App\Domain\Market;
 
 use App\Application\Market\Command\StockPriceUpdated;
 use App\Domain\Market\Event\StockAdded;
+use App\Domain\Market\Event\StockUpdated;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
@@ -228,6 +229,33 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         return $self;
     }
 
+    public function update(
+        ?string $name = null,
+        ?string $yahooSymbol = null,
+        ?StockMarket $market = null,
+        ?Money $value = null,
+        ?string $description = null,
+        ?StockInfo $type = null,
+        ?StockInfo $sector = null,
+        ?StockInfo $industry = null
+    ): self {
+        $this->recordChange(
+            $e = new StockUpdated(
+                $this->getId(),
+                $name,
+                $yahooSymbol,
+                $market,
+                $value,
+                $description,
+                $type,
+                $sector,
+                $industry
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         switch ($changed->getEventName()) {
@@ -247,6 +275,22 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->metadata = new StockMetadata();
                 $this->createdAt = $changed->getCreatedAt();
                 $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+
+            case StockUpdated::class:
+                /** @var StockUpdated $event */
+                $event = $changed->getPayload();
+
+                $this->name = $event->getName();
+                $this->value = $event->getValue();
+                $this->description = $event->getDescription();
+                $this->metadata = $this->metadata->updateYahooSymbol($event->getYahooSymbol());
+                $this->updatedAt = $changed->getCreatedAt();
+                $this->market = $event->getMarket();
+                $this->type = $event->getType();
+                $this->sector = $event->getSector();
+                $this->industry = $event->getIndustry();
 
                 break;
         }

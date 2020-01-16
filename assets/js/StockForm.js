@@ -45,8 +45,12 @@ class StockForm extends SwalForm {
         // Form use to set data and to read symbol to load values from external sources.
         let $form = $wrapper.find(this.selector);
 
+        $form.find('#symbol').prop("disabled", false);
+
         // start set data to the form
         if (data) {
+            $form.find('#symbol').prop("disabled", true);
+
             // edition mode
             this._setData($form, data);
         }

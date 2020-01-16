@@ -143,7 +143,7 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="stock_edit", methods={"PUT"}, options={"expose"=true})
+     *
      *
      * @param Entity\Stock $stock
      * @param EntityManagerInterface $em

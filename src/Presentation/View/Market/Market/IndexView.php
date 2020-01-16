@@ -21,7 +21,7 @@ final class IndexView extends AbstractView
     /**
      * @inheritDoc
      */
-    protected $indexFormTypeClass = CreateStockMarketType::class;
+    protected $createFormTypeClass = CreateStockMarketType::class;
 
     /**
      * @inheritDoc
