@@ -74,7 +74,7 @@ class AppExtension extends AbstractExtension
     public function compileTime($value, $tmpl = false)
     {
         if ($tmpl) {
-            return "<% if ($value) { %><%= moment(new Date($value)).format('h:mm:ss a') %><% } %>";
+            return "<% if ($value) { %><%= moment(new Date($value)).format('h:mm a') %><% } %>";
         }
 
         return $value;

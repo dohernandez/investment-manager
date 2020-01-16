@@ -15,7 +15,7 @@
     <span class="last-price">{{ 'value'|compile_money_tmpl(compile) }}</span>
     <span class="change <%= changeClass %>">{{ 'change'|compile_money_tmpl(compile) }} ({{ 'changePercentage'|compile_decimal_tmpl(compile) }}%)</span>
     <div class="text-left" style="margin-top: -8px;">
-        <span class="updated-at">{{ 'At close'|trans }}:  {{ 'priceUpdatedAt'|compile_time_tmpl(compile) }}</span>
+        <span class="updated-at">{{ 'Updated at'|trans }}:  {{ 'priceUpdatedAt'|compile_time_tmpl(compile) }}</span>
     </div>
 </div>
 <div class="stock-buttons-block">
