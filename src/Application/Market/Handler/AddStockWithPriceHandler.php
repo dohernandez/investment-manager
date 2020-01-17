@@ -31,7 +31,6 @@ final class AddStockWithPriceHandler implements MessageHandlerInterface
                 $message->getSymbol(),
                 $message->getYahooSymbol(),
                 $message->getMarket(),
-                $message->getValue(),
                 $message->getDescription(),
                 $message->getType(),
                 $message->getSector(),

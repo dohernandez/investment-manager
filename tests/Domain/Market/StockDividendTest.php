@@ -22,7 +22,6 @@ final class StockDividendTest extends TestCase
             'Stock',
             'STK',
             StockMarketProvider::provide('Stock Market', Currency::usd(), 'US', 'NasdaqGS'),
-            Money::fromEURValue(1000)
         );
         $value = Money::fromEURValue(1);
         $exDate = new DateTime('07-12-2020');

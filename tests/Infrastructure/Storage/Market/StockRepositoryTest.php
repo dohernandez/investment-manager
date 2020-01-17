@@ -23,8 +23,7 @@ final class StockRepositoryTest extends AppDoctrineKernelTestCase
         $stock = StockProvider::provide(
             'Stock',
             'STK',
-            $this->createMarker(),
-            Money::fromEURValue(1000)
+            $this->createMarker()
         );
 
         /** @var StockRepository $repo */
@@ -45,7 +44,6 @@ final class StockRepositoryTest extends AppDoctrineKernelTestCase
         $this->assertEquals($stock->getName(), $result->getName());
         $this->assertEquals($stock->getSymbol(), $result->getSymbol());
         $this->assertEquals($stock->getMarket()->getId(), $result->getMarket()->getId());
-        $this->assertEquals($stock->getValue(), $result->getValue());
     }
 
     private function createMarker(): StockMarket
@@ -68,8 +66,7 @@ final class StockRepositoryTest extends AppDoctrineKernelTestCase
         $stock = StockProvider::provide(
             'Stock',
             'STK',
-            $this->createMarker(),
-            Money::fromEURValue(1000)
+            $this->createMarker()
         );
 
         /** @var StockRepository $repo */
@@ -87,7 +84,6 @@ final class StockRepositoryTest extends AppDoctrineKernelTestCase
         $this->assertEquals($stock->getName(), $result->getName());
         $this->assertEquals($stock->getSymbol(), $result->getSymbol());
         $this->assertEquals($stock->getMarket()->getId(), $result->getMarket()->getId());
-        $this->assertEquals($stock->getValue(), $result->getValue());
     }
 
     /**

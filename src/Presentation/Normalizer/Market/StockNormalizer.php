@@ -86,7 +86,7 @@ final class StockNormalizer implements SubscribingHandlerInterface
             'id'                   => $stock->getId(),
             'name'                 => $stock->getName(),
             'symbol'               => $stock->getSymbol(),
-            'value'                => $this->serializer->toArray($stock->getValue()),
+            'value'                => $price ? $this->serializer->toArray($price->getPrice()) : null,
             'market'               => $this->serializer->toArray($stock->getMarket()),
             'description'          => $stock->getDescription(),
             'dividendYield'        => $metadata ? $metadata->getDividendYield() : null,

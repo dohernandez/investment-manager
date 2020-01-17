@@ -55,16 +55,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
-     * @var Money
-     */
-    private $value;
-
-    public function getValue(): ?Money
-    {
-        return $this->value;
-    }
-
-    /**
      * @var string
      */
     private $description;
@@ -203,7 +193,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         string $name,
         string $symbol,
         StockMarket $market,
-        ?Money $value = null,
         ?string $description = null,
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
@@ -219,7 +208,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $name,
                 $symbol,
                 $market,
-                $value,
                 $description,
                 $type,
                 $sector,
@@ -234,7 +222,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         ?string $name = null,
         ?string $yahooSymbol = null,
         ?StockMarket $market = null,
-        ?Money $value = null,
         ?string $description = null,
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
@@ -246,7 +233,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $name,
                 $yahooSymbol,
                 $market,
-                $value,
                 $description,
                 $type,
                 $sector,
@@ -268,7 +254,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->name = $event->getName();
                 $this->symbol = $event->getSymbol();
                 $this->market = $event->getMarket();
-                $this->value = $event->getValue();
                 $this->description = $event->getDescription();
                 $this->type = $event->getType();
                 $this->sector = $event->getSector();
@@ -284,7 +269,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $event = $changed->getPayload();
 
                 $this->name = $event->getName();
-                $this->value = $event->getValue();
                 $this->description = $event->getDescription();
                 $this->metadata = $this->metadata->updateYahooSymbol($event->getYahooSymbol());
                 $this->updatedAt = $changed->getCreatedAt();

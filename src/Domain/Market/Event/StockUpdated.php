@@ -29,11 +29,6 @@ final class StockUpdated
     private $market;
 
     /**
-     * @var Money|null
-     */
-    private $value;
-
-    /**
      * @var string|null
      */
     private $description;
@@ -58,7 +53,6 @@ final class StockUpdated
         ?string $name = null,
         ?string $yahooSymbol = null,
         StockMarket $market = null,
-        ?Money $value = null,
         ?string $description = null,
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
@@ -68,7 +62,6 @@ final class StockUpdated
         $this->name = $name;
         $this->yahooSymbol = $yahooSymbol;
         $this->market = $market;
-        $this->value = $value;
         $this->description = $description;
         $this->type = $type;
         $this->sector = $sector;
@@ -93,11 +86,6 @@ final class StockUpdated
     public function getMarket(): ?StockMarket
     {
         return $this->market;
-    }
-
-    public function getValue(): ?Money
-    {
-        return $this->value;
     }
 
     public function getDescription(): ?string

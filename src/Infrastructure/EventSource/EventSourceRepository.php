@@ -34,10 +34,14 @@ final class EventSourceRepository extends ServiceEntityRepository implements Eve
     /**
      * @inheritDoc
      */
-    public function saveEvents(ArrayCollection $changes)
+    public function saveEvents(ArrayCollection $changes, bool $flush = false)
     {
         foreach ($changes as $change) {
             $this->_em->persist($change);
+        }
+
+        if ($flush) {
+            $this->_em->flush();
         }
     }
 }

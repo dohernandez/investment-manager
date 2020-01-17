@@ -54,13 +54,6 @@ final class UpdateStockHandler implements MessageHandlerInterface
             $dirty = true;
         }
 
-        $value = $stock->getValue();
-        if ($value->equals($message->getValue())) {
-            $value = $message->getValue();
-
-            $dirty = true;
-        }
-
         $description = $stock->getDescription();
         if ($description !== $message->getDescription()) {
             $description = $message->getDescription();
@@ -111,7 +104,7 @@ final class UpdateStockHandler implements MessageHandlerInterface
         }
 
         if ($dirty) {
-            $stock->update($name, $yahooSymbol, $market, $value, $description, $type, $sector, $industry);
+            $stock->update($name, $yahooSymbol, $market, $description, $type, $sector, $industry);
             $this->stockRepository->save($stock);
         }
 

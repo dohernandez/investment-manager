@@ -13,12 +13,11 @@ final class StockProvider
         string $name,
         string $symbol,
         StockMarket $market,
-        ?Money $value = null,
         ?string $description = null,
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
         ?StockInfo $industry = null
     ): Stock {
-        return Stock::add($name, $symbol, $market, $value, $description, $type, $sector, $industry);
+        return Stock::add($name, $symbol, $market, $description, $type, $sector, $industry);
     }
 }

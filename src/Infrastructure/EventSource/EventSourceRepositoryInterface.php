@@ -18,6 +18,7 @@ interface EventSourceRepositoryInterface
 
     /**
      * @param ArrayCollection $changes
+     * @param bool $flush Whether to flush or not
      */
-    public function saveEvents(ArrayCollection $changes);
+    public function saveEvents(ArrayCollection $changes, bool $flush = false);
 }

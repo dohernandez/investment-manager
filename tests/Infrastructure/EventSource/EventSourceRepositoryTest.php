@@ -6,6 +6,7 @@ use App\Domain\Account\Account;
 use App\Infrastructure\EventSource\EventSourceRepository;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
+use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
 use App\Infrastructure\UUID\Generator;
 use App\Tests\Infrastructure\AppDoctrineKernelTestCase;
 
@@ -16,30 +17,8 @@ use App\Tests\Infrastructure\AppDoctrineKernelTestCase;
  */
 final class EventSourceRepositoryTest extends AppDoctrineKernelTestCase
 {
-    /**
-     * @var string
-     */
-    protected $aggregateId;
-
-    /**
-     * @var string
-     */
-    protected $username;
-
-    protected $aggregateType;
-
-    /**
-     * @var EventSourceRepository
-     */
-    protected $eventSourceRepository;
-
-    /**
-     * @inheritDoc
-     */
-    protected function setUp()
+    public function testLoad()
     {
-        parent::setUp();
-
         $aggregateId = Generator::generate();
         $username = 'USER NAME';
 
@@ -73,19 +52,14 @@ final class EventSourceRepositoryTest extends AppDoctrineKernelTestCase
 
         $anonymous->create($username);
 
-        $this->aggregateType = get_class($anonymous);
-        $this->aggregateId = $aggregateId;
-        $this->username = $username;
+        $aggregateType = get_class($anonymous);
 
-        $this->eventSourceRepository = $this->getRepository(EventSourceRepository::class);
+        $eventSourceRepository = $this->getRepository(EventSourceRepositoryInterface::class);
 
-        $this->eventSourceRepository->saveEvents($anonymous->getChanges());
-    }
+        $eventSourceRepository->saveEvents($anonymous->getChanges(), true);
 
-    public function testLoad()
-    {
         /** @var AggregateRoot $aggregateRoot */
-        $changes = $this->eventSourceRepository->findEvents($this->aggregateId, $this->aggregateType);
+        $changes = $eventSourceRepository->findEvents($aggregateId, $aggregateType);
 
         $this->assertCount(1, $changes);
     }

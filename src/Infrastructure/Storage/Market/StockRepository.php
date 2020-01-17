@@ -8,10 +8,6 @@ use App\Domain\Market\StockInfo;
 use App\Domain\Market\StockMarket;
 use App\Domain\Market\StockPrice;
 use App\Infrastructure\Storage\Repository;
-use Doctrine\ORM\Query\Expr;
-use ReflectionClass;
-
-use function dump;
 
 final class StockRepository extends Repository implements StockRepositoryInterface
 {
@@ -19,11 +15,11 @@ final class StockRepository extends Repository implements StockRepositoryInterfa
      * @inherent
      */
     protected $dependencies = [
-        'market' => StockMarket::class,
-        'type' => StockInfo::class,
-        'sector' => StockInfo::class,
+        'market'   => StockMarket::class,
+        'type'     => StockInfo::class,
+        'sector'   => StockInfo::class,
         'industry' => StockInfo::class,
-        'price' => StockPrice::class,
+        'price'    => StockPrice::class,
     ];
 
     public function find(string $id): Stock
@@ -47,8 +43,7 @@ final class StockRepository extends Repository implements StockRepositoryInterfa
             // save only the new change
             $changes = $stock->getChanges();
             $this->unburdenDependencies($changes);
-            $this->eventSource->saveEvents($changes);
-            $this->em->flush();
+            $this->eventSource->saveEvents($changes, true);
         }
     }
 }

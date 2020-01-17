@@ -32,16 +32,14 @@ class AddStockHandlerTest extends TestCase
 
         $name = 'Stock';
         $symbol = 'STK';
-        $value = Money::fromEURValue(1000);
 
         $stockRepository = $this->prophesize(StockRepositoryInterface::class);
         $stockRepository->save(
             Argument::that(
-                function (Stock $stock) use ($name, $symbol, $value) {
+                function (Stock $stock) use ($name, $symbol) {
                     $this->assertEquals($name, $stock->getName());
                     $this->assertEquals($symbol, $stock->getSymbol());
                     $this->assertEquals($symbol, $stock->getSymbol());
-                    $this->assertEquals($value, $stock->getValue());
 
                     return true;
                 }
@@ -58,7 +56,6 @@ class AddStockHandlerTest extends TestCase
                 $symbol,
                 $symbol,
                 $market,
-                $value,
                 null,
                 $stockInfoType,
                 $stockInfoSector,

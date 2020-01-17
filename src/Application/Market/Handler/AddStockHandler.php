@@ -33,7 +33,6 @@ final class AddStockHandler implements MessageHandlerInterface
         $name = $message->getName();
         $symbol = $message->getSymbol();
         $market = $message->getMarket();
-        $value = $message->getValue();
         $description = $message->getDescription();
 
         $type = $message->getType();
@@ -51,7 +50,7 @@ final class AddStockHandler implements MessageHandlerInterface
             $this->stockInfoRepository->save($industry);
         }
 
-        $stock = Stock::add($name, $symbol, $market, $value, $description, $type, $sector, $industry);
+        $stock = Stock::add($name, $symbol, $market, $description, $type, $sector, $industry);
 
         $this->stockRepository->save($stock);
 
