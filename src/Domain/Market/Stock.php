@@ -4,6 +4,7 @@ namespace App\Domain\Market;
 
 use App\Application\Market\Command\StockPriceUpdated;
 use App\Domain\Market\Event\StockAdded;
+use App\Domain\Market\Event\StockPriceLinked;
 use App\Domain\Market\Event\StockUpdated;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -240,7 +241,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         ?StockInfo $industry = null
     ): self {
         $this->recordChange(
-            $e = new StockUpdated(
+            new StockUpdated(
                 $this->getId(),
                 $name,
                 $yahooSymbol,
@@ -293,15 +294,34 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->industry = $event->getIndustry();
 
                 break;
+
+            case StockPriceLinked::class:
+                /** @var StockPriceLinked $event */
+                $event = $changed->getPayload();
+
+                $this->price = $event->getPrice();
+                break;
         }
     }
 
-    public function updatePrice(StockPrice $price)
+    public function linkPrice(): self
+    {
+        $this->recordChange(
+            new StockPriceLinked(
+                $this->getId(),
+                $this->price
+            )
+        );
+
+        return $this;
+    }
+
+    public function updatePrice(StockPrice $price): self
     {
         if (!$this->price) {
             $this->price = $price;
 
-            return;
+            return $this;
         }
 
         $this->price->setPrice($price->getPrice());
@@ -313,5 +333,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         $this->price->setDayHigh($price->getDayHigh());
         $this->price->setWeek52Low($price->getWeek52Low());
         $this->price->setWeek52High($price->getWeek52High());
+
+        return $this;
     }
 }

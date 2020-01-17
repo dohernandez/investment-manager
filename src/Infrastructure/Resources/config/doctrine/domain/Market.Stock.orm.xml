@@ -11,19 +11,19 @@
         <field name="name" column="name" type="string"/>
         <field name="symbol" column="symbol" type="string"/>
 
-        <many-to-one field="market" target-entity="App\Domain\Market\StockMarket"/>
+        <many-to-one field="market" target-entity="App\Domain\Market\StockMarket" fetch="LAZY"/>
 
         <field name="value" column="value" type="object"/>
         <field name="description" column="description" type="text" nullable="true"/>
 
-        <many-to-one field="type" target-entity="App\Domain\Market\StockInfo"/>
-        <many-to-one field="sector" target-entity="App\Domain\Market\StockInfo"/>
-        <many-to-one field="industry" target-entity="App\Domain\Market\StockInfo"/>
+        <many-to-one field="type" target-entity="App\Domain\Market\StockInfo" fetch="LAZY"/>
+        <many-to-one field="sector" target-entity="App\Domain\Market\StockInfo" fetch="LAZY"/>
+        <many-to-one field="industry" target-entity="App\Domain\Market\StockInfo" fetch="LAZY"/>
 
         <field name="notes" column="notes" type="text" nullable="true"/>
         <field name="metadata" column="metadata" type="object"/>
 
-        <one-to-one field="price" target-entity="App\Domain\Market\StockPrice" fetch="EAGER">
+        <one-to-one field="price" target-entity="App\Domain\Market\StockPrice" fetch="LAZY">
             <cascade>
                 <cascade-persist/>
                 <cascade-remove />

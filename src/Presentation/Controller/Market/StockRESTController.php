@@ -130,10 +130,10 @@ final class StockRESTController extends RESTController
     public function delete(string $id, MessageBusInterface $bus): Response
     {
         if ($id == '' || $id == null) {
-            return $this->createApiErrorResponse('Transfer not found', Response::HTTP_NOT_FOUND);
+            return $this->createApiErrorResponse('Stock not found', Response::HTTP_NOT_FOUND);
         }
 
-        $bus->dispatch(new RemoveTransfer($id));
+//        $bus->dispatch(new RemoveStock($id));
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

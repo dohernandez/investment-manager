@@ -4,31 +4,50 @@ namespace App\Infrastructure\Storage\Market;
 
 use App\Application\Market\Repository\StockRepositoryInterface;
 use App\Domain\Market\Stock;
+use App\Domain\Market\StockInfo;
+use App\Domain\Market\StockMarket;
+use App\Domain\Market\StockPrice;
 use App\Infrastructure\Storage\Repository;
+use Doctrine\ORM\Query\Expr;
+use ReflectionClass;
+
+use function dump;
 
 final class StockRepository extends Repository implements StockRepositoryInterface
 {
+    /**
+     * @inherent
+     */
+    protected $dependencies = [
+        'market' => StockMarket::class,
+        'type' => StockInfo::class,
+        'sector' => StockInfo::class,
+        'industry' => StockInfo::class,
+        'price' => StockPrice::class,
+    ];
+
     public function find(string $id): Stock
     {
-        $changes = $this->eventSource->findEvents($id, Stock::class);
-        $this->mergeChanges($changes, ['market', 'type', 'sector', 'industry']);
-
-        $stock = (new Stock($id))->replay($changes);
-
-        $stock = $this->em->merge($stock);
-
-        /** @var Stock $stock */
-        $stock = $this->em->merge($stock);
-
-        return $stock;
+        return $this->load(Stock::class, $id);
     }
 
     public function save(Stock $stock)
     {
-        if ($stock->getChanges()) {
-            $this->eventSource->saveEvents($stock->getChanges());
+        $linkPrice = false;
 
-            $this->em->persist($stock);
+        if ($stock->getPrice() && $stock->getPrice()->getId() === null) {
+            $linkPrice = true;
+        }
+
+        $this->store($stock);
+
+        if ($linkPrice) {
+            $stock->linkPrice();
+
+            // save only the new change
+            $changes = $stock->getChanges();
+            $this->unburdenDependencies($changes);
+            $this->eventSource->saveEvents($changes);
             $this->em->flush();
         }
     }
