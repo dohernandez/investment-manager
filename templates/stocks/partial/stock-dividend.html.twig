@@ -1,0 +1,13 @@
+<div class="box no-border no-shadow js-stock-dividend-panel">
+    {% embed 'Components/Panel/panel-table.html.twig' with {
+        'entity_name': 'stock_dividend',
+        'fields': dividends_fields,
+        'js_panel_class': 'js-stock-dividend-panel-box',
+        'border': 0,
+        'buttons': dividends_buttons,
+        'search_width': '235px',
+        'footer': 0,
+        'swalFrom' : 0
+    } %}
+    {% endembed %}
+</div>

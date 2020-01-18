@@ -114,16 +114,102 @@
             );
             panelTable.addRowButton(viewRowButton);
 
+            // Dividend dialog
+            const dividendAwalOptions = swalOptions = {
+                customClass: {
+                    title: 'swal2-form-title',
+                    content: 'swal2-form-content',
+                },
+                showConfirmButton: false,
+                buttonsStyling: false,
+                width: 1000,
+                allowEscapeKey: true,
+                allowOutsideClick: false,
+                showCloseButton: true,
+                position: 'top',
+            };
 
             const dividendRowButton = new RowButton(
-                '.js-entity-edit-dividend-yield',
+                '.js-entity-dividend-yield',
                 function (e) {
                     e.preventDefault();
 
                     const $row = $(e.currentTarget).closest('tr');
+
+                    const title = $row.data('title');
                     const id = $row.data('id');
 
-                    window.location = Routing.generate('stock_dividend_index', {'_id': id})
+                    let entity = this.table.getRecord(id);
+
+                    let dividends = entity.dividends;
+                    if (typeof dividends === 'undefined') {
+                        // load dividends
+                    }
+
+                    let html = this.compile('#js-entity-dividend-template', dividends);
+                    this.fireSwal(
+                        dividendAwalOptions,
+                        title,
+                        html,
+                        null,
+                        function () {
+                            // Create panelTable instance @see assets/js/PanelTable.js
+                            let $dividendPanelBox = $('.js-stock-dividend-panel-box');
+
+                            let dividendContentWrapper = $dividendPanelBox.closest('.js-stock-dividend-panel');
+                            let dividendEntityType = $dividendPanelBox.data('entity-type');
+
+                            let dividendsPanelTable = new PanelTable({
+                                entityType: dividendEntityType,
+                                wrapper: dividendContentWrapper,
+                                pagination: true,
+                                selectors: {
+                                    searchTemplate: '#js-table' + dividendEntityType + '-search-template',
+                                    showPerPageTemplate: '#js-table-' + dividendEntityType + '-show-per-page-template',
+                                    rowTemplate: '#js-table-' + dividendEntityType + '-row-template',
+                                },
+                                sort: function (aStockDividend, bStockDividend) {
+                                    let a = new Date(aStockDividend.exDate);
+                                    let b = new Date(bStockDividend.exDate);
+
+                                    return a > b ? -1 : a < b ? 1 : 0;
+                                },
+                            });
+
+                            const syncButton = new Button(
+                                '.js-entity-sync',
+                                '#js-table-' + dividendEntityType + '-sync-button-template',
+                                '.js-panel-header-button-container',
+                                function (e) {
+                                    e.preventDefault();
+
+                                    // disable button
+                                    let $button = $(e.currentTarget);
+
+                                    $button.attr("disabled", true);
+                                    $button.find('i').addClass('fa-spin');
+
+                                    InvestmentManagerClient.sendRPC(
+                                        Routing.generate(dividendEntityType + '_sync', {'_id': entity.id }),
+                                        'GET'
+                                    ).then((result) => {
+                                        panelTable.setData(result);
+
+                                        $button.attr("disabled", false);
+                                        $button.find('i').removeClass('fa-spin');
+                                    }).catch((errorsData) => {
+                                        console.log(errorsData);
+
+                                        $button.attr("disabled", false);
+                                        $button.find('i').removeClass('fa-spin');
+                                    });
+                                },
+                            );
+                            dividendsPanelTable.addButton(syncButton);
+
+                            dividendsPanelTable.render();
+                        }
+                    );
                 }
             );
             panelTable.addRowButton(dividendRowButton);
@@ -151,8 +237,21 @@
         <div class="small"><%= market.symbol %> - <%= market.name %></div>
     </script>
 
-    <!-- view manager template -->
+    <!-- view manager stock template -->
     <script type="text/template" id="js-view-template">
         {% include 'stocks/partial/view.html.twig' %}
+    </script>
+
+    <!-- view manager stock dividend template -->
+    <script type="text/template" id="js-entity-dividend-template">
+        {% include 'stocks/partial/stock-dividend.html.twig' %}
+    </script>
+
+    <!-- sync button table template -->
+    <script type="text/template" id="js-table-stock_dividend-sync-button-template">
+        <button class="js-entity-sync btn btn-warning pull-right" style="margin-right: 8px;">
+            <i class="fa-sync fas" aria-hidden="true"></i>
+            {{ 'Sync'|trans }} {{ 'dividends'|trans|lower }}
+        </button>
     </script>
 {% endblock %}

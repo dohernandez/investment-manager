@@ -121,7 +121,7 @@
 
 <!-- create table show per page template -->
 <script type="text/template" id="js-table-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template">
-    <label>{{ 'Show'|trans }}
+    <label class="pull-left">{{ 'Show'|trans }}
         <select id="show-{{ entity_name|lower|replace({' ': '_'}) }}s-per-page" name="table-per-page" aria-controls="per page"
                 class="form-control input-sm js-table-show-per-page"
                 style="width: 75px; display: inline-block;">
@@ -166,4 +166,6 @@
     </script>
 {% endif %}
 
-{% include 'Components/Form/swal-from-html.twig' %}
+{% if swalFrom is not defined or swalFrom == 1 %}
+    {% include 'Components/Form/swal-from-html.twig' %}
+{% endif %}
