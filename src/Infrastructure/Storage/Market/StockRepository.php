@@ -32,8 +32,6 @@ final class StockRepository extends Repository implements StockRepositoryInterfa
 
     public function save(Stock $stock)
     {
-        \dump($stock);
         $this->store($stock);
-        \dump($stock);
     }
 }

@@ -25,7 +25,8 @@
 
         <entity-listeners>
             <entity-listener class="App\Infrastructure\EventSource\EventSourceListener">
-                <lifecycle-callback type="postPersist"   method="postPersistHandler"/>
+                <lifecycle-callback type="postPersist"  method="postPersistHandler"/>
+                <lifecycle-callback type="postUpdate"  method="postPersistHandler"/>
             </entity-listener>
         </entity-listeners>
     </entity>

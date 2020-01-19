@@ -131,6 +131,12 @@ services:
 
     App\Application\Market\Decorator\StockDividendsDecorate: ~
 
+    # Subscribers
+    App\Application\Market\Subscriber\HouseKeeperSubscriber:
+        class: App\Application\Market\Subscriber\HouseKeeperSubscriber
+        arguments:
+            $houseKeeperStockDividendRepository: '@App\Infrastructure\Storage\Market\HouseKeeperStockDividendRepository'
+
     ##### APPLICATION LAYER END
 
 
@@ -179,5 +185,6 @@ services:
     App\Infrastructure\Storage\Market\StockMarketRepository: ~
     App\Infrastructure\Storage\Market\StockRepository: ~
     App\Infrastructure\Storage\Market\StockDividendRepository: ~
+    App\Infrastructure\Storage\Market\HouseKeeperStockDividendRepository: ~
 
     ##### INFRASTRUCTURE LAYER END
