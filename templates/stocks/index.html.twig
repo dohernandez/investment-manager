@@ -176,6 +176,14 @@
                                 },
                             });
 
+                            const $url = function () {
+                                let param = {
+                                    'id': entity.id
+                                };
+
+                                return Routing.generate(dividendEntityType + '_list', param);
+                            };
+
                             const syncButton = new Button(
                                 '.js-entity-sync',
                                 '#js-table-' + dividendEntityType + '-sync-button-template',
@@ -193,7 +201,7 @@
                                         Routing.generate(dividendEntityType + '_sync', {'id': entity.id }),
                                         'PUT'
                                     ).then((result) => {
-                                        panelTable.setData(result);
+                                        dividendsPanelTable.loadRows($url);
 
                                         $button.attr("disabled", false);
                                         $button.find('i').removeClass('fa-spin');
@@ -208,6 +216,7 @@
                             dividendsPanelTable.addButton(syncButton);
 
                             dividendsPanelTable.render();
+                            dividendsPanelTable.loadRows($url);
                         }
                     );
                 }

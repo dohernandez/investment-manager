@@ -219,4 +219,9 @@ class StockDividend
 
         return $this;
     }
+
+    public function getTitle(): string
+    {
+        return $this->getValue() . '(' . $this->getStatus() . ')';
+    }
 }

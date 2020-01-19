@@ -7,6 +7,7 @@ use App\Application\Market\Command\LoadYahooQuote;
 use App\Application\Market\Command\SyncStockDividends;
 use App\Application\Market\Command\UpdateStockWithPrice;
 use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
+use App\Application\Market\Repository\StockDividendRepositoryInterface;
 use App\Presentation\Controller\RESTController;
 use App\Presentation\Form\Market\CreateStockType;
 use App\Presentation\Form\Market\EditStockType;
@@ -179,5 +180,32 @@ final class StockRESTController extends RESTController
         $handledStamp = $envelope->last(HandledStamp::class);
 
         return $this->createApiResponse($handledStamp->getResult(), Response::HTTP_OK);
+    }
+
+    /**
+     * @Route("{id}/dividends", name="stock_dividend_list", methods={"GET"}, options={"expose"=true})
+     *
+     * @param string $id
+     * @param ProjectionStockRepositoryInterface $stockRepository
+     * @param StockDividendRepositoryInterface $stockDividendRepository
+     *
+     * @return Response
+     */
+    public function dDividends(
+        string $id,
+        ProjectionStockRepositoryInterface $stockRepository,
+        StockDividendRepositoryInterface $stockDividendRepository
+    ): Response {
+        $stock = $stockRepository->find($id);
+        if (!$stock) {
+            return $this->json(
+                [
+                    'message' => 'Resource not found',
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        return $this->createApiResponse($stockDividendRepository->findAllByStock($stock), Response::HTTP_OK);
     }
 }
