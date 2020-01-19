@@ -372,8 +372,11 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         return $dividend->getValue()->getValue() * 4 / $price->getPrice()->getValue() * 100;
     }
 
-    private function findFirstChangeHappenedDateAt(DateTime $dateAt, ?string $type = null): ?Changed
-    {
+    private function findFirstChangeHappenedDateAt(
+        DateTime $dateAt,
+        ?string $type = null,
+        string $method = 'getUpdatedAt'
+    ): ?Changed {
         $changes = ($type) ? $this->getChanges()->filter(
             function (Changed $changed) use ($type) {
                 if ($changed->getEventName() == $type) {
@@ -391,9 +394,13 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
             /** @var StockPriceUpdated $payload */
             $payload = $change->getPayload();
 
+            if (!\method_exists($payload, $method)) {
+                continue;
+            }
+
             if (
-                $payload->getUpdatedAt()->format('Y') === $dateAt->format('Y') &&
-                $payload->getUpdatedAt()->format('z') === $dateAt->format('z')
+                $payload->$method()->format('Y') === $dateAt->format('Y') &&
+                $payload->$method()->format('z') === $dateAt->format('z')
             ) {
                 $changed = $change;
 
@@ -421,7 +428,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         foreach ($this->dividends as $dividend) {
             if ($dividend->getStatus() === StockDividend::STATUS_PROJECTED ||
                 $dividend->getStatus() === StockDividend::STATUS_ANNOUNCED) {
-                    $toRemove[] = $dividend;
+                $toRemove[] = $dividend;
             }
         }
 
@@ -442,13 +449,15 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         $toPayDividend = $this->toPayDividend;
 
         foreach ($dividends as $k => $dividend) {
-            if ($this->dividends->exists(function ($index, StockDividend $item) use ($dividend, $k) {
-                return $item->getStatus() === $dividend->getStatus() &&
-                    $item->getExDate() == $dividend->getExDate() &&
-                    $item->getPaymentDate() == $dividend->getPaymentDate() &&
-                    $item->getRecordDate() == $dividend->getRecordDate() &&
-                    $item->getValue()->equals($dividend->getValue());
-            })) {
+            if ($this->dividends->exists(
+                function ($index, StockDividend $item) use ($dividend, $k) {
+                    return $item->getStatus() === $dividend->getStatus() &&
+                        $item->getExDate() == $dividend->getExDate() &&
+                        $item->getPaymentDate() == $dividend->getPaymentDate() &&
+                        $item->getRecordDate() == $dividend->getRecordDate() &&
+                        $item->getValue()->equals($dividend->getValue());
+                }
+            )) {
                 continue;
             }
 
@@ -503,7 +512,11 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         if ($nextDividend != $this->nextDividend || $toPayDividend != $this->toPayDividend) {
             $dividendYield = $this->calculateNewDividendYield($this->getPrice(), $nextDividend);
 
-            $changed = $this->findFirstChangeHappenedDateAt($toSyncAt, StockDividendSynched::class);
+            $changed = $this->findFirstChangeHappenedDateAt(
+                $toSyncAt,
+                StockDividendSynched::class,
+                'getSynchedAt'
+            );
 
             if ($changed) {
                 $this->replaceChangedPayload(

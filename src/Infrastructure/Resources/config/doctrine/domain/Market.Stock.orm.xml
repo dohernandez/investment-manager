@@ -15,14 +15,14 @@
 
         <field name="description" column="description" type="text" nullable="true"/>
 
-        <many-to-one field="type" target-entity="App\Domain\Market\StockInfo" fetch="LAZY"/>
-        <many-to-one field="sector" target-entity="App\Domain\Market\StockInfo" fetch="LAZY"/>
-        <many-to-one field="industry" target-entity="App\Domain\Market\StockInfo" fetch="LAZY"/>
+        <many-to-one field="type" target-entity="App\Domain\Market\StockInfo"/>
+        <many-to-one field="sector" target-entity="App\Domain\Market\StockInfo"/>
+        <many-to-one field="industry" target-entity="App\Domain\Market\StockInfo"/>
 
         <field name="notes" column="notes" type="text" nullable="true"/>
         <field name="metadata" column="metadata" type="object"/>
 
-        <one-to-one field="price" target-entity="App\Domain\Market\StockPrice" fetch="LAZY">
+        <one-to-one field="price" target-entity="App\Domain\Market\StockPrice">
             <cascade>
                 <cascade-persist/>
                 <cascade-remove />
@@ -35,6 +35,9 @@
                 <cascade-remove />
             </cascade>
         </one-to-many>
+
+        <one-to-one field="nextDividend" target-entity="App\Domain\Market\StockDividend"/>
+        <one-to-one field="toPayDividend" target-entity="App\Domain\Market\StockDividend"/>
 
         <field name="createdAt" column="created_at" type="datetime"/>
         <field name="updatedAt" column="updated_at" type="datetime"/>
