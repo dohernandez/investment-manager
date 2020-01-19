@@ -2,47 +2,33 @@
 
 namespace App\Infrastructure\EventSource;
 
+use DateTime;
+
 final class Metadata
 {
     /**
-     * @var mixed
+     * @var DateTime|null
      */
-    private $value = null;
+    private $updatedAt = null;
 
     /**
-     * @var string
+     * @return DateTime|null
      */
-    private $key = '';
-
-    /**
-     * @var Metadata
-     */
-    private $parent = null;
-
-    /**
-     * @param Metadata $parent
-     * @param string $key
-     * @param mixed $value
-     *
-     * @return Metadata
-     */
-    public static function withMetadata(?Metadata $parent, string $key, $value): Metadata
+    public function getUpdatedAt(): ?DateTime
     {
-        $self = new Metadata();
+        return $this->updatedAt;
+    }
 
-        $self->parent = $parent;
-        $self->key = $key;
-        $self->value = $value;
+    /**
+     * @param DateTime|null $updatedAt
+     *
+     * @return self
+     */
+    public function changeUpdatedAt(?DateTime $updatedAt): self
+    {
+        $self = clone $this;
+        $self->updatedAt = $updatedAt;
 
         return $self;
-    }
-
-    public function getValue(string $key)
-    {
-        if ($this->key === $key) {
-            return $this->value;
-        }
-
-        return ($this->parent) ? $this->parent->getValue($key) : null;
-    }
+}
 }

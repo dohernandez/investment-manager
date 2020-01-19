@@ -207,6 +207,6 @@ final class Money
             return false;
         }
 
-        return $this->getPreciseValue() !== $money->getPreciseValue();
+        return $this->getPreciseValue() === $money->getPreciseValue();
     }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Infrastructure\EventSource;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Infrastructure\UUID;
+use ReflectionClass;
 
 abstract class AggregateRoot implements EventSourcedAggregateRoot
 {
@@ -44,7 +46,13 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
         return $this->changes;
     }
 
-    public function recordChange($event): void
+    /**
+     * @param $event
+     *
+     * @return self
+     * @throws \Exception
+     */
+    public function recordChange($event)
     {
         if (empty($this->id)) {
             throw new MissingAggregateIDException();
@@ -65,6 +73,33 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
         $this->changes->add($aggregateChanged);
 
         $this->apply($aggregateChanged);
+
+        return $this;
+    }
+
+    /**
+     * @param Changed $aggregateChanged
+     * @param $event
+     *
+     * @param string $updatedAt
+     *
+     * @return self
+     * @throws \ReflectionException
+     */
+    public function replaceChangedPayload(Changed $aggregateChanged, $event, DateTime $updatedAt = null)
+    {
+        if (empty($this->id)) {
+            throw new MissingAggregateIDException();
+        }
+
+        $updatedAt = $updatedAt ?? new DateTime();
+
+        $aggregateChanged->setPayload($event);
+        $aggregateChanged->setMetadata($aggregateChanged->getMetadata()->changeUpdatedAt($updatedAt));
+
+        $this->apply($aggregateChanged);
+
+        return $this;
     }
 
     abstract protected function apply(Changed $changed);

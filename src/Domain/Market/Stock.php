@@ -2,9 +2,8 @@
 
 namespace App\Domain\Market;
 
-use App\Application\Market\Command\StockPriceUpdated;
 use App\Domain\Market\Event\StockAdded;
-use App\Domain\Market\Event\StockPriceLinked;
+use App\Domain\Market\Event\StockPriceUpdated;
 use App\Domain\Market\Event\StockUpdated;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -208,6 +207,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $name,
                 $symbol,
                 $market,
+                null,
                 $description,
                 $type,
                 $sector,
@@ -258,7 +258,9 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->type = $event->getType();
                 $this->sector = $event->getSector();
                 $this->industry = $event->getIndustry();
-                $this->metadata = new StockMetadata();
+                $this->metadata = $event->getYahooSymbol() ?
+                    (new StockMetadata())->updateYahooSymbol($event->getYahooSymbol()) :
+                    new StockMetadata();
                 $this->createdAt = $changed->getCreatedAt();
                 $this->updatedAt = $changed->getCreatedAt();
 
@@ -279,44 +281,82 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 
                 break;
 
-            case StockPriceLinked::class:
-                /** @var StockPriceLinked $event */
+            case StockPriceUpdated::class:
+                /** @var StockPriceUpdated $event */
                 $event = $changed->getPayload();
 
                 $this->price = $event->getPrice();
+                $this->metadata = $this->metadata->updateDividendYield($event->getDividendYield());
                 break;
         }
     }
 
-    public function linkPrice(): self
+    public function updatePrice(StockPrice $price, $toUpdateAt = 'now'): self
     {
-        $this->recordChange(
-            new StockPriceLinked(
-                $this->getId(),
-                $this->price
-            )
-        );
+        \dump('update price');
+        $toUpdateAt = new DateTime($toUpdateAt);
 
-        return $this;
-    }
+        $dividendYield = null;
+        if ($this->nextDividend) {
+            $dividendYield = $this->nextDividend->getValue()->getValue() * 4 / $price->getValue()->getValue() * 100;
+        }
 
-    public function updatePrice(StockPrice $price): self
-    {
-        if (!$this->price) {
-            $this->price = $price;
+        $priceUpdatedChanges = $this->getChanges()->filter(function (Changed $changed) {
+            if ($changed->getEventName() == StockPriceUpdated::class) {
+                return true;
+            }
+
+            return false;
+        });
+
+        $changed = null;
+
+        /** @var Changed $priceUpdatedChanged */
+        foreach ($priceUpdatedChanges as $priceUpdatedChanged) {
+            /** @var StockPriceUpdated $payload */
+            $payload = $priceUpdatedChanged->getPayload();
+
+            if ($payload->getUpdatedAt()->format('z') === $toUpdateAt->format('z')) {
+                $changed = $priceUpdatedChanged;
+
+                break;
+            }
+        }
+
+        if ($changed) {
+            // This is to avoid have too much update events.
+            $this->price->setPrice($price->getPrice());
+            $this->price->setChangePrice($price->getChangePrice());
+            $this->price->setPeRatio($price->getPeRatio());
+            $this->price->setPreClose($price->getPreClose());
+            $this->price->setOpen($price->getOpen());
+            $this->price->setDayLow($price->getDayLow());
+            $this->price->setDayHigh($price->getDayHigh());
+            $this->price->setWeek52Low($price->getWeek52Low());
+            $this->price->setWeek52High($price->getWeek52High());
+
+            $this->replaceChangedPayload(
+                $changed,
+                new StockPriceUpdated(
+                    $this->getId(),
+                    $this->price,
+                    $toUpdateAt,
+                    $dividendYield
+                ),
+                clone $toUpdateAt
+            );
 
             return $this;
         }
 
-        $this->price->setPrice($price->getPrice());
-        $this->price->setChangePrice($price->getChangePrice());
-        $this->price->setPeRatio($price->getPeRatio());
-        $this->price->setPreClose($price->getPreClose());
-        $this->price->setOpen($price->getOpen());
-        $this->price->setDayLow($price->getDayLow());
-        $this->price->setDayHigh($price->getDayHigh());
-        $this->price->setWeek52Low($price->getWeek52Low());
-        $this->price->setWeek52High($price->getWeek52High());
+        $this->recordChange(
+            new StockPriceUpdated(
+                $this->getId(),
+                $price,
+                $toUpdateAt,
+                $dividendYield,
+            )
+        );
 
         return $this;
     }

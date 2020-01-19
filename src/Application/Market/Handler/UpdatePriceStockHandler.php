@@ -33,27 +33,22 @@ final class UpdatePriceStockHandler implements MessageHandlerInterface
     {
         $stock = $this->stockRepository->find($message->getId());
 
-        $stock->updatePrice(
-            (new StockPrice())
-                ->setPrice($message->getValue())
-                ->setChangePrice($message->getChangePrice())
-                ->setPeRatio($message->getPeRatio())
-                ->setPreClose($message->getPreClose())
-                ->setOpen($message->getOpen())
-                ->setDayLow($message->getDayLow())
-                ->setDayHigh($message->getDayHigh())
-                ->setWeek52Low($message->getWeek52Low())
-                ->setWeek52High($message->getWeek52High())
-        );
+        $price = (new StockPrice())
+            ->setPrice($message->getValue())
+            ->setChangePrice($message->getChangePrice())
+            ->setPeRatio($message->getPeRatio())
+            ->setPreClose($message->getPreClose())
+            ->setOpen($message->getOpen())
+            ->setDayLow($message->getDayLow())
+            ->setDayHigh($message->getDayHigh())
+            ->setWeek52Low($message->getWeek52Low())
+            ->setWeek52High($message->getWeek52High());
 
-        $this->stockRepository->save($stock);
+        if (!$stock->getPrice() || !$stock->getPrice()->equals($price) || true) {
+            $stock->updatePrice($price);
 
-        /** Manually dispatch the application event.
-         * This is because update price does not generate domain event hence it is not stored in the event source,
-         * but we still want to trigger event.
-         */
-        $event = new StockPriceUpdated($stock->getId(), $stock->getPrice());
-        $this->dispatcher->dispatch($event);
+            $this->stockRepository->save($stock);
+        }
 
         return $stock;
     }

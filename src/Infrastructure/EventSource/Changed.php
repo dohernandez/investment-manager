@@ -84,6 +84,13 @@ class Changed
         return $this->payload;
     }
 
+    public function setPayload($payload): self
+    {
+        $this->payload = $payload;
+
+        return $this;
+    }
+
     /**
      * @var Metadata
      */
@@ -94,9 +101,9 @@ class Changed
         return $this->metadata;
     }
 
-    public function setMetadata(string $key, $value): self
+    public function setMetadata(Metadata $metadata): self
     {
-        $this->metadata;
+        $this->metadata = $metadata;
 
         return $this;
     }

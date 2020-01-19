@@ -31,6 +31,11 @@ final class StockAdded
     /**
      * @var string|null
      */
+    private $yahooSymbol;
+
+    /**
+     * @var string|null
+     */
     private $description;
 
     /**
@@ -53,6 +58,7 @@ final class StockAdded
         string $name,
         string $symbol,
         StockMarket $market,
+        ?string $yahooSymbol = null,
         ?string $description = null,
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
@@ -62,6 +68,7 @@ final class StockAdded
         $this->name = $name;
         $this->symbol = $symbol;
         $this->market = $market;
+        $this->yahooSymbol = $yahooSymbol;
         $this->description = $description;
         $this->type = $type;
         $this->sector = $sector;
@@ -86,6 +93,11 @@ final class StockAdded
     public function getMarket(): StockMarket
     {
         return $this->market;
+    }
+
+    public function getYahooSymbol(): ?string
+    {
+        return $this->yahooSymbol;
     }
 
     public function getDescription(): ?string

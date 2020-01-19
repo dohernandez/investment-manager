@@ -191,4 +191,17 @@ class StockPrice
 
         return $this;
     }
+
+    public function equals(StockPrice $price): bool
+    {
+        return $this->price->equals($price->getPrice()) &&
+            $this->changePrice->equals($price->getChangePrice()) &&
+            $this->peRatio == $price->getPeRatio() &&
+            $this->preClose->equals($price->getPreClose()) &&
+            $this->open->equals($price->getOpen()) &&
+            $this->dayLow->equals($price->getDayLow()) &&
+            $this->dayHigh->equals($price->getDayHigh()) &&
+            $this->week52Low->equals($price->getWeek52Low()) &&
+            $this->week52High->equals($price->getWeek52High());
+    }
 }

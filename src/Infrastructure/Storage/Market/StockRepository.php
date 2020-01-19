@@ -29,21 +29,6 @@ final class StockRepository extends Repository implements StockRepositoryInterfa
 
     public function save(Stock $stock)
     {
-        $linkPrice = false;
-
-        if ($stock->getPrice() && $stock->getPrice()->getId() === null) {
-            $linkPrice = true;
-        }
-
         $this->store($stock);
-
-        if ($linkPrice) {
-            $stock->linkPrice();
-
-            // save only the new change
-            $changes = $stock->getChanges();
-            $this->unburdenDependencies($changes);
-            $this->eventSource->saveEvents($changes, true);
-        }
     }
 }

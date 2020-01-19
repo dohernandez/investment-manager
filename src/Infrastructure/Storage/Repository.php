@@ -94,11 +94,12 @@ abstract class Repository
     protected function store(AggregateRoot $object)
     {
         if ($changes = $object->getChanges()) {
-            $this->unburdenDependencies($changes);
-            $this->eventSource->saveEvents($changes);
 
             $this->em->persist($object);
+            $this->em->flush();
 
+            $this->unburdenDependencies($changes);
+            $this->eventSource->saveEvents($changes);
             $this->em->flush();
         }
     }
