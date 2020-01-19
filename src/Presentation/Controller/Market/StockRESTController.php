@@ -4,19 +4,18 @@ namespace App\Presentation\Controller\Market;
 
 use App\Application\Market\Command\AddStockWithPrice;
 use App\Application\Market\Command\LoadYahooQuote;
+use App\Application\Market\Command\SyncStockDividends;
 use App\Application\Market\Command\UpdateStockWithPrice;
 use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
-use App\Application\Transfer\Command\ChangeTransfer;
-use App\Application\Transfer\Command\RemoveTransfer;
 use App\Presentation\Controller\RESTController;
 use App\Presentation\Form\Market\CreateStockType;
 use App\Presentation\Form\Market\EditStockType;
 use App\Presentation\Form\Market\LoadYahooQuoteType;
-use App\Presentation\Form\Transfer\EditTransferType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -161,5 +160,24 @@ final class StockRESTController extends RESTController
                 );
             }
         );
+    }
+
+    /**
+     * @Route("{id}/sync/dividends", name="stock_dividend_sync", methods={"PUT"}, options={"expose"=true})
+     *
+     * @param string $id
+     * @param MessageBusInterface $bus
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function syncDividends(string $id, MessageBusInterface $bus, Request $request): Response
+    {
+        $envelope = $bus->dispatch(new SyncStockDividends($id));
+
+        // get the value that was returned by the last message handler
+        $handledStamp = $envelope->last(HandledStamp::class);
+
+        return $this->createApiResponse($handledStamp->getResult(), Response::HTTP_OK);
     }
 }

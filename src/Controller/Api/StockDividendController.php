@@ -250,7 +250,6 @@ class StockDividendController extends BaseController
     }
 
     /**
-     * @Route("/sync", name="stock_dividend_sync", methods={"GET"}, options={"expose"=true})
      *
      * @param StockDividendsService $dividendService
      * @param EntityManagerInterface $em

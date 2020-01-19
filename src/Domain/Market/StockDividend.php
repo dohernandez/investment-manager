@@ -10,7 +10,7 @@ use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
 
-class StockDividend extends AggregateRoot implements EventSourcedAggregateRoot
+class StockDividend
 {
     public const STATUS_PROJECTED = 'projected';
     public const STATUS_ANNOUNCED = 'announced';
@@ -18,151 +18,205 @@ class StockDividend extends AggregateRoot implements EventSourcedAggregateRoot
 
     public const STATUS = [self::STATUS_PROJECTED, self::STATUS_ANNOUNCED, self::STATUS_PAYED];
 
+    public function __construct(?int $id = null)
+    {
+        $this->id = $id;
+    }
+
     /**
-     * @var DateTime
+     * @var int|null
+     */
+    private $id;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @var DateTime|null
      */
     private $exDate;
 
-    public function getExDate(): DateTime
+    public function getExDate(): ?DateTime
     {
         return $this->exDate;
     }
 
+    public function setExDate(?DateTime $exDate): self
+    {
+        $this->exDate = $exDate;
+
+        return $this;
+    }
+
     /**
-     * @var DateTime
+     * @var DateTime|null
      */
     private $paymentDate;
 
-    public function getPaymentDate(): DateTime
+    public function getPaymentDate(): ?DateTime
     {
         return $this->paymentDate;
     }
 
+    public function setPaymentDate(?DateTime $paymentDate): self
+    {
+        $this->paymentDate = $paymentDate;
+
+        return $this;
+    }
+
     /**
-     * @var DateTime
+     * @var DateTime|null
      */
     private $recordDate;
 
-    public function getRecordDate(): DateTime
+    public function getRecordDate(): ?DateTime
     {
         return $this->recordDate;
     }
 
+    public function setRecordDate(?DateTime $recordDate): self
+    {
+        $this->recordDate = $recordDate;
+
+        return $this;
+    }
+
     /**
-     * @var string
+     * @var string|null
      */
     private $status;
 
-    public function getStatus(): string
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
+    public function setStatus(?string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
     /**
-     * @var Money
+     * @var Money|null
      */
     private $value;
 
-    public function getValue(): Money
+    public function getValue(): ?Money
     {
         return $this->value;
     }
 
+    public function setValue(?Money $value): self
+    {
+        $this->value = $value;
+
+        return $this;
+    }
+
     /**
-     * @var float
+     * @var float|null
      */
     private $changeFromPrev;
 
-    public function getChangeFromPrev(): float
+    public function getChangeFromPrev(): ?float
     {
         return $this->changeFromPrev;
     }
 
+    public function setChangeFromPrev(?float $changeFromPrev): self
+    {
+        $this->changeFromPrev = $changeFromPrev;
+
+        return $this;
+    }
+
     /**
-     * @var float
+     * @var float|null
      */
     private $changeFromPrevYear;
 
-    public function getChangeFromPrevYear(): float
+    public function getChangeFromPrevYear(): ?float
     {
         return $this->changeFromPrevYear;
     }
 
+    public function setChangeFromPrevYear(?float $changeFromPrevYear): self
+    {
+        $this->changeFromPrevYear = $changeFromPrevYear;
+
+        return $this;
+    }
+
     /**
-     * @var float
+     * @var float|null
      */
     private $prior12MonthsYield;
 
-    public function getPrior12MonthsYield(): float
+    public function getPrior12MonthsYield(): ?float
     {
         return $this->prior12MonthsYield;
     }
 
+    public function setPrior12MonthsYield(?float $prior12MonthsYield): self
+    {
+        $this->prior12MonthsYield = $prior12MonthsYield;
+
+        return $this;
+    }
+
     /**
-     * @var Stock
+     * @var Stock|null
      */
     private $stock;
 
-    public function getStock(): Stock
+    public function getStock(): ?Stock
     {
         return $this->stock;
     }
 
+    public function setStock(?Stock $stock): self
+    {
+        $this->stock = $stock;
+
+        return $this;
+    }
+
     /**
-     * @var DateTime
+     * @var DateTime|null
      */
     private $createdAt;
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
 
+    public function setCreatedAt(?DateTime $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
     /**
-     * @var DateTime
+     * @var DateTime|null
      */
     private $updatedAt;
 
-    public function getUpdatedAt(): DateTime
+    public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
     }
 
-    public static function add(
-        Stock $stock,
-        Money $value,
-        DateTime $exDate,
-        string $status = self::STATUS_PROJECTED,
-        ?DateTime $paymentDate = null,
-        ?DateTime $recordDate = null
-    ) {
-        $id = UUID\Generator::generate();
-
-        $self = new static($id);
-
-        $self->recordChange(new StockDividendAdded($id, $stock, $value, $exDate, $status, $paymentDate, $recordDate));
-
-        return $self;
-    }
-
-    protected function apply(Changed $changed)
+    public function setUpdatedAt(?DateTime $updatedAt): self
     {
-        switch ($changed->getEventName()) {
-            case StockDividendAdded::class:
-                /** @var StockDividendAdded $event */
-                $event = $changed->getPayload();
+        $this->updatedAt = $updatedAt;
 
-                $this->id = $changed->getAggregateId();
-                $this->stock = $event->getStock();
-                $this->value = $event->getValue();
-                $this->exDate = $event->getExDate();
-                $this->status = $event->getStatus();
-                $this->paymentDate = $event->getPaymentDate();
-                $this->recordDate = $event->getRecordDate();
-                $this->createdAt = $changed->getCreatedAt();
-                $this->updatedAt = $changed->getCreatedAt();
-
-                break;
-        }
+        return $this;
     }
 }

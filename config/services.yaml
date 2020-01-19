@@ -118,6 +118,18 @@ services:
     App\Application\Market\Repository\StockInfoRepositoryInterface: '@App\Infrastructure\Storage\Market\StockInfoRepository'
     App\Application\Market\Repository\StockMarketRepositoryInterface: '@App\Infrastructure\Storage\Market\StockMarketRepository'
     App\Application\Market\Repository\StockRepositoryInterface: '@App\Infrastructure\Storage\Market\StockRepository'
+    App\Application\Market\Repository\StockDividendRepositoryInterface: '@App\Infrastructure\Storage\Market\StockDividendRepository'
+
+    App\Application\Market\Service\StockDividendsServiceInterface: '@App\Application\Market\Service\StockDividendsService'
+    App\Application\Market\Service\StockDividendsService: ~
+
+    # Handlers
+    App\Application\Market\Handler\SyncStockDividendsHandler:
+        class: App\Application\Market\Handler\SyncStockDividendsHandler
+        arguments:
+            $stockDividendsDecorate: '@App\Application\Market\Decorator\StockDividendsDecorate'
+
+    App\Application\Market\Decorator\StockDividendsDecorate: ~
 
     ##### APPLICATION LAYER END
 
@@ -166,5 +178,6 @@ services:
     App\Infrastructure\Storage\Market\StockInfoRepository: ~
     App\Infrastructure\Storage\Market\StockMarketRepository: ~
     App\Infrastructure\Storage\Market\StockRepository: ~
+    App\Infrastructure\Storage\Market\StockDividendRepository: ~
 
     ##### INFRASTRUCTURE LAYER END

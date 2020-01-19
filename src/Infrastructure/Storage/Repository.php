@@ -9,6 +9,7 @@ use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
 use App\Infrastructure\Storage\Market\StockRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\ORMInvalidArgumentException;
 use ReflectionClass;
 
 use ReflectionException;
@@ -80,7 +81,11 @@ abstract class Repository
 
                     $value = $reflectionProperty->getValue($payload);
                     if ($value) {
-                        $value = $this->em->find($class, $value);
+                        try {
+                            $value = $this->em->find($class, $value);
+                        } catch (ORMInvalidArgumentException $e) {
+                            continue;
+                        }
 
                         $reflectionProperty->setValue($payload, $value);
                     }

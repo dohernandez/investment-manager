@@ -3,13 +3,13 @@
 namespace App\Domain\Market;
 
 use App\Domain\Market\Event\StockAdded;
+use App\Domain\Market\Event\StockDividendSynched;
 use App\Domain\Market\Event\StockPriceUpdated;
 use App\Domain\Market\Event\StockUpdated;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Currency;
-use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -103,6 +103,13 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->dividends;
     }
 
+    public function setDividends(ArrayCollection $dividends): self
+    {
+        $this->dividends = $dividends;
+
+        return $this;
+    }
+
     /**
      * @var string
      */
@@ -171,6 +178,16 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     public function getUpdatedAt(): DateTime
     {
         return $this->updatedAt;
+    }
+
+    /**
+     * @var DateTime
+     */
+    private $dividendsSyncAt;
+
+    public function getDividendsSyncAt(): DateTime
+    {
+        return $this->dividendsSyncAt;
     }
 
     public function getCurrency(): Currency
@@ -288,42 +305,27 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->price = $event->getPrice();
                 $this->metadata = $this->metadata->updateDividendYield($event->getDividendYield());
                 break;
+
+            case StockDividendSynched::class:
+                /** @var StockDividendSynched $event */
+                $event = $changed->getPayload();
+
+                $this->nextDividend = $event->getNextDividend();
+                $this->toPayDividend = $event->getToPayDividend();
+                $this->metadata = $this->metadata->updateDividendYield($event->getDividendYield());
+                $this->dividendsSyncAt = $event->getSynchedAt();
+
+                break;
         }
     }
 
     public function updatePrice(StockPrice $price, $toUpdateAt = 'now'): self
     {
-        \dump('update price');
         $toUpdateAt = new DateTime($toUpdateAt);
 
-        $dividendYield = null;
-        if ($this->nextDividend) {
-            $dividendYield = $this->nextDividend->getValue()->getValue() * 4 / $price->getValue()->getValue() * 100;
-        }
+        $dividendYield = $this->calculateNewDividendYield($price, $this->nextDividend);
 
-        $priceUpdatedChanges = $this->getChanges()->filter(function (Changed $changed) {
-            if ($changed->getEventName() == StockPriceUpdated::class) {
-                return true;
-            }
-
-            return false;
-        });
-
-        $changed = null;
-
-        /** @var Changed $priceUpdatedChanged */
-        foreach ($priceUpdatedChanges as $priceUpdatedChanged) {
-            /** @var StockPriceUpdated $payload */
-            $payload = $priceUpdatedChanged->getPayload();
-
-            if ($payload->getUpdatedAt()->format('z') === $toUpdateAt->format('z')) {
-                $changed = $priceUpdatedChanged;
-
-                break;
-            }
-        }
-
-        if ($changed) {
+        if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, StockPriceUpdated::class)) {
             // This is to avoid have too much update events.
             $this->price->setPrice($price->getPrice());
             $this->price->setChangePrice($price->getChangePrice());
@@ -354,9 +356,183 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->getId(),
                 $price,
                 $toUpdateAt,
-                $dividendYield,
+                $dividendYield
             )
         );
+
+        return $this;
+    }
+
+    private function calculateNewDividendYield(?StockPrice $price, ?StockDividend $dividend): ?float
+    {
+        if (!$dividend || !$price) {
+            return null;
+        }
+
+        return $dividend->getValue()->getValue() * 4 / $price->getPrice()->getValue() * 100;
+    }
+
+    private function findFirstChangeHappenedDateAt(DateTime $dateAt, ?string $type = null): ?Changed
+    {
+        $changes = ($type) ? $this->getChanges()->filter(
+            function (Changed $changed) use ($type) {
+                if ($changed->getEventName() == $type) {
+                    return true;
+                }
+
+                return false;
+            }
+        ) : $this->getChanges();
+
+        $changed = null;
+
+        /** @var Changed $change */
+        foreach ($changes as $change) {
+            /** @var StockPriceUpdated $payload */
+            $payload = $change->getPayload();
+
+            if (
+                $payload->getUpdatedAt()->format('Y') === $dateAt->format('Y') &&
+                $payload->getUpdatedAt()->format('z') === $dateAt->format('z')
+            ) {
+                $changed = $change;
+
+                break;
+            }
+        }
+
+        return $changed;
+    }
+
+    /**
+     * @param StockDividend[] $dividends
+     * @param string $toSyncAt
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function syncDividends(array $dividends, $toSyncAt = 'now'): self
+    {
+        $toSyncAt = new DateTime($toSyncAt);
+
+        // remove announce and projected dividends
+        $toRemove = [];
+
+        foreach ($this->dividends as $dividend) {
+            if ($dividend->getStatus() === StockDividend::STATUS_PROJECTED ||
+                $dividend->getStatus() === StockDividend::STATUS_ANNOUNCED) {
+                    $toRemove[] = $dividend;
+            }
+        }
+
+        // add new dividends and sync next and to pay dividend
+        foreach ($toRemove as $dividend) {
+            if ($this->dividends->contains($dividend)) {
+                $this->dividends->removeElement($dividend);
+
+                // set the owning side to null (unless already changed)
+                if ($dividend->getStock() === $this) {
+                    $dividend->setStock(null);
+                }
+            }
+        }
+
+        // sync next and to pay dividend
+        $nextDividend = $this->nextDividend;
+        $toPayDividend = $this->toPayDividend;
+
+        foreach ($dividends as $k => $dividend) {
+            if ($this->dividends->exists(function ($index, StockDividend $item) use ($dividend, $k) {
+                return $item->getStatus() === $dividend->getStatus() &&
+                    $item->getExDate() == $dividend->getExDate() &&
+                    $item->getPaymentDate() == $dividend->getPaymentDate() &&
+                    $item->getRecordDate() == $dividend->getRecordDate() &&
+                    $item->getValue()->equals($dividend->getValue());
+            })) {
+                continue;
+            }
+
+            $this->dividends->add($dividend);
+            $dividend->setStock($this);
+
+            if (
+                $dividend->getStatus() !== StockDividend::STATUS_PAYED &&
+                (
+                    $dividend->getExDate() > $toSyncAt &&
+                    (
+                        !$nextDividend ||
+                        !$nextDividend->getStock() ||
+                        (
+
+                            $nextDividend->getExDate() > $dividend->getExDate() ||
+                            (
+                                $nextDividend->getExDate() === $dividend->getExDate() &&
+                                (
+                                    $nextDividend->getRecordDate() > $dividend->getRecordDate() ||
+                                    $nextDividend->getPaymentDate() > $dividend->getPaymentDate()
+                                )
+                            )
+                        )
+                    )
+                )
+            ) {
+                $nextDividend = $dividend;
+            }
+
+            if (
+                $dividend->getStatus() === StockDividend::STATUS_ANNOUNCED &&
+                $dividend->getExDate() < $toSyncAt &&
+                $dividend->getPaymentDate() > $toSyncAt &&
+                (
+                    !$toPayDividend ||
+                    !$toPayDividend->getStock()
+                )
+            ) {
+                $toPayDividend = $dividend;
+            }
+        }
+
+        if ($nextDividend && !$nextDividend->getStock()) {
+            $nextDividend = null;
+        }
+
+        if ($toPayDividend && !$toPayDividend->getStock()) {
+            $toPayDividend = null;
+        }
+
+        if ($nextDividend != $this->nextDividend || $toPayDividend != $this->toPayDividend) {
+            $dividendYield = $this->calculateNewDividendYield($this->getPrice(), $nextDividend);
+
+            $changed = $this->findFirstChangeHappenedDateAt($toSyncAt, StockDividendSynched::class);
+
+            if ($changed) {
+                $this->replaceChangedPayload(
+                    $changed,
+                    new StockDividendSynched(
+                        $this->getId(),
+                        $nextDividend,
+                        $toPayDividend,
+                        $toSyncAt,
+                        $dividendYield
+                    ),
+                    clone $toSyncAt
+                );
+
+                return $this;
+            }
+
+            $this->recordChange(
+                new StockDividendSynched(
+                    $this->getId(),
+                    $nextDividend,
+                    $toPayDividend,
+                    $toSyncAt,
+                    $dividendYield
+                )
+            );
+
+            return $this;
+        }
 
         return $this;
     }

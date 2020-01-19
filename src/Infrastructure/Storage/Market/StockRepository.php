@@ -4,6 +4,7 @@ namespace App\Infrastructure\Storage\Market;
 
 use App\Application\Market\Repository\StockRepositoryInterface;
 use App\Domain\Market\Stock;
+use App\Domain\Market\StockDividend;
 use App\Domain\Market\StockInfo;
 use App\Domain\Market\StockMarket;
 use App\Domain\Market\StockPrice;
@@ -15,11 +16,13 @@ final class StockRepository extends Repository implements StockRepositoryInterfa
      * @inherent
      */
     protected $dependencies = [
-        'market'   => StockMarket::class,
-        'type'     => StockInfo::class,
-        'sector'   => StockInfo::class,
-        'industry' => StockInfo::class,
-        'price'    => StockPrice::class,
+        'market'       => StockMarket::class,
+        'type'         => StockInfo::class,
+        'sector'       => StockInfo::class,
+        'industry'     => StockInfo::class,
+        'price'        => StockPrice::class,
+        'nextDividend' => StockDividend::class,
+        'toPayDividend' => StockDividend::class,
     ];
 
     public function find(string $id): Stock
@@ -29,6 +32,8 @@ final class StockRepository extends Repository implements StockRepositoryInterfa
 
     public function save(Stock $stock)
     {
+        \dump($stock);
         $this->store($stock);
+        \dump($stock);
     }
 }

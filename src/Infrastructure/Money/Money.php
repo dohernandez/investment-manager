@@ -196,6 +196,7 @@ final class Money
 
     public static function parser(string $price, int $divisor = 100): float
     {
+        $price = str_replace('$', '', $price);
         $price = str_replace(',', '.', $price);
 
         return floatval($price) * $divisor;

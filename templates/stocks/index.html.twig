@@ -190,8 +190,8 @@
                                     $button.find('i').addClass('fa-spin');
 
                                     InvestmentManagerClient.sendRPC(
-                                        Routing.generate(dividendEntityType + '_sync', {'_id': entity.id }),
-                                        'GET'
+                                        Routing.generate(dividendEntityType + '_sync', {'id': entity.id }),
+                                        'PUT'
                                     ).then((result) => {
                                         panelTable.setData(result);
 

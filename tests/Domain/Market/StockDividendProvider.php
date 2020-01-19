@@ -17,6 +17,12 @@ final class StockDividendProvider
         ?DateTime $paymentDate = null,
         ?DateTime $recordDate = null
     ): StockDividend {
-        return StockDividend::add($stock, $value, $exDate, $status, $paymentDate, $recordDate);
+        return (new StockDividend())
+            ->setStock($stock)
+            ->setValue($value)
+            ->setExDate($exDate)
+            ->setStatus($status)
+            ->setPaymentDate($paymentDate)
+            ->setRecordDate($recordDate);
     }
 }
