@@ -52,7 +52,6 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="stock_get", methods={"GET"}, options={"expose"=true}, requirements={"id":"\d+"})
      *
      * @param Entity\Stock $stock
      *

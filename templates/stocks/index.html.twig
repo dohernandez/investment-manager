@@ -205,6 +205,17 @@
 
                                         $button.attr("disabled", false);
                                         $button.find('i').removeClass('fa-spin');
+
+                                        // refresh the entity (stock)
+                                        InvestmentManagerClient.sendRPC(
+                                            Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_get', {'id': entity.id }),
+                                            'GET'
+                                        ).then((result) => {
+                                            console.log(result.item);
+                                            panelTable.replaceRecord(result.item, entity.id);
+                                        }).catch((errorsData) => {
+                                            console.log(errorsData);
+                                        });
                                     }).catch((errorsData) => {
                                         console.log(errorsData);
 

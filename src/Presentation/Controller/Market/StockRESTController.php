@@ -37,6 +37,19 @@ final class StockRESTController extends RESTController
     }
 
     /**
+     * @Route("/{id}", name="stock_get", methods={"GET"}, options={"expose"=true})
+     *
+     * @param string $id
+     * @param ProjectionStockRepositoryInterface $repo
+     *
+     * @return JsonResponse
+     */
+    public function one(string $id, ProjectionStockRepositoryInterface $repo): JsonResponse
+    {
+        return $this->createApiResponse($repo->find($id));
+    }
+
+    /**
      * @Route("/", name="stock_new", methods={"POST"}, options={"expose"=true})
      *
      * @param Request $request
@@ -139,7 +152,7 @@ final class StockRESTController extends RESTController
     }
 
     /**
-     * @Route("/quote", name="stock_yahoo_scraper", methods={"GET"}, options={"expose"=true})
+     * @Route("/scraper/quote", name="stock_yahoo_scraper", methods={"GET"}, options={"expose"=true})
      *
      * @param MessageBusInterface $bus
      * @param Request $request
@@ -164,7 +177,7 @@ final class StockRESTController extends RESTController
     }
 
     /**
-     * @Route("{id}/sync/dividends", name="stock_dividend_sync", methods={"PUT"}, options={"expose"=true})
+     * @Route("/{id}/sync/dividends", name="stock_dividend_sync", methods={"PUT"}, options={"expose"=true})
      *
      * @param string $id
      * @param MessageBusInterface $bus
@@ -183,7 +196,7 @@ final class StockRESTController extends RESTController
     }
 
     /**
-     * @Route("{id}/dividends", name="stock_dividend_list", methods={"GET"}, options={"expose"=true})
+     * @Route("/{id}/dividends", name="stock_dividend_list", methods={"GET"}, options={"expose"=true})
      *
      * @param string $id
      * @param ProjectionStockRepositoryInterface $stockRepository

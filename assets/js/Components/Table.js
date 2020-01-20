@@ -191,6 +191,8 @@ class Table {
         }
 
         this.records[recordIndex] = record;
+
+        this.refreshPagination();
     }
 
     removeRecord(id) {
