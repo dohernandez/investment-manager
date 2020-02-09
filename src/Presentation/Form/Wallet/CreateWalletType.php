@@ -2,7 +2,6 @@
 
 namespace App\Presentation\Form\Wallet;
 
-use App\Form\BrokerChoiceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -21,6 +20,9 @@ final class CreateWalletType extends AbstractType
             ])
             ->add('broker', BrokerChoiceType::class, [
                 'placeholder' => 'Choose a broker'
+            ])
+            ->add('account', AccountChoiceType::class, [
+                'placeholder' => 'Choose a account'
             ])
         ;
     }

@@ -2,6 +2,7 @@
 
 import SwalForm from './Components/SwalForm';
 import Select2BrokerTemplate from "./Components/Select2BrokerTemplate";
+import Select2AccountTemplate from "./Components/Select2AccountTemplate";
 import $ from 'jquery';
 
 import 'select2';
@@ -19,6 +20,7 @@ class WalletForm extends SwalForm {
         this.table = table;
 
         this.select2BrokerTemplate = new Select2BrokerTemplate();
+        this.select2AccountTemplate = new Select2AccountTemplate();
 
         eventBus.on("entity_created", this.onCreated.bind(this));
         eventBus.on("entity_updated", this.onUpdated.bind(this));
@@ -50,9 +52,9 @@ class WalletForm extends SwalForm {
             }
         }
 
-        let $autocomplete = $('.js-broker-autocomplete');
+        let $brokerAutocomplete = $('.js-broker-autocomplete');
 
-        $autocomplete.each((index, select) => {
+        $brokerAutocomplete.each((index, select) => {
             const url = $(select).data('autocomplete-url');
 
             $(select).select2({
@@ -84,11 +86,53 @@ class WalletForm extends SwalForm {
                     },
                     cache: true
                 },
-                placeholder: 'Search for an broker',
+                placeholder: 'Search for a broker',
                 escapeMarkup: (markup) => markup,
                 minimumInputLength: 1,
                 templateResult: this.select2BrokerTemplate.templateResult,
                 templateSelection: this.select2BrokerTemplate.templateSelection
+            });
+        });
+
+        let $accountAutocomplete = $('.js-account-autocomplete');
+
+        $accountAutocomplete.each((index, select) => {
+            const url = $(select).data('autocomplete-url');
+
+            $(select).select2({
+                dropdownParent: $wrapper,
+                ajax: {
+                    url,
+                    dataType: 'json',
+                    delay: 10,
+                    allowClear: true,
+                    data: (params) => {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: (data, params)=> {
+                        // parse the results into the format expected by Select2
+                        // since we are using custom formatting functions we do not need to
+                        // alter the remote JSON data, except to indicate that infinite
+                        // scrolling can be used
+                        params.page = params.page || 1;
+
+                        return {
+                            results: data.items,
+                            pagination: {
+                                more: (params.page * 30) < data.total_count
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                placeholder: 'Search for an account',
+                escapeMarkup: (markup) => markup,
+                minimumInputLength: 1,
+                templateResult: this.select2AccountTemplate.templateResult,
+                templateSelection: this.select2AccountTemplate.templateSelection
             });
         });
     }
