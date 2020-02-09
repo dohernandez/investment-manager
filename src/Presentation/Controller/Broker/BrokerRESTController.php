@@ -23,12 +23,21 @@ final class BrokerRESTController extends RESTController
      * @Route("/", name="broker_list", methods={"GET"}, options={"expose"=true})
      *
      * @param ProjectionBrokerRepositoryInterface $repo
+     * @param Request $request
      *
      * @return JsonResponse
      */
-    public function all(ProjectionBrokerRepositoryInterface $repo): JsonResponse
+    public function all(ProjectionBrokerRepositoryInterface $repo, Request $request): JsonResponse
     {
-        return $this->createApiResponse($repo->findAll());
+        $query = $request->query->get('q');
+
+        if ($query !== null) {
+            $brokers = $repo->findAllMatching($query);
+        } else {
+            $brokers = $repo->findAll();
+        }
+
+        return $this->createApiResponse($brokers);
     }
 
     /**

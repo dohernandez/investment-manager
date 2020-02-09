@@ -16,8 +16,11 @@ interface ProjectionBrokerRepositoryInterface
     public function find($id);
 
     /**
-     * @return Broker[] The objects.
+     * @param string $query
+     * @param int $limit
+     *
+     * @return Broker[]
      */
-    public function findAll();
+    public function findAllMatching(string $query, int $limit = 5);
 }
 

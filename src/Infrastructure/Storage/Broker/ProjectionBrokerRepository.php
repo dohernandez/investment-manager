@@ -19,4 +19,19 @@ final class ProjectionBrokerRepository extends ServiceEntityRepository implement
     {
         parent::__construct($registry, Broker::class);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllMatching(string $query, int $limit = 5)
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.name LIKE :name')
+            ->setParameter('name', '%'.$query.'%')
+            ->orderBy('b.name', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }
