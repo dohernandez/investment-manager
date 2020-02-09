@@ -3,78 +3,79 @@
 {% block stylesheets %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-css.html.twig' %}
+    {% include 'Components/Panel/panel-table-css.html.twig' %}
 
     <link rel="stylesheet" href="{{ asset('build/wallet_form.css') }}">
 {% endblock %}
 
 {% block page_content %}
-    {% include 'Components/ui/crud-manage-table.html.twig' %}
+    {% include 'Components/Panel/panel-table.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
 
-    {% include 'Components/ui/crud-manage-scripts.html.twig' %}
-    {% include 'Components/ui/crud-manage-table-scripts.html.twig' %}
+    {% include 'Components/Panel/panel-table-scripts.html.twig' %}
 
     <script src="{{ asset('build/wallet_form.js') }}"></script>
 
     <script>
         $(document).ready(function() {
-            let swalFormOptionsText = {
-                create: {
-                    confirmButtonText: '{{ 'Create'|trans }}',
-                    titleText: '{{ 'Create new'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was created successfully.'|trans }}'
-                },
-                update: {
-                    confirmButtonText: '{{ 'Update'|trans }}',
-                    titleText: '{{ 'Update'|trans }} {{ entity_name|trans|title }}',
-                    toastTitleText: '{{ entity_name|trans|title }} {{ 'was updated successfully.'|trans }}'
-                },
-            };
-
             // Create page instance
-            let $crudManagerRowBox = $('.{{ js_crud_manage_class|default('js-crud-manage-row-box') }}');
+            let $panelBox = $('.{{ js_panel_class|default('js-panel-box') }}');
 
-            let contentWrapper = $crudManagerRowBox.closest('section');
-            let entityType = $crudManagerRowBox.data('entity-type');
+            let contentWrapper = $panelBox.closest('section');
+            let entityType = $panelBox.data('entity-type');
 
-            // Create CRUDManage instance @see public/assets/js/CRUDManage.js
-            let crudManager = new CRUDManage({
+            // Create panelTable instance @see assets/js/PanelTable.js
+            let panelTable = new PanelTable({
                 entityType: entityType,
                 wrapper: contentWrapper,
-                swalFormOptions: window.swalFormOptions,
-                swalConfirmOptions: window.swalConfirmOptions,
-                toastOptions: window.toastOptions,
                 pagination: true,
                 selectors: {
-                    createButtonTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-create-button-template',
-                    searchTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-search-template',
-                    showPerPageTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
-                    rowTemplate: '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
-                },
+                    searchTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-search-template',
+                    showPerPageTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template',
+                    rowTemplate: '#js-table-{{ entity_name|lower|replace({' ': '_'}) }}-row-template',
+                }
             });
 
             const form = new WalletForm(
-                swalFormOptionsText,
-                '#js-manager-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
+                window.swalOptions,
+                panelTable,
+                '#js-panel-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
             );
 
-            crudManager.withForm(form);
-            crudManager.withCreateButton();
-            // add button edit
-            crudManager.withEditButton();
-            // add button delete
-            crudManager.withDeleteButton();
-            // add button extra
-            crudManager.withExtraButton();
+            const createButton = new CreateButton(
+                '{{ 'Create new'|trans }} {{ entity_name|trans|lower }}',
+                form,
+                function () {
+                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_new', {});
+                },
+                '.js-entity-create',
+                '.js-panel-header-button-container'
+            );
+            panelTable.addButton(createButton);
 
-            crudManager.render();
+            const editRowButton = new EditRowButton(
+                form,
+                function (id) {
+                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_edit', {id});
+                },
+                '.js-entity-edit'
+            );
+            panelTable.addRowButton(editRowButton);
 
+            const deleteRowButton = new DeleteRowButton(
+                form,
+                function (id) {
+                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_delete', {id});
+                },
+                '.js-entity-delete'
+            );
+            panelTable.addRowButton(deleteRowButton);
 
-
+            panelTable.render();
+            panelTable.loadRows();
 
             // Delegate selector for edit stock dividend
             $('.js-crud-manage-row-box').closest('section').on(

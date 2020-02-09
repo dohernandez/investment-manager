@@ -38,11 +38,13 @@ final class Broker
      */
     private $currency;
 
-    /**
-     * @return Currency
-     */
     public function getCurrency(): Currency
     {
         return $this->currency;
+    }
+
+    public function getTitle(): string
+    {
+        return \sprintf('%s (%s)', $this->name, $this->currency);
     }
 }

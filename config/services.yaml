@@ -123,6 +123,9 @@ services:
     App\Application\Market\Service\StockDividendsServiceInterface: '@App\Application\Market\Service\StockDividendsService'
     App\Application\Market\Service\StockDividendsService: ~
 
+    App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ProjectionWalletRepository'
+    App\Application\Wallet\Repository\BrokerRepositoryInterface: '@App\Infrastructure\Storage\Wallet\BrokerRepository'
+
     # Handlers
     App\Application\Market\Handler\SyncStockDividendsHandler:
         class: App\Application\Market\Handler\SyncStockDividendsHandler
@@ -177,7 +180,6 @@ services:
     App\Infrastructure\Storage\Broker\BrokerRepository: ~
     App\Infrastructure\Storage\Broker\ProjectionBrokerRepository: ~
 
-
     App\Infrastructure\Storage\Market\ProjectionStockInfoRepository: ~
     App\Infrastructure\Storage\Market\ProjectionStockMarketRepository: ~
     App\Infrastructure\Storage\Market\ProjectionStockRepository: ~
@@ -186,5 +188,8 @@ services:
     App\Infrastructure\Storage\Market\StockRepository: ~
     App\Infrastructure\Storage\Market\StockDividendRepository: ~
     App\Infrastructure\Storage\Market\HouseKeeperStockDividendRepository: ~
+
+    App\Infrastructure\Storage\Wallet\ProjectionWalletRepository: ~
+    App\Infrastructure\Storage\Wallet\BrokerRepository: ~
 
     ##### INFRASTRUCTURE LAYER END

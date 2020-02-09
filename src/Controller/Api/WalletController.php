@@ -19,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class WalletController extends BaseController
 {
     /**
-     * @Route("/", name="wallet_list", methods={"GET"}, options={"expose"=true})
      *
      * @param WalletRepository $repo
      *
@@ -44,7 +43,6 @@ class WalletController extends BaseController
     }
 
     /**
-     * @Route("/", name="wallet_new", methods={"POST"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request
@@ -115,7 +113,6 @@ class WalletController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="wallet_edit", methods={"PUT"}, options={"expose"=true})
      *
      * @param Entity\Wallet $wallet
      * @param EntityManagerInterface $em
@@ -131,7 +128,6 @@ class WalletController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="wallet_delete", methods={"DELETE"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Entity\Wallet $wallet
@@ -151,7 +147,6 @@ class WalletController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="wallet_get", methods={"GET"}, options={"expose"=true})
      *
      * @param Entity\Wallet $wallet
      *
@@ -171,7 +166,6 @@ class WalletController extends BaseController
     }
 
     /**
-     * @Route("/{id}/dividend", name="wallet_dividend", methods={"GET"}, options={"expose"=true})
      *
      * @param Entity\Wallet $wallet
      *
