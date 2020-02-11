@@ -3,21 +3,17 @@
 namespace App\Presentation\Controller\Wallet;
 
 use App\Application\Market\Command\AddStockWithPrice;
-use App\Application\Market\Command\LoadYahooQuote;
-use App\Application\Market\Command\SyncStockDividends;
 use App\Application\Market\Command\UpdateStockWithPrice;
 use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
-use App\Application\Market\Repository\StockDividendRepositoryInterface;
+use App\Application\Wallet\Command\CreateWallet;
 use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
 use App\Presentation\Controller\RESTController;
-use App\Presentation\Form\Market\CreateStockType;
 use App\Presentation\Form\Market\EditStockType;
-use App\Presentation\Form\Market\LoadYahooQuoteType;
+use App\Presentation\Form\Wallet\CreateWalletType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -62,31 +58,17 @@ final class WalletRESTController extends RESTController
         Request $request,
         MessageBusInterface $bus
     ): Response {
-        $form = $this->createForm(CreateStockType::class);
+        $form = $this->createForm(CreateWalletType::class);
 
         return $this->dispatch(
             $form,
             $request,
             $bus,
             function ($data) {
-                return new AddStockWithPrice(
+                return new CreateWallet(
                     $data['name'],
-                    $data['symbol'],
-                    $data['yahooSymbol'],
-                    $data['market'],
-                    $data['value'],
-                    $data['description'],
-                    $data['type'],
-                    $data['sector'],
-                    $data['industry'],
-                    $data['lastChangePrice'],
-                    $data['preClose'],
-                    $data['open'],
-                    $data['peRatio'],
-                    $data['dayLow'],
-                    $data['dayHigh'],
-                    $data['week52Low'],
-                    $data['week52High']
+                    $data['broker'],
+                    $data['account']
                 );
             },
             Response::HTTP_CREATED

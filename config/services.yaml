@@ -125,6 +125,8 @@ services:
 
     App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ProjectionWalletRepository'
     App\Application\Wallet\Repository\BrokerRepositoryInterface: '@App\Infrastructure\Storage\Wallet\BrokerRepository'
+    App\Application\Wallet\Repository\WalletRepositoryInterface: '@App\Infrastructure\Storage\Wallet\WalletRepository'
+    App\Application\Wallet\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\Wallet\AccountRepository'
 
     # Handlers
     App\Application\Market\Handler\SyncStockDividendsHandler:
@@ -191,5 +193,7 @@ services:
 
     App\Infrastructure\Storage\Wallet\ProjectionWalletRepository: ~
     App\Infrastructure\Storage\Wallet\BrokerRepository: ~
+    App\Infrastructure\Storage\Wallet\WalletRepository: ~
+    App\Infrastructure\Storage\Wallet\AccountRepository: ~
 
     ##### INFRASTRUCTURE LAYER END

@@ -81,6 +81,11 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->updatedAt;
     }
 
+    public function getTitle(): string
+    {
+        return \sprintf('%s (%s)', $this->name, $this->slug);
+    }
+
     public static function create(string $name, Broker $broker, Account $account, ?string $slug = null)
     {
         $id = UUID\Generator::generate();

@@ -45,6 +45,6 @@ final class Broker
 
     public function getTitle(): string
     {
-        return \sprintf('%s (%s)', $this->name, $this->currency);
+        return \sprintf('%s (%s)', $this->name, $this->currency->getCurrencyCode());
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Presentation\Normalizer\Wallet;
 
-use App\Domain\Wallet\Broker;
+use App\Domain\Wallet\Wallet;
 use JMS\Serializer\ArrayTransformerInterface;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigatorInterface;
@@ -13,9 +13,8 @@ use JMS\Serializer\JsonSerializationVisitor;
  * Handler allow you to change the serialization, or deserialization process for a single type/format combination.
  *
  * @see http://jmsyst.com/libs/serializer/master/handlers
- *
  */
-final class BrokerNormalizer implements SubscribingHandlerInterface
+final class WalletNormalizer implements SubscribingHandlerInterface
 {
     /**
      * @var ArrayTransformerInterface
@@ -36,19 +35,20 @@ final class BrokerNormalizer implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
                 'format'    => 'json',
-                'type'      => Broker::class,
-                'method'    => 'serializeBrokerToJson',
+                'type'      => Wallet::class,
+                'method'    => 'serializeWalletToJson',
             ],
         ];
     }
 
-    public function serializeBrokerToJson(JsonSerializationVisitor $visitor, Broker $broker, array $type, Context $context)
+    public function serializeWalletToJson(JsonSerializationVisitor $visitor, Wallet $wallet, array $type, Context $context)
     {
         return [
-            'id' => $broker->getId(),
-            'name' => $broker->getName(),
-            'currency' => $this->serializer->toArray($broker->getCurrency()),
-            'title' => $broker->getTitle(),
+            'id' => $wallet->getId(),
+            'name' => $wallet->getName(),
+            'broker' => $this->serializer->toArray($wallet->getBroker()),
+            'metadata' => $this->serializer->toArray($wallet->getMetadata()),
+            'title' => $wallet->getTitle(),
         ];
     }
 }

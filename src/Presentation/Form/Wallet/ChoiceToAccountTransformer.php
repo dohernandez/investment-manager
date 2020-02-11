@@ -2,7 +2,7 @@
 
 namespace App\Presentation\Form\Wallet;
 
-use App\Application\Account\Repository\ProjectionAccountRepositoryInterface;
+use App\Application\Wallet\Repository\AccountRepositoryInterface;
 use App\Domain\Wallet\Account;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
@@ -10,13 +10,13 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 class ChoiceToAccountTransformer implements DataTransformerInterface
 {
     /**
-     * @var ProjectionAccountRepositoryInterface
+     * @var AccountRepositoryInterface
      */
-    private $projectionAccountRepository;
+    private $accountRepository;
 
-    public function __construct(ProjectionAccountRepositoryInterface $projectionAccountRepository)
+    public function __construct(AccountRepositoryInterface $accountRepository)
     {
-        $this->projectionAccountRepository = $projectionAccountRepository;
+        $this->accountRepository = $accountRepository;
     }
 
     /**
@@ -45,7 +45,7 @@ class ChoiceToAccountTransformer implements DataTransformerInterface
             return null;
         }
 
-        $account = $this->projectionAccountRepository->find($value);
+        $account = $this->accountRepository->find($value);
 
         if (!$account) {
             throw new TransformationFailedException(

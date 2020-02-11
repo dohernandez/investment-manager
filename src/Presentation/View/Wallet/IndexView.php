@@ -33,24 +33,28 @@ final class IndexView extends AbstractView
                 'name' => 'name',
             ],
             [
-                'name'   => 'invested',
+                'name'   => 'metadata.invested',
+                'label'   => 'Invested',
                 'render' => 'money',
             ],
             [
-                'name'   => 'capital',
+                'name'   => 'metadata.capital',
+                'label'   => 'Capital',
                 'render' => 'money',
             ],
             [
-                'name'   => 'funds',
+                'name'   => 'metadata.funds',
+                'label'   => 'Funds',
                 'render' => 'money',
             ],
             [
-                'name'   => 'pBenefits',
+                'name'   => 'metadata.pBenefits',
                 'label'  => 'Benefits',
                 'render' => 'percentage',
             ],
             [
                 'name'   => 'broker',
+                'label'   => 'Broker',
                 'render' => 'broker',
             ],
         ];

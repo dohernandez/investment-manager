@@ -2,7 +2,7 @@
 
 namespace App\Presentation\Form\Wallet;
 
-use App\Application\Account\Repository\ProjectionAccountRepositoryInterface;
+use App\Application\Wallet\Repository\AccountRepositoryInterface;
 use App\Domain\Wallet\Account;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataTransformerInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\Routing\RouterInterface;
 class AccountChoiceType extends AbstractType implements DataTransformerInterface
 {
     /**
-     * @var ProjectionAccountRepositoryInterface
+     * @var AccountRepositoryInterface
      */
     private $projectionAccountRepository;
 
@@ -26,7 +26,7 @@ class AccountChoiceType extends AbstractType implements DataTransformerInterface
     private $resolver;
 
     public function __construct(
-        ProjectionAccountRepositoryInterface $projectionAccountRepository,
+        AccountRepositoryInterface $projectionAccountRepository,
         RouterInterface $resolver
     ) {
         $this->projectionAccountRepository = $projectionAccountRepository;
