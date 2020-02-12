@@ -117,9 +117,16 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 
     public function increaseInvestment(Money $invested)
     {
-//        $this->recordChange(
-//            new WalletInvestmentIncreased($this->id, $invested)
-//        );
+        $book = $this->getBook();
+
+        $this->recordChange(
+            new WalletInvestmentIncreased(
+                $this->id,
+                $book->getInvested()->increase($invested),
+                $book->getCapital()->increase($invested),
+                $book->getFunds()->increase($invested)
+            )
+        );
 
         return $this;
     }
@@ -146,10 +153,12 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 break;
 
             case WalletInvestmentIncreased::class:
-                /** @var WalletCreated $event */
+                /** @var WalletInvestmentIncreased $event */
                 $event = $changed->getPayload();
 
-//                $this->book = $this->book->increaseInvestment($invested);
+                $this->book->setInvested($event->getInvested());
+                $this->book->setCapital($event->getCapital());
+                $this->book->setFunds($event->getFunds());
         }
     }
 }

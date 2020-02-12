@@ -48,7 +48,7 @@ abstract class Repository
      */
     protected function load(string $class, string $id)
     {
-        $changes = $this->eventSource->findEvents($id, Stock::class);
+        $changes = $this->eventSource->findEvents($id, $class);
         $this->overloadDependencies($changes);
 
         $object = (new $class($id))->replay($changes);

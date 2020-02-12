@@ -3,6 +3,7 @@
 namespace App\Domain\Wallet\Event;
 
 use App\Domain\Wallet\WalletBook;
+use App\Infrastructure\Money\Money;
 
 class WalletInvestmentIncreased
 {
@@ -12,14 +13,26 @@ class WalletInvestmentIncreased
     private $id;
 
     /**
-     * @var WalletBook
+     * @var Money
      */
-    private $metadata;
+    private $funds;
 
-    public function __construct(string $id, WalletBook $metadata)
+    /**
+     * @var Money
+     */
+    private $invested;
+
+    /**
+     * @var Money
+     */
+    private $capital;
+
+    public function __construct(string $id, Money $invested, Money $capital, Money $funds)
     {
         $this->id = $id;
-        $this->metadata = $metadata;
+        $this->funds = $funds;
+        $this->invested = $invested;
+        $this->capital = $capital;
     }
 
     public function getId(): string
@@ -27,8 +40,18 @@ class WalletInvestmentIncreased
         return $this->id;
     }
 
-    public function getMetadata(): WalletBook
+    public function getFunds(): Money
     {
-        return $this->metadata;
+        return $this->funds;
+    }
+
+    public function getInvested(): Money
+    {
+        return $this->invested;
+    }
+
+    public function getCapital(): Money
+    {
+        return $this->capital;
     }
 }

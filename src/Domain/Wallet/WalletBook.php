@@ -173,19 +173,6 @@ class WalletBook
         return $this;
     }
 
-    public function increaseInvestment(?Money $invested): self
-    {
-        if (!$invested) {
-            return $this;
-        }
-
-        $this->invested = $this->invested->increase($invested);
-        $this->funds = $this->funds->increase($invested);
-        $this->capital = $this->capital->increase($invested);
-
-        return $this;
-    }
-
     public function getId(): int
     {
         return $this->id;
