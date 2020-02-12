@@ -47,7 +47,7 @@ final class WalletNormalizer implements SubscribingHandlerInterface
             'id' => $wallet->getId(),
             'name' => $wallet->getName(),
             'broker' => $this->serializer->toArray($wallet->getBroker()),
-            'metadata' => $this->serializer->toArray($wallet->getMetadata()),
+            'metadata' => $this->serializer->toArray($wallet->getBook()),
             'title' => $wallet->getTitle(),
         ];
     }

@@ -31,7 +31,8 @@ final class AccountRepository implements AccountRepositoryInterface
         return new Account(
             $projectionAccount->getId(),
             $projectionAccount->getName(),
-            $projectionAccount->getAccountNo()
+            $projectionAccount->getAccountNo(),
+            $projectionAccount->getBalance()
         );
     }
 }

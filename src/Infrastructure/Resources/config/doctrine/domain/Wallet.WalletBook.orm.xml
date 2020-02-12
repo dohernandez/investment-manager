@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Domain\Wallet\WalletBook" table="projection_wallet_book">
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="invested" column="invested" type="object" />
+        <field name="capital" column="capital" type="object" />
+        <field name="funds" column="funds" type="object" />
+        <field name="benefits" column="benefits" type="object" />
+        <field name="currency" column="currency" type="object" />
+
+    </entity>
+
+</doctrine-mapping>

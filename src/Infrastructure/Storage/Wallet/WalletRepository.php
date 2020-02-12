@@ -4,45 +4,26 @@ namespace App\Infrastructure\Storage\Wallet;
 
 use App\Application\Wallet\Repository\WalletRepositoryInterface;
 use App\Domain\Wallet\Wallet;
-use App\Infrastructure\EventSource\EventSourceRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Domain\Wallet\WalletBook;
+use App\Infrastructure\Storage\Repository;
 
-final class WalletRepository implements WalletRepositoryInterface
+final class WalletRepository extends Repository implements WalletRepositoryInterface
 {
     /**
-     * @var EntityManagerInterface
+     * @inherent
      */
-    private $em;
-
-    /**
-     * @var EventSourceRepository
-     */
-    private $eventSource;
-
-    public function __construct(EntityManagerInterface $em, EventSourceRepository $eventSource)
-    {
-        $this->em = $em;
-        $this->eventSource = $eventSource;
-    }
+    protected $dependencies = [
+        'book' => WalletBook::class,
+    ];
 
     public function find(string $id): Wallet
     {
-        $changes = $this->eventSource->findEvents($id, Wallet::class);
-
-        $wallet = (new Wallet($id))->replay($changes);
-
-        /** @var Wallet $wallet */
-        $wallet = $this->em->merge($wallet);
-
-        return $wallet;
+        return $this->load(Wallet::class, $id);
     }
 
     public function save(Wallet $wallet)
     {
-        $this->eventSource->saveEvents($wallet->getChanges());
-
-        $this->em->persist($wallet);
-        $this->em->flush();
+        $this->store($wallet);
     }
 
     public function delete(Wallet $wallet)

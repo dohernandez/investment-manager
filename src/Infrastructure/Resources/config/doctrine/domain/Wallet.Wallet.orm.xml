@@ -19,13 +19,19 @@
         </field>
         <field name="broker" column="broker" type="object" />
         <field name="account" column="account" type="object" />
-        <field name="metadata" column="metadata" type="object" />
+        <one-to-one field="book" target-entity="App\Domain\Wallet\WalletBook">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove />
+            </cascade>
+        </one-to-one>
         <field name="createdAt" column="created_at" type="datetime">
             <gedmo:timestampable on="create"/>
         </field>
         <field name="updatedAt" column="updated_at" type="datetime">
             <gedmo:timestampable on="update"/>
         </field>
+        <field name="accountId" column="account_id" type="string" />
     </entity>
 
 </doctrine-mapping>

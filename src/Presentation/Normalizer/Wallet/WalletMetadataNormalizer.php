@@ -2,7 +2,8 @@
 
 namespace App\Presentation\Normalizer\Wallet;
 
-use App\Domain\Wallet\WalletMetadata;
+use App\Domain\Wallet\WalletBook;
+use JMS\Serializer\ArrayTransformerInterface;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
@@ -17,6 +18,16 @@ use JMS\Serializer\JsonSerializationVisitor;
 final class WalletMetadataNormalizer implements SubscribingHandlerInterface
 {
     /**
+     * @var ArrayTransformerInterface
+     */
+    private $serializer;
+
+    public function __construct(ArrayTransformerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
+    /**
      * @inheritDoc
      */
     public static function getSubscribingMethods()
@@ -25,7 +36,7 @@ final class WalletMetadataNormalizer implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
                 'format'    => 'json',
-                'type'      => WalletMetadata::class,
+                'type'      => WalletBook::class,
                 'method'    => 'serializeWalletMetadataToJson',
             ],
         ];
@@ -33,7 +44,7 @@ final class WalletMetadataNormalizer implements SubscribingHandlerInterface
 
     public function serializeWalletMetadataToJson(
         JsonSerializationVisitor $visitor,
-        WalletMetadata $metadata,
+        WalletBook $metadata,
         array $type,
         Context $context
     ) {
@@ -45,14 +56,14 @@ final class WalletMetadataNormalizer implements SubscribingHandlerInterface
         }
 
         return [
-            'invested' => $metadata->getInvested(),
-            'capital' => $metadata->getCapital(),
-            'funds' => $metadata->getFunds(),
+            'invested' => $this->serializer->toArray($metadata->getInvested()),
+            'capital' => $this->serializer->toArray($metadata->getCapital()),
+            'funds' => $this->serializer->toArray($metadata->getFunds()),
             'dividend' => $metadata->getDividend(),
             'commissions' => $metadata->getCommissions(),
             'connection' => $metadata->getConnection(),
             'interest' => $metadata->getInterest(),
-            'benefits' => $metadata->getBenefits(),
+            'benefits' => $this->serializer->toArray($metadata->getBenefits()),
             'pBenefits' => $pBenefits,
         ];
     }

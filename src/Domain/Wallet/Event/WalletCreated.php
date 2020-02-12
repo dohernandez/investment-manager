@@ -4,7 +4,7 @@ namespace App\Domain\Wallet\Event;
 
 use App\Domain\Wallet\Account;
 use App\Domain\Wallet\Broker;
-use App\Domain\Wallet\WalletMetadata;
+use App\Domain\Wallet\WalletBook;
 
 final class WalletCreated
 {
@@ -24,9 +24,9 @@ final class WalletCreated
     private $broker;
 
     /**
-     * @var WalletMetadata
+     * @var WalletBook
      */
-    private $metadata;
+    private $book;
 
     /**
      * @var string|null
@@ -43,14 +43,14 @@ final class WalletCreated
         string $name,
         Broker $broker,
         Account $account,
-        WalletMetadata $metadata,
+        WalletBook $book,
         ?string $slug = null
     ) {
         $this->id = $id;
         $this->name = $name;
         $this->broker = $broker;
         $this->account = $account;
-        $this->metadata = $metadata;
+        $this->book = $book;
         $this->slug = $slug;
     }
 
@@ -69,9 +69,9 @@ final class WalletCreated
         return $this->broker;
     }
 
-    public function getMetadata(): WalletMetadata
+    public function getBook(): WalletBook
     {
-        return $this->metadata;
+        return $this->book;
     }
 
     public function getSlug(): ?string

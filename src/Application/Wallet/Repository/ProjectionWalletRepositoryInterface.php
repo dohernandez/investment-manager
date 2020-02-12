@@ -21,4 +21,6 @@ interface ProjectionWalletRepositoryInterface
      * @return Wallet[] The objects.
      */
     public function findAll();
+
+    public function findByAccount(string $accountId): ?Wallet;
 }

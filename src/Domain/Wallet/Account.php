@@ -6,11 +6,12 @@ use App\Infrastructure\Money\Money;
 
 final class Account
 {
-    public function __construct(string $id, string $name, string $accountNo)
+    public function __construct(string $id, string $name, string $accountNo, ?Money $balance = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->accountNo = $accountNo;
+        $this->balance = $balance;
     }
 
     /** @var string */
@@ -44,5 +45,15 @@ final class Account
     public function getTitle()
     {
         return sprintf('%s - %s', $this->getName(), $this->getAccountNo());
+    }
+
+    /**
+     * @var Money|null
+     */
+    private $balance;
+
+    public function getBalance(): ?Money
+    {
+        return $this->balance;
     }
 }

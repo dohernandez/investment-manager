@@ -3,9 +3,11 @@
 namespace App\Domain\Wallet;
 
 use App\Domain\Wallet\Event\WalletCreated;
+use App\Domain\Wallet\Event\WalletInvestmentIncreased;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
+use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
 
@@ -52,13 +54,18 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
-     * @var WalletMetadata
+     * @var string
      */
-    private $metadata;
+    private $accountId;
 
-    public function getMetadata(): WalletMetadata
+    /**
+     * @var WalletBook
+     */
+    private $book;
+
+    public function getBook(): WalletBook
     {
-        return $this->metadata;
+        return $this->book;
     }
 
     /**
@@ -92,19 +99,29 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 
         $self = new static($id);
 
-        $metadata = new WalletMetadata();
+        $book = WalletBook::createWithInitialBalance($broker->getCurrency(), $account->getBalance());
+
         $self->recordChange(
             new WalletCreated(
                 $id,
                 $name,
                 $broker,
                 $account,
-                $metadata,
+                $book,
                 $slug
             )
         );
 
         return $self;
+    }
+
+    public function increaseInvestment(Money $invested)
+    {
+//        $this->recordChange(
+//            new WalletInvestmentIncreased($this->id, $invested)
+//        );
+
+        return $this;
     }
 
     protected function apply(Changed $changed)
@@ -120,11 +137,19 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 
                 $this->broker = $event->getBroker();
                 $this->account = $event->getAccount();
-                $this->metadata = $event->getMetadata();
+                $this->book = $event->getBook();
                 $this->createdAt = $changed->getCreatedAt();
                 $this->updatedAt = $changed->getCreatedAt();
 
+                $this->accountId = $this->account->getId();
+
                 break;
+
+            case WalletInvestmentIncreased::class:
+                /** @var WalletCreated $event */
+                $event = $changed->getPayload();
+
+//                $this->book = $this->book->increaseInvestment($invested);
         }
     }
 }
