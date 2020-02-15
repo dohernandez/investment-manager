@@ -2,10 +2,10 @@
 
 namespace App\Presentation\Controller\Wallet;
 
-use App\Application\Market\Command\AddStockWithPrice;
 use App\Application\Market\Command\UpdateStockWithPrice;
 use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
 use App\Application\Wallet\Command\CreateWallet;
+use App\Application\Wallet\Command\GetWalletStatistics;
 use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
 use App\Presentation\Controller\RESTController;
 use App\Presentation\Form\Market\EditStockType;
@@ -132,5 +132,24 @@ final class WalletRESTController extends RESTController
 //        $bus->dispatch(new RemoveStock($id));
 
         return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @Route("/{id}/statistics", name="wallet_statistics", methods={"GET"}, options={"expose"=true})
+     *
+     * @param string $id
+     * @param MessageBusInterface $bus
+     *
+     * @return Response
+     */
+    public function statistics(string $id, MessageBusInterface $bus): Response
+    {
+        if ($id == '' || $id == null) {
+            return $this->createApiErrorResponse('Wallet not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $result = $this->handle(new GetWalletStatistics($id), $bus);
+
+        return $this->createApiResponse($result);
     }
 }

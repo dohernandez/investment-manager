@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block page_title %}{{ 'Wallets'|trans|title }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {% include 'Components/Panel/panel-table-css.html.twig' %}
+
+    <link rel="stylesheet" href="{{ asset('build/wallet_dashboard.css') }}">
+{% endblock %}
+
+{% block page_content %}
+
+    {% include 'wallets/partial/head-dashboard-2.html.twig' %}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% include 'Components/Panel/panel-table-scripts.html.twig' %}
+
+    <script type="text/javascript"  src="{{ asset('build/wallet_dashboard_2.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            const eventBus = window.eventBus;
+
+            let panel = new WalletDashboard(
+                    "{{ wallet_id }}",
+            );
+
+            panel.render();
+            panel.load();
+        });
+    </script>
+
+{% endblock %}

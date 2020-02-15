@@ -162,11 +162,25 @@ abstract class RESTController extends AbstractController
         }
 
         $data = $form->getData();
-        $envelope = $bus->dispatch($message($data));
+
+        $result = $this->handle($message($data), $bus);
+
+        return $this->createApiResponse($result, $statusCode);
+    }
+
+    /**
+     * @param mixed $command
+     * @param MessageBusInterface $bus
+     *
+     * @return mixed
+     */
+    protected function handle($command, MessageBusInterface $bus)
+    {
+        $envelope = $bus->dispatch($command);
 
         // get the value that was returned by the last message handler
         $handledStamp = $envelope->last(HandledStamp::class);
 
-        return $this->createApiResponse($handledStamp->getResult(), $statusCode);
+        return $handledStamp->getResult();
     }
 }

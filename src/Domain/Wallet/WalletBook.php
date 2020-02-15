@@ -8,6 +8,16 @@ use App\Infrastructure\Money\Money;
 class WalletBook
 {
     /**
+     * @var int
+     */
+    private $id;
+
+    /**
+     * @var Currency
+     */
+    private $currency;
+
+    /**
      * @var Money|null
      */
     private $invested;
@@ -48,14 +58,9 @@ class WalletBook
     private $benefits;
 
     /**
-     * @var int
+     * @var float|null
      */
-    private $id;
-
-    /**
-     * @var Currency
-     */
-    private $currency;
+    private $percentageBenefits;
 
     public function __construct(?int $id = null)
     {
@@ -69,12 +74,29 @@ class WalletBook
         $self->currency = $currency;
 
         $self->invested = $balance ?? new Money($currency);
-        $self->capital = $balance ?? new Money($currency);
         $self->funds = $balance ?? new Money($currency);
 
+        $self->capital = new Money($currency);
         $self->benefits = new Money($currency);
 
         return $self;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getCurrency(): Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(Currency $currency): self
+    {
+        $this->currency = $currency;
+
+        return $this;
     }
 
     public function getInvested(): ?Money
@@ -173,19 +195,14 @@ class WalletBook
         return $this;
     }
 
-    public function getId(): int
+    public function getPercentageBenefits(): ?float
     {
-        return $this->id;
+        return $this->percentageBenefits;
     }
 
-    public function getCurrency(): Currency
+    public function setPercentageBenefits(?float $percentageBenefits): self
     {
-        return $this->currency;
-    }
-
-    public function setCurrency(Currency $currency): self
-    {
-        $this->currency = $currency;
+        $this->percentageBenefits = $percentageBenefits;
 
         return $this;
     }
