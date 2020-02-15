@@ -51,4 +51,14 @@ final class Stock
     {
         return $this->name;
     }
+
+    public function getTitle(): string
+    {
+        return sprintf(
+            '%s (%s:%s)',
+            $this->getName(),
+            $this->getSymbol(),
+            $this->getMarket()->getSymbol()
+        );
+    }
 }

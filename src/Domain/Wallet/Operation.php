@@ -17,6 +17,15 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
     public const TYPE_INTEREST = 'interest';
     public const TYPE_SPLIT_REVERSE = 'split/reverse';
 
+    public const TYPES = [
+        self::TYPE_BUY,
+        self::TYPE_SELL,
+        self::TYPE_CONNECTIVITY,
+        self::TYPE_DIVIDEND,
+        self::TYPE_INTEREST,
+        self::TYPE_SPLIT_REVERSE,
+    ];
+
     /**
      * @var Stock
      */
