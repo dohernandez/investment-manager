@@ -33,7 +33,7 @@ class ChoiceToBrokerTransformer implements DataTransformerInterface
             throw new \LogicException('The BrokerChoiceType can only be used with Broker objects');
         }
 
-        return (string)$value;
+        return $value->getTitle();
     }
 
     /**

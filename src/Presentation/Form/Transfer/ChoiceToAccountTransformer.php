@@ -33,7 +33,7 @@ class ChoiceToAccountTransformer implements DataTransformerInterface
             throw new \LogicException('The AccountChoiceType can only be used with Account objects');
         }
 
-        return (string)$value;
+        return $value->getTitle();
     }
 
     /**

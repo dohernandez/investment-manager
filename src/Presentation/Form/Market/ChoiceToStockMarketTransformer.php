@@ -33,7 +33,7 @@ class ChoiceToStockMarketTransformer implements DataTransformerInterface
             throw new \LogicException('The StockMarketChoiceType can only be used with StockMarket objects');
         }
 
-        return (string)$value;
+        return $value->getTitle();
     }
 
     /**

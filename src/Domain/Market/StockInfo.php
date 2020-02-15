@@ -35,6 +35,11 @@ class StockInfo extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->type;
     }
 
+    public function getTitle(): string
+    {
+        return $this->name;
+    }
+
     public static function add(string $name, string $type): self
     {
         $id = UUID\Generator::generate();

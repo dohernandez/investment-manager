@@ -48,7 +48,7 @@ class ChoiceToStockInfoTransformer implements DataTransformerInterface
             throw new \LogicException('The StockInfoChoiceType can only be used with StockInfo objects');
         }
 
-        return (string)$value;
+        return $value->getTitle();
     }
 
     /**

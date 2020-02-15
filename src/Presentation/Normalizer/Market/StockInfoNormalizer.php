@@ -37,7 +37,7 @@ final class StockInfoNormalizer implements SubscribingHandlerInterface
             'id' => $stockInfo->getId(),
             'name' => $stockInfo->getName(),
             'type' => $stockInfo->getType(),
-            'title' => $stockInfo->getName(),
+            'title' => $stockInfo->getTitle(),
         ];
     }
 }
