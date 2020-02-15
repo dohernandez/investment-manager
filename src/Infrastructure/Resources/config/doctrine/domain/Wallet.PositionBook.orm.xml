@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Domain\Wallet\PositionBook" table="projection_position_book">
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="averagePrice" column="average_price" type="object" />
+        <field name="dividend" column="dividend" type="object" />
+        <field name="dividendYield" column="dividend_yield" type="float" />
+        <field name="dividendExDate" column="dividend_ex_date" type="datetime" />
+        <field name="dividendToPay" column="dividend_to_pay" type="object" />
+        <field name="dividendToPayYield" column="dividend_to_pay_yield" type="float" />
+        <field name="dividendPaymentDate" column="dividend_payment_date" type="datetime" />
+        <field name="stockPrice" column="stock_price" type="object" />
+        <field name="benefits" column="benefits" type="object" />
+        <field name="percentageBenefits" column="percentage_benefits" type="float" />
+        <field name="changed" column="changed" type="object" />
+        <field name="percentageChanged" column="percentage_changed" type="float" />
+
+    </entity>
+
+</doctrine-mapping>

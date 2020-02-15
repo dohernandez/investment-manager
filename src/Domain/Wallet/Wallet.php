@@ -10,6 +10,7 @@ use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 {
@@ -54,6 +55,8 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
+     * This field is only use for find the wallet by the account id
+     *
      * @var string
      */
     private $accountId;
@@ -91,6 +94,26 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
     public function getTitle(): string
     {
         return \sprintf('%s (%s)', $this->name, $this->slug);
+    }
+
+    /**
+     * @var ArrayCollection|Position[]
+     */
+    private $positions;
+
+    public function getPositions()
+    {
+        return $this->positions;
+    }
+
+    /**
+     * @var ArrayCollection|Operation[]
+     */
+    private $operations;
+
+    public function getOperations()
+    {
+        return $this->operations;
     }
 
     public static function create(string $name, Broker $broker, Account $account, ?string $slug = null)

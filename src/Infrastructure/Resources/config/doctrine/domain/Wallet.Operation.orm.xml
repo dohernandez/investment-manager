@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd"
+                  xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping">
+
+    <entity name="App\Domain\Wallet\Operation" table="projection_operation">
+
+        <id name="id" type="guid" column="id"/>
+
+        <field name="stock" column="stock" type="object" />
+        <field name="stockId" column="stock_id" type="string"/>
+        <field name="type" column="type" type="string" />
+        <field name="amount" column="amount" type="integer" />
+        <field name="price" column="price" type="object" />
+        <field name="priceChange" column="price_change" type="object" />
+        <field name="priceChangeCommission" column="price_change_commission" type="object" />
+        <field name="value" column="value" type="object" />
+        <field name="dateAt" column="date_at" type="datetime" />
+        <field name="commission" column="commission" type="object" />
+
+        <many-to-one field="wallet" target-entity="App\Domain\Wallet\Wallet" inversed-by="operations"/>
+        <many-to-one field="position" target-entity="App\Domain\Wallet\Position" inversed-by="operations"/>
+
+        <field name="createdAt" column="created_at" type="datetime">
+            <gedmo:timestampable on="create"/>
+        </field>
+        <field name="updatedAt" column="updated_at" type="datetime">
+            <gedmo:timestampable on="update"/>
+        </field>
+    </entity>
+
+
+</doctrine-mapping>
