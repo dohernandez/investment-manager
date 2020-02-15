@@ -13,6 +13,7 @@
 {% block page_content %}
 
     {% include 'wallets/partial/head-dashboard-2.html.twig' %}
+    {% include 'wallets/partial/operation-box-2.html.twig' %}
 
 {% endblock %}
 
@@ -20,15 +21,38 @@
     {{ parent() }}
 
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
+    {% include 'wallets/partial/operation-box-2-scripts.html.twig' %}
 
     <script type="text/javascript"  src="{{ asset('build/wallet_dashboard_2.js') }}"></script>
 
     <script>
         $(document).ready(function() {
+            const walletId = "{{ wallet_id }}";
+
             const eventBus = window.eventBus;
 
+            // Operation panel
+            const entityTitle = "{{ operation.entity_name|lower|replace({' ': '_'}) }}";
+            const entityName = "{{ operation.entity_name|trans|lower }}";
+
+            const operationPanelTable = createOperationPanel(
+                entityTitle,
+                entityName,
+                walletId
+            );
+
+            const createOperationButton = createButtonCreatOperation(
+                entityTitle,
+                entityName,
+                walletId,
+                operationPanelTable
+            );
+
+            operationPanelTable.addButton(createOperationButton);
+
             let panel = new WalletDashboard(
-                    "{{ wallet_id }}",
+                walletId,
+                operationPanelTable
             );
 
             panel.render();

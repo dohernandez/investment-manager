@@ -2,16 +2,20 @@
 
 namespace App\Presentation\View\Wallet;
 
-use App\Domain\Wallet\Wallet;
-use App\Presentation\Form\Wallet\CreateWalletType;
-use App\Presentation\View\AbstractView;
+use App\Presentation\Form\Wallet\CreateOperationType;
+use Symfony\Component\Form\FormFactoryInterface;
 
 final class DashboardView
 {
     /**
-     * @var string
+     * @var FormFactoryInterface
      */
-    protected $prefixRoute = 'wallet';
+    private $form;
+
+    public function __construct(FormFactoryInterface $form)
+    {
+        $this->form = $form;
+    }
 
     /**
      * Generate the parameters to use when render dashboard view.
@@ -25,7 +29,7 @@ final class DashboardView
     {
         return [
                 'wallet_id' => $id,
-                'fields' => $this->getFields(),
+                'operation' => $this->getOperationPanel(),
             ] + [
                 'page_title' => 'Wallets',
             ] + $context;
@@ -34,37 +38,62 @@ final class DashboardView
     /**
      * @inheritDoc
      */
-    protected function getFields(): array
+    protected function getOperationPanel(): array
     {
+        $operationForm = $this->form->create(CreateOperationType::class);
+
         return [
-            [
-                'name' => 'name',
-            ],
-            [
-                'name'   => 'metadata.invested',
-                'label'   => 'Invested',
-                'render' => 'money',
-            ],
-            [
-                'name'   => 'metadata.capital',
-                'label'   => 'Capital',
-                'render' => 'money',
-            ],
-            [
-                'name'   => 'metadata.funds',
-                'label'   => 'Funds',
-                'render' => 'money',
-            ],
-            [
-                'name'   => 'metadata.pBenefits',
-                'label'  => 'Benefits',
-                'render' => 'percentage',
-            ],
-            [
-                'name'   => 'broker',
-                'label'   => 'Broker',
-                'render' => 'broker',
-            ],
+            'entity_name'  => 'operation',
+            'search_width' => '235px',
+            'form'         => $operationForm->createView(),
+
+            'fields' => [
+                [
+                    'name'        => 'dateAt',
+                    'label'       => 'Date',
+                    'render'      => 'date',
+                    'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
+                ],
+                [
+                    'name' => 'type',
+                ],
+                [
+                    'name'   => 'stock.name',
+                    'label'  => 'Stock',
+                    'render' => 'check',
+                    'check'  => 'stock',
+                ],
+                [
+                    'name'   => 'stock.symbol',
+                    'label'  => 'Symbol',
+                    'render' => 'check',
+                    'check'  => 'stock',
+                ],
+                [
+                    'name'   => 'stock.market.symbol',
+                    'label'  => 'Market',
+                    'render' => 'check',
+                    'check'  => 'stock',
+                ],
+                [
+                    'name'   => 'price',
+                    'render' => 'money',
+                    'class'  => 'js-manager-table-extra-cell-hide',
+                ],
+                [
+                    'name'  => 'amount',
+                    'label' => 'Amt',
+                ],
+                [
+                    'name'   => 'value',
+                    'render' => 'money',
+                ],
+                [
+                    'name'     => 'commissions',
+                    'render'   => 'money',
+                    'col_with' => '120',
+                ],
+            ]
         ];
     }
 }
