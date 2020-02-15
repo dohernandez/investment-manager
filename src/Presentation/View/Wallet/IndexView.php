@@ -74,6 +74,11 @@ final class IndexView extends AbstractView
                         'jsClass' => 'js-entity-dashboard-yield',
                         'icon'    => 'fas fa-book-open',
                     ],
+                    [
+                        'type'    => 'primary',
+                        'jsClass' => 'js-entity-edit',
+                        'icon'    => 'fa fa-pencil-alt',
+                    ],
                 ],
             ]
         );

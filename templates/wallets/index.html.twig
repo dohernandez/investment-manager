@@ -65,21 +65,7 @@
             );
             panelTable.addRowButton(editRowButton);
 
-            const deleteRowButton = new DeleteRowButton(
-                form,
-                function (id) {
-                    return Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_delete', {id});
-                },
-                '.js-entity-delete'
-            );
-            panelTable.addRowButton(deleteRowButton);
-
-            panelTable.render();
-            panelTable.loadRows();
-
-            // Delegate selector for edit stock dividend
-            $('.js-crud-manage-row-box').closest('section').on(
-                'click',
+            const dashboardRowButton = new RowButton(
                 '.js-entity-dashboard-yield',
                 function (e) {
                     e.preventDefault();
@@ -88,8 +74,13 @@
                     const id = $row.data('id');
 
                     window.location = Routing.generate('wallet_dashboard', {'id': id})
-                }
+                },
+                40
             );
+            panelTable.addRowButton(dashboardRowButton);
+
+            panelTable.render();
+            panelTable.loadRows();
         });
     </script>
 {% endblock %}
