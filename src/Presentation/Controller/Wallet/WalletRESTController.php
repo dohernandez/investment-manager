@@ -138,7 +138,7 @@ final class WalletRESTController extends RESTController
     }
 
     /**
-     * @Route("/{id}/statistics", name="wallet_statistics", methods={"POST"}, options={"expose"=true})
+     * @Route("/{id}/operation", name="wallet_operation_new", methods={"POST"}, options={"expose"=true})
      *
      * @param string $id
      * @param Request $request

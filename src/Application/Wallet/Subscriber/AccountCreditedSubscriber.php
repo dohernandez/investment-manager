@@ -41,9 +41,7 @@ class AccountCreditedSubscriber implements EventSubscriberInterface
     {
         $projectionWallet = $this->projectionWalletRepository->findByAccount($event->getId());
 
-        \dump($projectionWallet);
         $wallet = $this->walletRepository->find($projectionWallet->getId());
-        \dump($wallet);
 
         $wallet->increaseInvestment($event->getMoney());
 

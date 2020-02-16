@@ -33,22 +33,22 @@ class WalletBook
     private $funds;
 
     /**
-     * @var BookMetadata|null
+     * @var BookEntry|null
      */
-    private $dividend;
+    private $dividends;
 
     /**
-     * @var BookMetadata|null
+     * @var BookEntry|null
      */
     private $commissions;
 
     /**
-     * @var BookMetadata|null
+     * @var BookEntry|null
      */
     private $connection;
 
     /**
-     * @var BookMetadata|null
+     * @var BookEntry|null
      */
     private $interest;
 
@@ -92,13 +92,6 @@ class WalletBook
         return $this->currency;
     }
 
-    public function setCurrency(Currency $currency): self
-    {
-        $this->currency = $currency;
-
-        return $this;
-    }
-
     public function getInvested(): ?Money
     {
         return $this->invested;
@@ -135,48 +128,48 @@ class WalletBook
         return $this;
     }
 
-    public function getDividend(): ?BookMetadata
+    public function getDividends(): ?BookEntry
     {
-        return $this->dividend;
+        return $this->dividends;
     }
 
-    public function setDividend(?BookMetadata $dividend): self
+    public function setDividends(?BookEntry $dividends): self
     {
-        $this->dividend = $dividend;
+        $this->dividends = $dividends;
 
         return $this;
     }
 
-    public function getCommissions(): ?BookMetadata
+    public function getCommissions(): ?BookEntry
     {
         return $this->commissions;
     }
 
-    public function setCommissions(?BookMetadata $commissions): self
+    public function setCommissions(?BookEntry $commissions): self
     {
         $this->commissions = $commissions;
 
         return $this;
     }
 
-    public function getConnection(): ?BookMetadata
+    public function getConnection(): ?BookEntry
     {
         return $this->connection;
     }
 
-    public function setConnection(?BookMetadata $connection): self
+    public function setConnection(?BookEntry $connection): self
     {
         $this->connection = $connection;
 
         return $this;
     }
 
-    public function getInterest(): ?BookMetadata
+    public function getInterest(): ?BookEntry
     {
         return $this->interest;
     }
 
-    public function setInterest(?BookMetadata $interest): self
+    public function setInterest(?BookEntry $interest): self
     {
         $this->interest = $interest;
 

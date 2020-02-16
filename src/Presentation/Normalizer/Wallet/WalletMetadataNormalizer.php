@@ -59,7 +59,7 @@ final class WalletMetadataNormalizer implements SubscribingHandlerInterface
             'invested' => $this->serializer->toArray($metadata->getInvested()),
             'capital' => $this->serializer->toArray($metadata->getCapital()),
             'funds' => $this->serializer->toArray($metadata->getFunds()),
-            'dividend' => $metadata->getDividend(),
+            'dividend' => $metadata->getDividends(),
             'commissions' => $metadata->getCommissions(),
             'connection' => $metadata->getConnection(),
             'interest' => $metadata->getInterest(),

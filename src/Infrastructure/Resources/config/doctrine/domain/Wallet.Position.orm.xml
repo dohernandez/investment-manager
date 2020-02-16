@@ -13,12 +13,10 @@
         <field name="stockId" column="stock_id" type="string"/>
         <field name="amount" column="amount" type="integer" />
         <field name="capital" column="capital" type="object" />
-        <field name="invested" column="invested" type="object" />
-        <field name="buy" column="buy" type="object" />
-        <field name="sell" column="sell" type="object" />
+        <field name="invested" column="invested" type="object" nullable="true" />
         <field name="status" column="status" type="string" />
         <field name="openedAt" column="opened_at" type="datetime" />
-        <field name="closedAt" column="closed_at" type="datetime" />
+        <field name="closedAt" column="closed_at" type="datetime" nullable="true" />
         <one-to-one field="book" target-entity="App\Domain\Wallet\PositionBook">
             <cascade>
                 <cascade-persist/>
@@ -34,6 +32,9 @@
         <field name="updatedAt" column="updated_at" type="datetime">
             <gedmo:timestampable on="update"/>
         </field>
+
+        <one-to-many field="operations" target-entity="App\Domain\Wallet\Operation" mapped-by="position" />
+
     </entity>
 
 

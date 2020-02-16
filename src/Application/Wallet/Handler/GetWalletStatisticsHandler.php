@@ -30,7 +30,7 @@ class GetWalletStatisticsHandler implements MessageHandlerInterface
             $book->getCapital(),
             $book->getCapital()->increase($book->getFunds()),
             $book->getFunds(),
-            $book->getDividend() ? $book->getDividend()->getTotal() : null,
+            $book->getDividends() ? $book->getDividends()->getTotal() : null,
             $book->getCommissions() ? $book->getCommissions()->getTotal() : null,
             $book->getConnection() ? $book->getConnection()->getTotal() : null,
             $book->getInterest() ? $book->getInterest()->getTotal() : null,

@@ -10,12 +10,39 @@
             <generator strategy="AUTO"/>
         </id>
 
-        <field name="invested" column="invested" type="object" />
-        <field name="capital" column="capital" type="object" />
-        <field name="funds" column="funds" type="object" />
-        <field name="benefits" column="benefits" type="object" />
-        <field name="currency" column="currency" type="object" />
+        <field name="invested" column="invested" type="object"/>
+        <field name="capital" column="capital" type="object"/>
+        <field name="funds" column="funds" type="object"/>
+        <field name="benefits" column="benefits" type="object"/>
+        <field name="currency" column="currency" type="object"/>
 
+        <one-to-one field="commissions" target-entity="App\Domain\Wallet\BookEntry">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-one>
+
+        <one-to-one field="dividends" target-entity="App\Domain\Wallet\BookEntry">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-one>
+
+        <one-to-one field="connection" target-entity="App\Domain\Wallet\BookEntry">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-one>
+
+        <one-to-one field="interest" target-entity="App\Domain\Wallet\BookEntry">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-one>
     </entity>
 
 </doctrine-mapping>

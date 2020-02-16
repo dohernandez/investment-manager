@@ -30,11 +30,21 @@ final class StockRepository implements StockRepositoryInterface
 
     private function hydrate(ProjectionStock $projectionStock): Stock
     {
+        $nextDividend = $projectionStock->getNextDividend() ? $projectionStock->getNextDividend()->getValue() : null;
+        $nextDividendExDate = $projectionStock->getNextDividend() ? $projectionStock->getNextDividend()->getExDate() : null;
+        $toPayDividend = $projectionStock->getToPayDividend() ? $projectionStock->getToPayDividend()->getValue() : null;
+        $toPayDividendDate = $projectionStock->getToPayDividend() ? $projectionStock->getToPayDividend()->getExDate() : null;
+
         return new Stock(
             $projectionStock->getId(),
             $projectionStock->getName(),
             $projectionStock->getSymbol(),
-            $this->hydrateMarket($projectionStock->getMarket())
+            $this->hydrateMarket($projectionStock->getMarket()),
+            $projectionStock->getPrice()->getPrice(),
+            $nextDividend,
+            $nextDividendExDate,
+            $toPayDividend,
+            $toPayDividendDate
         );
     }
 

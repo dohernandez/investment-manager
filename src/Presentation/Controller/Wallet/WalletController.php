@@ -22,8 +22,9 @@ final class WalletController extends AbstractController
      */
     private $dashboardView;
 
-    public function __construct(DashboardView $dashboardView)
+    public function __construct(IndexView $indexView, DashboardView $dashboardView)
     {
+        $this->indexView = $indexView;
         $this->dashboardView = $dashboardView;
     }
 

@@ -10,18 +10,32 @@
             <generator strategy="AUTO"/>
         </id>
 
+        <field name="currency" column="currency" type="object" />
+        <field name="buy" column="buy" type="object" />
+        <field name="sell" column="sell" type="object" />
         <field name="averagePrice" column="average_price" type="object" />
-        <field name="dividend" column="dividend" type="object" />
-        <field name="dividendYield" column="dividend_yield" type="float" />
-        <field name="dividendExDate" column="dividend_ex_date" type="datetime" />
-        <field name="dividendToPay" column="dividend_to_pay" type="object" />
-        <field name="dividendToPayYield" column="dividend_to_pay_yield" type="float" />
-        <field name="dividendPaymentDate" column="dividend_payment_date" type="datetime" />
-        <field name="stockPrice" column="stock_price" type="object" />
+        <field name="nextDividend" column="next_dividend" type="object" nullable="true" />
+        <field name="nextDividendYield" column="next_dividend_yield" type="float" nullable="true" />
+        <field name="toPayDividend" column="to_pay_dividend" type="object" nullable="true" />
+        <field name="toPayDividendYield" column="to_pay_dividend_yield" type="float" nullable="true" />
         <field name="benefits" column="benefits" type="object" />
         <field name="percentageBenefits" column="percentage_benefits" type="float" />
-        <field name="changed" column="changed" type="object" />
-        <field name="percentageChanged" column="percentage_changed" type="float" />
+        <field name="changed" column="changed" type="object" nullable="true" />
+        <field name="percentageChanged" column="percentage_changed" type="float" nullable="true" />
+
+        <one-to-one field="dividendPaid" target-entity="App\Domain\Wallet\BookEntry">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-one>
+
+        <one-to-one field="dividendRetention" target-entity="App\Domain\Wallet\BookEntry">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-one>
 
     </entity>
 

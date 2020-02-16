@@ -2,11 +2,14 @@
 
 namespace App\Domain\Wallet;
 
+use App\Domain\Wallet\Event\WalletBuyOperationUpdated;
 use App\Domain\Wallet\Event\WalletCreated;
 use App\Domain\Wallet\Event\WalletInvestmentIncreased;
+use App\Infrastructure\Date\Date;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
+use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
@@ -14,6 +17,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 {
+    public function __construct(string $id)
+    {
+        parent::__construct($id);
+
+        $this->positions = new ArrayCollection();
+        $this->operations = new ArrayCollection();
+    }
+
     /**
      * @var string
      */
@@ -116,6 +127,11 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->operations;
     }
 
+    public function getCurrency(): Currency
+    {
+        return $this->book->getCurrency();
+    }
+
     public static function create(string $name, Broker $broker, Account $account, ?string $slug = null)
     {
         $id = UUID\Generator::generate();
@@ -154,14 +170,61 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
+    public function updateBuyOperation(Operation $operation): self
+    {
+        $book = $this->book;
+
+        $capital = $book->getCapital()->increase($operation->getCapital());
+        $funds = $book->getFunds()->decrease($operation->getTotalPaid());
+
+        $bookEntry = BookEntry::createBookEntry('commissions');
+
+        $year = (string) Date::getYear($operation->getDateAt());
+        $bookYearEntry = BookEntry::createYearEntry($bookEntry, $year);
+        $bookEntry->getEntries()->add($bookYearEntry);
+
+        $month = (string) Date::getMonth($operation->getDateAt());
+        $bookMonthEntry = BookEntry::createMonthEntry($bookYearEntry, $month);
+        $bookYearEntry->getEntries()->add($bookMonthEntry);
+
+
+        if ($commissions = $book->getCommissions()) {
+            $bookEntry->setTotal($commissions->getTotal());
+
+            if ($entry = $commissions->getBookEntry($year)) {
+                $bookYearEntry->setTotal($entry->getTotal());
+
+                if ($entry = $entry->getBookEntry($month)) {
+                    $bookMonthEntry->setTotal($entry->getTotal());
+                }
+            }
+        }
+
+        $bookEntry->increaseTotal($operation->getCommissionsPaid());
+        $bookYearEntry->increaseTotal($operation->getCommissionsPaid());
+        $bookMonthEntry->increaseTotal($operation->getCommissionsPaid());
+
+        $this->recordChange(
+            new WalletBuyOperationUpdated(
+                $this->id,
+                $operation->getDateAt(),
+                $capital,
+                $funds,
+                $bookEntry
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
+        $event = $changed->getPayload();
+
         switch ($changed->getEventName()) {
             case WalletCreated::class:
                 /** @var WalletCreated $event */
-                $event = $changed->getPayload();
 
-                $this->id = $event->getId();
                 $this->name = $event->getName();
                 $this->slug = $event->getSlug();
 
@@ -177,11 +240,32 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 
             case WalletInvestmentIncreased::class:
                 /** @var WalletInvestmentIncreased $event */
-                $event = $changed->getPayload();
 
                 $this->book->setInvested($event->getInvested());
                 $this->book->setCapital($event->getCapital());
                 $this->book->setFunds($event->getFunds());
+
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+
+            case WalletBuyOperationUpdated::class:
+                /** @var WalletBuyOperationUpdated $event */
+
+                $this->book->setCapital($event->getCapital());
+                $this->book->setFunds($event->getFunds());
+
+                $commissions = $this->book->getCommissions();
+                if (!$commissions) {
+                     $commissions = $event->getCommissions();
+                } else {
+                    $commissions->merge($event->getCommissions());
+                }
+                $this->book->setCommissions($commissions);
+
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
         }
     }
 }

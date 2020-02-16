@@ -2,7 +2,6 @@
 
 namespace App\Infrastructure\Money;
 
-use App\Entity\Exchange;
 use LogicException;
 
 final class Money
@@ -85,21 +84,9 @@ final class Money
         );
     }
 
-    public function exchange(Currency $currency, array $exchangeRates, int $precision = 2): self
+    public function exchange(Currency $currency, float $rate, int $precision = 2): self
     {
-        $value = $this->getValue();
-
-        $exchangePaar = $currency->getPaarExchangeRate($this->getCurrency());
-
-        $exists = false;
-        /** @var Exchange $rate */
-        foreach ($exchangeRates as $paar => $rate) {
-            if ($paar == $exchangePaar) {
-                $value = $this->getPreciseValue() / $rate * $this->getDivisorBy();
-
-                break;
-            }
-        }
+        $value = $this->getPreciseValue() / $rate * $this->getDivisorBy();
 
         return new static($currency, $value, $precision);
     }

@@ -160,6 +160,13 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->position;
     }
 
+    public function setPosition(Position $position): self
+    {
+        $this->position = $position;
+
+        return $this;
+    }
+
     /**
      * @var Wallet
      */
@@ -168,6 +175,53 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
     public function getWallet(): Wallet
     {
         return $this->wallet;
+    }
+
+    public function getTotalPaid(): Money
+    {
+        return $this->value->increase($this->getCommissionsPaid());
+    }
+
+    public function getCommissionsPaid(): Money
+    {
+        if ($this->commission === null) {
+            if ($this->priceChangeCommission === null) {
+                return new Money($this->getWallet()->getCurrency());
+            }
+
+            return $this->priceChangeCommission;
+        }
+
+        return $this->commission->increase($this->priceChangeCommission);
+    }
+
+    public function getCapital(): Money
+    {
+        if ($this->type !== Operation::TYPE_BUY && $this->type !== Operation::TYPE_SELL) {
+            return new Money($this->wallet->getCurrency());
+        }
+
+        $price = $this->getStock()->getPrice();
+
+        if ($this->exchangeRate) {
+            $price = $price->exchange(
+                $this->exchangeRate->getToCurrency(),
+                $this->exchangeRate->getRate(),
+                $price->getPrecision()
+            );
+        }
+
+        return $price->multiply($this->getAmount());
+    }
+
+    /**
+     * @var ExchangeRate|null
+     */
+    private $exchangeRate;
+
+    public function getExchangeRate(): ?ExchangeRate
+    {
+        return $this->exchangeRate;
     }
 
     public static function register(
@@ -180,7 +234,8 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         ?Money $price = null,
         ?Money $priceChange = null,
         ?Money $priceChangeCommission = null,
-        ?Money $commission = null
+        ?Money $commission = null,
+        ?ExchangeRate $exchangeRate = null
     ): self {
         $id = UUID\Generator::generate();
 
@@ -206,7 +261,8 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
                     $price,
                     $priceChange,
                     $priceChangeCommission,
-                    $commission
+                    $commission,
+                    $exchangeRate
                 );
 
                 break;
@@ -274,6 +330,9 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         $this->dateAt = $event->getDateAt();
         $this->type = $event->getType();
 
+        $this->createdAt = $changed->getCreatedAt();
+        $this->updatedAt = $changed->getCreatedAt();
+
         switch ($changed->getEventName()) {
             case BuyOperationRegistered::class:
             case SellOperationRegistered::class:
@@ -285,9 +344,7 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->priceChange = $event->getPriceChange();
                 $this->priceChangeCommission = $event->getPriceChangeCommission();
                 $this->commission = $event->getCommission();
-
-                $this->createdAt = $changed->getCreatedAt();
-                $this->updatedAt = $changed->getCreatedAt();
+                $this->exchangeRate = $event->getExchangeRate();
 
                 break;
 
@@ -295,9 +352,6 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
             case ConnectivityOperationRegistered::class:
 
                 $this->value = $event->getValue();
-
-                $this->createdAt = $changed->getCreatedAt();
-                $this->updatedAt = $changed->getCreatedAt();
 
                 break;
 
@@ -311,9 +365,6 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->priceChange = $event->getPriceChange();
                 $this->priceChangeCommission = $event->getPriceChangeCommission();
 
-                $this->createdAt = $changed->getCreatedAt();
-                $this->updatedAt = $changed->getCreatedAt();
-
                 break;
 
             case SplitReverseOperationRegistered::class:
@@ -322,9 +373,6 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->stock = $event->getStock();
                 $this->amount = $event->getAmount();
                 $this->value = $event->getValue();
-
-                $this->createdAt = $changed->getCreatedAt();
-                $this->updatedAt = $changed->getCreatedAt();
 
                 break;
         }

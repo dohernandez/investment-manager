@@ -128,6 +128,11 @@ services:
     App\Application\Wallet\Repository\WalletRepositoryInterface: '@App\Infrastructure\Storage\Wallet\WalletRepository'
     App\Application\Wallet\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\Wallet\AccountRepository'
     App\Application\Wallet\Repository\StockRepositoryInterface: '@App\Infrastructure\Storage\Wallet\StockRepository'
+    App\Application\Wallet\Repository\OperationRepositoryInterface: '@App\Infrastructure\Storage\Wallet\OperationRepository'
+    App\Application\Wallet\Repository\ProjectionOperationRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ProjectionOperationRepository'
+    App\Application\Wallet\Repository\PositionRepositoryInterface: '@App\Infrastructure\Storage\Wallet\PositionRepository'
+    App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ProjectionPositionRepository'
+    App\Application\Wallet\Repository\ExchangeMoneyRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ExchangeMoneyRepository'
 
     # Handlers
     App\Application\Market\Handler\SyncStockDividendsHandler:
@@ -197,5 +202,10 @@ services:
     App\Infrastructure\Storage\Wallet\WalletRepository: ~
     App\Infrastructure\Storage\Wallet\AccountRepository: ~
     App\Infrastructure\Storage\Wallet\StockRepository: ~
+    App\Infrastructure\Storage\Wallet\OperationRepository: ~
+    App\Infrastructure\Storage\Wallet\ProjectionOperationRepository: ~
+    App\Infrastructure\Storage\Wallet\PositionRepository: ~
+    App\Infrastructure\Storage\Wallet\ProjectionPositionRepository: ~
+    App\Infrastructure\Storage\Wallet\ExchangeMoneyRepository: ~
 
     ##### INFRASTRUCTURE LAYER END

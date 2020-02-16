@@ -2,8 +2,8 @@
 
 namespace App\Domain\Wallet;
 
+use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
-use DateTime;
 
 class PositionBook
 {
@@ -13,54 +13,54 @@ class PositionBook
     private $id;
 
     /**
+     * @var Currency
+     */
+    private $currency;
+
+    /**
+     * @var Money
+     */
+    private $buy;
+
+    /**
+     * @var Money
+     */
+    private $sell;
+
+    /**
      * @var Money
      */
     private $averagePrice;
 
     /**
-     * @var BookMetadata|null
+     * @var BookEntry|null
      */
     private $dividendPaid;
 
     /**
-     * @var BookMetadata|null
+     * @var BookEntry|null
      */
     private $dividendRetention;
 
     /**
-     * @var Money
+     * @var Money|null
      */
-    private $dividend;
+    private $nextDividend;
 
     /**
-     * @var float
+     * @var float|null
      */
-    private $dividendYield;
+    private $nextDividendYield;
 
     /**
-     * @var DateTime
+     * @var Money|null
      */
-    private $dividendExDate;
+    private $toPayDividend;
 
     /**
-     * @var Money
+     * @var float|null
      */
-    private $dividendToPay;
-
-    /**
-     * @var float
-     */
-    private $dividendToPayYield;
-
-    /**
-     * @var DateTime
-     */
-    private $dividendPaymentDate;
-
-    /**
-     * @var Money
-     */
-    private $stockPrice;
+    private $toPayDividendYield;
 
     /**
      * @var Money
@@ -73,18 +73,58 @@ class PositionBook
     private $percentageBenefits;
 
     /**
-     * @var Money
+     * @var Money|null
      */
     private $changed;
 
     /**
-     * @var float
+     * @var float|null
      */
     private $percentageChanged;
 
     public function __construct(?int $id = null)
     {
         $this->id = $id;
+    }
+
+    public static function create(Currency $currency): self
+    {
+        $self = new static();
+
+        $self->currency = $currency;
+
+        $self->buy = new Money($currency);
+        $self->sell = new Money($currency);
+        $self->benefits = new Money($currency);
+        $self->averagePrice = new Money($currency);
+
+        $self->percentageBenefits = 0;
+
+        return $self;
+    }
+
+    public function getBuy(): Money
+    {
+        return $this->buy;
+    }
+
+    public function setBuy(Money $buy): self
+    {
+        $this->buy = $buy;
+
+        return $this;
+    }
+
+    public function getSell(): Money
+    {
+        return $this->sell;
+    }
+
+    public function setSell(Money $sell): self
+    {
+        $this->sell = $sell;
+
+        return $this;
     }
 
     public function getAveragePrice(): Money
@@ -99,110 +139,83 @@ class PositionBook
         return $this;
     }
 
-    public function getDividendPaid(): ?BookMetadata
+    public function getDividendPaid(): ?BookEntry
     {
         return $this->dividendPaid;
     }
 
-    public function setDividendPaid(?BookMetadata $dividendPaid): self
+    public function setDividendPaid(?BookEntry $dividendPaid): self
     {
         $this->dividendPaid = $dividendPaid;
 
         return $this;
     }
 
-    public function getDividendRetention(): ?BookMetadata
+    public function getTotalDividendPaid(): Money
+    {
+        if (!$this->dividendPaid) {
+            return new Money($this->currency);
+        }
+
+        return $this->dividendPaid->getTotal();
+    }
+
+    public function getDividendRetention(): ?BookEntry
     {
         return $this->dividendRetention;
     }
 
-    public function setDividendRetention(?BookMetadata $dividendRetention): self
+    public function setDividendRetention(?BookEntry $dividendRetention): self
     {
         $this->dividendRetention = $dividendRetention;
 
         return $this;
     }
 
-    public function getDividend(): Money
+    public function getNextDividend(): ?Money
     {
-        return $this->dividend;
+        return $this->nextDividend;
     }
 
-    public function setDividend(Money $dividend): self
+    public function setNextDividend(?Money $nextDividend): self
     {
-        $this->dividend = $dividend;
+        $this->nextDividend = $nextDividend;
 
         return $this;
     }
 
-    public function getDividendYield(): float
+    public function getNextDividendYield(): ?float
     {
-        return $this->dividendYield;
+        return $this->nextDividendYield;
     }
 
-    public function setDividendYield(float $dividendYield): self
+    public function setNextDividendYield(?float $nextDividendYield): self
     {
-        $this->dividendYield = $dividendYield;
+        $this->nextDividendYield = $nextDividendYield;
 
         return $this;
     }
 
-    public function getDividendExDate(): DateTime
+    public function getToPayDividend(): ?Money
     {
-        return $this->dividendExDate;
+        return $this->toPayDividend;
     }
 
-    public function setDividendExDate(DateTime $dividendExDate): self
+    public function setToPayDividend(?Money $toPayDividend): self
     {
-        $this->dividendExDate = $dividendExDate;
+        $this->toPayDividend = $toPayDividend;
 
         return $this;
     }
 
-    public function getDividendToPay(): Money
+    public function getToPayDividendYield(): ?float
     {
-        return $this->dividendToPay;
+        return $this->toPayDividendYield;
     }
 
-    public function setDividendToPay(Money $dividendToPay): self
+    public function setToPayDividendYield(?float $toPayDividendYield): self
     {
-        $this->dividendToPay = $dividendToPay;
-
-        return $this;
-    }
-
-    public function getDividendToPayYield(): float
-    {
-        return $this->dividendToPayYield;
-    }
-
-    public function setDividendToPayYield(float $dividendToPayYield): self
-    {
-        $this->dividendToPayYield = $dividendToPayYield;
-
-        return $this;
-    }
-
-    public function getDividendPaymentDate(): DateTime
-    {
-        return $this->dividendPaymentDate;
-    }
-
-    public function setDividendPaymentDate(DateTime $dividendPaymentDate): self
-    {
-        $this->dividendPaymentDate = $dividendPaymentDate;
-
-        return $this;
-    }
-
-    public function getStockPrice(): Money
-    {
-        return $this->stockPrice;
-    }
-
-    public function setStockPrice(Money $stockPrice): self
-    {
-        $this->stockPrice = $stockPrice;
+        $this->toPayDividendYield = $toPayDividendYield;
 
         return $this;
     }
@@ -231,24 +244,24 @@ class PositionBook
         return $this;
     }
 
-    public function getChanged(): Money
+    public function getChanged(): ?Money
     {
         return $this->changed;
     }
 
-    public function setChanged(Money $changed): self
+    public function setChanged(?Money $changed): self
     {
         $this->changed = $changed;
 
         return $this;
     }
 
-    public function getPercentageChanged(): float
+    public function getPercentageChanged(): ?float
     {
         return $this->percentageChanged;
     }
 
-    public function setPercentageChanged(float $percentageChanged): self
+    public function setPercentageChanged(?float $percentageChanged): self
     {
         $this->percentageChanged = $percentageChanged;
 
