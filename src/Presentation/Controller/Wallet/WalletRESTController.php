@@ -136,42 +136,4 @@ final class WalletRESTController extends RESTController
 
         return $this->createApiResponse($result);
     }
-
-    /**
-     * @Route("/{id}/operation", name="wallet_operation_new", methods={"POST"}, options={"expose"=true})
-     *
-     * @param string $id
-     * @param Request $request
-     * @param MessageBusInterface $bus
-     *
-     * @return Response
-     */
-    public function newOperation(string $id, Request $request, MessageBusInterface $bus): Response
-    {
-        if ($id == '' || $id == null) {
-            return $this->createApiErrorResponse('Wallet not found', Response::HTTP_NOT_FOUND);
-        }
-
-        $form = $this->createForm(CreateOperationType::class);
-
-        return $this->dispatch(
-            $form,
-            $request,
-            $bus,
-            function ($data) use ($id) {
-                return new RegisterOperation(
-                    $id,
-                    $data['dateAt'],
-                    $data['type'],
-                    $data['value'],
-                    $data['stock'],
-                    $data['amount'],
-                    $data['price'],
-                    $data['priceChange'],
-                    $data['priceChangeCommission'],
-                    $data['commission']
-                );
-            }
-        );
-    }
 }
