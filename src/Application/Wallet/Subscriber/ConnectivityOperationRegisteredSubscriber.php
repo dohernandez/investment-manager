@@ -2,28 +2,16 @@
 
 namespace App\Application\Wallet\Subscriber;
 
-use App\Application\Wallet\Calculator;
 use App\Application\Wallet\Repository\PositionRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionOperationRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface;
 use App\Application\Wallet\Repository\WalletRepositoryInterface;
-use App\Domain\Wallet\Event\SellOperationRegistered;
-use App\Domain\Wallet\Position;
+use App\Domain\Wallet\Event\ConnectivityOperationRegistered;
 use App\Infrastructure\Exception\NotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-final class SellOperationRegisteredSubscriber implements EventSubscriberInterface
+final class ConnectivityOperationRegisteredSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var PositionRepositoryInterface
-     */
-    private $positionRepository;
-
-    /**
-     * @var ProjectionPositionRepositoryInterface
-     */
-    private $projectionPositionRepository;
-
     /**
      * @var ProjectionOperationRepositoryInterface
      */
@@ -35,13 +23,9 @@ final class SellOperationRegisteredSubscriber implements EventSubscriberInterfac
     private $walletRepository;
 
     public function __construct(
-        PositionRepositoryInterface $positionRepository,
-        ProjectionPositionRepositoryInterface $projectionPositionRepository,
         ProjectionOperationRepositoryInterface $projectionOperationRepository,
         WalletRepositoryInterface $walletRepository
     ) {
-        $this->positionRepository = $positionRepository;
-        $this->projectionPositionRepository = $projectionPositionRepository;
         $this->projectionOperationRepository = $projectionOperationRepository;
         $this->walletRepository = $walletRepository;
     }
@@ -52,11 +36,11 @@ final class SellOperationRegisteredSubscriber implements EventSubscriberInterfac
     public static function getSubscribedEvents()
     {
         return [
-            SellOperationRegistered::class => ['onSellOperationRegistered', 100],
+            ConnectivityOperationRegistered::class => ['onConnectivityOperationRegistered', 100],
         ];
     }
 
-    public function onSellOperationRegistered(SellOperationRegistered $event)
+    public function onConnectivityOperationRegistered(ConnectivityOperationRegistered $event)
     {
         $wallet = $this->walletRepository->find($event->getWallet()->getId());
 
@@ -74,26 +58,7 @@ final class SellOperationRegisteredSubscriber implements EventSubscriberInterfac
             ]);
         }
 
-        $projectionPosition = $this->projectionPositionRepository->findByStock(
-            $wallet->getId(),
-            $event->getStock()->getId(),
-            Position::STATUS_OPEN
-        );
-
-        if ($projectionPosition === null) {
-            throw new NotFoundException('Operation not found', [
-                'walletId' => $wallet->getId(),
-                'stockId' => $event->getStock()->getId(),
-                'status' => Position::STATUS_OPEN,
-            ]);
-        }
-
-        $position = $this->positionRepository->find($projectionPosition->getId());
-
-        $position->decreasePosition($operation);
-        $this->positionRepository->save($position);
-
-        $wallet->updateSellOperation($operation);
+        $wallet->increaseConnectivity($operation);
         $this->walletRepository->save($wallet);
     }
 }

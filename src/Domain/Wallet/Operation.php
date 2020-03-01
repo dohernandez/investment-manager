@@ -34,6 +34,11 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         self::TYPE_SPLIT_REVERSE,
     ];
 
+    public const TYPES_EXCHANGEABLE = [
+        self::TYPE_BUY,
+        self::TYPE_SELL,
+    ];
+
     /**
      * @var Stock|null
      */

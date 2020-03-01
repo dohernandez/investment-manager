@@ -61,7 +61,7 @@ class WalletDashboard {
             Routing.generate('wallet_operation_list', {'walletId': this.walletId}),
             'GET'
         ).then((result) => {
-            // let operations = result.items;
+            // console.log(result);
             this.operationPanel.setData(result);
         });
     }

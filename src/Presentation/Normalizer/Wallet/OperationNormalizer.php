@@ -48,11 +48,13 @@ final class OperationNormalizer implements SubscribingHandlerInterface
             'id' => $operation->getId(),
             'dateAt' => $operation->getDateAt()->format('c'),
             'type' => $operation->getType(),
-            'stock' => $this->serializer->toArray($operation->getStock()),
-            'price' => $this->serializer->toArray($operation->getPrice()),
-            'amount' => $operation->getType(),
+            'stock' => $operation->getStock() ? $this->serializer->toArray($operation->getStock()) : null,
+            'price' => $operation->getPrice() ? $this->serializer->toArray($operation->getPrice()) : null,
+            'amount' => $operation->getAmount(),
             'value' => $this->serializer->toArray($operation->getValue()),
-            'commissions' => $this->serializer->toArray($operation->getCommissionsPaid()),
+            'commissions' => $operation->getCommissionsPaid() ?
+                $this->serializer->toArray($operation->getCommissionsPaid()) :
+                null,
 
             'title' => $operation->getTitle(),
         ];

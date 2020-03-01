@@ -7,7 +7,7 @@ use App\Application\Wallet\Repository\WalletRepositoryInterface;
 use App\Domain\Account\Event\AccountCredited;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class AccountCreditedSubscriber implements EventSubscriberInterface
+final class AccountCreditedSubscriber implements EventSubscriberInterface
 {
     /**
      * @var ProjectionWalletRepositoryInterface

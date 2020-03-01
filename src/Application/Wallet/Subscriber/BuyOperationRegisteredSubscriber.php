@@ -11,7 +11,7 @@ use App\Domain\Wallet\Event\BuyOperationRegistered;
 use App\Domain\Wallet\Position;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class BuyOperationRegisteredSubscriber implements EventSubscriberInterface
+final class BuyOperationRegisteredSubscriber implements EventSubscriberInterface
 {
     /**
      * @var PositionRepositoryInterface

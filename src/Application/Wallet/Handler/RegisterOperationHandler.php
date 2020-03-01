@@ -6,6 +6,7 @@ use App\Application\Wallet\Command\RegisterOperation;
 use App\Application\Wallet\Repository\ExchangeMoneyRepositoryInterface;
 use App\Application\Wallet\Repository\OperationRepositoryInterface;
 use App\Domain\Wallet\Operation;
+use App\Infrastructure\Exception\NotFoundException;
 use App\Infrastructure\Storage\Wallet\ProjectionWalletRepository;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
@@ -40,7 +41,16 @@ class RegisterOperationHandler implements MessageHandlerInterface
     {
         $wallet = $this->projectionWalletRepository->find($message->getWalletId());
 
-        $exchangeRate = $this->exchangeMoneyRepository->find($message->getStock()->getCurrency(), $wallet->getCurrency());
+        if ($wallet === null) {
+            throw new NotFoundException('Wallet not found', [
+                'id' => $message->getWalletId()
+            ]);
+        }
+
+        $exchangeRate = null;
+        if (\in_array($message->getType(), Operation::TYPES_EXCHANGEABLE)) {
+            $exchangeRate = $this->exchangeMoneyRepository->find($message->getStock()->getCurrency(), $wallet->getCurrency());
+        }
 
         $operation = Operation::register(
             $wallet,

@@ -4,6 +4,7 @@ namespace App\Domain\Wallet;
 
 use App\Domain\Wallet\Event\WalletBuyOperationUpdated;
 use App\Domain\Wallet\Event\WalletBuySellOperationUpdated;
+use App\Domain\Wallet\Event\WalletConnectivityUpdated;
 use App\Domain\Wallet\Event\WalletCreated;
 use App\Domain\Wallet\Event\WalletInvestmentIncreased;
 use App\Domain\Wallet\Event\WalletSellOperationUpdated;
@@ -280,6 +281,57 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
+    public function increaseConnectivity(Operation $operation): self
+    {
+        $book = $this->book;
+
+        $funds = $book->getFunds()->decrease($operation->getValue());
+        $benefits = $book->getCapital()->increase($funds->decrease($book->getInvested()));
+
+        $percentageBenefits = $book->getInvested()->getValue() ?
+            $benefits->getValue() * 100 / $book->getInvested()->getValue() :
+            100;
+
+        $bookConnectivity = BookEntry::createBookEntry('connectivity');
+
+        $year = (string) Date::getYear($operation->getDateAt());
+        $bookConnectivityYearEntry = BookEntry::createYearEntry($bookConnectivity, $year);
+        $bookConnectivity->getEntries()->add($bookConnectivityYearEntry);
+
+        $month = (string) Date::getMonth($operation->getDateAt());
+        $bookConnectivityMonthEntry = BookEntry::createMonthEntry($bookConnectivityYearEntry, $month);
+        $bookConnectivityYearEntry->getEntries()->add($bookConnectivityMonthEntry);
+
+        if ($connectivity = $book->getConnection()) {
+            $bookConnectivity->setTotal($connectivity->getTotal());
+
+            if ($entry = $connectivity->getBookEntry($year)) {
+                $bookConnectivityYearEntry->setTotal($entry->getTotal());
+
+                if ($entry = $entry->getBookEntry($month)) {
+                    $bookConnectivityMonthEntry->setTotal($entry->getTotal());
+                }
+            }
+        }
+
+        $bookConnectivity->increaseTotal($operation->getCommissionsPaid());
+        $bookConnectivityYearEntry->increaseTotal($operation->getCommissionsPaid());
+        $bookConnectivityMonthEntry->increaseTotal($operation->getCommissionsPaid());
+
+        $this->recordChange(
+            new WalletConnectivityUpdated(
+                $this->id,
+                $operation->getDateAt(),
+                $funds,
+                $benefits,
+                $percentageBenefits,
+                $bookConnectivity
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         $event = $changed->getPayload();
@@ -322,13 +374,33 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     ->setBenefits($event->getBenefits())
                     ->setPercentageBenefits($event->getPercentageBenefits());
 
-                $commissions = $this->book->getCommissions();
-                if (!$commissions) {
-                     $commissions = $event->getCommissions();
+                $connection = $this->book->getCommissions();
+                if (!$connection) {
+                     $connection = $event->getCommissions();
                 } else {
-                    $commissions->merge($event->getCommissions());
+                    $connection->merge($event->getCommissions());
                 }
-                $this->book->setCommissions($commissions);
+                $this->book->setCommissions($connection);
+
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+
+            case WalletConnectivityUpdated::class:
+                /** @var WalletConnectivityUpdated $event */
+
+                $this->book
+                    ->setFunds($event->getFunds())
+                    ->setBenefits($event->getBenefits())
+                    ->setPercentageBenefits($event->getPercentageBenefits());
+
+                $connection = $this->book->getConnection();
+                if (!$connection) {
+                     $connection = $event->getConnectivity();
+                } else {
+                    $connection->merge($event->getConnectivity());
+                }
+                $this->book->setConnection($connection);
 
                 $this->updatedAt = $changed->getCreatedAt();
 
