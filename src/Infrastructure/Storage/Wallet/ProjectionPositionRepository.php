@@ -4,7 +4,10 @@ namespace App\Infrastructure\Storage\Wallet;
 
 use App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface;
 use App\Domain\Wallet\Position;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\CompositeExpression;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -13,7 +16,8 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Position[]    findAll()
  * @method Position[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-final class ProjectionPositionRepository extends ServiceEntityRepository implements ProjectionPositionRepositoryInterface
+final class ProjectionPositionRepository extends ServiceEntityRepository implements
+    ProjectionPositionRepositoryInterface
 {
     public function __construct(RegistryInterface $registry)
     {
@@ -31,7 +35,7 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
 
         return $this->findOneBy(
             [
-                'wallet' => $walletId,
+                'wallet'  => $walletId,
                 'stockId' => $stockId,
             ] + $whereStatus
         );
@@ -48,5 +52,29 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
                 'status' => $status,
             ]
         );
+    }
+
+    public function findByStockOpenDateAt(string $walletId, string $stockId, DateTime $datedAt): ?Position
+    {
+        /*
+         * WHERE wallet = :walletId
+         * AND stock = :stockId
+         * AND (
+         *     openedAt <= :datedAt
+         *     AND (
+         *         closedAt >= :datedAt
+         *         OR closedAt is null
+         *     )
+         * )
+         */
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.wallet = :walletId AND p.stockId = :stockId')
+            ->setParameter('walletId', $walletId)
+            ->setParameter('stockId', $stockId)
+            ->andWhere('p.openedAt <= :datedAt AND (p.closedAt >= :datedAt OR p.closedAt is null)')
+            ->setParameter('datedAt', $datedAt)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
     }
 }

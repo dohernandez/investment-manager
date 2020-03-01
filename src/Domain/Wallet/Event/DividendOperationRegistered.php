@@ -40,7 +40,7 @@ final class DividendOperationRegistered
     private $stock;
 
     /**
-     * @var Money
+     * @var Money|null
      */
     private $price;
 
@@ -61,7 +61,7 @@ final class DividendOperationRegistered
         string $type,
         Money $value,
         Stock $stock,
-        Money $price,
+        ?Money $price = null,
         ?Money $priceChange = null,
         ?Money $priceChangeCommission = null
     )
@@ -107,7 +107,7 @@ final class DividendOperationRegistered
         return $this->stock;
     }
 
-    public function getPrice(): Money
+    public function getPrice(): ?Money
     {
         return $this->price;
     }

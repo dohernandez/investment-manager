@@ -6,6 +6,7 @@ use App\Domain\Wallet\Event\WalletBuyOperationUpdated;
 use App\Domain\Wallet\Event\WalletBuySellOperationUpdated;
 use App\Domain\Wallet\Event\WalletConnectivityUpdated;
 use App\Domain\Wallet\Event\WalletCreated;
+use App\Domain\Wallet\Event\WalletDividendsUpdated;
 use App\Domain\Wallet\Event\WalletInterestUpdated;
 use App\Domain\Wallet\Event\WalletInvestmentIncreased;
 use App\Domain\Wallet\Event\WalletSellOperationUpdated;
@@ -382,6 +383,57 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
+    public function updateDividendOperation(Operation $operation): self
+    {
+        $book = $this->book;
+
+        $funds = $book->getFunds()->increase($operation->getValue());
+        $benefits = $book->getCapital()->increase($funds->decrease($book->getInvested()));
+
+        $percentageBenefits = $book->getInvested()->getValue() ?
+            $benefits->getValue() * 100 / $book->getInvested()->getValue() :
+            100;
+
+        $bookDividends = BookEntry::createBookEntry('dividends');
+
+        $year = (string)Date::getYear($operation->getDateAt());
+        $bookDividendsYearEntry = BookEntry::createYearEntry($bookDividends, $year);
+        $bookDividends->getEntries()->add($bookDividendsYearEntry);
+
+        $month = (string)Date::getMonth($operation->getDateAt());
+        $bookDividendsMonthEntry = BookEntry::createMonthEntry($bookDividendsYearEntry, $month);
+        $bookDividendsYearEntry->getEntries()->add($bookDividendsMonthEntry);
+
+        if ($dividends = $book->getDividends()) {
+            $bookDividends->setTotal($dividends->getTotal());
+
+            if ($entry = $dividends->getBookEntry($year)) {
+                $bookDividendsYearEntry->setTotal($entry->getTotal());
+
+                if ($entry = $entry->getBookEntry($month)) {
+                    $bookDividendsMonthEntry->setTotal($entry->getTotal());
+                }
+            }
+        }
+
+        $bookDividends->increaseTotal($operation->getValue());
+        $bookDividendsYearEntry->increaseTotal($operation->getValue());
+        $bookDividendsMonthEntry->increaseTotal($operation->getValue());
+
+        $this->recordChange(
+            new WalletDividendsUpdated(
+                $this->id,
+                $operation->getDateAt(),
+                $funds,
+                $benefits,
+                $percentageBenefits,
+                $bookDividends
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         $event = $changed->getPayload();
@@ -424,13 +476,13 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     ->setBenefits($event->getBenefits())
                     ->setPercentageBenefits($event->getPercentageBenefits());
 
-                $interests = $this->book->getCommissions();
-                if (!$interests) {
-                    $interests = $event->getCommissions();
+                $dividends = $this->book->getCommissions();
+                if (!$dividends) {
+                    $dividends = $event->getCommissions();
                 } else {
-                    $interests->merge($event->getCommissions());
+                    $dividends->merge($event->getCommissions());
                 }
-                $this->book->setCommissions($interests);
+                $this->book->setCommissions($dividends);
 
                 $this->updatedAt = $changed->getCreatedAt();
 
@@ -444,13 +496,13 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     ->setBenefits($event->getBenefits())
                     ->setPercentageBenefits($event->getPercentageBenefits());
 
-                $interests = $this->book->getConnection();
-                if (!$interests) {
-                    $interests = $event->getConnectivity();
+                $dividends = $this->book->getConnection();
+                if (!$dividends) {
+                    $dividends = $event->getConnectivity();
                 } else {
-                    $interests->merge($event->getConnectivity());
+                    $dividends->merge($event->getConnectivity());
                 }
-                $this->book->setConnection($interests);
+                $this->book->setConnection($dividends);
 
                 $this->updatedAt = $changed->getCreatedAt();
 
@@ -464,13 +516,33 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     ->setBenefits($event->getBenefits())
                     ->setPercentageBenefits($event->getPercentageBenefits());
 
-                $interests = $this->book->getInterest();
-                if (!$interests) {
-                    $interests = $event->getInterests();
+                $dividends = $this->book->getInterest();
+                if (!$dividends) {
+                    $dividends = $event->getInterests();
                 } else {
-                    $interests->merge($event->getInterests());
+                    $dividends->merge($event->getInterests());
                 }
-                $this->book->setInterest($interests);
+                $this->book->setInterest($dividends);
+
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+
+            case WalletDividendsUpdated::class:
+                /** @var WalletDividendsUpdated $event */
+
+                $this->book
+                    ->setFunds($event->getFunds())
+                    ->setBenefits($event->getBenefits())
+                    ->setPercentageBenefits($event->getPercentageBenefits());
+
+                $dividends = $this->book->getDividends();
+                if (!$dividends) {
+                    $dividends = $event->getDividends();
+                } else {
+                    $dividends->merge($event->getDividends());
+                }
+                $this->book->setDividends($dividends);
 
                 $this->updatedAt = $changed->getCreatedAt();
 

@@ -54,6 +54,11 @@ final class Stock
     private $nextDividendExDate;
 
     /**
+     * @var DateTime|null
+     */
+    private $prevDividendExDate;
+
+    /**
      * @var Money|null
      */
     private $toPayDividend;
@@ -78,6 +83,7 @@ final class Stock
         ?Money $preClose = null,
         ?Money $nextDividend = null,
         ?DateTime $nextDividendExDate = null,
+        ?DateTime $prevDividendExDate = null,
         ?Money $toPayDividend = null,
         ?DateTime $toPayDividendDate = null,
         string $notes = null
@@ -91,6 +97,7 @@ final class Stock
         $this->preClose = $preClose;
         $this->nextDividend = $nextDividend;
         $this->nextDividendExDate = $nextDividendExDate;
+        $this->prevDividendExDate = $prevDividendExDate;
         $this->toPayDividend = $toPayDividend;
         $this->toPayDividendDate = $toPayDividendDate;
         $this->notes = $notes;
@@ -149,6 +156,11 @@ final class Stock
     public function getNextDividendExDate(): ?DateTime
     {
         return $this->nextDividendExDate;
+    }
+
+    public function getPrevDividendExDate(): ?DateTime
+    {
+        return $this->prevDividendExDate;
     }
 
     public function getToPayDividend(): ?Money

@@ -4,8 +4,10 @@ namespace App\Domain\Wallet;
 
 use App\Domain\Wallet\Event\CloseOperationRegistered;
 use App\Domain\Wallet\Event\PositionDecreased;
+use App\Domain\Wallet\Event\PositionDividendCredited;
 use App\Domain\Wallet\Event\PositionIncreased;
 use App\Domain\Wallet\Event\PositionOpened;
+use App\Infrastructure\Date\Date;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
@@ -344,6 +346,53 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
+    public function increaseDividend(Operation $operation): self
+    {
+        $book = $this->book;
+
+        $bookDividendPaid = BookEntry::createBookEntry('dividends');
+
+        $year = (string)Date::getYear($operation->getDateAt());
+        $bookDividendPaidYearEntry = BookEntry::createYearEntry($bookDividendPaid, $year);
+        $bookDividendPaid->getEntries()->add($bookDividendPaidYearEntry);
+
+        $month = (string)Date::getMonth($operation->getDateAt());
+        $bookDividendPaidMonthEntry = BookEntry::createMonthEntry($bookDividendPaidYearEntry, $month);
+        $bookDividendPaidYearEntry->getEntries()->add($bookDividendPaidMonthEntry);
+
+        if ($dividendPaid = $book->getDividendPaid()) {
+            $bookDividendPaid->setTotal($dividendPaid->getTotal());
+
+            if ($entry = $dividendPaid->getBookEntry($year)) {
+                $bookDividendPaidYearEntry->setTotal($entry->getTotal());
+
+                if ($entry = $entry->getBookEntry($month)) {
+                    $bookDividendPaidMonthEntry->setTotal($entry->getTotal());
+                }
+            }
+        }
+
+        $bookDividendPaid->increaseTotal($operation->getValue());
+        $bookDividendPaidYearEntry->increaseTotal($operation->getValue());
+        $bookDividendPaidMonthEntry->increaseTotal($operation->getValue());
+
+        $benefits = $book->getSells()
+            ->increase($bookDividendPaid->getTotal())
+            ->decrease($book->getBuys());
+        $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+
+        $this->recordChange(
+            new PositionDividendCredited(
+                $this->getId(),
+                $benefits,
+                $percentageBenefits,
+                $bookDividendPaid
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         $this->updatedAt = $changed->getCreatedAt();
@@ -407,6 +456,22 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setChanged(null);
                 $this->book->setPercentageChanged(null);
                 $this->book->setPreClosed(null);
+
+                break;
+
+            case PositionDividendCredited::class:
+                /** @var PositionDividendCredited $event */
+
+                $this->book->setBenefits($event->getBenefits());
+                $this->book->setPercentageBenefits($event->getPercentageBenefits());
+
+                $dividendPaid = $this->book->getDividendPaid();
+                if (!$dividendPaid) {
+                    $dividendPaid = $event->getDividendPaid();
+                } else {
+                    $dividendPaid->merge($event->getDividendPaid());
+                }
+                $this->book->setDividendPaid($dividendPaid);
 
                 break;
         }

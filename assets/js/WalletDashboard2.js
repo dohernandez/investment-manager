@@ -105,9 +105,9 @@ class WalletDashboardHeader {
             $(span).html('<small>' + statistic.netCapital.currency.symbol + '</small> ' + statistic.netCapital.preciseValue.toFixed(2) + '</span>')
         });
 
-        if (statistic.dividend) {
+        if (statistic.dividends) {
             $('.js-wallet-dividend').each(function (index, span) {
-                $(span).html('<small>' + statistic.dividend.currency.symbol + '</small> ' + statistic.dividend.preciseValue.toFixed(2) + '</span>')
+                $(span).html('<small>' + statistic.dividends.currency.symbol + '</small> ' + statistic.dividends.preciseValue.toFixed(2) + '</span>')
             });
         }
 

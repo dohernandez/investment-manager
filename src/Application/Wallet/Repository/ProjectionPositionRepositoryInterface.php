@@ -3,6 +3,7 @@
 namespace App\Application\Wallet\Repository;
 
 use App\Domain\Wallet\Position;
+use DateTime;
 
 interface ProjectionPositionRepositoryInterface
 {
@@ -15,4 +16,6 @@ interface ProjectionPositionRepositoryInterface
      * @return Position[]
      */
     public function findAllByStatus(string $walletId, string $status): array;
+
+    public function findByStockOpenDateAt(string $walletId, string $stockId, DateTime $datedAt): ?Position;
 }
