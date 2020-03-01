@@ -20,4 +20,19 @@ final class ProjectionStockRepository extends ServiceEntityRepository implements
     {
         parent::__construct($registry, Stock::class);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllMatching(string $query, int $limit = 5): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.name LIKE :name OR s.symbol LIKE :symbol')
+            ->setParameter('name', '%'.$query.'%')
+            ->setParameter('symbol', '%'.$query.'%')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

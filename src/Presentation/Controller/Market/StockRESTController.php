@@ -27,13 +27,22 @@ final class StockRESTController extends RESTController
     /**
      * @Route("/", name="stock_list", methods={"GET"}, options={"expose"=true})
      *
+     * @param Request $request
      * @param ProjectionStockRepositoryInterface $repo
      *
      * @return JsonResponse
      */
-    public function all(ProjectionStockRepositoryInterface $repo): JsonResponse
+    public function all(Request $request, ProjectionStockRepositoryInterface $repo): JsonResponse
     {
-        return $this->createApiResponse($repo->findAll());
+        $query = $request->query->get('q');
+
+        if ($query !== null) {
+            $stocks = $repo->findAllMatching($query);
+        } else {
+            $stocks = $repo->findAll();
+        }
+
+        return $this->createApiResponse($stocks);
     }
 
     /**

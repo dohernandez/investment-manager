@@ -19,4 +19,12 @@ interface ProjectionStockRepositoryInterface
      * @return Stock[] The objects.
      */
     public function findAll();
+
+    /**
+     * @param string $query
+     * @param int $limit
+     *
+     * @return Stock[] The objects.
+     */
+    public function findAllMatching(string $query, int $limit = 5): array;
 }
