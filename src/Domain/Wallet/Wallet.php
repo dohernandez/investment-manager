@@ -314,9 +314,9 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
             }
         }
 
-        $bookConnectivity->increaseTotal($operation->getCommissionsPaid());
-        $bookConnectivityYearEntry->increaseTotal($operation->getCommissionsPaid());
-        $bookConnectivityMonthEntry->increaseTotal($operation->getCommissionsPaid());
+        $bookConnectivity->increaseTotal($operation->getValue());
+        $bookConnectivityYearEntry->increaseTotal($operation->getValue());
+        $bookConnectivityMonthEntry->increaseTotal($operation->getValue());
 
         $this->recordChange(
             new WalletConnectivityUpdated(
