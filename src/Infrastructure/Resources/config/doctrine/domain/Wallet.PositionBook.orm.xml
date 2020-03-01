@@ -11,8 +11,8 @@
         </id>
 
         <field name="currency" column="currency" type="object" />
-        <field name="buy" column="buy" type="object" />
-        <field name="sell" column="sell" type="object" />
+        <field name="buys" column="buys" type="object" />
+        <field name="sells" column="sells" type="object" />
         <field name="averagePrice" column="average_price" type="object" />
         <field name="nextDividend" column="next_dividend" type="object" nullable="true" />
         <field name="nextDividendYield" column="next_dividend_yield" type="float" nullable="true" />

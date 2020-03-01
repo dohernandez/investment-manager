@@ -20,13 +20,20 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
         parent::__construct($registry, Position::class);
     }
 
-    public function findByStock(string $walletId, string $stockId): ?Position
+    public function findByStock(string $walletId, string $stockId, ?string $status = null): ?Position
     {
+        $whereStatus = [];
+        if ($status !== null || $status !== '') {
+            $whereStatus = [
+                'status' => $status,
+            ];
+        }
+
         return $this->findOneBy(
             [
                 'wallet' => $walletId,
                 'stockId' => $stockId,
-            ]
+            ] + $whereStatus
         );
     }
 

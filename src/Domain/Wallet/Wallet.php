@@ -3,8 +3,10 @@
 namespace App\Domain\Wallet;
 
 use App\Domain\Wallet\Event\WalletBuyOperationUpdated;
+use App\Domain\Wallet\Event\WalletBuySellOperationUpdated;
 use App\Domain\Wallet\Event\WalletCreated;
 use App\Domain\Wallet\Event\WalletInvestmentIncreased;
+use App\Domain\Wallet\Event\WalletSellOperationUpdated;
 use App\Infrastructure\Date\Date;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -224,6 +226,60 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
+    public function updateSellOperation(Operation $operation): self
+    {
+        $book = $this->book;
+
+        $capital = $book->getCapital()->decrease($operation->getCapital());
+        $funds = $book->getFunds()->increase($operation->getTotalEarned());
+        $benefits = $capital->increase($funds->decrease($book->getInvested()));
+
+        $percentageBenefits = $book->getInvested()->getValue() ?
+            $benefits->getValue() * 100 / $book->getInvested()->getValue() :
+            100;
+
+        $bookCommissions = BookEntry::createBookEntry('commissions');
+
+        $year = (string) Date::getYear($operation->getDateAt());
+        $bookCommissionsYearEntry = BookEntry::createYearEntry($bookCommissions, $year);
+        $bookCommissions->getEntries()->add($bookCommissionsYearEntry);
+
+        $month = (string) Date::getMonth($operation->getDateAt());
+        $bookCommissionsMonthEntry = BookEntry::createMonthEntry($bookCommissionsYearEntry, $month);
+        $bookCommissionsYearEntry->getEntries()->add($bookCommissionsMonthEntry);
+
+
+        if ($commissions = $book->getCommissions()) {
+            $bookCommissions->setTotal($commissions->getTotal());
+
+            if ($entry = $commissions->getBookEntry($year)) {
+                $bookCommissionsYearEntry->setTotal($entry->getTotal());
+
+                if ($entry = $entry->getBookEntry($month)) {
+                    $bookCommissionsMonthEntry->setTotal($entry->getTotal());
+                }
+            }
+        }
+
+        $bookCommissions->increaseTotal($operation->getCommissionsPaid());
+        $bookCommissionsYearEntry->increaseTotal($operation->getCommissionsPaid());
+        $bookCommissionsMonthEntry->increaseTotal($operation->getCommissionsPaid());
+
+        $this->recordChange(
+            new WalletSellOperationUpdated(
+                $this->id,
+                $operation->getDateAt(),
+                $capital,
+                $funds,
+                $benefits,
+                $percentageBenefits,
+                $bookCommissions
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         $event = $changed->getPayload();
@@ -257,7 +313,8 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 break;
 
             case WalletBuyOperationUpdated::class:
-                /** @var WalletBuyOperationUpdated $event */
+            case WalletSellOperationUpdated::class:
+                /** @var WalletBuySellOperationUpdated $event */
 
                 $this->book
                     ->setCapital($event->getCapital())

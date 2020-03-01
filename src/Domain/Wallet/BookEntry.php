@@ -92,6 +92,13 @@ class BookEntry
         return $this->parent;
     }
 
+    public function setParent(?BookEntry $parent): self
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
     public function getType(): string
     {
         return $this->type;
@@ -171,6 +178,7 @@ class BookEntry
             }
 
             if (!$merged) {
+                $bEntry->setParent($this);
                 $this->entries->add($bEntry);
             }
         }

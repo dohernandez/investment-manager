@@ -310,6 +310,14 @@ class Table {
         let $paginationInfo = this.$wrapper.find(this.selectors.paginationInfo);
         $paginationInfo.parent().css('margin', '24px 0');
 
+        if (_options.page < 1 || _options.page > _options.totalPages) {
+            let displayRecords = _options.records;
+
+            this.recreateTableWithRecords(displayRecords, 0);
+
+            return;
+        }
+
         // init pagination object
         $paginator.twbsPagination({
             totalPages: _options.totalPages,
@@ -334,7 +342,7 @@ class Table {
                 // to keep the current page
                 this.page = page
             }.bind(this),
-            startPage: _options.page
+            startPage: Math.min(_options.page, _options.totalPages),
         });
 
         if (_options.totalRecords <= _options.showPerPage) {

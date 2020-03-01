@@ -7,11 +7,12 @@ use App\Application\Wallet\Repository\PositionRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionOperationRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface;
 use App\Application\Wallet\Repository\WalletRepositoryInterface;
-use App\Domain\Wallet\Event\BuyOperationRegistered;
+use App\Domain\Wallet\Event\SellOperationRegistered;
 use App\Domain\Wallet\Position;
+use App\Infrastructure\Exception\NotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class BuyOperationRegisteredSubscriber implements EventSubscriberInterface
+class SellOperationRegisteredSubscriber implements EventSubscriberInterface
 {
     /**
      * @var PositionRepositoryInterface
@@ -51,14 +52,27 @@ class BuyOperationRegisteredSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            BuyOperationRegistered::class => ['onBuyOperationRegistered', 100],
+            SellOperationRegistered::class => ['onSellOperationRegistered', 100],
         ];
     }
 
-    public function onBuyOperationRegistered(BuyOperationRegistered $event)
+    public function onSellOperationRegistered(SellOperationRegistered $event)
     {
         $wallet = $this->walletRepository->find($event->getWallet()->getId());
+
+        if ($wallet === null) {
+            throw new NotFoundException('Wallet not found', [
+                'id' => $event->getWallet()->getId()
+            ]);
+        }
+
         $operation = $this->projectionOperationRepository->find($event->getId());
+
+        if ($wallet === null) {
+            throw new NotFoundException('Operation not found', [
+                'id' => $event->getId()
+            ]);
+        }
 
         $projectionPosition = $this->projectionPositionRepository->findByStock(
             $wallet->getId(),
@@ -66,20 +80,19 @@ class BuyOperationRegisteredSubscriber implements EventSubscriberInterface
             Position::STATUS_OPEN
         );
 
-        if (!$projectionPosition) {
-            $position = Position::open(
-                $wallet,
-                $event->getStock(),
-                $event->getDateAt()
-            );
-        } else {
-            $position = $this->positionRepository->find($projectionPosition->getId());
+        if ($wallet === null) {
+            throw new NotFoundException('Operation not found', [
+                'walletId' => $wallet->getId(),
+                'stockId' => $event->getStock()->getId(),
+            ]);
         }
 
-        $position->increasePosition($operation);
+        $position = $this->positionRepository->find($projectionPosition->getId());
+
+        $position->decreasePosition($operation);
         $this->positionRepository->save($position);
 
-        $wallet->updateBuyOperation($operation);
+        $wallet->updateSellOperation($operation);
         $this->walletRepository->save($wallet);
     }
 }

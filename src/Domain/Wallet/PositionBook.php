@@ -20,12 +20,12 @@ class PositionBook
     /**
      * @var Money
      */
-    private $buy;
+    private $buys;
 
     /**
      * @var Money
      */
-    private $sell;
+    private $sells;
 
     /**
      * @var Money
@@ -98,8 +98,8 @@ class PositionBook
 
         $self->currency = $currency;
 
-        $self->buy = new Money($currency);
-        $self->sell = new Money($currency);
+        $self->buys = new Money($currency);
+        $self->sells = new Money($currency);
         $self->benefits = new Money($currency);
         $self->averagePrice = new Money($currency);
 
@@ -108,26 +108,36 @@ class PositionBook
         return $self;
     }
 
-    public function getBuy(): Money
+    public function getId(): int
     {
-        return $this->buy;
+        return $this->id;
     }
 
-    public function setBuy(Money $buy): self
+    public function getCurrency(): Currency
     {
-        $this->buy = $buy;
+        return $this->currency;
+    }
+
+    public function getBuys(): Money
+    {
+        return $this->buys;
+    }
+
+    public function setBuys(Money $buys): self
+    {
+        $this->buys = $buys;
 
         return $this;
     }
 
-    public function getSell(): Money
+    public function getSells(): Money
     {
-        return $this->sell;
+        return $this->sells;
     }
 
-    public function setSell(Money $sell): self
+    public function setSells(Money $sells): self
     {
-        $this->sell = $sell;
+        $this->sells = $sells;
 
         return $this;
     }

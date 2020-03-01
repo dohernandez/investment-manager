@@ -3,6 +3,7 @@
 namespace App\Domain\Wallet;
 
 use App\Domain\Wallet\Event\BuyOperationRegistered;
+use App\Domain\Wallet\Event\BuySellOperationRegistered;
 use App\Domain\Wallet\Event\ConnectivityOperationRegistered;
 use App\Domain\Wallet\Event\DividendOperationRegistered;
 use App\Domain\Wallet\Event\InterestOperationRegistered;
@@ -377,6 +378,8 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         switch ($changed->getEventName()) {
             case BuyOperationRegistered::class:
             case SellOperationRegistered::class:
+                /** @var BuySellOperationRegistered $event */
+
                 $this->value = $event->getValue();
                 $this->stock = $event->getStock();
                 $this->stockId = $this->stock->getId();
@@ -391,6 +394,7 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
 
             case InterestOperationRegistered::class:
             case ConnectivityOperationRegistered::class:
+                /** @var BuySellOperationRegistered $event */
 
                 $this->value = $event->getValue();
 

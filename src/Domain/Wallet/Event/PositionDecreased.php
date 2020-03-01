@@ -5,7 +5,7 @@ namespace App\Domain\Wallet\Event;
 use App\Domain\Wallet\Operation;
 use App\Infrastructure\Money\Money;
 
-final class PositionIncreased
+final class PositionDecreased
 {
     /**
      * @var string
@@ -35,7 +35,7 @@ final class PositionIncreased
     /**
      * @var Money
      */
-    private $buys;
+    private $sells;
 
     /**
      * @var Money
@@ -78,7 +78,7 @@ final class PositionIncreased
         Money $invested,
         Money $capital,
         Money $averagePrice,
-        Money $buys,
+        Money $sells,
         Money $benefits,
         float $percentageBenefits,
         ?Money $changed = null,
@@ -92,7 +92,7 @@ final class PositionIncreased
         $this->invested = $invested;
         $this->capital = $capital;
         $this->averagePrice = $averagePrice;
-        $this->buys = $buys;
+        $this->sells = $sells;
         $this->benefits = $benefits;
         $this->percentageBenefits = $percentageBenefits;
         $this->nextDividend = $nextDividend;
@@ -127,9 +127,9 @@ final class PositionIncreased
         return $this->averagePrice;
     }
 
-    public function getBuys(): Money
+    public function getSells(): Money
     {
-        return $this->buys;
+        return $this->sells;
     }
 
     public function getBenefits(): Money

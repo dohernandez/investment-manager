@@ -6,7 +6,7 @@ use App\Domain\Wallet\Position;
 
 interface ProjectionPositionRepositoryInterface
 {
-    public function findByStock(string $walletId, string $stockId): ?Position;
+    public function findByStock(string $walletId, string $stockId, ?string $status = null): ?Position;
 
     /**
      * @param string $walletId

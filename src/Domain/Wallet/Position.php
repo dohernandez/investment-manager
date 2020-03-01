@@ -2,6 +2,8 @@
 
 namespace App\Domain\Wallet;
 
+use App\Domain\Wallet\Event\CloseOperationRegistered;
+use App\Domain\Wallet\Event\PositionDecreased;
 use App\Domain\Wallet\Event\PositionIncreased;
 use App\Domain\Wallet\Event\PositionOpened;
 use App\Infrastructure\EventSource\AggregateRoot;
@@ -52,11 +54,11 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
-     * @var Money|null
+     * @var Money
      */
     private $invested;
 
-    public function getInvested(): ?Money
+    public function getInvested(): Money
     {
         return $this->invested;
     }
@@ -197,10 +199,16 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
     public function increasePosition(Operation $operation): self
     {
         $totalPaid = $operation->getTotalPaid();
-
         $amount = $this->getAmount() + $operation->getAmount();
-        $invested = $this->invested->increase($totalPaid);
         $capital = $this->capital->increase($operation->getCapital());
+        $buys = $this->book->getBuys()->increase($totalPaid);
+        $benefits = $this->book->getSells()
+            ->increase($this->book->getTotalDividendPaid())
+            ->decrease($buys)
+            ->increase($capital);
+        $percentageBenefits = $benefits->getValue() * 100 / $buys->getValue();
+        $invested = $this->invested->increase($totalPaid);
+        $averagePrice = $invested->divide($amount);
 
         // set the owning side
         $this->operations->add($operation);
@@ -209,16 +217,6 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $stock = $operation->getStock();
         // this will keep stock sync in projection.
         $this->stock = $stock;
-
-        $averagePrice = $invested->divide($amount);
-
-        $buy = $this->book->getBuy()->increase($totalPaid);
-        $benefits = $this->book->getSell()
-            ->increase($this->book->getTotalDividendPaid())
-            ->decrease($buy)
-            ->increase($capital);
-
-        $percentageBenefits = $benefits->getValue() * 100 / $buy->getValue();
 
         $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
         $nextDividendYield = null;
@@ -248,7 +246,91 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $invested,
                 $capital,
                 $averagePrice,
-                $buy,
+                $buys,
+                $benefits,
+                $percentageBenefits,
+                $changed,
+                $percentageChanged,
+                $preClosed,
+                $nextDividend,
+                $nextDividendYield
+            )
+        );
+
+        return $this;
+    }
+
+    public function decreasePosition(Operation $operation): self
+    {
+        $book = $this->book;
+
+        $totalEarned = $operation->getTotalEarned();
+        $amount = $this->getAmount() - $operation->getAmount();
+        $sells = $this->book->getSells()->increase($totalEarned);
+        $benefits = $sells
+            ->increase($this->book->getTotalDividendPaid())
+            ->decrease($book->getBuys());
+        $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+
+        // set the owning side
+        $this->operations->add($operation);
+        $operation->setPosition($this);
+
+        if ($amount === 0) {
+            $this->recordChange(
+                new CloseOperationRegistered(
+                    $this->getId(),
+                    $operation->getDateAt(),
+                    $sells,
+                    $benefits,
+                    $percentageBenefits
+                )
+            );
+
+            return $this;
+        }
+
+        $invested = $this->invested->decrease($totalEarned);
+        $averagePrice = $invested->divide($amount);
+        if ($invested->getValue() < 0) {
+            $invested = new Money($book->getCurrency());
+            $averagePrice = new Money($book->getCurrency());
+        }
+        $capital = $this->capital->decrease($operation->getCapital());
+
+        $stock = $operation->getStock();
+        // this will keep stock sync in projection.
+        $this->stock = $stock;
+
+        $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
+        $nextDividendYield = null;
+        if ($nextDividend) {
+            $nextDividendYield = $nextDividend->getValue() * 4 / \max($averagePrice->getValue(), 1) * 100;
+        }
+
+        $changed = $this->getStock()->getChange();
+        $percentageChanged = 100;
+        if ($changed !== null) {
+            $changed = $changed->multiply($amount);
+
+            if ($stock->getPreClose() !== null) {
+                $percentageChanged = $changed->getValue() * 100 / $stock->getPreClose()->getValue();
+            }
+        }
+
+        $preClosed = $stock->getPreClose();
+        if ($preClosed !== null) {
+            $preClosed = $preClosed->multiply($amount);
+        }
+
+        $this->recordChange(
+            new PositionDecreased(
+                $this->getId(),
+                $amount,
+                $invested,
+                $capital,
+                $averagePrice,
+                $sells,
                 $benefits,
                 $percentageBenefits,
                 $changed,
@@ -296,7 +378,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->capital = $event->getCapital();
 
                 $this->book->setAveragePrice($event->getAveragePrice());
-                $this->book->setBuy($event->getBuy());
+                $this->book->setBuys($event->getBuys());
                 $this->book->setBenefits($event->getBenefits());
                 $this->book->setPercentageBenefits($event->getPercentageBenefits());
                 $this->book->setNextDividend($event->getNextDividend());
@@ -304,6 +386,27 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setChanged($event->getChanged());
                 $this->book->setPercentageChanged($event->getPercentageChanged());
                 $this->book->setPreClosed($event->getPreClosed());
+
+                break;
+
+            case CloseOperationRegistered::class:
+                /** @var CloseOperationRegistered $event */
+
+                $this->status = self::STATUS_CLOSE;
+                $this->closedAt = $event->getDateAt();
+                $this->amount = 0;
+                $this->invested = new Money($this->book->getCurrency());
+                $this->capital = new Money($this->book->getCurrency());
+
+                $this->book->setAveragePrice(new Money($this->book->getCurrency()));
+                $this->book->setSells($event->getSells());
+                $this->book->setBenefits($event->getBenefits());
+                $this->book->setPercentageBenefits($event->getPercentageBenefits());
+                $this->book->setNextDividend(null);
+                $this->book->setNextDividendYield(null);
+                $this->book->setChanged(null);
+                $this->book->setPercentageChanged(null);
+                $this->book->setPreClosed(null);
 
                 break;
         }
