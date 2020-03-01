@@ -14,6 +14,7 @@
         <field name="capital" column="capital" type="object"/>
         <field name="funds" column="funds" type="object"/>
         <field name="benefits" column="benefits" type="object"/>
+        <field name="percentageBenefits" column="percentage_benefits" type="float"/>
         <field name="currency" column="currency" type="object"/>
 
         <one-to-one field="commissions" target-entity="App\Domain\Wallet\BookEntry">

@@ -63,7 +63,7 @@ final class WalletStatisticsNormalizer implements SubscribingHandlerInterface
             'benefits' => $walletStatistics->getBenefits() ?
                 $this->serializer->toArray($walletStatistics->getBenefits()) :
                 null,
-            'percentageBenefits' => $walletStatistics->getPercentageBenefits(),
+            'pBenefits' => $walletStatistics->getPercentageBenefits(),
         ];
     }
 }

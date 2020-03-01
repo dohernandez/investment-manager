@@ -215,7 +215,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $buy = $this->book->getBuy()->increase($totalPaid);
         $benefits = $this->book->getSell()
             ->increase($this->book->getTotalDividendPaid())
-            ->decrease($buy);
+            ->decrease($buy)
+            ->increase($capital);
 
         $percentageBenefits = $benefits->getValue() * 100 / $buy->getValue();
 
@@ -223,6 +224,21 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividendYield = null;
         if ($nextDividend) {
             $nextDividendYield = $nextDividend->getValue() * 4 / \max($averagePrice->getValue(), 1) * 100;
+        }
+
+        $changed = $this->getStock()->getChange();
+        $percentageChanged = 100;
+        if ($changed !== null) {
+            $changed = $changed->multiply($amount);
+
+            if ($stock->getPreClose() !== null) {
+                $percentageChanged = $changed->getValue() * 100 / $stock->getPreClose()->getValue();
+            }
+        }
+
+        $preClosed = $stock->getPreClose();
+        if ($preClosed !== null) {
+            $preClosed = $preClosed->multiply($amount);
         }
 
         $this->recordChange(
@@ -235,6 +251,9 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $buy,
                 $benefits,
                 $percentageBenefits,
+                $changed,
+                $percentageChanged,
+                $preClosed,
                 $nextDividend,
                 $nextDividendYield
             )
@@ -282,6 +301,9 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setPercentageBenefits($event->getPercentageBenefits());
                 $this->book->setNextDividend($event->getNextDividend());
                 $this->book->setNextDividendYield($event->getNextDividendYield());
+                $this->book->setChanged($event->getChanged());
+                $this->book->setPercentageChanged($event->getPercentageChanged());
+                $this->book->setPreClosed($event->getPreClosed());
 
                 break;
         }
