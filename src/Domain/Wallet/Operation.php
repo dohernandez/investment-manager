@@ -195,6 +195,11 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->commission->increase($this->priceChangeCommission);
     }
 
+    public function getTotalEarned(): Money
+    {
+        return $this->value->decrease($this->getCommissionsPaid());
+    }
+
     public function getCapital(): Money
     {
         if ($this->type !== Operation::TYPE_BUY && $this->type !== Operation::TYPE_SELL) {
@@ -222,6 +227,42 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
     public function getExchangeRate(): ?ExchangeRate
     {
         return $this->exchangeRate;
+    }
+
+    public function getTitle(): string
+    {
+        if (in_array($this->getType(), [
+            self::TYPE_CONNECTIVITY,
+            self::TYPE_INTEREST
+        ])) {
+            return sprintf(
+                '%s [%s]',
+                $this->getType(),
+                $this->getNetValue()
+            );
+        }
+
+        return sprintf(
+            '%s %s:%s - %d [%s]',
+            $this->getType(),
+            $this->getStock()->getMarket()->getSymbol(),
+            $this->getStock()->getSymbol(),
+            $this->getAmount(),
+            $this->getNetValue()
+        );
+    }
+
+    public function getNetValue(): Money
+    {
+        if ($this->getType() === self::TYPE_BUY) {
+            return $this->getTotalPaid();
+        }
+
+        if ($this->getType() === self::TYPE_SELL) {
+            return $this->getTotalEarned();
+        }
+
+        return $this->getValue();
     }
 
     public static function register(

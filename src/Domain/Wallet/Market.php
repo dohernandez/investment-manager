@@ -40,4 +40,9 @@ final class Market
     {
         return $this->symbol;
     }
+
+    public function getTitle(): string
+    {
+        return $this->getSymbol() . ' - ' . $this->getName();
+    }
 }

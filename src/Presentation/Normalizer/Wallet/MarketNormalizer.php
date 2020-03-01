@@ -2,7 +2,7 @@
 
 namespace App\Presentation\Normalizer\Wallet;
 
-use App\Domain\Wallet\Operation;
+use App\Domain\Wallet\Market;
 use JMS\Serializer\ArrayTransformerInterface;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigatorInterface;
@@ -15,7 +15,7 @@ use JMS\Serializer\JsonSerializationVisitor;
  * @see http://jmsyst.com/libs/serializer/master/handlers
  *
  */
-final class OperationNormalizer implements SubscribingHandlerInterface
+final class MarketNormalizer implements SubscribingHandlerInterface
 {
     /**
      * @var ArrayTransformerInterface
@@ -36,25 +36,19 @@ final class OperationNormalizer implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
                 'format'    => 'json',
-                'type'      => Operation::class,
-                'method'    => 'serializeOperationToJson',
+                'type'      => Market::class,
+                'method'    => 'serializeMarketToJson',
             ],
         ];
     }
 
-    public function serializeOperationToJson(JsonSerializationVisitor $visitor, Operation $operation, array $type, Context $context)
+    public function serializeMarketToJson(JsonSerializationVisitor $visitor, Market $market, array $type, Context $context)
     {
         return [
-            'id' => $operation->getId(),
-            'dateAt' => $operation->getDateAt()->format('c'),
-            'type' => $operation->getType(),
-            'stock' => $this->serializer->toArray($operation->getStock()),
-            'price' => $this->serializer->toArray($operation->getPrice()),
-            'amount' => $operation->getType(),
-            'value' => $this->serializer->toArray($operation->getValue()),
-            'commissions' => $this->serializer->toArray($operation->getCommissionsPaid()),
-
-            'title' => $operation->getTitle(),
+            'id' => $market->getId(),
+            'name' => $market->getName(),
+            'symbol' => $market->getSymbol(),
+            'title' => $market->getTitle(),
         ];
     }
 }

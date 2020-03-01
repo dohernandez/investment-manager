@@ -28,6 +28,8 @@ class WalletDashboard {
         this.operationPanel = operationPanel;
 
         this.header = new WalletDashboardHeader();
+
+        eventBus.on("entity_operation_created", this.onOperationCreated.bind(this));
     }
 
     render() {
@@ -36,6 +38,7 @@ class WalletDashboard {
 
     load() {
         this._loadWalletStatistics();
+        this._loadWalletOperations();
     }
 
     _loadWalletStatistics() {
@@ -47,6 +50,25 @@ class WalletDashboard {
 
             this.header.setData(statistic);
         });
+    }
+
+    _loadWalletOperations() {
+        InvestmentManagerClient.sendRPC(
+            Routing.generate('wallet_operation_list', {'walletId': this.walletId}),
+            'GET'
+        ).then((result) => {
+            // let operations = result.items;
+            console.log(result);
+            this.operationPanel.setData(result);
+        });
+    }
+
+    toggleExpanded() {
+        this.operationPanel.toggleExpanded();
+    }
+
+    onOperationCreated() {
+        this.load()
     }
 }
 

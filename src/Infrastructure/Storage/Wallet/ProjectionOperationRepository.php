@@ -19,4 +19,16 @@ final class ProjectionOperationRepository extends ServiceEntityRepository implem
     {
         parent::__construct($registry, Operation::class);
     }
+
+    public function findAllByWallet(string $walletId): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.wallet = :walletId')
+            ->setParameter('walletId', $walletId)
+            ->orderBy('o.dateAt', 'DESC')
+//            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

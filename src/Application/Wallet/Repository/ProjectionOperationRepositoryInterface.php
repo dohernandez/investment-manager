@@ -14,4 +14,6 @@ interface ProjectionOperationRepositoryInterface
      * @return Operation|null The operation.
      */
     public function find($id);
+
+    public function findAllByWallet(string $walletId): array;
 }
