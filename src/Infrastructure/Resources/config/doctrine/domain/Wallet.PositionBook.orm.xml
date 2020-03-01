@@ -21,6 +21,7 @@
         <field name="benefits" column="benefits" type="object" />
         <field name="percentageBenefits" column="percentage_benefits" type="float" />
         <field name="changed" column="changed" type="object" nullable="true" />
+        <field name="preClosed" column="pre_closed" type="object" nullable="true" />
         <field name="percentageChanged" column="percentage_changed" type="float" nullable="true" />
 
         <one-to-one field="dividendPaid" target-entity="App\Domain\Wallet\BookEntry">
