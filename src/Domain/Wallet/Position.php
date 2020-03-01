@@ -151,6 +151,28 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->wallet;
     }
 
+    public function getTitle(): string
+    {
+        return sprintf(
+            '%s %s:%s - %d [%s]',
+            $this->getWallet()->getName(),
+            $this->getStock()->getMarket()->getSymbol(),
+            $this->getStock()->getSymbol(),
+            $this->getAmount(),
+            $this->getBook()->getBenefits()
+        );
+    }
+
+    public function getChange(): ?Money
+    {
+        $change = $this->getStock()->getChange();
+        if ($change === null) {
+            return null;
+        }
+
+        return $change->multiply($this->getAmount());
+    }
+
     public static function open(Wallet $wallet, Stock $stock, DateTime $openedAt): self
     {
         $id = UUID\Generator::generate();

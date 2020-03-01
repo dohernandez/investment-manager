@@ -13,6 +13,7 @@
 {% block page_content %}
 
     {% include 'wallets/partial/head-dashboard-2.html.twig' %}
+    {% include 'wallets/partial/position-box-2.html.twig' %}
     {% include 'wallets/partial/operation-box-2.html.twig' %}
 
 {% endblock %}
@@ -21,6 +22,7 @@
     {{ parent() }}
 
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
+    {% include 'wallets/partial/position-box-2-scripts.html.twig' %}
     {% include 'wallets/partial/operation-box-2-scripts.html.twig' %}
 
     <script type="text/javascript"  src="{{ asset('build/wallet_dashboard_2.js') }}"></script>
@@ -30,28 +32,63 @@
             const walletId = "{{ wallet_id }}";
 
             const eventBus = window.eventBus;
+            const searchFuncPanel = function (entities, search) {
+                if (search.length >= 2) {
+                    let $matches = [];
+
+                    search = search.toUpperCase();
+
+                    $.each(entities, function (index, entity) {
+                        if (entity.stock) {
+                            if (entity.stock.name.toUpperCase().indexOf(search) > -1 ||
+                                entity.stock.symbol.toUpperCase().indexOf(search) > -1 ) {
+
+                                $matches.push(entity);
+                            }
+                        }
+                    });
+
+                    return $matches;
+                }
+
+                return null;
+            };
+
+            // Position panel
+            const positionEntityTitle = "{{ position.entity_name|lower|replace({' ': '_'}) }}";
+            const positionEntityName = "{{ position.entity_name|trans|lower }}";
+
+            let positionPanelTable = createPositionPanel(
+                positionEntityTitle,
+                positionEntityName,
+                walletId,
+                searchFuncPanel
+            );
 
             // Operation panel
-            const entityTitle = "{{ operation.entity_name|lower|replace({' ': '_'}) }}";
-            const entityName = "{{ operation.entity_name|trans|lower }}";
+            const operationEntityTitle = "{{ operation.entity_name|lower|replace({' ': '_'}) }}";
+            const operationEntityName = "{{ operation.entity_name|trans|lower }}";
 
-            const operationPanelTable = createOperationPanel(
-                entityTitle,
-                entityName,
-                walletId
+            let operationPanelTable = createOperationPanel(
+                operationEntityTitle,
+                operationEntityName,
+                walletId,
+                searchFuncPanel
             );
 
             const createOperationButton = createButtonCreatOperation(
-                entityTitle,
-                entityName,
+                operationEntityTitle,
+                operationEntityName,
                 walletId,
                 operationPanelTable
             );
 
             operationPanelTable.addButton(createOperationButton);
+            positionPanelTable.addButton(createOperationButton);
 
             let panel = new WalletDashboard(
                 walletId,
+                positionPanelTable,
                 operationPanelTable
             );
 

@@ -2,17 +2,10 @@
 
 namespace App\Presentation\Controller\Wallet;
 
-use App\Application\Market\Command\UpdateStockWithPrice;
-use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
-use App\Application\Wallet\Command\CreateWallet;
-use App\Application\Wallet\Command\GetWalletStatistics;
 use App\Application\Wallet\Command\RegisterOperation;
 use App\Application\Wallet\Repository\ProjectionOperationRepositoryInterface;
-use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
 use App\Presentation\Controller\RESTController;
-use App\Presentation\Form\Market\EditStockType;
 use App\Presentation\Form\Wallet\CreateOperationType;
-use App\Presentation\Form\Wallet\CreateWalletType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -21,10 +21,12 @@ const eventBus = require('js-event-bus')();
 class WalletDashboard {
     constructor(
         walletId,
+        positionPanel,
         operationPanel
     ) {
         this.walletId = walletId;
 
+        this.positionPanel = positionPanel;
         this.operationPanel = operationPanel;
 
         this.header = new WalletDashboardHeader();
@@ -33,11 +35,13 @@ class WalletDashboard {
     }
 
     render() {
+        this.positionPanel.render();
         this.operationPanel.render();
     }
 
     load() {
         this._loadWalletStatistics();
+        this._loadWalletPositions();
         this._loadWalletOperations();
     }
 
@@ -58,12 +62,22 @@ class WalletDashboard {
             'GET'
         ).then((result) => {
             // let operations = result.items;
-            console.log(result);
             this.operationPanel.setData(result);
         });
     }
 
+    _loadWalletPositions() {
+        InvestmentManagerClient.sendRPC(
+            Routing.generate('wallet_position_list', {'walletId': this.walletId, 's': 'open'}),
+            'GET'
+        ).then((result) => {
+            // let positions = result.items;
+            this.positionPanel.setData(result);
+        });
+    }
+
     toggleExpanded() {
+        this.positionPanel.toggleExpanded();
         this.operationPanel.toggleExpanded();
     }
 

@@ -8,9 +8,7 @@ use App\Application\Wallet\Repository\ProjectionOperationRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface;
 use App\Application\Wallet\Repository\WalletRepositoryInterface;
 use App\Domain\Wallet\Event\BuyOperationRegistered;
-use App\Domain\Wallet\Operation;
 use App\Domain\Wallet\Position;
-use App\Infrastructure\Money\Money;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class BuyOperationRegisteredSubscriber implements EventSubscriberInterface
@@ -62,7 +60,10 @@ class BuyOperationRegisteredSubscriber implements EventSubscriberInterface
         $wallet = $this->walletRepository->find($event->getWallet()->getId());
         $operation = $this->projectionOperationRepository->find($event->getId());
 
-        $projectionPosition = $this->projectionPositionRepository->findByStock($event->getStock()->getId());
+        $projectionPosition = $this->projectionPositionRepository->findByStock(
+            $wallet->getId(),
+            $event->getStock()->getId()
+        );
 
         if (!$projectionPosition) {
             $position = Position::open(

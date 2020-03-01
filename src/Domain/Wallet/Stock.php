@@ -36,6 +36,16 @@ final class Stock
     /**
      * @var Money|null
      */
+    private $change;
+
+    /**
+     * @var Money|null
+     */
+    private $preClose;
+
+    /**
+     * @var Money|null
+     */
     private $nextDividend;
 
     /**
@@ -53,26 +63,37 @@ final class Stock
      */
     private $toPayDividendDate;
 
+    /**
+     * @var string
+     */
+    private $notes;
+
     public function __construct(
         string $id,
         string $name,
         string $symbol,
         Market $market,
         ?Money $price = null,
+        ?Money $change = null,
+        ?Money $preClose = null,
         ?Money $nextDividend = null,
         ?DateTime $nextDividendExDate = null,
         ?Money $toPayDividend = null,
-        ?DateTime $toPayDividendDate = null
+        ?DateTime $toPayDividendDate = null,
+        string $notes = null
     ) {
         $this->id = $id;
         $this->symbol = $symbol;
         $this->market = $market;
         $this->name = $name;
         $this->price = $price;
+        $this->change = $change;
+        $this->preClose = $preClose;
         $this->nextDividend = $nextDividend;
         $this->nextDividendExDate = $nextDividendExDate;
         $this->toPayDividend = $toPayDividend;
         $this->toPayDividendDate = $toPayDividendDate;
+        $this->notes = $notes;
     }
 
     public function getId(): string
@@ -98,6 +119,16 @@ final class Stock
     public function getPrice(): ?Money
     {
         return $this->price;
+    }
+
+    public function getChange(): ?Money
+    {
+        return $this->change;
+    }
+
+    public function getPreClose(): ?Money
+    {
+        return $this->preClose;
     }
 
     public function getTitle(): string
@@ -133,5 +164,10 @@ final class Stock
     public function getCurrency(): Currency
     {
         return $this->price->getCurrency();
+    }
+
+    public function getNotes(): string
+    {
+        return $this->notes;
     }
 }

@@ -3,7 +3,9 @@
 namespace App\Presentation\View\Wallet;
 
 use App\Presentation\Form\Wallet\CreateOperationType;
+use App\Presentation\Form\Wallet\StockNoteType;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 
 final class DashboardView
 {
@@ -27,25 +29,30 @@ final class DashboardView
      */
     public function index(string $id, array $context = []): array
     {
+        $operationForm = $this->form->create(CreateOperationType::class);
+
         return [
                 'wallet_id' => $id,
-                'operation' => $this->getOperationPanel(),
+                'position' => $this->getPositionPanel($operationForm),
+                'operation' => $this->getOperationPanel($operationForm),
             ] + [
                 'page_title' => 'Wallets',
             ] + $context;
     }
 
     /**
-     * @inheritDoc
+     * Generate the parameters to use when render panel operation in the dashboard view.
+     *
+     * @param FormInterface $form
+     *
+     * @return array
      */
-    protected function getOperationPanel(): array
+    protected function getOperationPanel(FormInterface $form): array
     {
-        $operationForm = $this->form->create(CreateOperationType::class);
-
         return [
             'entity_name'  => 'operation',
             'search_width' => '235px',
-            'form'         => $operationForm->createView(),
+            'form'         => $form->createView(),
 
             'fields' => [
                 [
@@ -94,6 +101,91 @@ final class DashboardView
                     'col_with' => '120',
                 ],
             ]
+        ];
+    }
+
+    /**
+     * Generate the parameters to use when render panel operation in the dashboard view.
+     *
+     * @param FormInterface $form
+     *
+     * @return array
+     */
+    protected function getPositionPanel(FormInterface $form): array
+    {
+        $stockNoteForm = $this->form->create(StockNoteType::class);
+
+        return [
+            'entity_name'  => 'position',
+            'search_width' => '235px',
+            'form'         => $form->createView(),
+
+            'fields' => [
+                [
+                    'name'        => 'openedAt',
+                    'label'       => 'Added Date',
+                    'render'      => 'date',
+                    'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
+                    'class'       => 'js-manager-table-extra-cell-hide',
+                ],
+                [
+                    'name'     => 'stock.name',
+                    'label'    => 'Stock',
+                    'col_with' => '264',
+                    'class'    => 'js-manager-table-extra-cell-show',
+                ],
+                [
+                    'name'  => 'stock.symbol',
+                    'label' => 'Symbol',
+                ],
+                [
+                    'name'  => 'stock.market.symbol',
+                    'label' => 'Market',
+                ],
+                [
+                    'name'   => 'stock.price',
+                    'label'  => 'Price',
+                    'render' => 'money',
+                    'class'  => 'js-manager-table-extra-cell-hide',
+                ],
+                [
+                    'name'  => 'amount',
+                    'label' => 'Amt',
+                ],
+                [
+                    'name'   => 'capital',
+                    'render' => 'money',
+                ],
+                [
+                    'name'   => 'invested',
+                    'render' => 'money',
+                ],
+                [
+                    'name'   => 'dividend',
+                    'render' => 'money',
+                ],
+                [
+                    'name'     => 'displayBenefits',
+                    'label'    => 'benefits',
+                    'render'   => 'quantity',
+                    'quantity' => 'benefits.value',
+                    'class'    => 'js-manager-table-extra-cell-hide',
+                ],
+                [
+                    'name'     => 'displayChange',
+                    'label'    => 'Change',
+                    'render'   => 'quantity',
+                    'quantity' => 'change ? change.value : null',
+                    'class'    => 'js-manager-table-extra-cell-hide',
+                ],
+            ],
+
+            'buttons' => [],
+
+            'stock_note' => [
+                'entity_name' => 'stock note',
+                'form'        => $stockNoteForm->createView(),
+            ],
         ];
     }
 }

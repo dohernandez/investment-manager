@@ -1,0 +1,40 @@
+<script>
+    const positionSearchedEventName = 'position_searched';
+    const positionSearchedCleanedEventName = 'position_search_cleaned';
+
+    function createPositionPanel(entityName, entityTitle, walletId, searchFuncPanel) {
+        const eventBus = window.eventBus;
+
+        // Create position panel instance
+        let $positionPanelBox = $('.js-position-panel-box');
+
+        let positionContentWrapper = $positionPanelBox.closest('.js-position-panel');
+        let positionEntityType = $positionPanelBox.data('entity-type');
+
+        // Create panelTable instance @see assets/js/PanelTable.js
+        return new PanelTable({
+            entityType: positionEntityType,
+            wrapper: positionContentWrapper,
+            pagination: true,
+            selectors: {
+                searchTemplate: '#js-table-' + entityName + '-search-template',
+                showPerPageTemplate: '#js-table-' + entityName + '-show-per-page-template',
+                rowTemplate: '#js-table-' + entityName + '-row-template',
+            },
+            sort: function (aPosition, bPosition) {
+                let a = aPosition.stock.name;
+                let b = bPosition.stock.name;
+
+                return a < b ? -1 : a > b ? 1 : 0;
+            },
+            searchFunc: searchFuncPanel,
+
+            afterSearchFunc: function (search) {
+                eventBus.emit(positionSearchedEventName, null, search);
+            },
+            afterCleanSearchFunc: function () {
+                eventBus.emit(positionSearchedCleanedEventName, null);
+            }
+        });
+    }
+</script>

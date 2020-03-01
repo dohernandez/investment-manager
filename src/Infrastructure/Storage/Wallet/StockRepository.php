@@ -41,6 +41,8 @@ final class StockRepository implements StockRepositoryInterface
             $projectionStock->getSymbol(),
             $this->hydrateMarket($projectionStock->getMarket()),
             $projectionStock->getPrice()->getPrice(),
+            $projectionStock->getPrice()->getChangePrice(),
+            $projectionStock->getPrice()->getPreClose(),
             $nextDividend,
             $nextDividendExDate,
             $toPayDividend,

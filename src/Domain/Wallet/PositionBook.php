@@ -78,6 +78,11 @@ class PositionBook
     private $changed;
 
     /**
+     * @var Money|null
+     */
+    private $preClosed;
+
+    /**
      * @var float|null
      */
     private $percentageChanged;
@@ -264,6 +269,18 @@ class PositionBook
     public function setPercentageChanged(?float $percentageChanged): self
     {
         $this->percentageChanged = $percentageChanged;
+
+        return $this;
+    }
+
+    public function getPreClosed(): ?Money
+    {
+        return $this->preClosed;
+    }
+
+    public function setPreClosed(?Money $preClosed): self
+    {
+        $this->preClosed = $preClosed;
 
         return $this;
     }
