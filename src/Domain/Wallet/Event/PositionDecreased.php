@@ -47,31 +47,6 @@ final class PositionDecreased
      */
     private $percentageBenefits;
 
-    /**
-     * @var Money|null
-     */
-    private $nextDividend;
-
-    /**
-     * @var float|null
-     */
-    private $nextDividendYield;
-
-    /**
-     * @var Money|null
-     */
-    private $changed;
-
-    /**
-     * @var float|null
-     */
-    private $percentageChanged;
-
-    /**
-     * @var Money|null
-     */
-    private $preClosed;
-
     public function __construct(
         string $id,
         int $amount,
@@ -80,12 +55,7 @@ final class PositionDecreased
         Money $averagePrice,
         Money $sells,
         Money $benefits,
-        float $percentageBenefits,
-        ?Money $changed = null,
-        ?float $percentageChanged = null,
-        ?Money $preClosed = null,
-        ?Money $nextDividend = null,
-        ?float $nextDividendYield = null
+        float $percentageBenefits
     ) {
         $this->id = $id;
         $this->amount = $amount;
@@ -95,11 +65,6 @@ final class PositionDecreased
         $this->sells = $sells;
         $this->benefits = $benefits;
         $this->percentageBenefits = $percentageBenefits;
-        $this->nextDividend = $nextDividend;
-        $this->nextDividendYield = $nextDividendYield;
-        $this->changed = $changed;
-        $this->percentageChanged = $percentageChanged;
-        $this->preClosed = $preClosed;
     }
 
     public function getId(): string
@@ -140,30 +105,5 @@ final class PositionDecreased
     public function getPercentageBenefits(): float
     {
         return $this->percentageBenefits;
-    }
-
-    public function getNextDividend(): ?Money
-    {
-        return $this->nextDividend;
-    }
-
-    public function getNextDividendYield(): ?float
-    {
-        return $this->nextDividendYield;
-    }
-
-    public function getChanged(): ?Money
-    {
-        return $this->changed;
-    }
-
-    public function getPercentageChanged(): ?float
-    {
-        return $this->percentageChanged;
-    }
-
-    public function getPreClosed(): ?Money
-    {
-        return $this->preClosed;
     }
 }

@@ -303,31 +303,6 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $benefits = $benefits->increase($capital);
         $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
 
-        $stock = $operation->getStock();
-        // this will keep stock sync in projection.
-        $this->stock = $stock;
-
-        $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
-        $nextDividendYield = null;
-        if ($nextDividend) {
-            $nextDividendYield = $nextDividend->getValue() * 4 / \max($averagePrice->getValue(), 1) * 100;
-        }
-
-        $changed = $this->getStock()->getChange();
-        $percentageChanged = 100;
-        if ($changed !== null) {
-            $changed = $changed->multiply($amount);
-
-            if ($stock->getPreClose() !== null) {
-                $percentageChanged = $changed->getValue() * 100 / $stock->getPreClose()->getValue();
-            }
-        }
-
-        $preClosed = $stock->getPreClose();
-        if ($preClosed !== null) {
-            $preClosed = $preClosed->multiply($amount);
-        }
-
         $this->recordChange(
             new PositionDecreased(
                 $this->getId(),
@@ -337,12 +312,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $averagePrice,
                 $sells,
                 $benefits,
-                $percentageBenefits,
-                $changed,
-                $percentageChanged,
-                $preClosed,
-                $nextDividend,
-                $nextDividendYield
+                $percentageBenefits
             )
         );
 
@@ -475,6 +445,20 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setChanged($event->getChanged());
                 $this->book->setPercentageChanged($event->getPercentageChanged());
                 $this->book->setPreClosed($event->getPreClosed());
+
+                break;
+
+            case PositionDecreased::class:
+                /** @var PositionDecreased $event */
+
+                $this->amount = $event->getAmount();
+                $this->invested = $event->getInvested();
+                $this->capital = $event->getCapital();
+
+                $this->book->setAveragePrice($event->getAveragePrice());
+                $this->book->setSells($event->getSells());
+                $this->book->setBenefits($event->getBenefits());
+                $this->book->setPercentageBenefits($event->getPercentageBenefits());
 
                 break;
 
