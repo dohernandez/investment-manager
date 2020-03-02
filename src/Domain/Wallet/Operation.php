@@ -37,6 +37,7 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
     public const TYPES_EXCHANGEABLE = [
         self::TYPE_BUY,
         self::TYPE_SELL,
+        self::TYPE_SPLIT_REVERSE,
     ];
 
     /**
@@ -208,7 +209,7 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
 
     public function getCapital(): Money
     {
-        if ($this->type !== Operation::TYPE_BUY && $this->type !== Operation::TYPE_SELL) {
+        if (!\in_array($this->type, Operation::TYPES_EXCHANGEABLE)) {
             return new Money($this->wallet->getCurrency());
         }
 
@@ -275,7 +276,7 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         Wallet $wallet,
         DateTime $dateAt,
         string $type,
-        Money $value,
+        ?Money $value,
         ?Stock $stock = null,
         ?int $amount = null,
         ?Money $price = null,
@@ -355,7 +356,8 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
                     $type,
                     $stock,
                     $amount,
-                    $value
+                    $value,
+                    $exchangeRate
                 );
 
                 break;
@@ -421,8 +423,9 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
                 /** @var SplitReverseOperationRegistered $event */
 
                 $this->stock = $event->getStock();
+                $this->stockId = $this->stock->getId();
                 $this->amount = $event->getAmount();
-                $this->value = $event->getValue();
+                $this->exchangeRate = $event->getExchangeRate();
 
                 break;
         }

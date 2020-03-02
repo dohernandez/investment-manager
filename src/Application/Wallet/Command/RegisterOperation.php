@@ -24,7 +24,7 @@ final class RegisterOperation
     private $type;
 
     /**
-     * @var Money
+     * @var Money|null
      */
     private $value;
 
@@ -62,7 +62,7 @@ final class RegisterOperation
         string $walletId,
         DateTime $dateAt,
         string $type,
-        Money $value,
+        ?Money $value,
         ?Stock $stock = null,
         ?int $amount = null,
         ?Money $price = null,
@@ -98,7 +98,7 @@ final class RegisterOperation
         return $this->type;
     }
 
-    public function getValue(): Money
+    public function getValue(): ?Money
     {
         return $this->value;
     }

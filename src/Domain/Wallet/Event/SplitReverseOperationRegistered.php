@@ -2,6 +2,7 @@
 
 namespace App\Domain\Wallet\Event;
 
+use App\Domain\Wallet\ExchangeRate;
 use App\Domain\Wallet\Stock;
 use App\Domain\Wallet\Wallet;
 use App\Infrastructure\Money\Money;
@@ -44,6 +45,11 @@ final class SplitReverseOperationRegistered
      */
     private $stock;
 
+    /**
+     * @var ExchangeRate|null
+     */
+    private $exchangeRate;
+
     public function __construct(
         string $id,
         Wallet $wallet,
@@ -51,7 +57,8 @@ final class SplitReverseOperationRegistered
         string $type,
         Stock $stock,
         int $amount,
-        ?Money $value = null
+        ?Money $value = null,
+        ?ExchangeRate $exchangeRate = null
     )
     {
         $this->wallet = $wallet;
@@ -61,6 +68,7 @@ final class SplitReverseOperationRegistered
         $this->id = $id;
         $this->amount = $amount;
         $this->stock = $stock;
+        $this->exchangeRate = $exchangeRate;
     }
 
     public function getId(): string
@@ -96,5 +104,10 @@ final class SplitReverseOperationRegistered
     public function getStock(): Stock
     {
         return $this->stock;
+    }
+
+    public function getExchangeRate(): ?ExchangeRate
+    {
+        return $this->exchangeRate;
     }
 }

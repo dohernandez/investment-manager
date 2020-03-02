@@ -78,6 +78,7 @@ final class CreateOperationType extends AbstractType
                     'placeholder' => 'Enter value',
                     'autocomplete' => "off",
                 ],
+                'required' => false,
                 'divisor' => 100,
                 'currency' => 'EUR',
             ])

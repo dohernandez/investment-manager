@@ -7,6 +7,7 @@ use App\Domain\Wallet\Event\PositionDecreased;
 use App\Domain\Wallet\Event\PositionDividendCredited;
 use App\Domain\Wallet\Event\PositionIncreased;
 use App\Domain\Wallet\Event\PositionOpened;
+use App\Domain\Wallet\Event\PositionSplitReversed;
 use App\Infrastructure\Date\Date;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -299,6 +300,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $averagePrice = new Money($book->getCurrency());
         }
         $capital = $this->capital->decrease($operation->getCapital());
+        $benefits = $benefits->increase($capital);
+        $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
 
         $stock = $operation->getStock();
         // this will keep stock sync in projection.
@@ -348,6 +351,10 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
     public function increaseDividend(Operation $operation): self
     {
+        // set the owning side
+        $this->operations->add($operation);
+        $operation->setPosition($this);
+
         $book = $this->book;
 
         $bookDividendPaid = BookEntry::createBookEntry('dividends');
@@ -378,7 +385,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
         $benefits = $book->getSells()
             ->increase($bookDividendPaid->getTotal())
-            ->decrease($book->getBuys());
+            ->decrease($book->getBuys())
+            ->increase($this->capital);
         $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
 
         $this->recordChange(
@@ -387,6 +395,38 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $benefits,
                 $percentageBenefits,
                 $bookDividendPaid
+            )
+        );
+
+        return $this;
+    }
+
+    public function splitReversePosition(Operation $operation): self
+    {
+        // set the owning side
+        $this->operations->add($operation);
+        $operation->setPosition($this);
+
+        $book = $this->book;
+
+        $amount = $operation->getAmount();
+        $averagePrice = $this->invested->divide($amount);
+        $capital = $operation->getCapital();
+
+        $benefits = $book->getSells()
+            ->increase($this->book->getTotalDividendPaid())
+            ->decrease($book->getBuys())
+            ->increase($capital);
+        $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+
+        $this->recordChange(
+            new PositionSplitReversed(
+                $this->id,
+                $amount,
+                $averagePrice,
+                $capital,
+                $benefits,
+                $percentageBenefits
             )
         );
 
@@ -472,6 +512,17 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                     $dividendPaid->merge($event->getDividendPaid());
                 }
                 $this->book->setDividendPaid($dividendPaid);
+
+                break;
+
+            case PositionSplitReversed::class:
+                /** @var PositionSplitReversed $event */
+
+                $this->amount = $event->getAmount();
+                $this->capital = $event->getCapital();
+                $this->book->setAveragePrice($event->getAveragePrice());
+                $this->book->setBenefits($event->getBenefits());
+                $this->book->setPercentageBenefits($event->getPercentageBenefits());
 
                 break;
         }
