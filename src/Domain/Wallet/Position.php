@@ -387,7 +387,35 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             ->increase($this->book->getTotalDividendPaid())
             ->decrease($book->getBuys())
             ->increase($capital);
-        $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+        $percentageBenefits = 100;
+        if ($book->getBuys()->getValue() !== 0 ) {
+            $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+        }
+
+        $stock = $operation->getStock();
+        // this will keep stock sync in projection.
+        $this->stock = $stock;
+
+        $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
+        $nextDividendYield = null;
+        if ($nextDividend) {
+            $nextDividendYield = $nextDividend->getValue() * 4 / \max($averagePrice->getValue(), 1) * 100;
+        }
+
+        $changed = $this->getStock()->getChange();
+        $percentageChanged = 100;
+        if ($changed !== null) {
+            $changed = $changed->multiply($amount);
+
+            if ($stock->getPreClose() !== null) {
+                $percentageChanged = $changed->getValue() * 100 / $stock->getPreClose()->getValue();
+            }
+        }
+
+        $preClosed = $stock->getPreClose();
+        if ($preClosed !== null) {
+            $preClosed = $preClosed->multiply($amount);
+        }
 
         $this->recordChange(
             new PositionSplitReversed(
@@ -396,7 +424,12 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $averagePrice,
                 $capital,
                 $benefits,
-                $percentageBenefits
+                $percentageBenefits,
+                $changed,
+                $percentageChanged,
+                $preClosed,
+                $nextDividend,
+                $nextDividendYield
             )
         );
 
@@ -507,6 +540,11 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setAveragePrice($event->getAveragePrice());
                 $this->book->setBenefits($event->getBenefits());
                 $this->book->setPercentageBenefits($event->getPercentageBenefits());
+                $this->book->setNextDividend($event->getNextDividend());
+                $this->book->setNextDividendYield($event->getNextDividendYield());
+                $this->book->setChanged($event->getChanged());
+                $this->book->setPercentageChanged($event->getPercentageChanged());
+                $this->book->setPreClosed($event->getPreClosed());
 
                 break;
         }

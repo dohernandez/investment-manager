@@ -63,7 +63,7 @@ final class PositionNormalizer implements SubscribingHandlerInterface
             'stock' => $this->serializer->toArray($position->getStock()),
             'amount' => $position->getAmount(),
             'capital' => $this->serializer->toArray($position->getCapital()),
-            'invested' => $this->serializer->toArray($position->getInvested()),
+            'invested' => $position->getInvested() ? $this->serializer->toArray($position->getInvested()) : null,
             'dividend' => $dividend ? $this->serializer->toArray($dividend) : null,
             'displayBenefits' => $displayBenefits,
             'benefits' => $this->serializer->toArray($book->getBenefits()),

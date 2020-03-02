@@ -36,13 +36,43 @@ final class PositionSplitReversed
      */
     private $percentageBenefits;
 
+    /**
+     * @var Money|null
+     */
+    private $changed;
+
+    /**
+     * @var float|null
+     */
+    private $percentageChanged;
+
+    /**
+     * @var Money|null
+     */
+    private $preClosed;
+
+    /**
+     * @var Money|null
+     */
+    private $nextDividend;
+
+    /**
+     * @var float|null
+     */
+    private $nextDividendYield;
+
     public function __construct(
         string $id,
         int $amount,
         Money $averagePrice,
         Money $capital,
         Money $benefits,
-        float $percentageBenefits
+        float $percentageBenefits,
+        ?Money $changed = null,
+        ?float $percentageChanged = null,
+        ?Money $preClosed = null,
+        ?Money $nextDividend = null,
+        ?float $nextDividendYield = null
     ) {
         $this->id = $id;
         $this->amount = $amount;
@@ -50,6 +80,11 @@ final class PositionSplitReversed
         $this->capital = $capital;
         $this->benefits = $benefits;
         $this->percentageBenefits = $percentageBenefits;
+        $this->changed = $changed;
+        $this->percentageChanged = $percentageChanged;
+        $this->preClosed = $preClosed;
+        $this->nextDividend = $nextDividend;
+        $this->nextDividendYield = $nextDividendYield;
     }
 
     public function getId(): string
@@ -80,5 +115,30 @@ final class PositionSplitReversed
     public function getPercentageBenefits(): float
     {
         return $this->percentageBenefits;
+    }
+
+    public function getChanged(): ?Money
+    {
+        return $this->changed;
+    }
+
+    public function getPercentageChanged(): ?float
+    {
+        return $this->percentageChanged;
+    }
+
+    public function getPreClosed(): ?Money
+    {
+        return $this->preClosed;
+    }
+
+    public function getNextDividend(): ?Money
+    {
+        return $this->nextDividend;
+    }
+
+    public function getNextDividendYield(): ?float
+    {
+        return $this->nextDividendYield;
     }
 }

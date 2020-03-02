@@ -249,6 +249,14 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
             );
         }
 
+        if ($this->getType() === self::TYPE_SPLIT_REVERSE) {
+            return sprintf(
+                '%s [%s]',
+                $this->getType(),
+                $this->getAmount()
+            );
+        }
+
         return sprintf(
             '%s %s:%s - %d [%s]',
             $this->getType(),
