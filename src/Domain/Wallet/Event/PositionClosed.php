@@ -5,7 +5,7 @@ namespace App\Domain\Wallet\Event;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-final class CloseOperationRegistered
+final class PositionClosed
 {
     /**
      * @var string

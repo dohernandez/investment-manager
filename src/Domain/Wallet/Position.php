@@ -2,7 +2,7 @@
 
 namespace App\Domain\Wallet;
 
-use App\Domain\Wallet\Event\CloseOperationRegistered;
+use App\Domain\Wallet\Event\PositionClosed;
 use App\Domain\Wallet\Event\PositionDecreased;
 use App\Domain\Wallet\Event\PositionDividendCredited;
 use App\Domain\Wallet\Event\PositionIncreased;
@@ -273,7 +273,11 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $benefits = $sells
             ->increase($this->book->getTotalDividendPaid())
             ->decrease($book->getBuys());
-        $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+        // This covers the case where the stock is received by split/reverse at cost zero.
+        $percentageBenefits = 100;
+        if ($book->getBuys()->getValue() > 0) {
+            $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+        }
 
         // set the owning side
         $this->operations->add($operation);
@@ -281,7 +285,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
         if ($amount === 0) {
             $this->recordChange(
-                new CloseOperationRegistered(
+                new PositionClosed(
                     $this->getId(),
                     $operation->getDateAt(),
                     $sells,
@@ -301,7 +305,11 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         }
         $capital = $this->capital->decrease($operation->getCapital());
         $benefits = $benefits->increase($capital);
-        $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+        // This covers the case where the stock is received by split/reverse at cost zero.
+        $percentageBenefits = 100;
+        if ($book->getBuys()->getValue() > 0) {
+            $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+        }
 
         $this->recordChange(
             new PositionDecreased(
@@ -357,7 +365,11 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             ->increase($bookDividendPaid->getTotal())
             ->decrease($book->getBuys())
             ->increase($this->capital);
-        $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+        // This covers the case the stock is received by split/reverse at cost zero.
+        $percentageBenefits = 100;
+        if ($book->getBuys()->getValue() > 0) {
+            $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+        }
 
         $this->recordChange(
             new PositionDividendCredited(
@@ -387,6 +399,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             ->increase($this->book->getTotalDividendPaid())
             ->decrease($book->getBuys())
             ->increase($capital);
+        // This covers the case the stock is received at cost zero.
         $percentageBenefits = 100;
         if ($book->getBuys()->getValue() !== 0 ) {
             $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
@@ -495,8 +508,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
                 break;
 
-            case CloseOperationRegistered::class:
-                /** @var CloseOperationRegistered $event */
+            case PositionClosed::class:
+                /** @var PositionClosed $event */
 
                 $this->status = self::STATUS_CLOSE;
                 $this->closedAt = $event->getDateAt();
