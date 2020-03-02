@@ -28,7 +28,12 @@ final class WalletPositionRESTController extends RESTController
     {
         $status = $request->query->get('s');
 
-        $positions = $repo->findAllByStatus($walletId, $status);
+        if ($status) {
+            $positions = $repo->findAllByWalletStatus($walletId, $status);
+        } else {
+            $positions = $repo->findAllByWallet($walletId);
+        }
+
         $iterator = new ArrayIterator($positions);
 
         // define ordering closure, using preferred comparison method/field

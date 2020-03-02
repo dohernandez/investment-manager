@@ -7,7 +7,14 @@ use DateTime;
 
 interface ProjectionPositionRepositoryInterface
 {
-    public function findByStock(string $walletId, string $stockId, ?string $status = null): ?Position;
+    public function findByWalletStock(string $walletId, string $stockId, ?string $status = null): ?Position;
+
+    /**
+     * @param string $walletId
+     *
+     * @return Position[]
+     */
+    public function findAllByWallet(string $walletId): array;
 
     /**
      * @param string $walletId
@@ -15,7 +22,7 @@ interface ProjectionPositionRepositoryInterface
      *
      * @return Position[]
      */
-    public function findAllByStatus(string $walletId, string $status): array;
+    public function findAllByWalletStatus(string $walletId, string $status): array;
 
-    public function findByStockOpenDateAt(string $walletId, string $stockId, DateTime $datedAt): ?Position;
+    public function findByWalletStockOpenDateAt(string $walletId, string $stockId, DateTime $datedAt): ?Position;
 }

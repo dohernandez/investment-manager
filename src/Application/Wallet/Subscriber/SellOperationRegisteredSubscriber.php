@@ -74,7 +74,7 @@ final class SellOperationRegisteredSubscriber implements EventSubscriberInterfac
             ]);
         }
 
-        $projectionPosition = $this->projectionPositionRepository->findByStock(
+        $projectionPosition = $this->projectionPositionRepository->findByWalletStock(
             $wallet->getId(),
             $event->getStock()->getId(),
             Position::STATUS_OPEN

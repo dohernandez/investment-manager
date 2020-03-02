@@ -72,7 +72,7 @@ final class SplitReverseOperationRegisteredSubscriber implements EventSubscriber
             ]);
         }
 
-        $projectionPosition = $this->projectionPositionRepository->findByStock(
+        $projectionPosition = $this->projectionPositionRepository->findByWalletStock(
             $wallet->getId(),
             $event->getStock()->getId(),
             Position::STATUS_OPEN
@@ -90,5 +90,8 @@ final class SplitReverseOperationRegisteredSubscriber implements EventSubscriber
 
         $position->splitReversePosition($operation);
         $this->positionRepository->save($position);
+
+        $wallet->updateCapital($operation);
+        $this->walletRepository->save($wallet);
     }
 }

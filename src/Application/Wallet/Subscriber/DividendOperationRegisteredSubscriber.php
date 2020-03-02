@@ -72,7 +72,7 @@ final class DividendOperationRegisteredSubscriber implements EventSubscriberInte
             ]);
         }
 
-        $projectionPosition = $this->projectionPositionRepository->findByStockOpenDateAt(
+        $projectionPosition = $this->projectionPositionRepository->findByWalletStockOpenDateAt(
             $wallet->getId(),
             $event->getStock()->getId(),
             $event->getStock()->getPrevDividendExDate()

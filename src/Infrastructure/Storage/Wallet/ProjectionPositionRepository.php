@@ -6,8 +6,6 @@ use App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface;
 use App\Domain\Wallet\Position;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Collections\Criteria;
-use Doctrine\Common\Collections\Expr\CompositeExpression;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -24,7 +22,7 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
         parent::__construct($registry, Position::class);
     }
 
-    public function findByStock(string $walletId, string $stockId, ?string $status = null): ?Position
+    public function findByWalletStock(string $walletId, string $stockId, ?string $status = null): ?Position
     {
         $whereStatus = [];
         if ($status !== null || $status !== '') {
@@ -44,7 +42,15 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
     /**
      * @inheritDoc
      */
-    public function findAllByStatus(string $walletId, string $status): array
+    public function findAllByWallet(string $walletId): array
+    {
+        return $this->findBy(['wallet' => $walletId]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllByWalletStatus(string $walletId, string $status): array
     {
         return $this->findBy(
             [
@@ -54,7 +60,7 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
         );
     }
 
-    public function findByStockOpenDateAt(string $walletId, string $stockId, DateTime $datedAt): ?Position
+    public function findByWalletStockOpenDateAt(string $walletId, string $stockId, DateTime $datedAt): ?Position
     {
         /*
          * WHERE wallet = :walletId
@@ -74,7 +80,6 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
             ->andWhere('p.openedAt <= :datedAt AND (p.closedAt >= :datedAt OR p.closedAt is null)')
             ->setParameter('datedAt', $datedAt)
             ->getQuery()
-            ->getOneOrNullResult()
-            ;
+            ->getOneOrNullResult();
     }
 }

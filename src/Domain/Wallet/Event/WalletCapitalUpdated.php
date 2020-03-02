@@ -2,26 +2,15 @@
 
 namespace App\Domain\Wallet\Event;
 
-use App\Domain\Wallet\BookEntry;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-class WalletDividendsUpdated
+class WalletCapitalUpdated
 {
     /**
      * @var string
      */
     private $id;
-
-    /**
-     * @var DateTime
-     */
-    private $dateAt;
-
-    /**
-     * @var Money
-     */
-    private $funds;
 
     /**
      * @var Money
@@ -34,24 +23,20 @@ class WalletDividendsUpdated
     private $percentageBenefits;
 
     /**
-     * @var BookEntry
+     * @var Money
      */
-    private $dividends;
+    private $capital;
 
     public function __construct(
         string $id,
-        DateTime $dateAt,
-        Money $funds,
+        Money $capital,
         Money $benefits,
-        float $percentageBenefits,
-        BookEntry $dividends
+        float $percentageBenefits
     ) {
         $this->id = $id;
-        $this->dateAt = $dateAt;
-        $this->funds = $funds;
+        $this->capital = $capital;
         $this->benefits = $benefits;
         $this->percentageBenefits = $percentageBenefits;
-        $this->dividends = $dividends;
     }
 
     public function getId(): string
@@ -64,11 +49,6 @@ class WalletDividendsUpdated
         return $this->dateAt;
     }
 
-    public function getFunds(): Money
-    {
-        return $this->funds;
-    }
-
     public function getBenefits(): Money
     {
         return $this->benefits;
@@ -79,8 +59,8 @@ class WalletDividendsUpdated
         return $this->percentageBenefits;
     }
 
-    public function getDividends(): BookEntry
+    public function getCapital(): Money
     {
-        return $this->dividends;
+        return $this->capital;
     }
 }

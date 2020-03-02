@@ -10,6 +10,7 @@ use App\Domain\Wallet\Event\WalletDividendsUpdated;
 use App\Domain\Wallet\Event\WalletInterestUpdated;
 use App\Domain\Wallet\Event\WalletInvestmentIncreased;
 use App\Domain\Wallet\Event\WalletSellOperationUpdated;
+use App\Domain\Wallet\Event\WalletCapitalUpdated;
 use App\Infrastructure\Date\Date;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -434,9 +435,34 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
+    public function updateCapital(Operation $operation): self
+    {
+        $book = $this->book;
+
+        $capital = $book->getCapital()->increase($operation->getCapital());
+        $benefits = $capital->increase($book->getFunds()->decrease($book->getInvested()));
+
+        $percentageBenefits = $book->getInvested()->getValue() ?
+            $benefits->getValue() * 100 / $book->getInvested()->getValue() :
+            100;
+
+        $this->recordChange(
+            new WalletCapitalUpdated(
+                $this->id,
+                $capital,
+                $benefits,
+                $percentageBenefits
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         $event = $changed->getPayload();
+
+        $this->updatedAt = $changed->getCreatedAt();
 
         switch ($changed->getEventName()) {
             case WalletCreated::class:
@@ -449,7 +475,6 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->account = $event->getAccount();
                 $this->book = $event->getBook();
                 $this->createdAt = $changed->getCreatedAt();
-                $this->updatedAt = $changed->getCreatedAt();
 
                 $this->accountId = $this->account->getId();
 
@@ -461,8 +486,6 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setInvested($event->getInvested());
                 $this->book->setCapital($event->getCapital());
                 $this->book->setFunds($event->getFunds());
-
-                $this->updatedAt = $changed->getCreatedAt();
 
                 break;
 
@@ -484,8 +507,6 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 }
                 $this->book->setCommissions($dividends);
 
-                $this->updatedAt = $changed->getCreatedAt();
-
                 break;
 
             case WalletConnectivityUpdated::class:
@@ -503,8 +524,6 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     $dividends->merge($event->getConnectivity());
                 }
                 $this->book->setConnection($dividends);
-
-                $this->updatedAt = $changed->getCreatedAt();
 
                 break;
 
@@ -524,8 +543,6 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 }
                 $this->book->setInterest($dividends);
 
-                $this->updatedAt = $changed->getCreatedAt();
-
                 break;
 
             case WalletDividendsUpdated::class:
@@ -544,7 +561,15 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 }
                 $this->book->setDividends($dividends);
 
-                $this->updatedAt = $changed->getCreatedAt();
+                break;
+
+            case WalletCapitalUpdated::class:
+                /** @var WalletCapitalUpdated $event */
+
+                $this->book
+                    ->setCapital($event->getCapital())
+                    ->setBenefits($event->getBenefits())
+                    ->setPercentageBenefits($event->getPercentageBenefits());
 
                 break;
         }
