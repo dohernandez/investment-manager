@@ -40,8 +40,16 @@ final class ProjectionAccountRepository extends ServiceEntityRepository implemen
     /**
      * @inheritDoc
      */
-    public function findAllOpen()
+    public function findAllOpen(): array
     {
         return $this->findBy(['isClosed' => false]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByAccountNo(string $accountNo): ?Account
+    {
+        return $this->findOneBy(['accountNo' => $accountNo]);
     }
 }

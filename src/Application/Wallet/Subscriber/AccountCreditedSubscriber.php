@@ -5,6 +5,7 @@ namespace App\Application\Wallet\Subscriber;
 use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
 use App\Application\Wallet\Repository\WalletRepositoryInterface;
 use App\Domain\Account\Event\AccountCredited;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final class AccountCreditedSubscriber implements EventSubscriberInterface
@@ -19,12 +20,19 @@ final class AccountCreditedSubscriber implements EventSubscriberInterface
      */
     private $walletRepository;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         ProjectionWalletRepositoryInterface $projectionWalletRepository,
-        WalletRepositoryInterface $walletRepository
+        WalletRepositoryInterface $walletRepository,
+        LoggerInterface $logger
     ) {
         $this->projectionWalletRepository = $projectionWalletRepository;
         $this->walletRepository = $walletRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -40,6 +48,14 @@ final class AccountCreditedSubscriber implements EventSubscriberInterface
     public function onAccountCredited(AccountCredited $event)
     {
         $projectionWallet = $this->projectionWalletRepository->findByAccount($event->getId());
+
+        if (!$projectionWallet) {
+            $this->logger->warning('Wallet by account not found', [
+                'account_id' => $event->getId(),
+            ]);
+
+            return;
+        }
 
         $wallet = $this->walletRepository->find($projectionWallet->getId());
 

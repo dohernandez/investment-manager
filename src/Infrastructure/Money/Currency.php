@@ -33,11 +33,11 @@ final class Currency
         return $this->currencyCode;
     }
 
-    public static function fromCode(string $symbol): self
+    public static function fromCode(string $code): self
     {
         $self = new static();
 
-        switch ($symbol) {
+        switch ($code) {
             case self::CURRENCY_CODE_USD:
                 $self->symbol = self::CURRENCY_SYMBOL_USD;
                 $self->currencyCode = self::CURRENCY_CODE_USD;
