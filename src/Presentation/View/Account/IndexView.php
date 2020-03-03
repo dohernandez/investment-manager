@@ -39,7 +39,7 @@ final class IndexView extends AbstractView
             ],
             [
                 'name'  => 'balance',
-                'col_with' => '84',
+                'col_with' => '120',
                 'render' => 'money',
             ],
         ];
