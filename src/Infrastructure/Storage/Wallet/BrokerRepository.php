@@ -19,19 +19,30 @@ final class BrokerRepository implements BrokerRepositoryInterface
         $this->projectionBrokerRepository = $projectionBrokerRepository;
     }
 
-    public function find(string $id): Broker
+    public function find(string $id): ?Broker
     {
-        $projectionAccount = $this->projectionBrokerRepository->find($id);
-
-        return $this->hydrate($projectionAccount);
+        return $this->hydrate(
+            $this->projectionBrokerRepository->find($id)
+        );
     }
 
-    public function hydrate(ProjectionBroker $projectionBroker): Broker
+    public function hydrate(?ProjectionBroker $projectionBroker): ?Broker
     {
+        if (!$projectionBroker) {
+            return null;
+        }
+
         return new Broker(
             $projectionBroker->getId(),
             $projectionBroker->getName(),
             $projectionBroker->getCurrency()
+        );
+    }
+
+    public function findByName(string $name): ?Broker
+    {
+        return $this->hydrate(
+            $this->projectionBrokerRepository->findByName($name)
         );
     }
 }

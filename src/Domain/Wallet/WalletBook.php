@@ -79,6 +79,8 @@ class WalletBook
         $self->capital = new Money($currency);
         $self->benefits = new Money($currency);
 
+        $self->percentageBenefits = 0;
+
         return $self;
     }
 

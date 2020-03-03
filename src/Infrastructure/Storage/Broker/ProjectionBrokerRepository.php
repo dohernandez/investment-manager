@@ -23,7 +23,7 @@ final class ProjectionBrokerRepository extends ServiceEntityRepository implement
     /**
      * @inheritDoc
      */
-    public function findAllMatching(string $query, int $limit = 5)
+    public function findAllMatching(string $query, int $limit = 5): array
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.name LIKE :name')
@@ -33,5 +33,10 @@ final class ProjectionBrokerRepository extends ServiceEntityRepository implement
             ->getQuery()
             ->getResult()
             ;
+    }
+
+    public function findByName(string $name): ?Broker
+    {
+        return $this->findOneBy(['name' => $name]);
     }
 }

@@ -19,20 +19,31 @@ final class AccountRepository implements AccountRepositoryInterface
         $this->projectionAccountRepository = $projectionAccountRepository;
     }
 
-    public function find(string $id): Account
+    public function find(string $id): ?Account
     {
-        $projectionAccount = $this->projectionAccountRepository->find($id);
-
-        return $this->hydrate($projectionAccount);
+        return $this->hydrate(
+            $this->projectionAccountRepository->find($id)
+        );
     }
 
-    public function hydrate(ProjectionAccount $projectionAccount): Account
+    public function hydrate(?ProjectionAccount $projectionAccount): ?Account
     {
+        if (!$projectionAccount) {
+            return null;
+        }
+
         return new Account(
             $projectionAccount->getId(),
             $projectionAccount->getName(),
             $projectionAccount->getAccountNo(),
             $projectionAccount->getBalance()
+        );
+    }
+
+    public function findByAccountNo(string $accountNo): ?Account
+    {
+        return $this->hydrate(
+            $this->projectionAccountRepository->findByAccountNo($accountNo)
         );
     }
 }

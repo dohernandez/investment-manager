@@ -21,6 +21,8 @@ interface ProjectionBrokerRepositoryInterface
      *
      * @return Broker[]
      */
-    public function findAllMatching(string $query, int $limit = 5);
+    public function findAllMatching(string $query, int $limit = 5): array;
+
+    public function findByName(string $name): ?Broker;
 }
 
