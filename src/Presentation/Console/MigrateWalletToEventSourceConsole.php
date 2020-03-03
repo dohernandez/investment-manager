@@ -74,6 +74,8 @@ final class MigrateWalletToEventSourceConsole extends Console
                     'wallet_name' => $wallet->getName(),
                     'broker_name' => $wallet->getBroker()->getName(),
                 ]);
+
+                continue;
             }
 
             $account = $this->accountRepository->findByAccountNo($wallet->getBroker()->getAccount()->getAccountNo());
@@ -84,6 +86,8 @@ final class MigrateWalletToEventSourceConsole extends Console
                     'broker_name' => $wallet->getBroker()->getName(),
                     'account_no' => $wallet->getBroker()->getAccount()->getAccountNo(),
                 ]);
+
+                continue;
             }
 
             $this->bus->dispatch(
