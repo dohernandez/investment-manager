@@ -35,4 +35,17 @@ final class ProjectionStockRepository extends ServiceEntityRepository implements
             ->getResult()
             ;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findBySymbol(string $symbol): ?Stock
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.symbol LIKE :symbol')
+            ->setParameter('symbol', $symbol)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
 }
