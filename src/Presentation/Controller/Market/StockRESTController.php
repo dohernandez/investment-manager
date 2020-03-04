@@ -3,6 +3,7 @@
 namespace App\Presentation\Controller\Market;
 
 use App\Application\Market\Command\AddStockWithPrice;
+use App\Application\Market\Command\DelistedStock;
 use App\Application\Market\Command\LoadYahooQuote;
 use App\Application\Market\Command\SyncStockDividends;
 use App\Application\Market\Command\UpdateStockWithPrice;
@@ -143,6 +144,7 @@ final class StockRESTController extends RESTController
     }
 
     /**
+     * @Route("/{id}", name="stock_delete", methods={"DELETE"}, options={"expose"=true})
      *
      * @param string $id
      * @param MessageBusInterface $bus
@@ -155,7 +157,7 @@ final class StockRESTController extends RESTController
             return $this->createApiErrorResponse('Stock not found', Response::HTTP_NOT_FOUND);
         }
 
-//        $bus->dispatch(new RemoveStock($id));
+        $bus->dispatch(new DelistedStock($id));
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

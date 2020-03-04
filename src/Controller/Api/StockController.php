@@ -157,7 +157,6 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="stock_delete", methods={"DELETE"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Entity\Stock $stock

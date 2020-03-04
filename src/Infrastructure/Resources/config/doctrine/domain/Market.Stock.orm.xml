@@ -43,6 +43,9 @@
         <field name="updatedAt" column="updated_at" type="datetime"/>
         <field name="dividendsSyncAt" column="dividends_sync_at" type="datetime" nullable="true"/>
 
+        <field name="delisted" column="delisted" type="boolean"/>
+        <field name="delistedAt" column="delisted_at" type="datetime" nullable="true"/>
+
         <unique-constraints>
             <unique-constraint columns="symbol,market_id" name="stock_market_idx"/>
         </unique-constraints>

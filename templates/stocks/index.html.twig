@@ -18,6 +18,7 @@
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
 
     <script src="{{ asset('build/stock_form.js') }}"></script>
+    <script src="{{ asset('build/stock_panel_table.js') }}"></script>
 
     <script>
         $(document).ready(function() {
@@ -27,8 +28,8 @@
             let contentWrapper = $panelBox.closest('section');
             let entityType = $panelBox.data('entity-type');
 
-            // Create panelTable instance @see assets/js/PanelTable.js
-            let panelTable = new PanelTable({
+            // Create panelTable instance @see assets/js/StockPanelTable.js
+            let panelTable = new StockPanelTable({
                 entityType: entityType,
                 wrapper: contentWrapper,
                 pagination: true,
@@ -55,7 +56,13 @@
                     }
 
                     return null;
-                }
+                },
+                sort: function (aStock, bStock) {
+                    let a = aStock.delisted;
+                    let b = bStock.delisted;
+
+                    return b > a ? -1 : b < a ? 1 : 0;
+                },
             });
 
             const form = new StockForm(

@@ -3,6 +3,7 @@
 namespace App\Domain\Market;
 
 use App\Domain\Market\Event\StockAdded;
+use App\Domain\Market\Event\StockDelisted;
 use App\Domain\Market\Event\StockDividendSynched;
 use App\Domain\Market\Event\StockPriceUpdated;
 use App\Domain\Market\Event\StockUpdated;
@@ -161,6 +162,26 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
+     * @var bool
+     */
+    private $delisted = false;
+
+    public function isDelisted(): bool
+    {
+        return $this->delisted;
+    }
+
+    /**
+     * @var DateTime|null
+     */
+    private $delistedAt;
+
+    public function getDelistedAt(): ?DateTime
+    {
+        return $this->delistedAt;
+    }
+
+    /**
      * @var DateTime
      */
     private $createdAt;
@@ -258,65 +279,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         );
 
         return $this;
-    }
-
-    protected function apply(Changed $changed)
-    {
-        switch ($changed->getEventName()) {
-            case StockAdded::class:
-                /** @var StockAdded $event */
-                $event = $changed->getPayload();
-
-                $this->id = $changed->getAggregateId();
-                $this->name = $event->getName();
-                $this->symbol = $event->getSymbol();
-                $this->market = $event->getMarket();
-                $this->description = $event->getDescription();
-                $this->type = $event->getType();
-                $this->sector = $event->getSector();
-                $this->industry = $event->getIndustry();
-                $this->metadata = $event->getYahooSymbol() ?
-                    (new StockMetadata())->updateYahooSymbol($event->getYahooSymbol()) :
-                    new StockMetadata();
-                $this->createdAt = $changed->getCreatedAt();
-                $this->updatedAt = $changed->getCreatedAt();
-
-                break;
-
-            case StockUpdated::class:
-                /** @var StockUpdated $event */
-                $event = $changed->getPayload();
-
-                $this->name = $event->getName();
-                $this->description = $event->getDescription();
-                $this->metadata = $this->metadata->updateYahooSymbol($event->getYahooSymbol());
-                $this->updatedAt = $changed->getCreatedAt();
-                $this->market = $event->getMarket();
-                $this->type = $event->getType();
-                $this->sector = $event->getSector();
-                $this->industry = $event->getIndustry();
-
-                break;
-
-            case StockPriceUpdated::class:
-                /** @var StockPriceUpdated $event */
-                $event = $changed->getPayload();
-
-                $this->price = $event->getPrice();
-                $this->metadata = $this->metadata->updateDividendYield($event->getDividendYield());
-                break;
-
-            case StockDividendSynched::class:
-                /** @var StockDividendSynched $event */
-                $event = $changed->getPayload();
-
-                $this->nextDividend = $event->getNextDividend();
-                $this->toPayDividend = $event->getToPayDividend();
-                $this->metadata = $this->metadata->updateDividendYield($event->getDividendYield());
-                $this->dividendsSyncAt = $event->getSynchedAt();
-
-                break;
-        }
     }
 
     public function updatePrice(StockPrice $price, $toUpdateAt = 'now'): self
@@ -548,5 +510,90 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         }
 
         return $this;
+    }
+
+    public function delisted($delistedAt = 'now'): self
+    {
+        $this->recordChange(
+            new StockDelisted(
+                $this->getId(),
+                new DateTime($delistedAt)
+            )
+        );
+
+        return $this;
+    }
+
+    protected function apply(Changed $changed)
+    {
+        switch ($changed->getEventName()) {
+            case StockAdded::class:
+                /** @var StockAdded $event */
+                $event = $changed->getPayload();
+
+                $this->id = $changed->getAggregateId();
+                $this->name = $event->getName();
+                $this->symbol = $event->getSymbol();
+                $this->market = $event->getMarket();
+                $this->description = $event->getDescription();
+                $this->type = $event->getType();
+                $this->sector = $event->getSector();
+                $this->industry = $event->getIndustry();
+                $this->metadata = $event->getYahooSymbol() ?
+                    (new StockMetadata())->updateYahooSymbol($event->getYahooSymbol()) :
+                    new StockMetadata();
+                $this->createdAt = $changed->getCreatedAt();
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+
+            case StockUpdated::class:
+                /** @var StockUpdated $event */
+                $event = $changed->getPayload();
+
+                $this->name = $event->getName();
+                $this->description = $event->getDescription();
+                $this->metadata = $this->metadata->updateYahooSymbol($event->getYahooSymbol());
+                $this->updatedAt = $changed->getCreatedAt();
+                $this->market = $event->getMarket();
+                $this->type = $event->getType();
+                $this->sector = $event->getSector();
+                $this->industry = $event->getIndustry();
+
+                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+
+            case StockPriceUpdated::class:
+                /** @var StockPriceUpdated $event */
+                $event = $changed->getPayload();
+
+                $this->price = $event->getPrice();
+                $this->metadata = $this->metadata->updateDividendYield($event->getDividendYield());
+
+                $this->updatedAt = $changed->getCreatedAt();
+                break;
+
+            case StockDividendSynched::class:
+                /** @var StockDividendSynched $event */
+                $event = $changed->getPayload();
+
+                $this->nextDividend = $event->getNextDividend();
+                $this->toPayDividend = $event->getToPayDividend();
+                $this->metadata = $this->metadata->updateDividendYield($event->getDividendYield());
+                $this->dividendsSyncAt = $event->getSynchedAt();
+
+                $this->updatedAt = $changed->getCreatedAt();
+                break;
+
+            case StockDelisted::class:
+                /** @var StockDelisted $event */
+                $event = $changed->getPayload();
+
+                $this->delisted = true;
+                $this->delistedAt = $event->getDelistedAt();
+
+                break;
+        }
     }
 }

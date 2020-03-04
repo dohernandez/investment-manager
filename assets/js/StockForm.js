@@ -5,6 +5,8 @@ import Select2StockMarketTemplate from './Components/Select2StockMarketTemplate'
 import Select2StockInfoTemplate from './Components/Select2StockInfoTemplate';
 import Slider from 'bootstrap-slider';
 import Routing from './Components/Routing';
+import InvestmentManagerClient from "./Components/InvestmentManagerClient";
+
 import $ from 'jquery';
 
 import 'select2';
@@ -300,16 +302,19 @@ class StockForm extends SwalForm {
         this.table.addRecord(entity);
     }
 
-    onUpdated(entity, $row) {
+    onUpdated(entity) {
         this.table.replaceRecord(entity, entity.id);
-
-        $row.fadeOut('normal', () => {
-            $row.replaceWith(this.table.createRow(entity));
-        });
     }
 
     onDeleted(id) {
-        this.table.removeRecord(id);
+        InvestmentManagerClient.sendRPC(
+            Routing.generate('stock_get', {id}),
+            'GET'
+        ).then((result) => {
+            let entity = result.item;
+
+            this.table.replaceRecord(entity, entity.id);
+        });
     }
 }
 

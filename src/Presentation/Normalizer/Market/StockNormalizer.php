@@ -110,6 +110,8 @@ final class StockNormalizer implements SubscribingHandlerInterface
             'yahooSymbol'          => $metadata ? $metadata->getYahooSymbol() : null,
             'currency'             => $stock->getCurrency() ? $stock->getCurrency()->getCurrencyCode() : null,
             'notes'                => $stock->getNotes(),
+            'delisted'             => $stock->isDelisted(),
+            'delistedAt'           => $stock->getDelistedAt() ? $stock->getDelistedAt()->format('c') : null,
             'title'                => $stock->getTitle(),
         ];
     }

@@ -106,7 +106,7 @@ class Table {
 
         this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
-        this.refreshPagination();
+        this.refresh();
     }
 
     /**
@@ -121,13 +121,7 @@ class Table {
     /**
      * Create a row table with the entity value.
      *
-     * @param {{
-     *          id: int,
-     *          date: string,
-     *          beneficiaryParty: {name: string, accountNo: string},
-     *          debtorParty: {name: string, accountNo: string},
-     *          amount: float
-     *        }} entity
+     * @param {object} entity
      * @param {int} index
      */
     addRow(entity, index) {
@@ -180,7 +174,7 @@ class Table {
         this.totalRecords++;
         this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
-        this.refreshPagination();
+        this.refresh();
     }
 
     replaceRecord(record, id) {
@@ -192,7 +186,7 @@ class Table {
 
         this.records[recordIndex] = record;
 
-        this.refreshPagination();
+        this.refresh();
     }
 
     removeRecord(id) {
@@ -216,7 +210,7 @@ class Table {
             this.totalPages = newTotalPages;
         }
 
-        this.refreshPagination();
+        this.refresh();
     }
 
     // Expanded section
