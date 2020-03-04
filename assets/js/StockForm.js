@@ -178,8 +178,10 @@ class StockForm extends SwalForm {
                 $button.html('<i class="fas fa-circle-notch fa-spin"></i> Loading...');
 
                 let $symbol = $form.find('input[name="symbol"]');
+                let $yahooSymbol = $form.find('input[name="yahooSymbol"]');
                 let formData = {
-                    symbol: $symbol.val()
+                    symbol: $symbol.val(),
+                    yahooSymbol: $yahooSymbol.val(),
                 };
 
                 new Promise((resolve, reject) => {

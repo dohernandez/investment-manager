@@ -16,17 +16,10 @@ final class UpdatePriceStockHandler implements MessageHandlerInterface
      */
     private $stockRepository;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-
     public function __construct(
-        StockRepositoryInterface $stockRepository,
-        EventDispatcherInterface $dispatcher
+        StockRepositoryInterface $stockRepository
     ) {
         $this->stockRepository = $stockRepository;
-        $this->dispatcher = $dispatcher;
     }
 
     public function __invoke(UpdateStockPrice $message)

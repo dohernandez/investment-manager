@@ -19,24 +19,17 @@ class UpdateStockDividendConsole extends Console
     protected static $defaultName = 'app:update-stock-dividend';
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @var ProjectionStockRepositoryInterface
      */
     private $stockRepository;
 
     public function __construct(
         ProjectionStockRepositoryInterface $stockRepository,
-        LoggerInterface $logger,
         MessageBusInterface $bus
     ) {
         parent::__construct($bus);
 
         $this->stockRepository = $stockRepository;
-        $this->logger = $logger;
     }
 
     protected function configure()

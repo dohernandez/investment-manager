@@ -129,7 +129,6 @@ class StockController extends BaseController
 
         /** @var Entity\Stock $stock */
         $stock = $form->getData();
-//        dump($stock);
 
         $em->persist($stock);
         $em->flush();

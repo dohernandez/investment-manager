@@ -8,6 +8,7 @@ use App\VO\Currency;
 use App\VO\Money;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 
 abstract class Console extends Command
 {
@@ -35,5 +36,19 @@ abstract class Console extends Command
     protected function convertCurrencyEventSource(Currency $currency): CurrencyEventSource
     {
         return CurrencyEventSource::fromCode($currency->getCurrencyCode());
+    }
+    /**
+     * @param mixed $command
+     *
+     * @return mixed
+     */
+    protected function handle($command)
+    {
+        $envelope = $this->bus->dispatch($command);
+
+        // get the value that was returned by the last message handler
+        $handledStamp = $envelope->last(HandledStamp::class);
+
+        return $handledStamp->getResult();
     }
 }

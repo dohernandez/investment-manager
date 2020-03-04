@@ -5,6 +5,7 @@ namespace App\Application\Market\Scraper;
 use App\Application\Market\Repository\ProjectionStockInfoRepositoryInterface;
 use App\Application\Market\Repository\ProjectionStockMarketRepositoryInterface;
 use App\Domain\Market\StockInfo;
+use App\Infrastructure\Exception\NotFoundException;
 use App\Infrastructure\Money\Money;
 use Doctrine\Common\Collections\ArrayCollection;
 use Goutte\Client;
@@ -18,6 +19,11 @@ final class YahooStockScraper implements StockScraperInterface
         'quote_change'  => 'div#quote-header-info',
         'quote_summary' => 'div#quote-summary',
         'profile'       => 'div#Col1-3-Profile-Proxy',
+    ];
+
+    private const MARKET_MAPPING = [
+        'BATS'     => 'NasdaqGS',
+        'NasdaqGM' => 'NasdaqGS',
     ];
 
     /**
@@ -123,7 +129,20 @@ final class YahooStockScraper implements StockScraperInterface
                         /** @var Crawler $node */
 
                         if (preg_match('/^(.*) - .*/', $node->extract('_text')[0], $matches) !== false) {
+                            if (\array_key_exists($matches[1], self::MARKET_MAPPING)) {
+                                $matches[1] = self::MARKET_MAPPING[$matches[1]];
+                            }
+
                             $market = $this->projectionStockMarketRepository->findBySymbol($matches[1]);
+
+                            if (!$market) {
+                                throw new NotFoundException(
+                                    'Market not found', [
+                                    'stock_symbol' => $stockCrawled->getSymbol(),
+                                    'stock_market' => $matches[1],
+                                ]
+                                );
+                            }
 
                             $stockCrawled->setMarket($market);
                         }
