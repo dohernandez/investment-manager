@@ -91,6 +91,11 @@ final class YahooStockScraper implements StockScraperInterface
             ->updateCurrentPrice($crawler, $stockCrawled)
             ->updatePriceDetails($crawler, $stockCrawled);
 
+        // the client is restarted in order to avoid ban from the website scrapped.
+        // this is in case the client is reuse more than one time, for example in command line
+        // during updating stocks price.
+        $this->client->restart();
+
         return $this;
     }
 

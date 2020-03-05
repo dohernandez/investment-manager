@@ -29,4 +29,9 @@ interface ProjectionStockRepositoryInterface
     public function findAllMatching(string $query, int $limit = 5): array;
 
     public function findBySymbol(string $symbol): ?Stock;
+
+    /**
+     * @return Stock[] The objects.
+     */
+    public function findAllListed(): array;
 }

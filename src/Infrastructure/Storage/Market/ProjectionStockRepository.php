@@ -48,4 +48,12 @@ final class ProjectionStockRepository extends ServiceEntityRepository implements
             ->getOneOrNullResult()
             ;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllListed(): array
+    {
+        return $this->findBy(['delisted' => 0]);
+    }
 }

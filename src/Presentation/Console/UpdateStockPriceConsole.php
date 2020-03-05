@@ -69,7 +69,7 @@ class UpdateStockPriceConsole extends Console
 //                return $position->getStock();
 //            });
         } else {
-            $stocks = $this->stockRepository->findAll();
+            $stocks = $this->stockRepository->findAllListed();
         }
 
         if ($skip = $input->getOption('skip')) {
@@ -91,21 +91,6 @@ class UpdateStockPriceConsole extends Console
                         'stock_market_symbol' => $stock->getMarket()->getSymbol(),
                     ]
                 );
-
-                if (\in_array(
-                    $stock->getSymbol(),
-                    ['CTRP', 'SNH', 'HPT', 'ANDV', 'ETP', 'ETE', 'TLP', 'APU', 'SEP', 'HCP', 'NSH', 'BPL', 'TAP.A']
-                )) {
-                    $this->logger->debug(
-                        'Crawling stock skipped',
-                        [
-                            'stock_symbol' => $stock->getSymbol(),
-                            'stock_market_symbol' => $stock->getMarket()->getSymbol(),
-                        ]
-                    );
-
-                    continue;
-                }
 
                 /** @var StockCrawled $crawled */
                 $crawled = $this->handle(
