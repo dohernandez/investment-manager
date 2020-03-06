@@ -47,9 +47,9 @@ class RegisterOperationHandler implements MessageHandlerInterface
             ]);
         }
 
-        $exchangeRate = null;
+        $rate = null;
         if (\in_array($message->getType(), Operation::TYPES_EXCHANGEABLE)) {
-            $exchangeRate = $this->exchangeMoneyRepository->find($message->getStock()->getCurrency(), $wallet->getCurrency());
+            $rate = $this->exchangeMoneyRepository->findRate($message->getStock()->getCurrency(), $wallet->getCurrency());
         }
 
         $operation = Operation::register(
@@ -63,7 +63,7 @@ class RegisterOperationHandler implements MessageHandlerInterface
             $message->getPriceChange(),
             $message->getPriceChangeCommission(),
             $message->getCommission(),
-            $exchangeRate
+            $rate
         );
 
         $this->operationRepository->save($operation);

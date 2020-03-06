@@ -215,10 +215,10 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
 
         $price = $this->getStock()->getPrice();
 
-        if ($this->exchangeRate) {
+        if ($this->exchangeMoneyRate) {
             $price = $price->exchange(
-                $this->exchangeRate->getToCurrency(),
-                $this->exchangeRate->getRate(),
+                $this->exchangeMoneyRate->getToCurrency(),
+                $this->exchangeMoneyRate->getRate(),
                 $price->getPrecision()
             );
         }
@@ -227,13 +227,13 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
-     * @var ExchangeRate|null
+     * @var Rate|null
      */
-    private $exchangeRate;
+    private $exchangeMoneyRate;
 
-    public function getExchangeRate(): ?ExchangeRate
+    public function getExchangeMoneyRate(): ?Rate
     {
-        return $this->exchangeRate;
+        return $this->exchangeMoneyRate;
     }
 
     public function getTitle(): string
@@ -291,7 +291,7 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         ?Money $priceChange = null,
         ?Money $priceChangeCommission = null,
         ?Money $commission = null,
-        ?ExchangeRate $exchangeRate = null
+        ?Rate $exchangeRate = null
     ): self {
         $id = UUID\Generator::generate();
 
@@ -403,7 +403,7 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->priceChange = $event->getPriceChange();
                 $this->priceChangeCommission = $event->getPriceChangeCommission();
                 $this->commission = $event->getCommission();
-                $this->exchangeRate = $event->getExchangeRate();
+                $this->exchangeMoneyRate = $event->getExchangeRate();
 
                 break;
 
@@ -433,7 +433,7 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->stock = $event->getStock();
                 $this->stockId = $this->stock->getId();
                 $this->amount = $event->getAmount();
-                $this->exchangeRate = $event->getExchangeRate();
+                $this->exchangeMoneyRate = $event->getRate();
 
                 break;
         }

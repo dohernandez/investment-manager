@@ -2,10 +2,10 @@
 
 namespace App\Application\Wallet\Repository;
 
-use App\Domain\Wallet\ExchangeRate;
+use App\Domain\Wallet\Rate;
 use App\Infrastructure\Money\Currency;
 
 interface ExchangeMoneyRepositoryInterface
 {
-    public function find(Currency $fromCurrency, Currency $toCurrency): ExchangeRate;
+    public function findRate(Currency $fromCurrency, Currency $toCurrency): ?Rate;
 }

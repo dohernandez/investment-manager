@@ -3,13 +3,23 @@
 namespace App\Infrastructure\Storage\Wallet;
 
 use App\Application\Wallet\Repository\ExchangeMoneyRepositoryInterface;
-use App\Domain\Wallet\ExchangeRate;
+use App\Domain\Wallet\Rate;
 use App\Infrastructure\Money\Currency;
 
 final class ExchangeMoneyRepository implements ExchangeMoneyRepositoryInterface
 {
-    public function find(Currency $fromCurrency, Currency $toCurrency): ExchangeRate
+    /**
+     * @var ExchangeMoneyRepositoryInterface
+     */
+    private $exchangeMoneyRepository;
+
+    public function __construct(ExchangeMoneyRepositoryInterface $exchangeMoneyRepository)
     {
-        return new ExchangeRate($fromCurrency, $toCurrency, 1);
+        $this->exchangeMoneyRepository = $exchangeMoneyRepository;
+    }
+
+    public function findRate(Currency $fromCurrency, Currency $toCurrency): Rate
+    {
+        return new Rate($fromCurrency, $toCurrency, 1);
     }
 }

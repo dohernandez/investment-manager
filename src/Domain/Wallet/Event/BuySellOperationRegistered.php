@@ -2,7 +2,7 @@
 
 namespace App\Domain\Wallet\Event;
 
-use App\Domain\Wallet\ExchangeRate;
+use App\Domain\Wallet\Rate;
 use App\Domain\Wallet\Stock;
 use App\Domain\Wallet\Wallet;
 use App\Infrastructure\Money\Money;
@@ -66,7 +66,7 @@ abstract class BuySellOperationRegistered
     private $commission;
 
     /**
-     * @var ExchangeRate|null
+     * @var Rate|null
      */
     private $exchangeRate;
 
@@ -82,7 +82,7 @@ abstract class BuySellOperationRegistered
         ?Money $priceChange= null,
         ?Money $priceChangeCommission = null,
         ?Money $commission = null,
-        ?ExchangeRate $exchangeRate = null
+        ?Rate $rate = null
     )
     {
         $this->id = $id;
@@ -96,7 +96,7 @@ abstract class BuySellOperationRegistered
         $this->priceChange = $priceChange;
         $this->priceChangeCommission = $priceChangeCommission;
         $this->commission = $commission;
-        $this->exchangeRate = $exchangeRate;
+        $this->exchangeRate = $rate;
     }
 
     public function getId(): string
@@ -154,7 +154,7 @@ abstract class BuySellOperationRegistered
         return $this->commission;
     }
 
-    public function getExchangeRate(): ?ExchangeRate
+    public function getExchangeRate(): ?Rate
     {
         return $this->exchangeRate;
     }

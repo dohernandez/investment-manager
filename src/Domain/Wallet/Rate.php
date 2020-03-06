@@ -4,7 +4,7 @@ namespace App\Domain\Wallet;
 
 use App\Infrastructure\Money\Currency;
 
-final class ExchangeRate
+final class Rate
 {
     /**
      * @var Currency
