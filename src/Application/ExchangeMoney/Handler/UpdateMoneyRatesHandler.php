@@ -6,6 +6,7 @@ use App\Application\ExchangeMoney\Command\UpdateMoneyRates;
 use App\Application\ExchangeMoney\Exchange\ExchangeMoneyInterface;
 use App\Application\ExchangeMoney\Repository\ExchangeMoneyRepositoryInterface;
 use App\Domain\ExchangeMoney\Rate;
+use App\Infrastructure\Money\Currency;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 use function explode;
@@ -41,8 +42,8 @@ final class UpdateMoneyRatesHandler implements MessageHandlerInterface
             if ($rate === null) {
                 list($fromCurrency, $toCurrency) = explode('_', $paarCurrency);
                 $rate = (new Rate())
-                    ->setFromCurrency($fromCurrency)
-                    ->setToCurrency($toCurrency)
+                    ->setFromCurrency(Currency::fromCode($fromCurrency))
+                    ->setToCurrency(Currency::fromCode($toCurrency))
                     ->setPaarCurrency($paarCurrency)
                 ;
             }

@@ -29,7 +29,7 @@ final class ExchangeMoneyRepository extends ServiceEntityRepository implements E
 
     public function findRateByPaarCurrency(string $paarCurrency): ?Rate
     {
-        $this->findOneBy(
+        return $this->findOneBy(
             [
                 'paarCurrency' => $paarCurrency,
             ]
