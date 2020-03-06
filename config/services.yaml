@@ -8,6 +8,7 @@ parameters:
     upload_note_dir: '%kernel.project_dir%/public/upload/notes/files'
     margin_rate: 0.475
     jms_serializer.camel_case_naming_strategy.class: JMS\Serializer\Naming\IdenticalPropertyNamingStrategy
+    converter_api_key: '%env(CURRENCY_CONVERTER_API_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -134,6 +135,11 @@ services:
     App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ProjectionPositionRepository'
     App\Application\Wallet\Repository\ExchangeMoneyRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ExchangeMoneyRepository'
 
+    App\Application\ExchangeMoney\Exchange\ExchangeMoneyInterface: '@App\Application\ExchangeMoney\Exchange\CurrencyConverter'
+    App\Application\ExchangeMoney\Repository\ExchangeMoneyRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\ExchangeMoneyRepository'
+    App\Application\ExchangeMoney\Repository\MarketRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\MarketRepository'
+    App\Application\ExchangeMoney\Repository\WalletRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\WalletRepository'
+
     # Handlers
     App\Application\Market\Handler\SyncStockDividendsHandler:
         class: App\Application\Market\Handler\SyncStockDividendsHandler
@@ -148,7 +154,13 @@ services:
         arguments:
             $houseKeeperStockDividendRepository: '@App\Infrastructure\Storage\Market\HouseKeeperStockDividendRepository'
 
-    ##### APPLICATION LAYER END
+    # Exchange
+    App\Application\ExchangeMoney\Exchange\CurrencyConverter:
+        class: App\Application\ExchangeMoney\Exchange\CurrencyConverter
+        arguments:
+            $apiKey: '%converter_api_key%'
+
+    ##### APPLICATION LAYER ENDsrc/Migrations/Version20200306090430.php
 
 
     ##### INFRASTRUCTURE LAYER START
@@ -207,5 +219,9 @@ services:
     App\Infrastructure\Storage\Wallet\PositionRepository: ~
     App\Infrastructure\Storage\Wallet\ProjectionPositionRepository: ~
     App\Infrastructure\Storage\Wallet\ExchangeMoneyRepository: ~
+
+    App\Infrastructure\Storage\ExchangeMoney\ExchangeMoneyRepository: ~
+    App\Infrastructure\Storage\ExchangeMoney\MarketRepository: ~
+    App\Infrastructure\Storage\ExchangeMoney\WalletRepository: ~
 
     ##### INFRASTRUCTURE LAYER END

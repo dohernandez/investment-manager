@@ -15,5 +15,10 @@ interface ProjectionStockMarketRepositoryInterface
      */
     public function find($id);
 
+    /**
+     * @return StockMarket[]
+     */
+    public function findAll();
+
     public function findBySymbol(string $symbol): ?StockMarket;
 }

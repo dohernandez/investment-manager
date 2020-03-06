@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd"
+                  xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping">
+
+    <entity name="App\Domain\ExchangeMoney\Rate" table="projection_exchange_money_rate">
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="fromCurrency" column="from_currency" type="object" />
+        <field name="toCurrency" column="to_currency" type="object" />
+        <field name="rate" column="rate" type="float" />
+        <field name="paarCurrency" column="paar_currency" type="string" unique="true"/>
+        <field name="createdAt" column="created_at" type="datetime">
+            <gedmo:timestampable on="update"/>
+        </field>
+        <field name="updatedAt" column="updated_at" type="datetime">
+            <gedmo:timestampable on="update"/>
+        </field>
+    </entity>
+
+</doctrine-mapping>
