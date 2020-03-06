@@ -22,14 +22,18 @@ final class ProjectionWalletRepository extends ServiceEntityRepository implement
 
     public function findBySlug(string $slug): ?Wallet
     {
-        // TODO: Implement findBySlug() method.
+        return $this->findOneBy(
+            [
+                'slug' => $slug,
+            ]
+        );
     }
 
     public function findByAccount(string $accountId): ?Wallet
     {
         return $this->findOneBy(
             [
-                'accountId' => $accountId
+                'accountId' => $accountId,
             ]
         );
     }

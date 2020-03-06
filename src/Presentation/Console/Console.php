@@ -24,8 +24,12 @@ abstract class Console extends Command
         $this->bus = $bus;
     }
 
-    protected function convertMoneyEventSource(Money $money): MoneyEventSource
+    protected function convertMoneyEventSource(?Money $money): ?MoneyEventSource
     {
+        if (!$money) {
+            return null;
+        }
+
         return new MoneyEventSource(
             $this->convertCurrencyEventSource($money->getCurrency()),
             $money->getValue(),
@@ -33,8 +37,12 @@ abstract class Console extends Command
         );
     }
 
-    protected function convertCurrencyEventSource(Currency $currency): CurrencyEventSource
+    protected function convertCurrencyEventSource(?Currency $currency): ?CurrencyEventSource
     {
+        if (!$currency) {
+            return null;
+        }
+
         return CurrencyEventSource::fromCode($currency->getCurrencyCode());
     }
     /**

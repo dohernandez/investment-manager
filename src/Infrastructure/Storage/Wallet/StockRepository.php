@@ -21,15 +21,19 @@ final class StockRepository implements StockRepositoryInterface
         $this->projectionStockRepository = $projectionStockRepository;
     }
 
-    public function find(string $id): Stock
+    public function find(string $id): ?Stock
     {
-        $projectionStock = $this->projectionStockRepository->find($id);
-
-        return $this->hydrate($projectionStock);
+        return $this->hydrate(
+            $this->projectionStockRepository->find($id)
+        );
     }
 
-    private function hydrate(ProjectionStock $projectionStock): Stock
+    private function hydrate(ProjectionStock $projectionStock): ?Stock
     {
+        if (!$projectionStock) {
+            return null;
+        }
+
         $nextDividend = $projectionStock->getNextDividend() ? $projectionStock->getNextDividend()->getValue() : null;
         $nextDividendExDate = $projectionStock->getNextDividend() ? $projectionStock->getNextDividend()->getExDate() : null;
         $toPayDividend = $projectionStock->getToPayDividend() ? $projectionStock->getToPayDividend()->getValue() : null;
@@ -43,9 +47,9 @@ final class StockRepository implements StockRepositoryInterface
             $projectionStock->getName(),
             $projectionStock->getSymbol(),
             $this->hydrateMarket($projectionStock->getMarket()),
-            $projectionStock->getPrice()->getPrice(),
-            $projectionStock->getPrice()->getChangePrice(),
-            $projectionStock->getPrice()->getPreClose(),
+            $projectionStock->getPrice() ? $projectionStock->getPrice()->getPrice() : null,
+            $projectionStock->getPrice() ? $projectionStock->getPrice()->getChangePrice() : null,
+            $projectionStock->getPrice() ? $projectionStock->getPrice()->getPreClose() : null,
             $nextDividend,
             $nextDividendExDate,
             $prevDividendExDate,
@@ -59,7 +63,15 @@ final class StockRepository implements StockRepositoryInterface
         return new Market(
             $projectionMarket->getId(),
             $projectionMarket->getName(),
-            $projectionMarket->getSymbol()
+            $projectionMarket->getSymbol(),
+            $projectionMarket->getCurrency()
+        );
+    }
+
+    public function findBySymbol(string $symbol): ?Stock
+    {
+        return $this->hydrate(
+            $this->projectionStockRepository->findBySymbol($symbol)
         );
     }
 }

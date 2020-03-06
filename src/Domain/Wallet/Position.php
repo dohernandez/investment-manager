@@ -209,7 +209,12 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             ->increase($this->book->getTotalDividendPaid())
             ->decrease($buys)
             ->increase($capital);
-        $percentageBenefits = $benefits->getValue() * 100 / $buys->getValue();
+
+        $percentageBenefits = 100;
+        if ($buys->getValue() > 0) {
+            $percentageBenefits = $benefits->getValue() * 100 / $buys->getValue();
+        }
+
         $invested = $this->invested->increase($totalPaid);
         $averagePrice = $invested->divide($amount);
 

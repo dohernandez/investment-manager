@@ -40,6 +40,13 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         self::TYPE_SPLIT_REVERSE,
     ];
 
+    public const TYPES_STOCK = [
+        self::TYPE_BUY,
+        self::TYPE_SELL,
+        self::TYPE_SPLIT_REVERSE,
+        self::TYPE_DIVIDEND,
+    ];
+
     /**
      * @var Stock|null
      */
@@ -214,6 +221,9 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         }
 
         $price = $this->getStock()->getPrice();
+        if (!$price) {
+            return new Money($this->wallet->getCurrency());
+        }
 
         if ($this->exchangeMoneyRate) {
             $price = $price->exchange(

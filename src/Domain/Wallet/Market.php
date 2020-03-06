@@ -2,6 +2,8 @@
 
 namespace App\Domain\Wallet;
 
+use App\Infrastructure\Money\Currency;
+
 final class Market
 {
     /**
@@ -19,11 +21,17 @@ final class Market
      */
     private $symbol;
 
-    public function __construct(string $id, string $name, string $symbol)
+    /**
+     * @var Currency
+     */
+    private $currency;
+
+    public function __construct(string $id, string $name, string $symbol, Currency $currency)
     {
         $this->id = $id;
         $this->name = $name;
         $this->symbol = $symbol;
+        $this->currency = $currency;
     }
 
     public function getId(): string
@@ -44,5 +52,10 @@ final class Market
     public function getTitle(): string
     {
         return $this->getSymbol() . ' - ' . $this->getName();
+    }
+
+    public function getCurrency(): Currency
+    {
+        return $this->currency;
     }
 }

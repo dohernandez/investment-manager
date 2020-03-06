@@ -175,7 +175,7 @@ final class Stock
 
     public function getCurrency(): Currency
     {
-        return $this->price->getCurrency();
+        return $this->price ? $this->price->getCurrency() : $this->market->getCurrency();
     }
 
     public function getNotes(): string
