@@ -101,8 +101,14 @@ class Table {
     }
 
     setData(data) {
-        this.records = data.items;
-        this.totalRecords = data.items.length;
+        // this is because the server is serializing arrays sometimes like an array
+        // and another times like an object. We have to cast to array.
+        let items = data.items;
+        if (typeof items === 'object') {
+            items = Object.values(items);
+        }
+        this.records = items;
+        this.totalRecords = items.length;
 
         this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
