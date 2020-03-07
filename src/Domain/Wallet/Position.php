@@ -475,7 +475,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
         // exchange capital, change and pre close to the position currency
         if ($exchangeMoneyRate) {
-            $capital = $exchangeMoneyRate->exchange($stock->getPrice());
+            $capital = $exchangeMoneyRate->exchange($capital);
 
             if ($change !== null) {
                 $change = $exchangeMoneyRate->exchange($change);

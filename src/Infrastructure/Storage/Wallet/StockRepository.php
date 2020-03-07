@@ -47,6 +47,7 @@ final class StockRepository implements StockRepositoryInterface
             $projectionStock->getName(),
             $projectionStock->getSymbol(),
             $this->hydrateMarket($projectionStock->getMarket()),
+            $projectionStock->getMetadata()->getYahooSymbol(),
             $projectionStock->getPrice() ? $projectionStock->getPrice()->getPrice() : null,
             $projectionStock->getPrice() ? $projectionStock->getPrice()->getChangePrice() : null,
             $projectionStock->getPrice() ? $projectionStock->getPrice()->getPreClose() : null,

@@ -8,6 +8,10 @@ use App\Domain\Wallet\Wallet;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
+use function array_map;
+use function is_array;
+use function reset;
+
 /**
  * @method Wallet|null find($id, $lockMode = null, $lockVersion = null)
  * @method Wallet|null findOneBy(array $criteria, array $orderBy = null)
@@ -52,7 +56,32 @@ final class ProjectionWalletRepository extends ServiceEntityRepository implement
             ->setParameter('stockId', $stockId)
             ->setParameter('status', Position::STATUS_OPEN)
             ->getQuery()
-            ->getResult()
-            ;
+            ->getResult();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllStocksInWalletOnOpenPositionBySlug(string $slug): array
+    {
+        return array_map(
+            function ($stock) {
+                if (is_array($stock)) {
+                    return reset($stock);
+                }
+
+                return $stock;
+            },
+            $this->createQueryBuilder('w')
+                ->select('p.stock')
+                ->distinct()
+                ->andWhere('w.slug = :slug')
+                ->setParameter('slug', $slug)
+                ->innerJoin('w.positions', 'p')
+                ->andWhere('p.status = :status')
+                ->setParameter('status', Position::STATUS_OPEN)
+                ->getQuery()
+                ->getResult()
+        );
     }
 }

@@ -6,6 +6,7 @@ use App\Application\Market\Command\LoadYahooQuote;
 use App\Application\Market\Command\UpdateStockPrice;
 use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
 use App\Application\Market\Scraper\StockCrawled;
+use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -27,8 +28,14 @@ class UpdateStockPriceConsole extends Console
      */
     private $logger;
 
+    /**
+     * @var ProjectionWalletRepositoryInterface
+     */
+    private $walletRepository;
+
     public function __construct(
         ProjectionStockRepositoryInterface $stockRepository,
+        ProjectionWalletRepositoryInterface $walletRepository,
         MessageBusInterface $bus,
         LoggerInterface $logger
     ) {
@@ -36,6 +43,7 @@ class UpdateStockPriceConsole extends Console
 
         $this->stockRepository = $stockRepository;
         $this->logger = $logger;
+        $this->walletRepository = $walletRepository;
     }
 
     protected function configure()
@@ -60,16 +68,33 @@ class UpdateStockPriceConsole extends Console
         $stocks = [];
         if ($symbol = $input->getOption('symbol')) {
             if ($stock = $this->stockRepository->findBySymbol($symbol)) {
-                $stocks[] = $stock;
+                $stocks[] = [
+                    'id'            => $stock->getId(),
+                    'symbol'        => $stock->getSymbol(),
+                    'yahoo_symbol'  => $stock->getMetadata()->getYahooSymbol(),
+                    'market_symbol' => $stock->getMarket()->getSymbol(),
+                ];
             }
         } elseif ($wallet = $input->getOption('wallet')) {
-            // implement proxy pattern https://sourcemaking.com/design_patterns/proxy
-//            $stocks = $this->walletRepository->findOneBySlug($wallet)->getPositions('open')->map(function ($position){
-//                /** @var Position $position */
-//                return $position->getStock();
-//            });
+            $wStocks = $this->walletRepository->findAllStocksInWalletOnOpenPositionBySlug($wallet);
+            foreach ($wStocks as $stock) {
+                $stocks[] = [
+                    'id'            => $stock->getId(),
+                    'symbol'        => $stock->getSymbol(),
+                    'yahoo_symbol'  => $stock->getYahooSymbol(),
+                    'market_symbol' => $stock->getMarket()->getSymbol(),
+                ];
+            }
         } else {
-            $stocks = $this->stockRepository->findAllListed();
+            $stocksListed = $this->stockRepository->findAllListed();
+            foreach ($stocksListed as $stock) {
+                $stocks[] = [
+                    'id'            => $stock->getId(),
+                    'symbol'        => $stock->getSymbol(),
+                    'yahoo_symbol'  => $stock->getMetadata()->getYahooSymbol(),
+                    'market_symbol' => $stock->getMarket()->getSymbol(),
+                ];
+            }
         }
 
         if ($skip = $input->getOption('skip')) {
@@ -87,22 +112,22 @@ class UpdateStockPriceConsole extends Console
                 $this->logger->debug(
                     'Crawling stock',
                     [
-                        'stock_symbol' => $stock->getSymbol(),
-                        'stock_market_symbol' => $stock->getMarket()->getSymbol(),
+                        'stock_symbol'        => $stock['symbol'],
+                        'stock_market_symbol' => $stock['market_symbol'],
                     ]
                 );
 
                 /** @var StockCrawled $crawled */
                 $crawled = $this->handle(
                     new LoadYahooQuote(
-                        $stock->getSymbol(),
-                        $stock->getMetadata()->getYahooSymbol()
+                        $stock['symbol'],
+                        $stock['yahoo_symbol']
                     )
                 );
 
                 $this->handle(
                     new UpdateStockPrice(
-                        $stock->getId(),
+                        $stock['id'],
                         $crawled->getValue(),
                         $crawled->getChangePrice(),
                         $crawled->getPreClose(),
@@ -118,7 +143,7 @@ class UpdateStockPriceConsole extends Console
                 $io->error(
                     sprintf(
                         'failed scraper update stock %s, error: %s',
-                        $stock->getSymbol(),
+                        $stock['symbol'],
                         $e->getMessage()
                     )
                 );

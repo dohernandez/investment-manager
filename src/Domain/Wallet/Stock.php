@@ -19,6 +19,11 @@ final class Stock
     private $symbol;
 
     /**
+     * @var string|null
+     */
+    private $yahooSymbol;
+
+    /**
      * @var Market
      */
     private $market;
@@ -78,6 +83,7 @@ final class Stock
         string $name,
         string $symbol,
         Market $market,
+        ?string $yahooSymbol = null,
         ?Money $price = null,
         ?Money $change = null,
         ?Money $preClose = null,
@@ -92,6 +98,7 @@ final class Stock
         $this->symbol = $symbol;
         $this->market = $market;
         $this->name = $name;
+        $this->yahooSymbol = $yahooSymbol;
         $this->price = $price;
         $this->change = $change;
         $this->preClose = $preClose;
@@ -111,6 +118,11 @@ final class Stock
     public function getSymbol(): string
     {
         return $this->symbol;
+    }
+
+    public function getYahooSymbol(): ?string
+    {
+        return $this->yahooSymbol;
     }
 
     public function getMarket(): Market

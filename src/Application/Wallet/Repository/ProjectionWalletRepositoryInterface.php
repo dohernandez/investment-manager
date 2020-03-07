@@ -2,6 +2,7 @@
 
 namespace App\Application\Wallet\Repository;
 
+use App\Domain\Wallet\Stock;
 use App\Domain\Wallet\Wallet;
 
 interface ProjectionWalletRepositoryInterface
@@ -29,5 +30,12 @@ interface ProjectionWalletRepositoryInterface
      *
      * @return Wallet[]
      */
-    public function findAllByStockOnOpenPosition(string $stockId): array ;
+    public function findAllByStockOnOpenPosition(string $stockId): array;
+
+    /**
+     * @param string $slug
+     *
+     * @return Stock[]
+     */
+    public function findAllStocksInWalletOnOpenPositionBySlug(string $slug): array;
 }
