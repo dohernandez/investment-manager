@@ -23,4 +23,11 @@ interface ProjectionWalletRepositoryInterface
     public function findAll();
 
     public function findByAccount(string $accountId): ?Wallet;
+
+    /**
+     * @param string $stockId
+     *
+     * @return Wallet[]
+     */
+    public function findAllByStockOnOpenPosition(string $stockId): array ;
 }

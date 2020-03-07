@@ -182,4 +182,12 @@ final class Stock
     {
         return $this->notes;
     }
+
+    public function changePrevDividendExDate(?DateTime $prevDividendExDate = null): self
+    {
+        $self = clone $this;
+        $self->prevDividendExDate = $this->prevDividendExDate;
+
+        return $self;
+    }
 }

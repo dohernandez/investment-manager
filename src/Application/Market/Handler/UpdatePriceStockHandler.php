@@ -3,10 +3,8 @@
 namespace App\Application\Market\Handler;
 
 use App\Application\Market\Command\UpdateStockPrice;
-use App\Application\Market\Event\StockPriceUpdated;
 use App\Application\Market\Repository\StockRepositoryInterface;
 use App\Domain\Market\StockPrice;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class UpdatePriceStockHandler implements MessageHandlerInterface

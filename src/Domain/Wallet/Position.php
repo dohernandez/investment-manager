@@ -8,6 +8,7 @@ use App\Domain\Wallet\Event\PositionDividendCredited;
 use App\Domain\Wallet\Event\PositionIncreased;
 use App\Domain\Wallet\Event\PositionOpened;
 use App\Domain\Wallet\Event\PositionSplitReversed;
+use App\Domain\Wallet\Event\PositionStockPriceUpdated;
 use App\Infrastructure\Date\Date;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -232,6 +233,11 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $nextDividendYield = $nextDividend->getValue() * 4 / \max($averagePrice->getValue(), 1) * 100;
         }
 
+        /*
+         * TODO fix me
+         * by applying exchange from the operation or mek operation aware returning
+         * the value already exchanged
+         */
         $changed = $this->getStock()->getChange();
         $percentageChanged = 100;
         if ($changed !== null) {
@@ -242,6 +248,11 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             }
         }
 
+        /*
+         * TODO fix me
+         * by applying exchange from the operation or mek operation aware returning
+         * the value already exchanged
+         */
         $preClosed = $stock->getPreClose();
         if ($preClosed !== null) {
             $preClosed = $preClosed->multiply($amount);
@@ -454,6 +465,67 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
+    public function updateStockPrice(Stock $stock, ?Rate $exchangeMoneyRate = null): self
+    {
+        $capital = $stock->getPrice()->multiply($this->amount);
+        $change = $stock->getChange() ? $stock->getChange()->multiply($this->amount) : null;
+        $preClose = $stock->getPreClose() ? $stock->getPreClose()->multiply($this->amount) : null;
+
+        // exchange capital, change and pre close to the position currency
+        if ($exchangeMoneyRate) {
+            $priceExchanged = $exchangeMoneyRate->exchange($stock->getPrice());
+
+            $capital = $priceExchanged->multiply($this->amount);
+
+            if ($change !== null) {
+                $changeExchanged = $exchangeMoneyRate->exchange($change);
+
+                $change = $changeExchanged->multiply($this->amount);
+            }
+
+            if ($preClose !== null) {
+                $preCloseExchanged = $exchangeMoneyRate->exchange($preClose);
+
+                $preClose = $preCloseExchanged->multiply($this->amount);
+            }
+        }
+
+        $buys = $this->book->getBuys();
+        $benefits = $this->book->getSells()
+            ->increase($this->book->getTotalDividendPaid())
+            ->decrease($buys)
+            ->increase($capital);
+
+        $percentageBenefits = 100;
+        if ($buys->getValue() > 0) {
+            $percentageBenefits = $benefits->getValue() * 100 / $buys->getValue();
+        }
+
+        $percentageChange = 100;
+        if ($change !== null) {
+            if ($preClose !== null) {
+                $percentageChange = $change->getValue() * 100 / $preClose->getValue();
+            }
+        }
+
+        // this will keep stock sync in projection.
+        $this->stock = $stock;
+
+        $this->recordChange(
+            new PositionStockPriceUpdated(
+                $this->id,
+                $capital,
+                $benefits,
+                $percentageBenefits,
+                $change,
+                $percentageChange,
+                $preClose
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         $this->updatedAt = $changed->getCreatedAt();
@@ -563,6 +635,18 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setChanged($event->getChanged());
                 $this->book->setPercentageChanged($event->getPercentageChanged());
                 $this->book->setPreClosed($event->getPreClosed());
+
+                break;
+
+            case PositionStockPriceUpdated::class:
+                /** @var PositionStockPriceUpdated $event */
+
+                $this->capital = $event->getCapital();
+                $this->book->setBenefits($event->getBenefits());
+                $this->book->setPercentageBenefits($event->getPercentageBenefits());
+                $this->book->setChanged($event->getChange());
+                $this->book->setPercentageChanged($event->getPercentageChange());
+                $this->book->setPreClosed($event->getPreClose());
 
                 break;
         }

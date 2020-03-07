@@ -3,6 +3,7 @@
 namespace App\Domain\Wallet;
 
 use App\Infrastructure\Money\Currency;
+use App\Infrastructure\Money\Money;
 
 final class Rate
 {
@@ -41,5 +42,18 @@ final class Rate
     public function getRate()
     {
         return $this->rate;
+    }
+
+    public function exchange(?Money $money): ?Money
+    {
+        if (!$money) {
+            return null;
+        }
+
+        return $money->exchange(
+            $this->getToCurrency(),
+            $this->getRate(),
+            $money->getPrecision()
+        );
     }
 }

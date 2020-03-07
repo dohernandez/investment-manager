@@ -118,21 +118,7 @@ final class MigrateOperationToEventSourceConsole extends Console
                     $dateAt
                 );
 
-                $stock = new Stock(
-                    $stock->getId(),
-                    $stock->getName(),
-                    $stock->getSymbol(),
-                    $stock->getMarket(),
-                    $stock->getPrice(),
-                    $stock->getChange(),
-                    $stock->getPreClose(),
-                    $stock->getNextDividend(),
-                    $stock->getNextDividendExDate(),
-                    $dividend ? $dividend->getExDate() : $dateAt,
-                    $stock->getToPayDividend(),
-                    $stock->getToPayDividendDate(),
-                    $stock->getNotes()
-                );
+                $stock = $stock->changePrevDividendExDate($dividend ? $dividend->getExDate() : $dateAt);
             }
 
             try {

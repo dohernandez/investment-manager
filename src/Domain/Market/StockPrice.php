@@ -2,6 +2,7 @@
 
 namespace App\Domain\Market;
 
+use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
@@ -203,5 +204,10 @@ class StockPrice
             $this->dayHigh->equals($price->getDayHigh()) &&
             $this->week52Low->equals($price->getWeek52Low()) &&
             $this->week52High->equals($price->getWeek52High());
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->price ? $this->price->getCurrency() : null;
     }
 }

@@ -435,11 +435,11 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
-    public function updateCapital(Operation $operation): self
+    public function updateCapital(Money $capital): self
     {
         $book = $this->book;
 
-        $capital = $book->getCapital()->increase($operation->getCapital());
+        $capital = $book->getCapital()->increase($capital);
         $benefits = $capital->increase($book->getFunds()->decrease($book->getInvested()));
 
         $percentageBenefits = $book->getInvested()->getValue() ?

@@ -91,7 +91,7 @@ final class SplitReverseOperationRegisteredSubscriber implements EventSubscriber
         $position->splitReversePosition($operation);
         $this->positionRepository->save($position);
 
-        $wallet->updateCapital($operation);
+        $wallet->updateCapital($operation->getCapital());
         $this->walletRepository->save($wallet);
     }
 }
