@@ -27,16 +27,23 @@ class WalletCapitalUpdated
      */
     private $capital;
 
+    /**
+     * @var DateTime|null
+     */
+    private $updatedAt;
+
     public function __construct(
         string $id,
         Money $capital,
         Money $benefits,
-        float $percentageBenefits
+        float $percentageBenefits,
+        ?DateTime $updatedAt = null
     ) {
         $this->id = $id;
         $this->capital = $capital;
         $this->benefits = $benefits;
         $this->percentageBenefits = $percentageBenefits;
+        $this->updatedAt = $updatedAt;
     }
 
     public function getId(): string
@@ -62,5 +69,10 @@ class WalletCapitalUpdated
     public function getCapital(): Money
     {
         return $this->capital;
+    }
+
+    public function getUpdatedAt(): ?DateTime
+    {
+        return $this->updatedAt;
     }
 }

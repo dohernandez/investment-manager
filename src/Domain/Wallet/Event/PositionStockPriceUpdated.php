@@ -4,6 +4,7 @@ namespace App\Domain\Wallet\Event;
 
 use App\Domain\Wallet\Operation;
 use App\Infrastructure\Money\Money;
+use DateTime;
 
 final class PositionStockPriceUpdated
 {
@@ -42,6 +43,11 @@ final class PositionStockPriceUpdated
      */
     private $preClose;
 
+    /**
+     * @var DateTime|null
+     */
+    private $updatedAt;
+
     public function __construct(
         string $id,
         Money $capital,
@@ -49,7 +55,8 @@ final class PositionStockPriceUpdated
         float $percentageBenefits,
         ?Money $change = null,
         ?float $percentageChange = null,
-        ?Money $preClose = null
+        ?Money $preClose = null,
+        ?DateTime $updatedAt = null
     ) {
         $this->id = $id;
         $this->capital = $capital;
@@ -58,6 +65,7 @@ final class PositionStockPriceUpdated
         $this->change = $change;
         $this->percentageChange = $percentageChange;
         $this->preClose = $preClose;
+        $this->updatedAt = $updatedAt;
     }
 
     public function getId(): string
@@ -93,5 +101,10 @@ final class PositionStockPriceUpdated
     public function getPreClose(): ?Money
     {
         return $this->preClose;
+    }
+
+    public function getUpdatedAt(): ?DateTime
+    {
+        return $this->updatedAt;
     }
 }

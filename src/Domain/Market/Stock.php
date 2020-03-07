@@ -334,45 +334,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         return $dividend->getValue()->getValue() * 4 / $price->getPrice()->getValue() * 100;
     }
 
-    private function findFirstChangeHappenedDateAt(
-        DateTime $dateAt,
-        ?string $type = null,
-        string $method = 'getUpdatedAt'
-    ): ?Changed {
-        $changes = ($type) ? $this->getChanges()->filter(
-            function (Changed $changed) use ($type) {
-                if ($changed->getEventName() == $type) {
-                    return true;
-                }
-
-                return false;
-            }
-        ) : $this->getChanges();
-
-        $changed = null;
-
-        /** @var Changed $change */
-        foreach ($changes as $change) {
-            /** @var StockPriceUpdated $payload */
-            $payload = $change->getPayload();
-
-            if (!\method_exists($payload, $method)) {
-                continue;
-            }
-
-            if (
-                $payload->$method()->format('Y') === $dateAt->format('Y') &&
-                $payload->$method()->format('z') === $dateAt->format('z')
-            ) {
-                $changed = $change;
-
-                break;
-            }
-        }
-
-        return $changed;
-    }
-
     /**
      * @param StockDividend[] $dividends
      * @param string $toSyncAt

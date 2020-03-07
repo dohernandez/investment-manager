@@ -465,28 +465,24 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
-    public function updateStockPrice(Stock $stock, ?Rate $exchangeMoneyRate = null): self
+    public function updateStockPrice(Stock $stock, ?Rate $exchangeMoneyRate = null, $toUpdateAt = 'now'): self
     {
+        $toUpdateAt = new DateTime($toUpdateAt);
+
         $capital = $stock->getPrice()->multiply($this->amount);
         $change = $stock->getChange() ? $stock->getChange()->multiply($this->amount) : null;
         $preClose = $stock->getPreClose() ? $stock->getPreClose()->multiply($this->amount) : null;
 
         // exchange capital, change and pre close to the position currency
         if ($exchangeMoneyRate) {
-            $priceExchanged = $exchangeMoneyRate->exchange($stock->getPrice());
-
-            $capital = $priceExchanged->multiply($this->amount);
+            $capital = $exchangeMoneyRate->exchange($stock->getPrice());
 
             if ($change !== null) {
-                $changeExchanged = $exchangeMoneyRate->exchange($change);
-
-                $change = $changeExchanged->multiply($this->amount);
+                $change = $exchangeMoneyRate->exchange($change);
             }
 
             if ($preClose !== null) {
-                $preCloseExchanged = $exchangeMoneyRate->exchange($preClose);
-
-                $preClose = $preCloseExchanged->multiply($this->amount);
+                $preClose = $exchangeMoneyRate->exchange($preClose);
             }
         }
 
@@ -511,6 +507,27 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         // this will keep stock sync in projection.
         $this->stock = $stock;
 
+        if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, PositionStockPriceUpdated::class)) {
+            // This is to avoid have too much update events.
+
+            $this->replaceChangedPayload(
+                $changed,
+                new PositionStockPriceUpdated(
+                    $this->id,
+                    $capital,
+                    $benefits,
+                    $percentageBenefits,
+                    $change,
+                    $percentageChange,
+                    $preClose,
+                    $toUpdateAt
+                ),
+                clone $toUpdateAt
+            );
+
+            return $this;
+        }
+
         $this->recordChange(
             new PositionStockPriceUpdated(
                 $this->id,
@@ -519,7 +536,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $percentageBenefits,
                 $change,
                 $percentageChange,
-                $preClose
+                $preClose,
+                $toUpdateAt
             )
         );
 

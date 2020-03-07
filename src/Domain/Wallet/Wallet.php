@@ -435,8 +435,10 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
-    public function updateCapital(Money $capital): self
+    public function updateCapital(Money $capital, $toUpdateAt = 'now'): self
     {
+        $toUpdateAt = new DateTime($toUpdateAt);
+
         $book = $this->book;
 
         $capital = $book->getCapital()->increase($capital);
@@ -446,12 +448,31 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
             $benefits->getValue() * 100 / $book->getInvested()->getValue() :
             100;
 
+        if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, WalletCapitalUpdated::class)) {
+            // This is to avoid have too much update events.
+
+            $this->replaceChangedPayload(
+                $changed,
+                new WalletCapitalUpdated(
+                    $this->id,
+                    $capital,
+                    $benefits,
+                    $percentageBenefits,
+                    $toUpdateAt
+                ),
+                clone $toUpdateAt
+            );
+
+            return $this;
+        }
+
         $this->recordChange(
             new WalletCapitalUpdated(
                 $this->id,
                 $capital,
                 $benefits,
-                $percentageBenefits
+                $percentageBenefits,
+                $toUpdateAt
             )
         );
 
