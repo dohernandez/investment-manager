@@ -38,6 +38,10 @@
             </cascade>
         </one-to-one>
 
+        <field name="nextDividendAfterTaxes" column="next_dividend_after_taxes" type="object" nullable="true" />
+        <field name="nextDividendYieldAfterTaxes" column="next_dividend_yield_after_taxes" type="float" nullable="true" />
+        <field name="toPayDividendAfterTaxes" column="to_pay_dividend_after_taxes" type="object" nullable="true" />
+        <field name="toPayDividendYieldAfterTaxes" column="to_pay_dividend_yield_after_taxes" type="float" nullable="true" />
     </entity>
 
 </doctrine-mapping>

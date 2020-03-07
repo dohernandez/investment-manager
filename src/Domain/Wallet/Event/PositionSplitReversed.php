@@ -61,6 +61,16 @@ final class PositionSplitReversed
      */
     private $nextDividendYield;
 
+    /**
+     * @var Money|null
+     */
+    private $nextDividendAfterTaxes;
+
+    /**
+     * @var float|null
+     */
+    private $nextDividendYieldAfterTaxes;
+
     public function __construct(
         string $id,
         int $amount,
@@ -72,7 +82,9 @@ final class PositionSplitReversed
         ?float $percentageChanged = null,
         ?Money $preClosed = null,
         ?Money $nextDividend = null,
-        ?float $nextDividendYield = null
+        ?float $nextDividendYield = null,
+        ?Money $nextDividendAfterTaxes = null,
+        ?float $nextDividendYieldAfterTaxes = null
     ) {
         $this->id = $id;
         $this->amount = $amount;
@@ -85,6 +97,8 @@ final class PositionSplitReversed
         $this->preClosed = $preClosed;
         $this->nextDividend = $nextDividend;
         $this->nextDividendYield = $nextDividendYield;
+        $this->nextDividendAfterTaxes = $nextDividendAfterTaxes;
+        $this->nextDividendYieldAfterTaxes = $nextDividendYieldAfterTaxes;
     }
 
     public function getId(): string
@@ -140,5 +154,15 @@ final class PositionSplitReversed
     public function getNextDividendYield(): ?float
     {
         return $this->nextDividendYield;
+    }
+
+    public function getNextDividendAfterTaxes(): ?Money
+    {
+        return $this->nextDividendAfterTaxes;
+    }
+
+    public function getNextDividendYieldAfterTaxes(): ?float
+    {
+        return $this->nextDividendYieldAfterTaxes;
     }
 }

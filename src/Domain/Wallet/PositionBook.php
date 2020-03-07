@@ -5,6 +5,8 @@ namespace App\Domain\Wallet;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 
+use function max;
+
 class PositionBook
 {
     /**
@@ -55,12 +57,32 @@ class PositionBook
     /**
      * @var Money|null
      */
+    private $nextDividendAfterTaxes;
+
+    /**
+     * @var float|null
+     */
+    private $nextDividendYieldAfterTaxes;
+
+    /**
+     * @var Money|null
+     */
     private $toPayDividend;
 
     /**
      * @var float|null
      */
     private $toPayDividendYield;
+
+    /**
+     * @var Money|null
+     */
+    private $toPayDividendAfterTaxes;
+
+    /**
+     * @var float|null
+     */
+    private $toPayDividendYieldAfterTaxes;
 
     /**
      * @var Money
@@ -180,6 +202,15 @@ class PositionBook
         return $this->dividendRetention;
     }
 
+    public function getTotalDividendRetention(): ?Money
+    {
+        if (!$this->dividendRetention) {
+            return null;
+        }
+
+        return $this->dividendRetention->getTotal();
+    }
+
     public function setDividendRetention(?BookEntry $dividendRetention): self
     {
         $this->dividendRetention = $dividendRetention;
@@ -211,6 +242,30 @@ class PositionBook
         return $this;
     }
 
+    public function getNextDividendAfterTaxes(): ?Money
+    {
+        return $this->nextDividendAfterTaxes;
+    }
+
+    public function setNextDividendAfterTaxes(?Money $nextDividendAfterTaxes): self
+    {
+        $this->nextDividendAfterTaxes = $nextDividendAfterTaxes;
+
+        return $this;
+    }
+
+    public function getNextDividendYieldAfterTaxes(): ?float
+    {
+        return $this->nextDividendYieldAfterTaxes;
+    }
+
+    public function setNextDividendYieldAfterTaxes(?float $nextDividendYieldAfterTaxes): self
+    {
+        $this->nextDividendYieldAfterTaxes = $nextDividendYieldAfterTaxes;
+
+        return $this;
+    }
+
     public function getToPayDividend(): ?Money
     {
         return $this->toPayDividend;
@@ -219,6 +274,30 @@ class PositionBook
     public function setToPayDividend(?Money $toPayDividend): self
     {
         $this->toPayDividend = $toPayDividend;
+
+        return $this;
+    }
+
+    public function getToPayDividendAfterTaxes(): ?Money
+    {
+        return $this->toPayDividendAfterTaxes;
+    }
+
+    public function setToPayDividendAfterTaxes(?Money $toPayDividendAfterTaxes): self
+    {
+        $this->toPayDividendAfterTaxes = $toPayDividendAfterTaxes;
+
+        return $this;
+    }
+
+    public function getToPayDividendYieldAfterTaxes(): ?float
+    {
+        return $this->toPayDividendYieldAfterTaxes;
+    }
+
+    public function setToPayDividendYieldAfterTaxes(?float $toPayDividendYieldAfterTaxes): self
+    {
+        $this->toPayDividendYieldAfterTaxes = $toPayDividendYieldAfterTaxes;
 
         return $this;
     }

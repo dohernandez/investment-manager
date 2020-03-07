@@ -12,6 +12,7 @@ import './../css/Select2.scss';
 import './../css/WalletDashboard.scss';
 import SwalForm from "./Components/SwalForm";
 import Select2StockTemplate from "./Components/Select2StockTemplate";
+import RowButton from "./Components/RowButton";
 
 const eventBus = require('js-event-bus')();
 
@@ -22,26 +23,31 @@ class WalletDashboard {
     constructor(
         walletId,
         positionPanel,
+        positionDividendPanel,
         operationPanel
     ) {
         this.walletId = walletId;
 
         this.positionPanel = positionPanel;
+        this.positionDividendPanel = positionDividendPanel;
         this.operationPanel = operationPanel;
 
         this.header = new WalletDashboardHeader();
 
         eventBus.on("entity_operation_created", this.onOperationCreated.bind(this));
+        eventBus.on("entity_position_dividend_updated", this.onPositionDividendUpdated.bind(this));
     }
 
     render() {
         this.positionPanel.render();
+        this.positionDividendPanel.render();
         this.operationPanel.render();
     }
 
     load() {
         this._loadWalletStatistics();
         this._loadWalletPositions();
+        this._loadWalletPositionsDividends();
         this._loadWalletOperations();
     }
 
@@ -56,16 +62,6 @@ class WalletDashboard {
         });
     }
 
-    _loadWalletOperations() {
-        InvestmentManagerClient.sendRPC(
-            Routing.generate('wallet_operation_list', {'walletId': this.walletId}),
-            'GET'
-        ).then((result) => {
-            // console.log(result);
-            this.operationPanel.setData(result);
-        });
-    }
-
     _loadWalletPositions() {
         InvestmentManagerClient.sendRPC(
             Routing.generate('wallet_position_list', {'walletId': this.walletId, 's': 'open'}),
@@ -76,13 +72,39 @@ class WalletDashboard {
         });
     }
 
+    _loadWalletPositionsDividends() {
+        InvestmentManagerClient.sendRPC(
+            Routing.generate('wallet_position_dividend_list', {'walletId': this.walletId, 's': 'open'}),
+            'GET'
+        ).then((result) => {
+            // let positions = result.items;
+            this.positionDividendPanel.setData(result);
+        });
+    }
+
+    _loadWalletOperations() {
+        InvestmentManagerClient.sendRPC(
+            Routing.generate('wallet_operation_list', {'walletId': this.walletId}),
+            'GET'
+        ).then((result) => {
+            // console.log(result);
+            this.operationPanel.setData(result);
+        });
+    }
+
     toggleExpanded() {
         this.positionPanel.toggleExpanded();
+        this.positionDividendPanel.toggleExpanded();
         this.operationPanel.toggleExpanded();
     }
 
     onOperationCreated() {
-        this.load()
+        this._loadWalletStatistics();
+        this._loadWalletPositions();
+        this._loadWalletPositionsDividends();
+    }
+
+    onPositionDividendUpdated() {
     }
 }
 
@@ -157,6 +179,101 @@ class WalletDashboardHeader {
     }
 }
 
+class PositionDividendForm extends SwalForm {
+    constructor(swalOptions, table, template = '#js-panel-form-template', selector = '.js-entity-from') {
+        super(swalOptions, template, selector);
+
+        this.table = table;
+
+        eventBus.on("entity_position_dividend_updated", this.onUpdated.bind(this));
+    }
+
+    /**
+     * Defines how inputs inside the form must be parser.
+     *
+     * @param {Object} data
+     * @param $wrapper
+     */
+    onBeforeOpenEditView(data, $wrapper) {
+        let $form = $wrapper.find(this.selector);
+
+        let $controlGroup = $form.find('.box-body').children('div').first();
+
+        let $group = $(
+            '<div class="form-group">' +
+            '<div class="col-sm-3">' +
+            '<label class="control-label" for="stockName">Stock</label>'+
+            '</div>'+
+            '<div class="input-group">'+
+            data.stock.name + ' (' + data.stock.symbol +':' + data.stock.market.symbol +')' +
+            '</div>'+
+            '</div>'
+        );
+
+        $controlGroup.prepend($group);
+
+        $controlGroup.find('.form-group').each(function (index, group) {
+            let $label = $(group).children('div').first();
+            $label.addClass('col-sm-4');
+            $label.removeClass('col-sm-3');
+
+            $label = $(group).children('div').last();
+            $label.addClass('col-sm-8');
+            $label.removeClass('col-sm-9');
+        });
+
+        if (data) {
+            for (const property in data) {
+                let $input = $form.find('#' + property);
+
+                if ('dividendRetention' == property) {
+                    let inputData = data[property];
+
+                    if (inputData !== null) {
+                        $input.val(inputData.preciseValue);
+                    }
+
+                    continue;
+                }
+
+                $input.val(data[property]);
+            }
+        }
+    }
+
+    onUpdated(entity) {
+        this.table.replaceRecord(entity, entity.id);
+    }
+}
+
+class PositionDividendRowButton extends RowButton {
+    /**
+     *
+     * @param form {Object}
+     * @param swalOptions {Object}
+     * @param selector {string}
+     * @param url {function}
+     */
+    constructor(form, swalOptions, selector, url) {
+        super(selector, function (e) {
+            e.preventDefault();
+
+            // find entity to edit
+            const $row = $(e.currentTarget).closest('tr');
+            const id = $row.data('id');
+
+            let entity = this.table.getRecord(id);
+
+            return form.display(swalOptions, url(id), 'PATCH', entity)
+                .then((result) => {
+                    let entity = result.value.item;
+
+                    eventBus.emit('entity_position_dividend_updated', null, entity);
+                });
+        });
+    }
+}
+
 class OperationForm extends SwalForm {
     constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
         super(swalOptions, template, selector);
@@ -178,7 +295,7 @@ class OperationForm extends SwalForm {
             'split/reverse': [
                 'commission', 'price', 'priceChange', 'priceChangeCommission', 'commission', 'value'
             ],
-        }
+        };
 
         eventBus.on("entity_operation_created", this.onCreated.bind(this));
     }
@@ -296,6 +413,8 @@ class OperationForm extends SwalForm {
 }
 
 global.WalletDashboard = WalletDashboard;
+global.PositionDividendForm = PositionDividendForm;
+global.PositionDividendRowButton = PositionDividendRowButton;
 global.OperationForm = OperationForm;
 
 window.eventBus = eventBus;

@@ -14,6 +14,7 @@
 
     {% include 'wallets/partial/head-dashboard-2.html.twig' %}
     {% include 'wallets/partial/position-box-2.html.twig' %}
+    {% include 'wallets/partial/position-dividend-box-2.html.twig' %}
     {% include 'wallets/partial/operation-box-2.html.twig' %}
 
 {% endblock %}
@@ -23,6 +24,7 @@
 
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
     {% include 'wallets/partial/position-box-2-scripts.html.twig' %}
+    {% include 'wallets/partial/position-dividend-box-2-scripts.html.twig' %}
     {% include 'wallets/partial/operation-box-2-scripts.html.twig' %}
 
     <script type="text/javascript"  src="{{ asset('build/wallet_dashboard_2.js') }}"></script>
@@ -65,6 +67,17 @@
                 searchFuncPanel
             );
 
+            // Position Dividend Panel
+            const positionDividendEntityTitle = "{{ position_dividend.entity_name|lower|replace({' ': '_'}) }}";
+            const positionDividendEntityName = "{{ position_dividend.entity_name|trans|lower }}";
+
+            let positionDividendPanel = createPositionDividendPanel(
+                positionDividendEntityTitle,
+                positionDividendEntityName,
+                walletId,
+                searchFuncPanel
+            );
+
             // Operation panel
             const operationEntityTitle = "{{ operation.entity_name|lower|replace({' ': '_'}) }}";
             const operationEntityName = "{{ operation.entity_name|trans|lower }}";
@@ -89,6 +102,7 @@
             let panel = new WalletDashboard(
                 walletId,
                 positionPanelTable,
+                positionDividendPanel,
                 operationPanelTable
             );
 

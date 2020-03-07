@@ -72,6 +72,16 @@ final class PositionIncreased
      */
     private $preClosed;
 
+    /**
+     * @var Money|null
+     */
+    private $nextDividendAfterTaxes;
+
+    /**
+     * @var float|null
+     */
+    private $nextDividendYieldAfterTaxes;
+
     public function __construct(
         string $id,
         int $amount,
@@ -85,7 +95,9 @@ final class PositionIncreased
         ?float $percentageChanged = null,
         ?Money $preClosed = null,
         ?Money $nextDividend = null,
-        ?float $nextDividendYield = null
+        ?float $nextDividendYield = null,
+        ?Money $nextDividendAfterTaxes = null,
+        ?float $nextDividendYieldAfterTaxes = null
     ) {
         $this->id = $id;
         $this->amount = $amount;
@@ -100,6 +112,8 @@ final class PositionIncreased
         $this->changed = $changed;
         $this->percentageChanged = $percentageChanged;
         $this->preClosed = $preClosed;
+        $this->nextDividendAfterTaxes = $nextDividendAfterTaxes;
+        $this->nextDividendYieldAfterTaxes = $nextDividendYieldAfterTaxes;
     }
 
     public function getId(): string
@@ -165,5 +179,15 @@ final class PositionIncreased
     public function getPreClosed(): ?Money
     {
         return $this->preClosed;
+    }
+
+    public function getNextDividendAfterTaxes(): ?Money
+    {
+        return $this->nextDividendAfterTaxes;
+    }
+
+    public function getNextDividendYieldAfterTaxes(): ?float
+    {
+        return $this->nextDividendYieldAfterTaxes;
     }
 }

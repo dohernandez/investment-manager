@@ -3,6 +3,7 @@
 namespace App\Presentation\View\Wallet;
 
 use App\Presentation\Form\Wallet\CreateOperationType;
+use App\Presentation\Form\Wallet\PositionDividendRetentionType;
 use App\Presentation\Form\Wallet\StockNoteType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -35,6 +36,7 @@ final class DashboardView
                 'wallet_id' => $id,
                 'position' => $this->getPositionPanel($operationForm),
                 'operation' => $this->getOperationPanel($operationForm),
+                'position_dividend' => $this->getPositionDividendPanel(),
             ] + [
                 'page_title' => 'Wallets',
             ] + $context;
@@ -105,7 +107,7 @@ final class DashboardView
     }
 
     /**
-     * Generate the parameters to use when render panel operation in the dashboard view.
+     * Generate the parameters to use when render panel position in the dashboard view.
      *
      * @param FormInterface $form
      *
@@ -186,6 +188,63 @@ final class DashboardView
                 'entity_name' => 'stock note',
                 'form'        => $stockNoteForm->createView(),
             ],
+        ];
+    }
+
+    /**
+     * Generate the parameters to use when render panel dividend in the dashboard view.
+     *
+     * @return array
+     */
+    protected function getPositionDividendPanel(): array
+    {
+        $positionDividendRetentionForm = $this->form->create(PositionDividendRetentionType::class);
+
+        return [
+            'entity_name'  => 'position_dividend',
+            'search_width' => '235px',
+            'form'         => $positionDividendRetentionForm->createView(),
+
+            'fields' => [
+                [
+                    'name' => 'stock.symbol',
+                    'label' => 'Symbol',
+                ],
+                [
+                    'name' => 'stock.market.symbol',
+                    'label' => 'Market',
+                ],
+                [
+                    'name' => 'invested',
+                    'render' => 'money',
+                ],
+                [
+                    'name' => 'amount',
+                    'label' => 'Amt',
+                ],
+                [
+                    'name' => 'displayDividendYield',
+                    'label' => 'D. Yield',
+                ],
+                [
+                    'name' => 'exDate',
+                    'label' => 'Ex. Date',
+                    'render' => 'date',
+                    'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
+                ],
+                [
+                    'name' => 'realDisplayDividendYield',
+                    'label' => 'R. D. Yield',
+                    'class' => 'js-manager-table-extra-cell-hide',
+                ],
+            ],
+            'buttons' => [
+                [
+                    'type' => 'warning',
+                    'jsClass' => 'js-position-dividend-retention',
+                    'icon' => 'fas fa-hand-holding-usd',
+                ],
+            ]
         ];
     }
 }

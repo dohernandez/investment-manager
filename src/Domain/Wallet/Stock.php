@@ -197,9 +197,21 @@ final class Stock
 
     public function changePrevDividendExDate(?DateTime $prevDividendExDate = null): self
     {
-        $self = clone $this;
-        $self->prevDividendExDate = $this->prevDividendExDate;
-
-        return $self;
+        return new static(
+            $this->getId(),
+            $this->getName(),
+            $this->getSymbol(),
+            $this->getMarket(),
+            $this->getYahooSymbol(),
+            $this->getPrice(),
+            $this->getChange(),
+            $this->getPreClose(),
+            $this->getNextDividend(),
+            $this->getNextDividendExDate(),
+            $prevDividendExDate,
+            $this->getToPayDividend(),
+            $this->getToPayDividendDate(),
+            $this->getNotes()
+        );
     }
 }

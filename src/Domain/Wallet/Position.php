@@ -18,6 +18,8 @@ use App\Infrastructure\UUID;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 
+use function max;
+
 class Position extends AggregateRoot implements EventSourcedAggregateRoot
 {
     public const STATUS_OPEN = 'open';
@@ -230,7 +232,25 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
         $nextDividendYield = null;
         if ($nextDividend) {
-            $nextDividendYield = $nextDividend->getValue() * 4 / \max($averagePrice->getValue(), 1) * 100;
+            $nextDividendYield = $nextDividend->getValue() * 4 / max(
+                    $averagePrice->multiply($amount)->getValue(),
+                    1
+                ) * 100;
+        }
+
+        $nextDividendAfterTaxes = null;
+        $nextDividendYieldAfterTaxes = null;
+        if ($nextDividend) {
+            if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
+                $nextDividendAfterTaxes = $nextDividend;
+            } else {
+                $nextDividendAfterTaxes = $nextDividend->decrease($totalDividendRetention->multiply($amount));
+            }
+
+            $nextDividendYieldAfterTaxes = $nextDividendAfterTaxes->getValue() * 4 / max(
+                    $averagePrice->multiply($amount)->getValue(),
+                    1
+                ) * 100;
         }
 
         /*
@@ -272,7 +292,9 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $percentageChanged,
                 $preClosed,
                 $nextDividend,
-                $nextDividendYield
+                $nextDividendYield,
+                $nextDividendAfterTaxes,
+                $nextDividendYieldAfterTaxes
             )
         );
 
@@ -417,7 +439,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             ->increase($capital);
         // This covers the case the stock is received at cost zero.
         $percentageBenefits = 100;
-        if ($book->getBuys()->getValue() !== 0 ) {
+        if ($book->getBuys()->getValue() !== 0) {
             $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
         }
 
@@ -428,7 +450,22 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
         $nextDividendYield = null;
         if ($nextDividend) {
-            $nextDividendYield = $nextDividend->getValue() * 4 / \max($averagePrice->getValue(), 1) * 100;
+            $nextDividendYield = $nextDividend->getValue() * 4 / max($averagePrice->multiply($amount)->getValue(), 1) * 100;
+        }
+
+        $nextDividendAfterTaxes = null;
+        $nextDividendYieldAfterTaxes = null;
+        if ($nextDividend) {
+            if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
+                $nextDividendAfterTaxes = $nextDividend;
+            } else {
+                $nextDividendAfterTaxes = $nextDividend->decrease($totalDividendRetention->multiply($amount));
+            }
+
+            $nextDividendYieldAfterTaxes = $nextDividendAfterTaxes->getValue() * 4 / max(
+                    $averagePrice->multiply($amount)->getValue(),
+                    1
+                ) * 100;
         }
 
         $changed = $this->getStock()->getChange();
@@ -458,7 +495,9 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $percentageChanged,
                 $preClosed,
                 $nextDividend,
-                $nextDividendYield
+                $nextDividendYield,
+                $nextDividendAfterTaxes,
+                $nextDividendYieldAfterTaxes
             )
         );
 
@@ -583,6 +622,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setPercentageBenefits($event->getPercentageBenefits());
                 $this->book->setNextDividend($event->getNextDividend());
                 $this->book->setNextDividendYield($event->getNextDividendYield());
+                $this->book->setNextDividendAfterTaxes($event->getNextDividendAfterTaxes());
+                $this->book->setNextDividendYieldAfterTaxes($event->getNextDividendYieldAfterTaxes());
                 $this->book->setChanged($event->getChanged());
                 $this->book->setPercentageChanged($event->getPercentageChanged());
                 $this->book->setPreClosed($event->getPreClosed());
@@ -618,6 +659,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setPercentageBenefits($event->getPercentageBenefits());
                 $this->book->setNextDividend(null);
                 $this->book->setNextDividendYield(null);
+                $this->book->setNextDividendAfterTaxes(null);
+                $this->book->setNextDividendYieldAfterTaxes(null);
                 $this->book->setChanged(null);
                 $this->book->setPercentageChanged(null);
                 $this->book->setPreClosed(null);
@@ -650,6 +693,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setPercentageBenefits($event->getPercentageBenefits());
                 $this->book->setNextDividend($event->getNextDividend());
                 $this->book->setNextDividendYield($event->getNextDividendYield());
+                $this->book->setNextDividendAfterTaxes($event->getNextDividendAfterTaxes());
+                $this->book->setNextDividendYieldAfterTaxes($event->getNextDividendYieldAfterTaxes());
                 $this->book->setChanged($event->getChanged());
                 $this->book->setPercentageChanged($event->getPercentageChanged());
                 $this->book->setPreClosed($event->getPreClosed());

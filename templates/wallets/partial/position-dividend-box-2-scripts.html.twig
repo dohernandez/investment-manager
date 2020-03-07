@@ -1,0 +1,62 @@
+<script>
+    function createPositionDividendPanel(entityName, entityTitle, walletId, searchFuncPanel) {
+        // Create position panel instance
+        let $positionDividendPanelBox = $('.js-position-dividend-panel-box');
+
+        let positionDividendContentWrapper = $positionDividendPanelBox.closest('.js-position-dividend-panel');
+        let positionDividendEntityType = $positionDividendPanelBox.data('entity-type');
+
+        // Create panelTable instance @see assets/js/PanelTable.js
+        let positionDividendPanel =  new PanelTable({
+            entityType: positionDividendEntityType,
+            wrapper: positionDividendContentWrapper,
+            pagination: true,
+            selectors: {
+                searchTemplate: '#js-table-' + entityName + '-search-template',
+                showPerPageTemplate: '#js-table-' + entityName + '-show-per-page-template',
+                rowTemplate: '#js-table-' + entityName + '-row-template',
+            },
+            sort: function (aPositionDividend, bPositionDividend) {
+                let a = aPositionDividend.stock.name;
+                let b = bPositionDividend.stock.name;
+
+                return a < b ? -1 : a > b ? 1 : 0;
+            },
+            searchFunc: searchFuncPanel,
+            showSearchBox: false,
+        });
+
+        const PositionDividendSwalOptions = window.PositionDividendswalOptions;
+
+        // position dividend form
+        const positionDividendForm = new PositionDividendForm(
+            PositionDividendSwalOptions,
+            positionDividendPanel,
+            '#js-panel-' + entityName + '-form-template',
+        );
+
+        const dividendRetentionRowButton = new PositionDividendRowButton(
+            positionDividendForm,
+            {
+                options: PositionDividendSwalOptions.editView,
+                onBeforeOpen: positionDividendForm.onBeforeOpenEditView.bind(positionDividendForm),
+                confirmButtonText: PositionDividendSwalOptions.text.update.confirmButtonText,
+                titleText: '{{ 'Update dividend retention'|trans }}',
+                confirmTitleText: '{{ 'Dividend retention was deleted successfully.'|trans }}',
+            },
+            '.js-position-dividend-retention',
+            function (id) {
+                return Routing.generate(
+                    'wallet_' + entityName + '_retention',
+                    {
+                        walletId,
+                        id,
+                    }
+                );
+            }
+        );
+        positionDividendPanel.addRowButton(dividendRetentionRowButton);
+
+        return positionDividendPanel;
+    }
+</script>

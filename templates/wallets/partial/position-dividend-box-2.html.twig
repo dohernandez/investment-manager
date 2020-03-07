@@ -1,0 +1,36 @@
+<div class="row">
+    <div class="col-md-8">
+        <div class="box js-position-dividend-panel">
+            <div class="box-header no-border">
+                <h3 class="box-title">{{ 'Dividends'|trans }}</h3>
+
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                {% embed 'Components/Panel/panel-table.html.twig' with {
+                    'entity_name': position_dividend.entity_name,
+                    'fields': position_dividend.fields,
+                    'js_panel_class': 'js-position-dividend-panel-box',
+                    'border': 0,
+                    'search_width': position_dividend.search_width,
+                    'panel_header': 0,
+                    'header': 0,
+                    'footer': 0,
+                    'buttons': position_dividend.buttons,
+                    'form': position_dividend.form,
+                    'swalOptionsVariablePrefix': 'PositionDividend'
+                }%}
+                {% endembed %}
+            </div>
+            <!-- /.box-body -->
+        </div>
+    </div>
+    <div class="col-md-4">
+
+    </div>
+</div>
