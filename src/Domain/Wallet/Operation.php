@@ -253,7 +253,8 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
             self::TYPE_INTEREST
         ])) {
             return sprintf(
-                '%s [%s]',
+                '%s %s [%s]',
+                $this->getDateAt()->format('d/m/Y'),
                 $this->getType(),
                 $this->getNetValue()
             );
@@ -261,14 +262,16 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
 
         if ($this->getType() === self::TYPE_SPLIT_REVERSE) {
             return sprintf(
-                '%s [%s]',
+                '%s %s [%s]',
+                $this->getDateAt()->format('d/m/Y'),
                 $this->getType(),
                 $this->getAmount()
             );
         }
 
         return sprintf(
-            '%s %s:%s - %d [%s]',
+            '%s %s %s:%s - %d [%s]',
+            $this->getDateAt()->format('d/m/Y'),
             $this->getType(),
             $this->getStock()->getMarket()->getSymbol(),
             $this->getStock()->getSymbol(),

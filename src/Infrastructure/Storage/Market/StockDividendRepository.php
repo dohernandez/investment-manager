@@ -5,6 +5,7 @@ namespace App\Infrastructure\Storage\Market;
 use App\Application\Market\Repository\StockDividendRepositoryInterface;
 use App\Domain\Market\Stock;
 use App\Domain\Market\StockDividend;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -46,5 +47,18 @@ class StockDividendRepository extends ServiceEntityRepository  implements StockD
             ->setParameter('status_announced', StockDividend::STATUS_ANNOUNCED)
             ->getQuery()
             ->getResult();
+    }
+
+    public function findLastBeforeDateByStock(Stock $stock, DateTime $date): ?StockDividend
+    {
+        return $this->createQueryBuilder('sd')
+            ->andWhere('sd.stock = :stock')
+            ->setParameter('stock', $stock)
+            ->andWhere('sd.exDate < :date')
+            ->setParameter('date', $date)
+            ->orderBy('sd.exDate', 'DESC')
+            ->getQuery()
+            ->setMaxResults(1)
+            ->getOneOrNullResult();
     }
 }

@@ -54,10 +54,18 @@ final class StockDividendsService implements StockDividendsServiceInterface
                 $stockDividend->setValue(Money::fromUSDValue(Money::parser($dividend['amount'])));
 
                 // Record Date
-                $stockDividend->setRecordDate(new DateTime($dividend['recordDate']));
+                try {
+                    $stockDividend->setRecordDate(new DateTime($dividend['recordDate']));
+                } catch (\Exception $e) {
+                    $stockDividend->setRecordDate($stockDividend->getExDate());
+                }
 
                 // Payment Date
-                $stockDividend->setPaymentDate(new DateTime($dividend['paymentDate']));
+                try {
+                    $stockDividend->setPaymentDate(new DateTime($dividend['paymentDate']));
+                } catch (\Exception $e) {
+                    $stockDividend->setPaymentDate($stockDividend->getExDate());
+                }
 
                 $now = new DateTime();
                 if ($stockDividend->getPaymentDate() < $now) {

@@ -247,14 +247,16 @@ class Operation implements Entity
             self::TYPE_INTEREST
         ])) {
             return sprintf(
-                '%s [%s]',
+                '%s %s [%s]',
+                $this->getDateAt()->format('d/m/Y'),
                 $this->getType(),
                 $this->getNetValue()
             );
         }
 
         return sprintf(
-            '%s %s:%s - %d [%s]',
+            '%s %s %s:%s - %d [%s]',
+            $this->getDateAt()->format('d/m/Y'),
             $this->getType(),
             $this->getStock()->getMarket()->getSymbol(),
             $this->getStock()->getSymbol(),

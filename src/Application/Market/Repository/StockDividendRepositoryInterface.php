@@ -4,6 +4,7 @@ namespace App\Application\Market\Repository;
 
 use App\Domain\Market\Stock;
 use App\Domain\Market\StockDividend;
+use DateTime;
 
 interface StockDividendRepositoryInterface
 {
@@ -20,4 +21,6 @@ interface StockDividendRepositoryInterface
      * @return StockDividend[]|null
      */
     public function findAllProjectedAndAnnouncedByStock(Stock $stock): ?array;
+
+    public function findLastBeforeDateByStock(Stock $stock, DateTime $date): ?StockDividend;
 }

@@ -66,9 +66,9 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
          * WHERE wallet = :walletId
          * AND stock = :stockId
          * AND (
-         *     openedAt <= :datedAt
+         *     DATE(openedAt) <= DATE(:datedAt)
          *     AND (
-         *         closedAt >= :datedAt
+         *         DATE(closedAt) >= DATE(:datedAt)
          *         OR closedAt is null
          *     )
          * )
@@ -77,7 +77,7 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
             ->andWhere('p.wallet = :walletId AND p.stockId = :stockId')
             ->setParameter('walletId', $walletId)
             ->setParameter('stockId', $stockId)
-            ->andWhere('p.openedAt <= :datedAt AND (p.closedAt >= :datedAt OR p.closedAt is null)')
+            ->andWhere('DATE(p.openedAt) <= DATE(:datedAt) AND (DATE(p.closedAt) >= DATE(:datedAt) OR p.closedAt is null)')
             ->setParameter('datedAt', $datedAt)
             ->getQuery()
             ->getOneOrNullResult();

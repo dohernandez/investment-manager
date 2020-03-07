@@ -2,16 +2,17 @@
 
 namespace App\Presentation\Console;
 
+use App\Application\Market\Repository\StockDividendRepositoryInterface;
 use App\Application\Wallet\Command\RegisterOperation;
-use App\Application\Wallet\Repository\StockRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
+use App\Application\Wallet\Repository\StockRepositoryInterface;
+use App\Domain\Market;
 use App\Domain\Wallet\Operation;
-use App\Infrastructure\Money\Money;
+use App\Domain\Wallet\Stock;
 use App\Repository\OperationRepository;
 use DateTime;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -37,10 +38,16 @@ final class MigrateOperationToEventSourceConsole extends Console
      */
     private $stockRepository;
 
+    /**
+     * @var StockDividendRepositoryInterface
+     */
+    private $stockDividendRepository;
+
     public function __construct(
         OperationRepository $operationRepository,
         ProjectionWalletRepositoryInterface $walletRepository,
         StockRepositoryInterface $stockRepository,
+        StockDividendRepositoryInterface $stockDividendRepository,
         MessageBusInterface $bus
     ) {
         parent::__construct($bus);
@@ -48,6 +55,7 @@ final class MigrateOperationToEventSourceConsole extends Console
         $this->operationRepository = $operationRepository;
         $this->walletRepository = $walletRepository;
         $this->stockRepository = $stockRepository;
+        $this->stockDividendRepository = $stockDividendRepository;
     }
 
     protected function configure()
@@ -80,19 +88,10 @@ final class MigrateOperationToEventSourceConsole extends Console
         $io->progressStart(count($operations));
 
         foreach ($operations as $operation) {
-            if ($operation->getType() == Operation::TYPE_DIVIDEND || $count < 357) {
-                $count++;
-                $io->progressAdvance();
-
-                continue;
-            }
-
             // this is for those sells and buys saves, but in fact, they are split/reverse
             if (in_array($operation->getType(), [Operation::TYPE_BUY, Operation::TYPE_SELL])) {
                 $operation->setPrice(\App\VO\Money::fromCurrency($operation->getStock()->getCurrency()));
             }
-
-            \dump((string)$operation);
 
             $stock = null;
             if (in_array($operation->getType(), Operation::TYPES_STOCK)) {
@@ -109,11 +108,38 @@ final class MigrateOperationToEventSourceConsole extends Console
                 }
             }
 
+            $dateAt = (new DateTime(null, $operation->getDateAt()->getTimezone()))->setTimestamp(
+                $operation->getDateAt()->getTimestamp()
+            );
+
+            if ($operation->getType() === Operation::TYPE_DIVIDEND) {
+                $dividend = $this->stockDividendRepository->findLastBeforeDateByStock(
+                    new Market\Stock($stock->getId()),
+                    $dateAt
+                );
+
+                $stock = new Stock(
+                    $stock->getId(),
+                    $stock->getName(),
+                    $stock->getSymbol(),
+                    $stock->getMarket(),
+                    $stock->getPrice(),
+                    $stock->getChange(),
+                    $stock->getPreClose(),
+                    $stock->getNextDividend(),
+                    $stock->getNextDividendExDate(),
+                    $dividend ? $dividend->getExDate() : $dateAt,
+                    $stock->getToPayDividend(),
+                    $stock->getToPayDividendDate(),
+                    $stock->getNotes()
+                );
+            }
+
             try {
                 $this->bus->dispatch(
                     new RegisterOperation(
                         $wallet->getId(),
-                        (new DateTime(null, $operation->getDateAt()->getTimezone()))->setTimestamp($operation->getDateAt()->getTimestamp()),
+                        $dateAt,
                         $operation->getType(),
                         $this->convertMoneyEventSource($operation->getValue()),
                         $stock,
@@ -127,19 +153,17 @@ final class MigrateOperationToEventSourceConsole extends Console
             } catch (\Exception $e) {
                 $io->error(
                     sprintf(
-                        'failed register operation [%s]',
-                        (string) $operation
+                        'failed register operation [%s]. Error: %s',
+                        (string)$operation,
+                        $e
                     )
                 );
-
-                throw $e;
 
                 return;
             } finally {
                 $count++;
                 $io->progressAdvance();
             }
-
         }
 
         $io->progressFinish();

@@ -69,7 +69,7 @@ final class Stock
     private $toPayDividendDate;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $notes;
 
@@ -86,7 +86,7 @@ final class Stock
         ?DateTime $prevDividendExDate = null,
         ?Money $toPayDividend = null,
         ?DateTime $toPayDividendDate = null,
-        string $notes = null
+        ?string $notes = null
     ) {
         $this->id = $id;
         $this->symbol = $symbol;
@@ -178,7 +178,7 @@ final class Stock
         return $this->price ? $this->price->getCurrency() : $this->market->getCurrency();
     }
 
-    public function getNotes(): string
+    public function getNotes(): ?string
     {
         return $this->notes;
     }
