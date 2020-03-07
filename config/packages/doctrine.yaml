@@ -47,3 +47,7 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Infrastructure/Resources/config/doctrine/domain'
                 prefix: 'App\Domain'
                 alias: Domain
+
+        dql:
+            datetime_functions:
+                date:  App\Infrastructure\Doctrine\DQL\Date
