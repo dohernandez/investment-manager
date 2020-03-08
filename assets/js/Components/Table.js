@@ -333,13 +333,15 @@ class Table {
                 this.recreateTableWithRecords(displayRecords, displayRecordsIndex);
 
                 // update pagination text
-                let pageInfo = $paginationInfo.data('text')
-                    .replace(/:from/g, displayRecordsIndex + 1)
-                    .replace(/:to/g, displayRecordsIndex + displayRecords.length)
-                    .replace(/:of/g, _options.totalRecords)
-                ;
+                if ($paginationInfo.data('text')) {
+                    let pageInfo = $paginationInfo.data('text')
+                        .replace(/:from/g, displayRecordsIndex + 1)
+                        .replace(/:to/g, displayRecordsIndex + displayRecords.length)
+                        .replace(/:of/g, _options.totalRecords)
+                    ;
 
-                $paginationInfo.html(pageInfo);
+                    $paginationInfo.html(pageInfo);
+                }
 
                 // to keep the current page
                 this.page = page

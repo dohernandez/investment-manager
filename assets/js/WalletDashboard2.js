@@ -36,7 +36,6 @@ class WalletDashboard {
 
         eventBus.on("entity_operation_created", this.onOperationCreated.bind(this));
         eventBus.on("entity_position_dividend_updated", this.onPositionDividendUpdated.bind(this));
-        eventBus.on("position_show_per_page_changed", this.onPositionShowPerPageChanged.bind(this));
 
         eventBus.on("position_searched", this.onPositionSearched.bind(this));
     }
@@ -109,10 +108,6 @@ class WalletDashboard {
 
     onPositionDividendUpdated() {
         console.log('onPositionDividendUpdated');
-    }
-
-    onPositionShowPerPageChanged() {
-        console.log('onPositionShowPerPageChanged');
     }
 
     onPositionSearched() {
