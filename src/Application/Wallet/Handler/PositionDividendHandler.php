@@ -11,11 +11,12 @@ abstract class PositionDividendHandler  implements MessageHandlerInterface
     protected function createPositionDividend(Position $position): PositionDividend
     {
         $book = $position->getBook();
+        $stock = $position->getStock();
 
         $displayDividendYield = null;
-        if ($nextDividend = $position->getStock()->getNextDividend()) {
+        if ($nextDividend = $stock->getNextDividend()) {
             $nextDividendYield = $nextDividend->getValue() * 4 / max(
-                    $position->getStock()->getPrice()->getValue(),
+                    $stock->getPrice()->getValue(),
                     1
                 ) * 100;
             $displayDividendYield = sprintf(
@@ -34,14 +35,39 @@ abstract class PositionDividendHandler  implements MessageHandlerInterface
             );
         }
 
+        $displayToPayDividendYield = null;
+        if ($toPayDividend = $stock->getToPayDividend()) {
+            $toPayDividendYield = $toPayDividend->getValue() * 4 / max(
+                    $stock->getPrice()->getValue(),
+                    1
+                ) * 100;
+            $displayToPayDividendYield = sprintf(
+                '%s (%.2f%%)',
+                $toPayDividend,
+                $toPayDividendYield
+            );
+        }
+
+        $realDisplayToPayDividendYield = null;
+        if ($book->getNextDividendAfterTaxes()) {
+            $realDisplayToPayDividendYield = sprintf(
+                '%s (%.2f%%)',
+                $book->getNextDividendAfterTaxes(),
+                $book->getNextDividendYieldAfterTaxes()
+            );
+        }
+
         return new PositionDividend(
             $position->getId(),
-            $position->getStock(),
+            $stock,
             $position->getInvested(),
             $position->getAmount(),
-            $position->getStock()->getNextDividendExDate(),
+            $stock->getNextDividendExDate(),
             $displayDividendYield,
             $realDisplayDividendYield,
+            $stock->getToPayDividendDate(),
+            $displayToPayDividendYield,
+            $realDisplayToPayDividendYield,
             $book->getTotalDividendRetention()
         );
     }

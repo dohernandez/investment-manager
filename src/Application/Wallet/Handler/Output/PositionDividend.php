@@ -44,9 +44,24 @@ final class PositionDividend
     private $realDisplayDividendYield;
 
     /**
+     * @var DateTime|null
+     */
+    private $toPayDate;
+
+    /**
      * @var Money|null
      */
     private $dividendRetention;
+
+    /**
+     * @var string|null
+     */
+    private $displayToPayDividendYield;
+
+    /**
+     * @var string|null
+     */
+    private $realDisplayToPayDividendYield;
 
     public function __construct(
         string $id,
@@ -56,6 +71,9 @@ final class PositionDividend
         ?DateTime $exDate = null,
         ?string $displayDividendYield = null,
         ?string $realDisplayDividendYield = null,
+        ?DateTime $toPayDate = null,
+        ?string $displayToPayDividendYield = null,
+        ?string $realDisplayToPayDividendYield = null,
         ?Money $dividendRetention = null
     ) {
         $this->id = $id;
@@ -65,7 +83,10 @@ final class PositionDividend
         $this->exDate = $exDate;
         $this->displayDividendYield = $displayDividendYield;
         $this->realDisplayDividendYield = $realDisplayDividendYield;
+        $this->toPayDate = $toPayDate;
         $this->dividendRetention = $dividendRetention;
+        $this->displayToPayDividendYield = $displayToPayDividendYield;
+        $this->realDisplayToPayDividendYield = $realDisplayToPayDividendYield;
     }
 
     public function getId(): string
@@ -114,8 +135,23 @@ final class PositionDividend
         return $this->realDisplayDividendYield;
     }
 
+    public function getToPayDate(): ?DateTime
+    {
+        return $this->toPayDate;
+    }
+
     public function getDividendRetention(): ?Money
     {
         return $this->dividendRetention;
+    }
+
+    public function getDisplayToPayDividendYield(): ?string
+    {
+        return $this->displayToPayDividendYield;
+    }
+
+    public function getRealDisplayToPayDividendYield(): ?string
+    {
+        return $this->realDisplayToPayDividendYield;
     }
 }

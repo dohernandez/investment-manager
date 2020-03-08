@@ -33,9 +33,9 @@ final class DashboardView
         $operationForm = $this->form->create(CreateOperationType::class);
 
         return [
-                'wallet_id' => $id,
-                'position' => $this->getPositionPanel($operationForm),
-                'operation' => $this->getOperationPanel($operationForm),
+                'wallet_id'         => $id,
+                'position'          => $this->getPositionPanel($operationForm),
+                'operation'         => $this->getOperationPanel($operationForm),
                 'position_dividend' => $this->getPositionDividendPanel(),
             ] + [
                 'page_title' => 'Wallets',
@@ -205,46 +205,68 @@ final class DashboardView
             'search_width' => '235px',
             'form'         => $positionDividendRetentionForm->createView(),
 
-            'fields' => [
+            'fields'  => [
                 [
-                    'name' => 'stock.symbol',
+                    'name'  => 'stock.symbol',
                     'label' => 'Symbol',
                 ],
                 [
-                    'name' => 'stock.market.symbol',
+                    'name'  => 'stock.market.symbol',
                     'label' => 'Market',
                 ],
                 [
-                    'name' => 'invested',
+                    'name'   => 'invested',
                     'render' => 'money',
                 ],
                 [
-                    'name' => 'amount',
+                    'name'  => 'amount',
                     'label' => 'Amt',
                 ],
                 [
-                    'name' => 'displayDividendYield',
+                    'name'  => 'displayDividendYield',
                     'label' => 'D. Yield',
                 ],
                 [
-                    'name' => 'exDate',
-                    'label' => 'Ex. Date',
-                    'render' => 'date',
+                    'name'        => 'exDate',
+                    'label'       => 'Ex. Date',
+                    'render'      => 'date',
                     'date_format' => 'DD/MM/YYYY', // moment date format https://momentjs.com/docs/#/displaying/format/
                 ],
                 [
-                    'name' => 'realDisplayDividendYield',
+                    'name'  => 'realDisplayDividendYield',
                     'label' => 'R. D. Yield',
                     'class' => 'js-manager-table-extra-cell-hide',
                 ],
             ],
             'buttons' => [
                 [
-                    'type' => 'warning',
+                    'type'    => 'warning',
                     'jsClass' => 'js-position-dividend-retention',
-                    'icon' => 'fas fa-hand-holding-usd',
+                    'icon'    => 'fas fa-hand-holding-usd',
                 ],
-            ]
+            ],
+
+            'to_pay' => [
+                'entity_name' => 'to_pay_dividend',
+                'fields'      => [
+                    [
+                        'name'  => 'stock.symbol',
+                        'label' => 'Symbol',
+                    ],
+                    [
+                        'name'        => 'toPayDate',
+                        'label'       => 'Payment Date',
+                        'render'      => 'date',
+                        'date_format' => 'DD/MM/YYYY',
+                        // moment date format https://momentjs.com/docs/#/displaying/format/
+                    ],
+                    [
+                        'name'  => 'realDisplayToPayDividendYield',
+                        'label' => 'R. To Pay',
+                        'class' => 'js-manager-table-extra-cell-hide',
+                    ],
+                ]
+            ],
         ];
     }
 }

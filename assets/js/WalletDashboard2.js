@@ -24,12 +24,16 @@ class WalletDashboard {
         walletId,
         positionPanel,
         positionDividendPanel,
+        positionToPayDividendPanel,
         operationPanel
     ) {
         this.walletId = walletId;
 
         this.positionPanel = positionPanel;
-        this.positionDividendPanel = positionDividendPanel;
+        this.positionDividendPanel = new WrapperPositionDividendPanel(
+            positionDividendPanel,
+            positionToPayDividendPanel
+        );
         this.operationPanel = operationPanel;
 
         this.header = new WalletDashboardHeader();
@@ -190,6 +194,41 @@ class WalletDashboardHeader {
                 $(span).html('<small>' + statistic.connection.currency.symbol + '</small> ' + statistic.connection.preciseValue.toFixed(2) + '</span>')
             });
         }
+    }
+}
+
+class WrapperPositionDividendPanel {
+    constructor(
+        dividendPanel,
+        toPayDividendPanel
+    ) {
+        this.dividendPanel = dividendPanel;
+        this.toPayDividendPanel = toPayDividendPanel;
+    }
+
+    render() {
+        this.dividendPanel.render();
+        this.toPayDividendPanel.render();
+    }
+
+    setData(result) {
+        this.dividendPanel.setData(result);
+        this.toPayDividendPanel.setData(result);
+    }
+
+    toggleExpanded() {
+        this.dividendPanel.toggleExpanded();
+        this.toPayDividendPanel.toggleExpanded();
+    }
+
+    search(search) {
+        this.dividendPanel.search(search);
+        this.toPayDividendPanel.search(search);
+    }
+
+    cleanSearch() {
+        this.dividendPanel.cleanSearch();
+        this.toPayDividendPanel.cleanSearch();
     }
 }
 

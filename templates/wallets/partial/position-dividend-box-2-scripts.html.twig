@@ -1,6 +1,6 @@
 <script>
     function createPositionDividendPanel(entityName, entityTitle, walletId, searchFuncPanel) {
-        // Create position panel instance
+        // Create position dividend panel instance
         let $positionDividendPanelBox = $('.js-position-dividend-panel-box');
 
         let positionDividendContentWrapper = $positionDividendPanelBox.closest('.js-position-dividend-panel');
@@ -58,5 +58,37 @@
         positionDividendPanel.addRowButton(dividendRetentionRowButton);
 
         return positionDividendPanel;
+    }
+
+    function createPositionToPayDividendPanel(entityName, entityTitle, walletId, searchFuncPanel) {
+        // Create position to pay dividend panel instance
+        let $positionToPayDividendPanelBox = $('.js-position-to-pay-dividend-panel-box');
+
+        let positionToPayDividendContentWrapper = $positionToPayDividendPanelBox.closest('.js-position-to-pay-dividends-panel');
+        let positionToPayDividendEntityType = $positionToPayDividendPanelBox.data('entity-type');
+
+        // Create panelTable instance @see assets/js/PanelTable.js
+        return new PanelTable({
+            entityType: positionToPayDividendEntityType,
+            wrapper: positionToPayDividendContentWrapper,
+            pagination: false,
+            selectors: {
+                searchTemplate: '#js-table-' + entityName + '-search-template',
+                showPerPageTemplate: '#js-table-' + entityName + '-show-per-page-template',
+                rowTemplate: '#js-table-' + entityName + '-row-template',
+            },
+            sort: function (aPositionDividend, bPositionDividend) {
+                // Hack to send those stocks do not have dividend to the end of the list.
+                // When exDate is null the date created is 1970-01-01. In order to send those date to the end of the list
+                // the date is set to 4019-10-03.
+                let a = aPositionDividend.toPayDate !== null ? new Date(aPositionDividend.toPayDate) : new Date('4019-10-03');
+                let b = bPositionDividend.toPayDate !== null ? new Date(bPositionDividend.toPayDate) : new Date('4019-10-03');
+
+                return a < b ? -1 : a > b ? 1 : 0;
+            },
+            searchFunc: searchFuncPanel,
+            showSearchBox: false,
+            limit: 5,
+        });
     }
 </script>

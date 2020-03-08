@@ -57,6 +57,11 @@ final class PositionDividendNormalizer implements SubscribingHandlerInterface
                 null,
             'displayDividendYield'     => $positionDividend->getDisplayDividendYield(),
             'realDisplayDividendYield' => $positionDividend->getRealDisplayDividendYield(),
+            'toPayDate'                => $positionDividend->getToPayDate() ?
+                $positionDividend->getToPayDate()->format('c') :
+                null,
+            'displayToPayDividendYield'     => $positionDividend->getDisplayToPayDividendYield(),
+            'realDisplayToPayDividendYield' => $positionDividend->getRealDisplayToPayDividendYield(),
             'dividendRetention'        => $positionDividend->getDividendRetention() ?
                 $this->serializer->toArray($positionDividend->getDividendRetention()) :
                 null,

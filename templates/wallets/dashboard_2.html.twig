@@ -78,6 +78,17 @@
                 searchFuncPanel
             );
 
+            // Position to Pay Dividend Panel
+            const positionToPayDividendEntityTitle = "{{ position_dividend.to_pay.entity_name|lower|replace({' ': '_'}) }}";
+            const positionToPayDividendEntityName = "{{ position_dividend.to_pay.entity_name|trans|lower }}";
+
+            let positionToPayDividendPanel = createPositionToPayDividendPanel(
+                positionToPayDividendEntityTitle,
+                positionToPayDividendEntityName,
+                walletId,
+                searchFuncPanel
+            );
+
             // Operation panel
             const operationEntityTitle = "{{ operation.entity_name|lower|replace({' ': '_'}) }}";
             const operationEntityName = "{{ operation.entity_name|trans|lower }}";
@@ -103,6 +114,7 @@
                 walletId,
                 positionPanelTable,
                 positionDividendPanel,
+                positionToPayDividendPanel,
                 operationPanelTable
             );
 
