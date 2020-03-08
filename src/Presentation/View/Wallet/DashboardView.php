@@ -267,6 +267,28 @@ final class DashboardView
                     ],
                 ]
             ],
+
+            'coming' => [
+                'entity_name' => 'coming_dividend',
+                'fields'      => [
+                    [
+                        'name'  => 'stock.symbol',
+                        'label' => 'Symbol',
+                    ],
+                    [
+                        'name'        => 'exDate',
+                        'label'       => 'Payment Date',
+                        'render'      => 'date',
+                        'date_format' => 'DD/MM/YYYY',
+                        // moment date format https://momentjs.com/docs/#/displaying/format/
+                    ],
+                    [
+                        'name'  => 'realDisplayDividendYield',
+                        'label' => 'R. D. Yield',
+                        'class' => 'js-manager-table-extra-cell-hide',
+                    ],
+                ]
+            ],
         ];
     }
 }

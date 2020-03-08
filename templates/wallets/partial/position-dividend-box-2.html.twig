@@ -33,7 +33,36 @@
     <div class="col-md-4">
         <div class="row">
             <div class="col-md-12">
-                <div class="box js-position-to-pay-dividends-panel">
+                <div class="box js-position-coming-dividend-panel">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ 'Coming Dividends'|trans }}</h3>
+
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        {% embed 'Components/Panel/panel-table.html.twig' with {
+                            'entity_name': position_dividend.coming.entity_name,
+                            'fields': position_dividend.coming.fields,
+                            'js_panel_class': 'js-position-coming-dividend-panel-box',
+                            'border': 0,
+                            'panel_header': 0,
+                            'header': 0,
+                            'footer': 0,
+                        }%}
+                        {% endembed %}
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box js-position-to-pay-dividend-panel">
                     <div class="box-header with-border">
                         <h3 class="box-title">{{ 'To Pay Dividends'|trans }}</h3>
 
