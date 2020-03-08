@@ -2,13 +2,14 @@
 
 namespace App\Domain\Wallet;
 
-use App\Domain\Wallet\Event\PositionDividendRetentionUpdated;
 use App\Domain\Wallet\Event\PositionClosed;
 use App\Domain\Wallet\Event\PositionDecreased;
 use App\Domain\Wallet\Event\PositionDividendCredited;
+use App\Domain\Wallet\Event\PositionDividendRetentionUpdated;
 use App\Domain\Wallet\Event\PositionIncreased;
 use App\Domain\Wallet\Event\PositionOpened;
 use App\Domain\Wallet\Event\PositionSplitReversed;
+use App\Domain\Wallet\Event\PositionStockDividendUpdated;
 use App\Domain\Wallet\Event\PositionStockPriceUpdated;
 use App\Infrastructure\Date\Date;
 use App\Infrastructure\EventSource\AggregateRoot;
@@ -451,7 +452,10 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
         $nextDividendYield = null;
         if ($nextDividend) {
-            $nextDividendYield = $nextDividend->getValue() * 4 / max($averagePrice->multiply($amount)->getValue(), 1) * 100;
+            $nextDividendYield = $nextDividend->getValue() * 4 / max(
+                    $averagePrice->multiply($amount)->getValue(),
+                    1
+                ) * 100;
         }
 
         $nextDividendAfterTaxes = null;
@@ -621,22 +625,22 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $bookDividendRetentionMonthEntry->increaseTotal($retention);
 
         if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, PositionDividendRetentionUpdated::class)) {
-        // This is to avoid have too much update events.
+            // This is to avoid have too much update events.
 
-        $this->replaceChangedPayload(
-            $changed,
-            new PositionDividendRetentionUpdated(
-                $this->id,
-                $nextDividendAfterTaxes,
-                $nextDividendYieldAfterTaxes,
-                $bookDividendRetention,
-                $toUpdateAt
-            ),
-            clone $toUpdateAt
-        );
+            $this->replaceChangedPayload(
+                $changed,
+                new PositionDividendRetentionUpdated(
+                    $this->id,
+                    $nextDividendAfterTaxes,
+                    $nextDividendYieldAfterTaxes,
+                    $bookDividendRetention,
+                    $toUpdateAt
+                ),
+                clone $toUpdateAt
+            );
 
-        return $this;
-    }
+            return $this;
+        }
 
         $this->recordChange(
             new PositionDividendRetentionUpdated(
@@ -644,6 +648,102 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $nextDividendAfterTaxes,
                 $nextDividendYieldAfterTaxes,
                 $bookDividendRetention,
+                $toUpdateAt
+            )
+        );
+
+        return $this;
+    }
+
+    public function updateStockDividend(Stock $stock, $toUpdateAt = 'now'): self
+    {
+        $toUpdateAt = new DateTime($toUpdateAt);
+
+        // this will keep stock sync in projection.
+        $this->stock = $stock;
+
+        $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($this->amount) : null;
+        $nextDividendYield = null;
+        if ($nextDividend) {
+            $nextDividendYield = $nextDividend->getValue() * 4 / max(
+                    $this->book->getAveragePrice()->multiply($this->amount)->getValue(),
+                    1
+                ) * 100;
+        }
+
+        $nextDividendAfterTaxes = null;
+        $nextDividendYieldAfterTaxes = null;
+        if ($nextDividend) {
+            if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
+                $nextDividendAfterTaxes = $nextDividend;
+            } else {
+                $nextDividendAfterTaxes = $nextDividend->decrease($totalDividendRetention->multiply($amount));
+            }
+
+            $nextDividendYieldAfterTaxes = $nextDividendAfterTaxes->getValue() * 4 / max(
+                    $this->book->getAveragePrice()->multiply($this->amount)->getValue(),
+                    1
+                ) * 100;
+        }
+
+        $toPayDividend = $stock->getToPayDividend() ? $stock->getToPayDividend()->multiply($this->amount) : null;
+        $toPayDividendYield = null;
+        if ($toPayDividend) {
+            $toPayDividendYield = $toPayDividend->getValue() * 4 / max(
+                    $this->book->getAveragePrice()->multiply($this->amount)->getValue(),
+                    1
+                ) * 100;
+        }
+
+        $toPayDividendAfterTaxes = null;
+        $toPayDividendYieldAfterTaxes = null;
+        if ($toPayDividend) {
+            if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
+                $toPayDividendAfterTaxes = $toPayDividend;
+            } else {
+                $toPayDividendAfterTaxes = $toPayDividend->decrease($totalDividendRetention->multiply($amount));
+            }
+
+            $toPayDividendYieldAfterTaxes = $toPayDividendAfterTaxes->getValue() * 4 / max(
+                    $this->book->getAveragePrice()->multiply($this->amount)->getValue(),
+                    1
+                ) * 100;
+        }
+
+        if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, PositionStockDividendUpdated::class)) {
+            // This is to avoid have too much update events.
+
+            $this->replaceChangedPayload(
+                $changed,
+                new PositionStockDividendUpdated(
+                    $this->id,
+                    $nextDividend,
+                    $nextDividendYield,
+                    $nextDividendAfterTaxes,
+                    $nextDividendYieldAfterTaxes,
+                    $toPayDividend,
+                    $toPayDividendYield,
+                    $toPayDividendAfterTaxes,
+                    $toPayDividendYieldAfterTaxes,
+                    $toUpdateAt
+                ),
+                clone $toUpdateAt
+            );
+
+            return $this;
+        }
+
+        $this->recordChange(
+            new PositionStockDividendUpdated(
+                $this->id,
+                $nextDividend,
+                $nextDividendYield,
+                $nextDividendAfterTaxes,
+                $nextDividendYieldAfterTaxes,
+                $toPayDividend,
+                $toPayDividendYield,
+                $toPayDividendAfterTaxes,
+                $toPayDividendYieldAfterTaxes,
                 $toUpdateAt
             )
         );
@@ -794,6 +894,20 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                     $dividendRetention->merge($event->getDividendRetention());
                 }
                 $this->book->setDividendRetention($dividendRetention);
+
+                break;
+
+            case PositionStockDividendUpdated::class:
+                /** @var PositionStockDividendUpdated $event */
+
+                $this->book->setNextDividend($event->getNextDividend());
+                $this->book->setNextDividendYield($event->getNextDividendYield());
+                $this->book->setNextDividendAfterTaxes($event->getNextDividendAfterTaxes());
+                $this->book->setNextDividendYieldAfterTaxes($event->getNextDividendYieldAfterTaxes());
+                $this->book->setToPayDividend($event->getToPayDividend());
+                $this->book->setToPayDividendYield($event->getToPayDividendYield());
+                $this->book->setToPayDividendAfterTaxes($event->getToPayDividendAfterTaxes());
+                $this->book->setToPayDividendYieldAfterTaxes($event->getToPayDividendYieldAfterTaxes());
 
                 break;
         }
