@@ -2,8 +2,6 @@
 
 namespace App\Application\ExchangeMoney\Command;
 
-use App\Infrastructure\Money\Currency;
-
 final class UpdateMoneyRates
 {
     /**

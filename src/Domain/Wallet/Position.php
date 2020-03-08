@@ -519,14 +519,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         // exchange capital, change and pre close to the position currency
         if ($exchangeMoneyRate) {
             $capital = $exchangeMoneyRate->exchange($capital);
-
-            if ($change !== null) {
-                $change = $exchangeMoneyRate->exchange($change);
-            }
-
-            if ($preClose !== null) {
-                $preClose = $exchangeMoneyRate->exchange($preClose);
-            }
+            $change = $exchangeMoneyRate->exchange($change);
+            $preClose = $exchangeMoneyRate->exchange($preClose);
         }
 
         $buys = $this->book->getBuys();
@@ -665,11 +659,20 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
-    public function updateStockDividend(Stock $stock, $toUpdateAt = 'now'): self
+    public function updateStockDividend(Stock $stock, ?Rate $exchangeMoneyRate = null, $toUpdateAt = 'now'): self
     {
         $toUpdateAt = new DateTime($toUpdateAt);
 
         $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($this->amount) : null;
+        $toPayDividend = $stock->getToPayDividend() ? $stock->getToPayDividend()->multiply($this->amount) : null;
+        $totalDividendRetention = $this->book->getTotalDividendRetention() ? $this->book->getTotalDividendRetention() : null;
+
+        if ($exchangeMoneyRate) {
+            $nextDividend = $exchangeMoneyRate->exchange($nextDividend);
+            $toPayDividend = $exchangeMoneyRate->exchange($toPayDividend);
+            $totalDividendRetention = $exchangeMoneyRate->exchange($totalDividendRetention);
+        }
+
         $nextDividendYield = null;
         if ($nextDividend) {
             $nextDividendYield = $nextDividend->getValue() * 4 / max(
@@ -681,7 +684,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividendAfterTaxes = null;
         $nextDividendYieldAfterTaxes = null;
         if ($nextDividend) {
-            if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
+            if (!$totalDividendRetention) {
                 $nextDividendAfterTaxes = $nextDividend;
             } else {
                 $nextDividendAfterTaxes = $nextDividend->decrease($totalDividendRetention->multiply($this->amount));
@@ -693,7 +696,6 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 ) * 100;
         }
 
-        $toPayDividend = $stock->getToPayDividend() ? $stock->getToPayDividend()->multiply($this->amount) : null;
         $toPayDividendYield = null;
         if ($toPayDividend) {
             $toPayDividendYield = $toPayDividend->getValue() * 4 / max(
@@ -705,7 +707,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $toPayDividendAfterTaxes = null;
         $toPayDividendYieldAfterTaxes = null;
         if ($toPayDividend) {
-            if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
+            if (!$totalDividendRetention) {
                 $toPayDividendAfterTaxes = $toPayDividend;
             } else {
                 $toPayDividendAfterTaxes = $toPayDividend->decrease($totalDividendRetention->multiply($this->amount));
@@ -758,6 +760,19 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         );
 
         return $this;
+    }
+
+    /**
+     * @param Rate $exchangeMoneyRate
+     * @param string $toUpdateAt
+     *
+     * @return self
+     */
+    public function updateMoneyRate(Rate $exchangeMoneyRate, $toUpdateAt = 'now'): self
+    {
+        return $this->updateStockPrice($this->stock, $exchangeMoneyRate, $toUpdateAt)
+            ->updateStockDividend($this->stock, $exchangeMoneyRate, $toUpdateAt)
+            ;
     }
 
     protected function apply(Changed $changed)
