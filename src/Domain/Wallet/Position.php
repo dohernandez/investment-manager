@@ -206,12 +206,14 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
     public function increasePosition(Operation $operation): self
     {
+        $book = $this->book;
+
         $totalPaid = $operation->getTotalPaid();
         $amount = $this->getAmount() + $operation->getAmount();
         $capital = $this->capital->increase($operation->getCapital());
-        $buys = $this->book->getBuys()->increase($totalPaid);
-        $benefits = $this->book->getSells()
-            ->increase($this->book->getTotalDividendPaid())
+        $buys = $book->getBuys()->increase($totalPaid);
+        $benefits = $book->getSells()
+            ->increase($book->getTotalDividendPaid())
             ->decrease($buys)
             ->increase($capital);
 
@@ -228,8 +230,11 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $operation->setPosition($this);
 
         $stock = $operation->getStock();
+        $exchangeMoneyRate = $operation->getExchangeMoneyRate();
 
-        $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
+        $nextDividend = $stock->getNextDividend() ?
+            $exchangeMoneyRate->exchange($stock->getNextDividend())->multiply($amount) :
+            null;
         $nextDividendYield = null;
         if ($nextDividend) {
             $nextDividendYield = $nextDividend->getValue() * 4 / max(
@@ -241,10 +246,12 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividendAfterTaxes = null;
         $nextDividendYieldAfterTaxes = null;
         if ($nextDividend) {
-            if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
+            if (!$totalDividendRetention = $book->getTotalDividendRetention()) {
                 $nextDividendAfterTaxes = $nextDividend;
             } else {
-                $nextDividendAfterTaxes = $nextDividend->decrease($totalDividendRetention->multiply($amount));
+                $nextDividendAfterTaxes = $nextDividend->decrease(
+                    $exchangeMoneyRate->exchange($totalDividendRetention)->multiply($amount)
+                );
             }
 
             $nextDividendYieldAfterTaxes = $nextDividendAfterTaxes->getValue() * 4 / max(
@@ -253,29 +260,16 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 ) * 100;
         }
 
-        /*
-         * TODO fix me
-         * by applying exchange from the operation or mek operation aware returning
-         * the value already exchanged
-         */
-        $changed = $this->getStock()->getChange();
+        $changed = $stock->getChange();
+        $preClosed = $stock->getPreClose();
         $percentageChanged = 100;
         if ($changed !== null) {
-            $changed = $changed->multiply($amount);
+            $changed = $exchangeMoneyRate->exchange($changed)->multiply($amount);
 
-            if ($stock->getPreClose() !== null) {
-                $percentageChanged = $changed->getValue() * 100 / $stock->getPreClose()->getValue();
+            if ($preClosed !== null) {
+                $preClosed = $exchangeMoneyRate->exchange($preClosed)->multiply($amount);
+                $percentageChanged = $changed->getValue() * 100 / $preClosed->getValue();
             }
-        }
-
-        /*
-         * TODO fix me
-         * by applying exchange from the operation or mek operation aware returning
-         * the value already exchanged
-         */
-        $preClosed = $stock->getPreClose();
-        if ($preClosed !== null) {
-            $preClosed = $preClosed->multiply($amount);
         }
 
         $this->recordChange(
@@ -485,9 +479,11 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         }
 
         $stock = $operation->getStock();
-        // this will keep stock sync in projection.
+        $exchangeMoneyRate = $operation->getExchangeMoneyRate();
 
-        $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
+        $nextDividend = $stock->getNextDividend() ?
+            $exchangeMoneyRate->exchange($stock->getNextDividend())->multiply($amount) :
+            null;
         $nextDividendYield = null;
         if ($nextDividend) {
             $nextDividendYield = $nextDividend->getValue() * 4 / max(
@@ -502,7 +498,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
                 $nextDividendAfterTaxes = $nextDividend;
             } else {
-                $nextDividendAfterTaxes = $nextDividend->decrease($totalDividendRetention->multiply($amount));
+                $nextDividendAfterTaxes = $nextDividend->decrease(
+                    $exchangeMoneyRate->exchange($totalDividendRetention)->multiply($amount));
             }
 
             $nextDividendYieldAfterTaxes = $nextDividendAfterTaxes->getValue() * 4 / max(
@@ -511,19 +508,16 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 ) * 100;
         }
 
-        $changed = $this->getStock()->getChange();
+        $changed = $stock->getChange();
+        $preClosed = $stock->getPreClose();
         $percentageChanged = 100;
         if ($changed !== null) {
-            $changed = $changed->multiply($amount);
+            $changed = $exchangeMoneyRate->exchange($changed)->multiply($amount);
 
-            if ($stock->getPreClose() !== null) {
-                $percentageChanged = $changed->getValue() * 100 / $stock->getPreClose()->getValue();
+            if ($preClosed !== null) {
+                $preClosed = $exchangeMoneyRate->exchange($preClosed)->multiply($amount);
+                $percentageChanged = $changed->getValue() * 100 / $preClosed->getValue();
             }
-        }
-
-        $preClosed = $stock->getPreClose();
-        if ($preClosed !== null) {
-            $preClosed = $preClosed->multiply($amount);
         }
 
         $this->recordChange(

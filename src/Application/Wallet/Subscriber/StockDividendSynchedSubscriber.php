@@ -40,18 +40,25 @@ final class StockDividendSynchedSubscriber implements EventSubscriberInterface
      */
     private $stockRepository;
 
+    /**
+     * @var ExchangeMoneyRepositoryInterface
+     */
+    private $exchangeMoneyRepository;
+
     public function __construct(
         PositionRepositoryInterface $positionRepository,
         ProjectionPositionRepositoryInterface $projectionPositionRepository,
         ProjectionWalletRepositoryInterface $projectionWalletRepository,
         WalletRepositoryInterface $walletRepository,
-        StockRepositoryInterface $stockRepository
+        StockRepositoryInterface $stockRepository,
+        ExchangeMoneyRepositoryInterface $exchangeMoneyRepository
     ) {
         $this->positionRepository = $positionRepository;
         $this->projectionPositionRepository = $projectionPositionRepository;
         $this->projectionWalletRepository = $projectionWalletRepository;
         $this->walletRepository = $walletRepository;
         $this->stockRepository = $stockRepository;
+        $this->exchangeMoneyRepository = $exchangeMoneyRepository;
     }
 
     /**
@@ -112,7 +119,12 @@ final class StockDividendSynchedSubscriber implements EventSubscriberInterface
                 );
             }
 
-            $position->updateStockDividend($stock);
+            $exchangeMoneyRate = $this->exchangeMoneyRepository->findRate(
+                $stock->getCurrency(),
+                $wallet->getCurrency()
+            );
+
+            $position->updateStockDividend($stock, $exchangeMoneyRate);
             $this->positionRepository->save($position);
         }
     }
