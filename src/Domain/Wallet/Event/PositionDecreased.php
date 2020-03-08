@@ -47,6 +47,26 @@ final class PositionDecreased
      */
     private $percentageBenefits;
 
+    /**
+     * @var Money|null
+     */
+    private $nextDividend;
+
+    /**
+     * @var float|null
+     */
+    private $nextDividendYield;
+
+    /**
+     * @var Money|null
+     */
+    private $nextDividendAfterTaxes;
+
+    /**
+     * @var float|null
+     */
+    private $nextDividendYieldAfterTaxes;
+
     public function __construct(
         string $id,
         int $amount,
@@ -55,7 +75,11 @@ final class PositionDecreased
         Money $averagePrice,
         Money $sells,
         Money $benefits,
-        float $percentageBenefits
+        float $percentageBenefits,
+        ?Money $nextDividend = null,
+        ?float $nextDividendYield = null,
+        ?Money $nextDividendAfterTaxes = null,
+        ?float $nextDividendYieldAfterTaxes = null
     ) {
         $this->id = $id;
         $this->amount = $amount;
@@ -65,6 +89,10 @@ final class PositionDecreased
         $this->sells = $sells;
         $this->benefits = $benefits;
         $this->percentageBenefits = $percentageBenefits;
+        $this->nextDividend = $nextDividend;
+        $this->nextDividendYield = $nextDividendYield;
+        $this->nextDividendAfterTaxes = $nextDividendAfterTaxes;
+        $this->nextDividendYieldAfterTaxes = $nextDividendYieldAfterTaxes;
     }
 
     public function getId(): string
@@ -105,5 +133,25 @@ final class PositionDecreased
     public function getPercentageBenefits(): float
     {
         return $this->percentageBenefits;
+    }
+
+    public function getNextDividend(): ?Money
+    {
+        return $this->nextDividend;
+    }
+
+    public function getNextDividendYield(): ?float
+    {
+        return $this->nextDividendYield;
+    }
+
+    public function getNextDividendAfterTaxes(): ?Money
+    {
+        return $this->nextDividendAfterTaxes;
+    }
+
+    public function getNextDividendYieldAfterTaxes(): ?float
+    {
+        return $this->nextDividendYieldAfterTaxes;
     }
 }

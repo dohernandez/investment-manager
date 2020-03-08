@@ -308,21 +308,23 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
         $totalEarned = $operation->getTotalEarned();
         $amount = $this->getAmount() - $operation->getAmount();
-        $sells = $this->book->getSells()->increase($totalEarned);
-        $benefits = $sells
-            ->increase($this->book->getTotalDividendPaid())
-            ->decrease($book->getBuys());
-        // This covers the case where the stock is received by split/reverse at cost zero.
-        $percentageBenefits = 100;
-        if ($book->getBuys()->getValue() > 0) {
-            $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
-        }
+        $sells = $book->getSells()->increase($totalEarned);
 
         // set the owning side
         $this->operations->add($operation);
         $operation->setPosition($this);
 
         if ($amount === 0) {
+            $buys = $book->getBuys();
+            $benefits = $sells
+                ->increase($book->getTotalDividendPaid())
+                ->decrease($buys);
+            // This covers the case where the stock is received by split/reverse at cost zero.
+            $percentageBenefits = 100;
+            if ($buys->getValue() > 0) {
+                $percentageBenefits = $benefits->getValue() * 100 / $buys->getValue();
+            }
+
             $this->recordChange(
                 new PositionClosed(
                     $this->getId(),
@@ -342,12 +344,46 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $invested = new Money($book->getCurrency());
             $averagePrice = new Money($book->getCurrency());
         }
+
         $capital = $this->capital->decrease($operation->getCapital());
-        $benefits = $benefits->increase($capital);
-        // This covers the case where the stock is received by split/reverse at cost zero.
+        $buys = $book->getBuys();
+        $benefits = $sells
+            ->increase($book->getTotalDividendPaid())
+            ->decrease($buys)
+            ->increase($capital);
         $percentageBenefits = 100;
-        if ($book->getBuys()->getValue() > 0) {
-            $percentageBenefits = $benefits->getValue() * 100 / $book->getBuys()->getValue();
+        if ($buys->getValue() > 0) {
+            $percentageBenefits = $benefits->getValue() * 100 / $buys->getValue();
+        }
+
+        $exchangeMoneyRate = $operation->getExchangeMoneyRate();
+
+        $nextDividend = $this->stock->getNextDividend() ?
+            $exchangeMoneyRate->exchange($this->stock->getNextDividend())->multiply($amount) :
+            null;
+        $nextDividendYield = null;
+        if ($nextDividend) {
+            $nextDividendYield = $nextDividend->getValue() * 4 / max(
+                    $averagePrice->multiply($amount)->getValue(),
+                    1
+                ) * 100;
+        }
+
+        $nextDividendAfterTaxes = null;
+        $nextDividendYieldAfterTaxes = null;
+        if ($nextDividend) {
+            if (!$totalDividendRetention = $book->getTotalDividendRetention()) {
+                $nextDividendAfterTaxes = $nextDividend;
+            } else {
+                $nextDividendAfterTaxes = $nextDividend->decrease(
+                    $exchangeMoneyRate->exchange($totalDividendRetention)->multiply($amount)
+                );
+            }
+
+            $nextDividendYieldAfterTaxes = $nextDividendAfterTaxes->getValue() * 4 / max(
+                    $averagePrice->multiply($amount)->getValue(),
+                    1
+                ) * 100;
         }
 
         $this->recordChange(
@@ -359,7 +395,11 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $averagePrice,
                 $sells,
                 $benefits,
-                $percentageBenefits
+                $percentageBenefits,
+                $nextDividend,
+                $nextDividendYield,
+                $nextDividendAfterTaxes,
+                $nextDividendYieldAfterTaxes
             )
         );
 
@@ -836,6 +876,10 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->book->setSells($event->getSells());
                 $this->book->setBenefits($event->getBenefits());
                 $this->book->setPercentageBenefits($event->getPercentageBenefits());
+                $this->book->setNextDividend($event->getNextDividend());
+                $this->book->setNextDividendYield($event->getNextDividendYield());
+                $this->book->setNextDividendAfterTaxes($event->getNextDividendAfterTaxes());
+                $this->book->setNextDividendYieldAfterTaxes($event->getNextDividendYieldAfterTaxes());
 
                 break;
 
