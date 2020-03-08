@@ -43,6 +43,11 @@ final class PositionDividend
      */
     private $realDisplayDividendYield;
 
+    /**
+     * @var Money|null
+     */
+    private $dividendRetention;
+
     public function __construct(
         string $id,
         Stock $stock,
@@ -50,7 +55,8 @@ final class PositionDividend
         int $amount,
         ?DateTime $exDate = null,
         ?string $displayDividendYield = null,
-        ?string $realDisplayDividendYield = null
+        ?string $realDisplayDividendYield = null,
+        ?Money $dividendRetention = null
     ) {
         $this->id = $id;
         $this->stock = $stock;
@@ -59,6 +65,7 @@ final class PositionDividend
         $this->exDate = $exDate;
         $this->displayDividendYield = $displayDividendYield;
         $this->realDisplayDividendYield = $realDisplayDividendYield;
+        $this->dividendRetention = $dividendRetention;
     }
 
     public function getId(): string
@@ -105,5 +112,10 @@ final class PositionDividend
     public function getRealDisplayDividendYield(): ?string
     {
         return $this->realDisplayDividendYield;
+    }
+
+    public function getDividendRetention(): ?Money
+    {
+        return $this->dividendRetention;
     }
 }

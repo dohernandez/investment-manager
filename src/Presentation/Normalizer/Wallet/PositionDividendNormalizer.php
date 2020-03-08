@@ -47,16 +47,20 @@ final class PositionDividendNormalizer implements SubscribingHandlerInterface
         array $type,
         Context $context
     ) {
-
         return [
-            'id' => $positionDividend->getId(),
-            'stock' => $this->serializer->toArray($positionDividend->getStock()),
-            'invested' => $this->serializer->toArray($positionDividend->getInvested()),
-            'amount' => $positionDividend->getAmount(),
-            'exDate' => $positionDividend->getExDate() ? $positionDividend->getExDate()->format('c'): null,
-            'displayDividendYield' => $positionDividend->getDisplayDividendYield(),
+            'id'                       => $positionDividend->getId(),
+            'stock'                    => $this->serializer->toArray($positionDividend->getStock()),
+            'invested'                 => $this->serializer->toArray($positionDividend->getInvested()),
+            'amount'                   => $positionDividend->getAmount(),
+            'exDate'                   => $positionDividend->getExDate() ?
+                $positionDividend->getExDate()->format('c') :
+                null,
+            'displayDividendYield'     => $positionDividend->getDisplayDividendYield(),
             'realDisplayDividendYield' => $positionDividend->getRealDisplayDividendYield(),
-            'title' => $positionDividend->getTitle(),
+            'dividendRetention'        => $positionDividend->getDividendRetention() ?
+                $this->serializer->toArray($positionDividend->getDividendRetention()) :
+                null,
+            'title'                    => $positionDividend->getTitle(),
         ];
     }
 }

@@ -82,4 +82,16 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findByWalletStatus(string $id, string $walletId, string $status): ?Position
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.wallet = :walletId')
+            ->andWhere('p.id = :id')
+            ->andWhere('p.status = :status')
+            ->setParameter('walletId', $walletId)
+            ->setParameter('id', $id)
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getOneOrNullResult();    }
 }

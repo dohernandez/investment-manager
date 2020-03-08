@@ -237,6 +237,7 @@ class PositionDividendForm extends SwalForm {
         });
 
         if (data) {
+            console.log(data);
             for (const property in data) {
                 let $input = $form.find('#' + property);
 
@@ -280,9 +281,11 @@ class PositionDividendRowButton extends RowButton {
 
             return form.display(swalOptions, url(id), 'PATCH', entity)
                 .then((result) => {
-                    let entity = result.value.item;
+                    if (result.value) {
+                        let entity = result.value.item;
 
-                    eventBus.emit('entity_position_dividend_updated', null, entity);
+                        eventBus.emit('entity_position_dividend_updated', null, entity);
+                    }
                 });
         });
     }

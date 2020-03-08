@@ -3,11 +3,11 @@
 namespace App\Presentation\Controller\Wallet;
 
 use App\Application\Wallet\Command\GetPositionDividends;
-use App\Application\Wallet\Command\GetWalletStatistics;
+use App\Application\Wallet\Command\UpdateDividendRetention;
 use App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface;
-use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
 use App\Domain\Wallet\Position;
 use App\Presentation\Controller\RESTController;
+use App\Presentation\Form\Wallet\PositionDividendRetentionType;
 use ArrayIterator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,5 +73,38 @@ final class WalletPositionRESTController extends RESTController
         $result = $this->handle(new GetPositionDividends($walletId, $status), $bus);
 
         return $this->createApiResponse($result);
+    }
+
+    /**
+     * @Route("/{id}", name="wallet_position_dividend_retention", methods={"PATCH"}, options={"expose"=true})
+     *
+     * @param string $walletId
+     * @param string $id
+     * @param Request $request
+     * @param MessageBusInterface $bus
+     *
+     * @return Response
+     */
+    public function updateRetentionType(
+        string $walletId,
+        string $id,
+        Request $request,
+        MessageBusInterface $bus
+    ): Response {
+        $form = $this->createForm(PositionDividendRetentionType::class);
+
+        return $this->dispatch(
+            $form,
+            $request,
+            $bus,
+            function ($data) use ($walletId, $id) {
+                return new UpdateDividendRetention(
+                    $walletId,
+                    $id,
+                    $data['dividendRetention']
+                );
+            },
+            Response::HTTP_OK
+        );
     }
 }
