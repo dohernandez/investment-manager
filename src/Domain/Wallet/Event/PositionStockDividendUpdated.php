@@ -2,6 +2,7 @@
 
 namespace App\Domain\Wallet\Event;
 
+use App\Domain\Wallet\Stock;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
@@ -11,6 +12,11 @@ final class PositionStockDividendUpdated
      * @var string
      */
     private $id;
+
+    /**
+     * @var Stock|null
+     */
+    private $stock;
 
     /**
      * @var Money|null
@@ -59,6 +65,7 @@ final class PositionStockDividendUpdated
 
     public function __construct(
         string $id,
+        Stock $stock,
         ?Money $nextDividend = null,
         ?float $nextDividendYield = null,
         ?Money $nextDividendAfterTaxes = null,
@@ -70,6 +77,7 @@ final class PositionStockDividendUpdated
         ?DateTime $updatedAt = null
     ) {
         $this->id = $id;
+        $this->stock = $stock;
         $this->nextDividend = $nextDividend;
         $this->nextDividendYield = $nextDividendYield;
         $this->nextDividendAfterTaxes = $nextDividendAfterTaxes;
@@ -84,6 +92,11 @@ final class PositionStockDividendUpdated
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function getStock(): ?Stock
+    {
+        return $this->stock;
     }
 
     public function getNextDividend(): ?Money

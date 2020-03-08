@@ -2,6 +2,7 @@
 
 namespace App\Domain\Wallet\Event;
 
+use App\Domain\Wallet\Stock;
 use App\Infrastructure\Money\Money;
 
 final class PositionSplitReversed
@@ -10,6 +11,11 @@ final class PositionSplitReversed
      * @var string
      */
     private $id;
+
+    /**
+     * @var Stock|null
+     */
+    private $stock;
 
     /**
      * @var int
@@ -73,6 +79,7 @@ final class PositionSplitReversed
 
     public function __construct(
         string $id,
+        Stock $stock,
         int $amount,
         Money $averagePrice,
         Money $capital,
@@ -87,6 +94,7 @@ final class PositionSplitReversed
         ?float $nextDividendYieldAfterTaxes = null
     ) {
         $this->id = $id;
+        $this->stock = $stock;
         $this->amount = $amount;
         $this->averagePrice = $averagePrice;
         $this->capital = $capital;
@@ -104,6 +112,11 @@ final class PositionSplitReversed
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function getStock(): ?Stock
+    {
+        return $this->stock;
     }
 
     public function getAmount(): int

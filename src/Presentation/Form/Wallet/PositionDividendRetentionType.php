@@ -2,7 +2,6 @@
 
 namespace App\Presentation\Form\Wallet;
 
-use App\Domain\Wallet\Position;
 use App\Presentation\Form\MoneyType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;

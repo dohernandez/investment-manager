@@ -3,6 +3,7 @@
 namespace App\Domain\Wallet\Event;
 
 use App\Domain\Wallet\Operation;
+use App\Domain\Wallet\Stock;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
@@ -12,6 +13,11 @@ final class PositionStockPriceUpdated
      * @var string
      */
     private $id;
+
+    /**
+     * @var Stock|null
+     */
+    private $stock;
 
     /**
      * @var Money
@@ -50,6 +56,7 @@ final class PositionStockPriceUpdated
 
     public function __construct(
         string $id,
+        Stock $stock,
         Money $capital,
         Money $benefits,
         float $percentageBenefits,
@@ -59,6 +66,7 @@ final class PositionStockPriceUpdated
         ?DateTime $updatedAt = null
     ) {
         $this->id = $id;
+        $this->stock = $stock;
         $this->capital = $capital;
         $this->benefits = $benefits;
         $this->percentageBenefits = $percentageBenefits;
@@ -71,6 +79,11 @@ final class PositionStockPriceUpdated
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function getStock(): ?Stock
+    {
+        return $this->stock;
     }
 
     public function getCapital(): Money

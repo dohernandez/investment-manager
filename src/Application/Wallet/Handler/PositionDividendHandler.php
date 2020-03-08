@@ -57,6 +57,8 @@ abstract class PositionDividendHandler  implements MessageHandlerInterface
             );
         }
 
+        \dump($position);
+
         return new PositionDividend(
             $position->getId(),
             $stock,

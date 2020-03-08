@@ -3,6 +3,7 @@
 namespace App\Domain\Wallet\Event;
 
 use App\Domain\Wallet\Operation;
+use App\Domain\Wallet\Stock;
 use App\Infrastructure\Money\Money;
 
 final class PositionIncreased
@@ -11,6 +12,11 @@ final class PositionIncreased
      * @var string
      */
     private $id;
+
+    /**
+     * @var Stock|null
+     */
+    private $stock;
 
     /**
      * @var int
@@ -84,6 +90,7 @@ final class PositionIncreased
 
     public function __construct(
         string $id,
+        Stock $stock,
         int $amount,
         Money $invested,
         Money $capital,
@@ -100,6 +107,7 @@ final class PositionIncreased
         ?float $nextDividendYieldAfterTaxes = null
     ) {
         $this->id = $id;
+        $this->stock = $stock;
         $this->amount = $amount;
         $this->invested = $invested;
         $this->capital = $capital;
@@ -119,6 +127,11 @@ final class PositionIncreased
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function getStock(): ?Stock
+    {
+        return $this->stock;
     }
 
     public function getAmount(): int

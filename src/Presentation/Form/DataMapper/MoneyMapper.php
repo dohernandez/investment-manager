@@ -50,6 +50,12 @@ final class MoneyMapper extends MoneyToLocalizedStringTransformer
     public function reverseTransform($value)
     {
         if (!$value) {
+            if ($value === 0 || $value === '0') {
+                return new Money(
+                    Currency::fromCode($this->currency)
+                );
+            }
+
             return null;
         }
 

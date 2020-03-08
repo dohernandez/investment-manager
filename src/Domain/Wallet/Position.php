@@ -228,8 +228,6 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $operation->setPosition($this);
 
         $stock = $operation->getStock();
-        // this will keep stock sync in projection.
-        $this->stock = $stock;
 
         $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
         $nextDividendYield = null;
@@ -283,6 +281,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $this->recordChange(
             new PositionIncreased(
                 $this->getId(),
+                $stock,
                 $amount,
                 $invested,
                 $capital,
@@ -447,7 +446,6 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
         $stock = $operation->getStock();
         // this will keep stock sync in projection.
-        $this->stock = $stock;
 
         $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($amount) : null;
         $nextDividendYield = null;
@@ -491,6 +489,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $this->recordChange(
             new PositionSplitReversed(
                 $this->id,
+                $stock,
                 $amount,
                 $averagePrice,
                 $capital,
@@ -548,9 +547,6 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             }
         }
 
-        // this will keep stock sync in projection.
-        $this->stock = $stock;
-
         if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, PositionStockPriceUpdated::class)) {
             // This is to avoid have too much update events.
 
@@ -558,6 +554,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $changed,
                 new PositionStockPriceUpdated(
                     $this->id,
+                    $stock,
                     $capital,
                     $benefits,
                     $percentageBenefits,
@@ -575,6 +572,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $this->recordChange(
             new PositionStockPriceUpdated(
                 $this->id,
+                $stock,
                 $capital,
                 $benefits,
                 $percentageBenefits,
@@ -598,11 +596,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividendAfterTaxes = null;
         $nextDividendYieldAfterTaxes = null;
         if ($nextDividend) {
-            if (!$totalDividendRetention = $book->getTotalDividendRetention()) {
-                $nextDividendAfterTaxes = $nextDividend;
-            } else {
-                $nextDividendAfterTaxes = $nextDividend->decrease($totalDividendRetention->multiply($this->amount));
-            }
+            $nextDividendAfterTaxes = $nextDividend->decrease($retention->multiply($this->amount));
 
             $nextDividendYieldAfterTaxes = $nextDividendAfterTaxes->getValue() * 4 / max(
                     $book->getAveragePrice()->multiply($this->amount)->getValue(),
@@ -614,11 +608,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $toPayDividendAfterTaxes = null;
         $toPayDividendYieldAfterTaxes = null;
         if ($toPayDividend) {
-            if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
-                $toPayDividendAfterTaxes = $toPayDividend;
-            } else {
-                $toPayDividendAfterTaxes = $toPayDividend->decrease($totalDividendRetention->multiply($this->amount));
-            }
+            $toPayDividendAfterTaxes = $toPayDividend->decrease($retention->multiply($this->amount));
 
             $toPayDividendYieldAfterTaxes = $toPayDividendAfterTaxes->getValue() * 4 / max(
                     $this->book->getAveragePrice()->multiply($this->amount)->getValue(),
@@ -679,9 +669,6 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
     {
         $toUpdateAt = new DateTime($toUpdateAt);
 
-        // this will keep stock sync in projection.
-        $this->stock = $stock;
-
         $nextDividend = $stock->getNextDividend() ? $stock->getNextDividend()->multiply($this->amount) : null;
         $nextDividendYield = null;
         if ($nextDividend) {
@@ -737,6 +724,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $changed,
                 new PositionStockDividendUpdated(
                     $this->id,
+                    $stock,
                     $nextDividend,
                     $nextDividendYield,
                     $nextDividendAfterTaxes,
@@ -756,6 +744,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $this->recordChange(
             new PositionStockDividendUpdated(
                 $this->id,
+                $stock,
                 $nextDividend,
                 $nextDividendYield,
                 $nextDividendAfterTaxes,
@@ -798,7 +787,10 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 break;
 
             case PositionIncreased::class:
-                /** @var PositionIncreased $event */
+                /** @var PositionIncreased $event
+                 */
+
+                $this->stock = $event->getStock();
 
                 $this->amount = $event->getAmount();
                 $this->invested = $event->getInvested();
@@ -874,6 +866,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             case PositionSplitReversed::class:
                 /** @var PositionSplitReversed $event */
 
+                $this->stock = $event->getStock();
+
                 $this->amount = $event->getAmount();
                 $this->capital = $event->getCapital();
                 $this->book->setAveragePrice($event->getAveragePrice());
@@ -891,6 +885,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
             case PositionStockPriceUpdated::class:
                 /** @var PositionStockPriceUpdated $event */
+
+                $this->stock = $event->getStock();
 
                 $this->capital = $event->getCapital();
                 $this->book->setBenefits($event->getBenefits());
@@ -921,6 +917,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
             case PositionStockDividendUpdated::class:
                 /** @var PositionStockDividendUpdated $event */
+
+                $this->stock = $event->getStock();
 
                 $this->book->setNextDividend($event->getNextDividend());
                 $this->book->setNextDividendYield($event->getNextDividendYield());
