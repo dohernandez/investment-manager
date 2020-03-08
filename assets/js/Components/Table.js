@@ -1,12 +1,13 @@
 'use strict';
 
 import Template from "./Template";
-import Form from "./Form";
 
 import _ from 'underscore';
 import $ from 'jquery';
 
 import 'twbs-pagination';
+
+const eventBus = require('js-event-bus')();
 
 class Table {
     constructor(options) {
@@ -25,6 +26,7 @@ class Table {
 
         // Start binding functions for $wrapper
         this.$wrapper = _options.wrapper;
+        this.entityType = _options.entityType;
 
         this.table = null;
         this.selectors = _options.selectors;
@@ -409,13 +411,10 @@ class Table {
                 (e) => {
                     e.preventDefault();
 
-                    const perPage = $(e.currentTarget).val();
-                    this.showPerPage = parseInt(perPage);
-                    this.page = 1;
+                    const perPage = parseInt($(e.currentTarget).val());
+                    this.refreshPerPage(perPage);
 
-                    this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
-
-                    this.refreshPagination();
+                    eventBus.emit(this.entityType + '_show_per_page_changed', null, perPage);
                 }
             );
 
@@ -552,6 +551,15 @@ class Table {
         }
 
         this.refreshPagination();
+    }
+
+    refreshPerPage(perPage) {
+        this.showPerPage = perPage;
+        this.page = 1;
+
+        this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
+
+        this.refresh();
     }
 }
 
