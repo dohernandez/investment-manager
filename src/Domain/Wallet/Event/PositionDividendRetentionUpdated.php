@@ -33,10 +33,22 @@ final class PositionDividendRetentionUpdated
      */
     private $updatedAt;
 
+    /**
+     * @var Money|null
+     */
+    private $toPayDividendAfterTaxes;
+
+    /**
+     * @var float|null
+     */
+    private $toPayDividendYieldAfterTaxes;
+
     public function __construct(
         string $id,
         ?Money $nextDividendAfterTaxes = null,
         ?float $nextDividendYieldAfterTaxes = null,
+        ?Money $toPayDividendAfterTaxes = null,
+        ?float $toPayDividendYieldAfterTaxes = null,
         ?BookEntry $dividendRetention = null,
         ?DateTime $updatedAt = null
     ) {
@@ -45,6 +57,8 @@ final class PositionDividendRetentionUpdated
         $this->nextDividendYieldAfterTaxes = $nextDividendYieldAfterTaxes;
         $this->dividendRetention = $dividendRetention;
         $this->updatedAt = $updatedAt;
+        $this->toPayDividendAfterTaxes = $toPayDividendAfterTaxes;
+        $this->toPayDividendYieldAfterTaxes = $toPayDividendYieldAfterTaxes;
     }
 
     public function getId(): string
@@ -70,5 +84,15 @@ final class PositionDividendRetentionUpdated
     public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
+    }
+
+    public function getToPayDividendAfterTaxes(): ?Money
+    {
+        return $this->toPayDividendAfterTaxes;
+    }
+
+    public function getToPayDividendYieldAfterTaxes(): ?float
+    {
+        return $this->toPayDividendYieldAfterTaxes;
     }
 }

@@ -37,7 +37,7 @@ final class StockRepository implements StockRepositoryInterface
         $nextDividend = $projectionStock->getNextDividend() ? $projectionStock->getNextDividend()->getValue() : null;
         $nextDividendExDate = $projectionStock->getNextDividend() ? $projectionStock->getNextDividend()->getExDate() : null;
         $toPayDividend = $projectionStock->getToPayDividend() ? $projectionStock->getToPayDividend()->getValue() : null;
-        $toPayDividendDate = $projectionStock->getToPayDividend() ? $projectionStock->getToPayDividend()->getExDate() : null;
+        $toPayDividendDate = $projectionStock->getToPayDividend() ? $projectionStock->getToPayDividend()->getPaymentDate() : null;
         $prevDividendExDate = $projectionStock->getToPayDividend() ?
             $projectionStock->getToPayDividend()->getPaymentDate() :
             null;

@@ -593,8 +593,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $toUpdateAt = new DateTime($toUpdateAt);
 
         $book = $this->book;
-        $nextDividend = $book->getNextDividend();
 
+        $nextDividend = $book->getNextDividend();
         $nextDividendAfterTaxes = null;
         $nextDividendYieldAfterTaxes = null;
         if ($nextDividend) {
@@ -606,6 +606,22 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
             $nextDividendYieldAfterTaxes = $nextDividendAfterTaxes->getValue() * 4 / max(
                     $book->getAveragePrice()->multiply($this->amount)->getValue(),
+                    1
+                ) * 100;
+        }
+
+        $toPayDividend = $book->getToPayDividend();
+        $toPayDividendAfterTaxes = null;
+        $toPayDividendYieldAfterTaxes = null;
+        if ($toPayDividend) {
+            if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
+                $toPayDividendAfterTaxes = $toPayDividend;
+            } else {
+                $toPayDividendAfterTaxes = $toPayDividend->decrease($totalDividendRetention->multiply($this->amount));
+            }
+
+            $toPayDividendYieldAfterTaxes = $toPayDividendAfterTaxes->getValue() * 4 / max(
+                    $this->book->getAveragePrice()->multiply($this->amount)->getValue(),
                     1
                 ) * 100;
         }
@@ -633,6 +649,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                     $this->id,
                     $nextDividendAfterTaxes,
                     $nextDividendYieldAfterTaxes,
+                    $toPayDividendAfterTaxes,
+                    $toPayDividendYieldAfterTaxes,
                     $bookDividendRetention,
                     $toUpdateAt
                 ),
@@ -647,6 +665,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->id,
                 $nextDividendAfterTaxes,
                 $nextDividendYieldAfterTaxes,
+                $toPayDividendAfterTaxes,
+                $toPayDividendYieldAfterTaxes,
                 $bookDividendRetention,
                 $toUpdateAt
             )
@@ -677,7 +697,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
                 $nextDividendAfterTaxes = $nextDividend;
             } else {
-                $nextDividendAfterTaxes = $nextDividend->decrease($totalDividendRetention->multiply($amount));
+                $nextDividendAfterTaxes = $nextDividend->decrease($totalDividendRetention->multiply($this->amount));
             }
 
             $nextDividendYieldAfterTaxes = $nextDividendAfterTaxes->getValue() * 4 / max(
@@ -701,7 +721,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             if (!$totalDividendRetention = $this->book->getTotalDividendRetention()) {
                 $toPayDividendAfterTaxes = $toPayDividend;
             } else {
-                $toPayDividendAfterTaxes = $toPayDividend->decrease($totalDividendRetention->multiply($amount));
+                $toPayDividendAfterTaxes = $toPayDividend->decrease($totalDividendRetention->multiply($this->amount));
             }
 
             $toPayDividendYieldAfterTaxes = $toPayDividendAfterTaxes->getValue() * 4 / max(
@@ -886,6 +906,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
                 $this->book->setNextDividendAfterTaxes($event->getNextDividendAfterTaxes());
                 $this->book->setNextDividendYieldAfterTaxes($event->getNextDividendYieldAfterTaxes());
+                $this->book->setToPayDividendAfterTaxes($event->getToPayDividendAfterTaxes());
+                $this->book->setToPayDividendYieldAfterTaxes($event->getToPayDividendYieldAfterTaxes());
 
                 $dividendRetention = $this->book->getDividendRetention();
                 if (!$dividendRetention) {

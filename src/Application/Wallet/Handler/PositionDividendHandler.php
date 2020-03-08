@@ -49,11 +49,11 @@ abstract class PositionDividendHandler  implements MessageHandlerInterface
         }
 
         $realDisplayToPayDividendYield = null;
-        if ($book->getNextDividendAfterTaxes()) {
+        if ($book->getToPayDividendAfterTaxes()) {
             $realDisplayToPayDividendYield = sprintf(
                 '%s (%.2f%%)',
-                $book->getNextDividendAfterTaxes(),
-                $book->getNextDividendYieldAfterTaxes()
+                $book->getToPayDividendAfterTaxes(),
+                $book->getToPayDividendYieldAfterTaxes()
             );
         }
 
