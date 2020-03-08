@@ -112,7 +112,7 @@ class WalletDashboard {
     }
 
     onPositionDividendUpdated() {
-        console.log('onPositionDividendUpdated');
+        this._loadWalletPositionsDividends();
     }
 
     onPositionSearched(search) {
