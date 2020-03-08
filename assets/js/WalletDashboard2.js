@@ -38,6 +38,7 @@ class WalletDashboard {
         eventBus.on("entity_position_dividend_updated", this.onPositionDividendUpdated.bind(this));
 
         eventBus.on("position_searched", this.onPositionSearched.bind(this));
+        eventBus.on("position_search_cleaned", this.onPositionSearchCleaned.bind(this));
     }
 
     render() {
@@ -110,8 +111,14 @@ class WalletDashboard {
         console.log('onPositionDividendUpdated');
     }
 
-    onPositionSearched() {
-        console.log('onPositionSearched');
+    onPositionSearched(search) {
+        this.positionDividendPanel.search(search);
+        this.operationPanel.search(search);
+    }
+
+    onPositionSearchCleaned() {
+        this.positionDividendPanel.cleanSearch();
+        this.operationPanel.cleanSearch();
     }
 }
 
@@ -423,3 +430,5 @@ global.WalletDashboard = WalletDashboard;
 global.PositionDividendForm = PositionDividendForm;
 global.PositionDividendRowButton = PositionDividendRowButton;
 global.OperationForm = OperationForm;
+
+window.eventBus = eventBus;
