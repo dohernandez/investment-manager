@@ -14,6 +14,7 @@ use App\Infrastructure\Money\Currency;
 use App\Infrastructure\UUID;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+use InvalidArgumentException;
 
 class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 {
@@ -233,7 +234,8 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         ?string $description = null,
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
-        ?StockInfo $industry = null
+        ?StockInfo $industry = null,
+        ?string $dividendFrequency = null
     ): self {
         $id = UUID\Generator::generate();
 
@@ -249,7 +251,8 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $description,
                 $type,
                 $sector,
-                $industry
+                $industry,
+                $dividendFrequency
             )
         );
 
@@ -263,7 +266,8 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         ?string $description = null,
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
-        ?StockInfo $industry = null
+        ?StockInfo $industry = null,
+        ?string $dividendFrequency = null
     ): self {
         $this->recordChange(
             new StockUpdated(
@@ -274,7 +278,8 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $description,
                 $type,
                 $sector,
-                $industry
+                $industry,
+                $dividendFrequency
             )
         );
 
@@ -331,7 +336,15 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
             return null;
         }
 
-        return $dividend->getValue()->getValue() * 4 / $price->getPrice()->getValue() * 100;
+        try {
+            $frequencyMultiplier = StockDividend::getFrequencyMultiplier(
+                $this->getMetadata()->getDividendFrequency()
+            );
+
+            return $dividend->getValue()->getValue() * $frequencyMultiplier / $price->getPrice()->getValue() * 100;
+        } catch (InvalidArgumentException $e) {
+            return null;
+        }
     }
 
     /**
@@ -500,9 +513,9 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->type = $event->getType();
                 $this->sector = $event->getSector();
                 $this->industry = $event->getIndustry();
-                $this->metadata = $event->getYahooSymbol() ?
-                    (new StockMetadata())->updateYahooSymbol($event->getYahooSymbol()) :
-                    new StockMetadata();
+                $this->metadata = (new StockMetadata())
+                    ->updateYahooSymbol($event->getYahooSymbol())
+                    ->updateDividendFrequency($event->getDividendFrequency());
                 $this->createdAt = $changed->getCreatedAt();
                 $this->updatedAt = $changed->getCreatedAt();
 
@@ -514,7 +527,9 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 
                 $this->name = $event->getName();
                 $this->description = $event->getDescription();
-                $this->metadata = $this->metadata->updateYahooSymbol($event->getYahooSymbol());
+                $this->metadata = $this->metadata
+                    ->updateYahooSymbol($event->getYahooSymbol())
+                    ->updateDividendFrequency($event->getDividendFrequency());
                 $this->updatedAt = $changed->getCreatedAt();
                 $this->market = $event->getMarket();
                 $this->type = $event->getType();

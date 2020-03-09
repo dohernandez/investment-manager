@@ -9,6 +9,9 @@ use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
+use InvalidArgumentException;
+
+use function sprintf;
 
 class StockDividend
 {
@@ -16,11 +19,42 @@ class StockDividend
     public const STATUS_ANNOUNCED = 'announced';
     public const STATUS_PAYED = 'payed';
 
-    public const STATUS = [self::STATUS_PROJECTED, self::STATUS_ANNOUNCED, self::STATUS_PAYED];
+    public const STATUS = [
+        self::STATUS_PROJECTED,
+        self::STATUS_ANNOUNCED,
+        self::STATUS_PAYED
+    ];
+
+    public const FREQUENCY_MONTHlY = '1 months';
+    public const FREQUENCY_QUARTERLY = '3 months';
+    public const FREQUENCY_YEARLY = '1 year';
 
     public function __construct(?int $id = null)
     {
         $this->id = $id;
+    }
+
+    public static function getFrequencyMultiplier(string $frequency): int
+    {
+        $frequencyMultiplier = null;
+        switch ($frequency) {
+            case self::FREQUENCY_MONTHlY:
+                $frequencyMultiplier = 12;
+
+                break;
+            case self::FREQUENCY_QUARTERLY:
+                $frequencyMultiplier = 4;
+
+                break;
+            case self::FREQUENCY_YEARLY:
+                $frequencyMultiplier = 1;
+
+                break;
+            default:
+                throw new InvalidArgumentException(sprintf('Frequency not supported [%s]', $frequency));
+        }
+
+        return $frequencyMultiplier;
     }
 
     /**

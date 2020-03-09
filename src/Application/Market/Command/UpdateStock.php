@@ -4,7 +4,6 @@ namespace App\Application\Market\Command;
 
 use App\Domain\Market\StockInfo;
 use App\Domain\Market\StockMarket;
-use App\Infrastructure\Money\Money;
 
 final class UpdateStock
 {
@@ -48,6 +47,11 @@ final class UpdateStock
      */
     private $industry;
 
+    /**
+     * @var string|null
+     */
+    private $dividendFrequency;
+
     public function __construct(
         string $id,
         string $name,
@@ -56,7 +60,8 @@ final class UpdateStock
         ?string $description = null,
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
-        ?StockInfo $industry = null
+        ?StockInfo $industry = null,
+        ?string $dividendFrequency = null
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -66,6 +71,7 @@ final class UpdateStock
         $this->type = $type;
         $this->sector = $sector;
         $this->industry = $industry;
+        $this->dividendFrequency = $dividendFrequency;
     }
 
     public function getId(): string
@@ -106,5 +112,10 @@ final class UpdateStock
     public function getIndustry(): ?StockInfo
     {
         return $this->industry;
+    }
+
+    public function getDividendFrequency(): ?string
+    {
+        return $this->dividendFrequency;
     }
 }

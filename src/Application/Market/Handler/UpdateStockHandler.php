@@ -91,6 +91,13 @@ final class UpdateStockHandler implements MessageHandlerInterface
             $dirty = true;
         }
 
+        $dividendFrequency = $stock->getMetadata()->getDividendFrequency();
+        if ($dividendFrequency !== $message->getDividendFrequency()) {
+            $dividendFrequency = $message->getDividendFrequency();
+
+            $dirty = true;
+        }
+
         if ($type) {
             $this->stockInfoRepository->save($type);
         }
@@ -104,7 +111,7 @@ final class UpdateStockHandler implements MessageHandlerInterface
         }
 
         if ($dirty) {
-            $stock->update($name, $yahooSymbol, $market, $description, $type, $sector, $industry);
+            $stock->update($name, $yahooSymbol, $market, $description, $type, $sector, $industry, $dividendFrequency);
             $this->stockRepository->save($stock);
         }
 

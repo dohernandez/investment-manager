@@ -93,6 +93,11 @@ final class AddStockWithPrice
      */
     private $week52High;
 
+    /**
+     * @var string|null
+     */
+    private $dividendFrequency;
+
     public function __construct(
         string $name,
         string $symbol,
@@ -103,6 +108,7 @@ final class AddStockWithPrice
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
         ?StockInfo $industry = null,
+        ?string $dividendFrequency = null,
         ?Money $changePrice = null,
         ?Money $preClose = null,
         ?Money $open = null,
@@ -129,6 +135,7 @@ final class AddStockWithPrice
         $this->dayHigh = $dayHigh;
         $this->week52Low = $week52Low;
         $this->week52High = $week52High;
+        $this->dividendFrequency = $dividendFrequency;
     }
 
     public function getName(): string
@@ -217,5 +224,10 @@ final class AddStockWithPrice
     public function getWeek52High(): ?Money
     {
         return $this->week52High;
+    }
+
+    public function getDividendFrequency(): ?string
+    {
+        return $this->dividendFrequency;
     }
 }

@@ -113,6 +113,7 @@ final class StockNormalizer implements SubscribingHandlerInterface
             'delisted'             => $stock->isDelisted(),
             'delistedAt'           => $stock->getDelistedAt() ? $stock->getDelistedAt()->format('c') : null,
             'title'                => $stock->getTitle(),
+            'dividendFrequency'    => $stock->getMetadata()->getDividendFrequency(),
         ];
     }
 }

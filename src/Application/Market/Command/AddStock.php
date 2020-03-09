@@ -48,6 +48,11 @@ final class AddStock
      */
     private $industry;
 
+    /**
+     * @var string|null
+     */
+    private $dividendFrequency;
+
     public function __construct(
         string $name,
         string $symbol,
@@ -56,7 +61,8 @@ final class AddStock
         ?string $description = null,
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
-        ?StockInfo $industry = null
+        ?StockInfo $industry = null,
+        ?string $dividendFrequency = null
     ) {
         $this->name = $name;
         $this->symbol = $symbol;
@@ -66,6 +72,7 @@ final class AddStock
         $this->type = $type;
         $this->sector = $sector;
         $this->industry = $industry;
+        $this->dividendFrequency = $dividendFrequency;
     }
 
     public function getName(): string
@@ -106,5 +113,10 @@ final class AddStock
     public function getIndustry(): ?StockInfo
     {
         return $this->industry;
+    }
+
+    public function getDividendFrequency(): ?string
+    {
+        return $this->dividendFrequency;
     }
 }

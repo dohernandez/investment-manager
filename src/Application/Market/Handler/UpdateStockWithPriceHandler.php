@@ -5,7 +5,6 @@ namespace App\Application\Market\Handler;
 use App\Application\Market\Command\UpdateStock;
 use App\Application\Market\Command\UpdateStockPrice;
 use App\Application\Market\Command\UpdateStockWithPrice;
-use App\Domain\Market\Stock;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
@@ -25,7 +24,7 @@ final class UpdateStockWithPriceHandler implements MessageHandlerInterface
 
     public function __invoke(UpdateStockWithPrice $message)
     {
-        $envelope = $this->bus->dispatch(
+        $this->bus->dispatch(
             new UpdateStock(
                 $message->getId(),
                 $message->getName(),
@@ -34,17 +33,14 @@ final class UpdateStockWithPriceHandler implements MessageHandlerInterface
                 $message->getDescription(),
                 $message->getType(),
                 $message->getSector(),
-                $message->getIndustry()
+                $message->getIndustry(),
+                $message->getDividendFrequency()
             )
         );
-        $handledStamp = $envelope->last(HandledStamp::class);
-
-        /** @var Stock $stock */
-        $stock = $handledStamp->getResult();
 
         $envelope = $this->bus->dispatch(
             new UpdateStockPrice(
-                $stock->getId(),
+                $message->getId(),
                 $message->getValue(),
                 $message->getChangePrice(),
                 $message->getPreClose(),

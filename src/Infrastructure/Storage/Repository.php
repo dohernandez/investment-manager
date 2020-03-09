@@ -19,6 +19,12 @@ use function method_exists;
 abstract class Repository
 {
     /**
+     * AggregateRoot already loaded to avoid doctrine load from query cache the wrong version.
+     * @var ArrayCollection|AggregateRoot[]
+     */
+    private $loaded;
+
+    /**
      * @var array [property => class]
      */
     protected $dependencies = [];
@@ -48,12 +54,17 @@ abstract class Repository
      */
     protected function load(string $class, string $id)
     {
+        if (isset($this->loaded[$id])) {
+            return $this->loaded[$id];
+        }
+
         $changes = $this->eventSource->findEvents($id, $class);
         $this->overloadDependencies($changes);
 
         $object = (new $class($id))->replay($changes);
 
         $object = $this->em->merge($object);
+        $this->loaded[$id] = $object;
 
         return $object;
     }
@@ -98,7 +109,8 @@ abstract class Repository
 
     protected function store(AggregateRoot $object)
     {
-        if ($changes = $object->getChanges()) {
+        $changes = $object->getChanges();
+        if (!$changes->isEmpty()) {
 
             $this->em->persist($object);
             $this->em->flush();
@@ -107,6 +119,8 @@ abstract class Repository
             $this->eventSource->saveEvents($changes);
             $this->em->flush();
         }
+
+        $this->loaded[$object->getId()] = $object;
     }
 
     protected function unburdenDependencies(ArrayCollection $changes): self

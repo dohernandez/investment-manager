@@ -5,6 +5,7 @@ namespace App\Presentation\Console;
 use App\Application\Market\Command\AddStock;
 use App\Application\Market\Repository\ProjectionStockInfoRepositoryInterface;
 use App\Application\Market\Repository\ProjectionStockMarketRepositoryInterface;
+use App\Domain\Market\StockDividend;
 use App\Domain\Market\StockInfo;
 use App\Repository\StockRepository;
 use Psr\Log\LoggerInterface;
@@ -166,7 +167,8 @@ final class MigrateStockToEventSourceConsole extends Console
                     $stock->getDescription(),
                     $type,
                     $sector,
-                    $industry
+                    $industry,
+                    StockDividend::FREQUENCY_QUARTERLY
                 )
             );
 

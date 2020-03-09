@@ -2,11 +2,13 @@
 
 namespace App\Presentation\Form\Market;
 
+use App\Domain\Market\StockDividend;
 use App\Domain\Market\StockInfo;
 use App\Presentation\Form\HiddenMoneyType;
 use App\Presentation\Form\MoneyType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ButtonType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -106,7 +108,25 @@ final class EditStockType extends AbstractType
                     'type'        => StockInfo::INDUSTRY,
                     'required'    => false,
                 ]
-            ) // hidden inputs
+            )
+            ->add(
+                'dividendFrequency',
+                ChoiceType::class,
+                [
+                    'label' => 'Dividend Freq',
+                    'placeholder' => 'Choose a dividend frequency',
+                    'choices' => [
+                        'monthly'   => StockDividend::FREQUENCY_MONTHlY,
+                        'quarterly' => StockDividend::FREQUENCY_QUARTERLY,
+                        'yearly'    => StockDividend::FREQUENCY_YEARLY,
+                    ],
+                    'choice_label' => function ($choice, $key, $value) {
+                        return strtoupper($key);
+                    },
+                    'required' => false,
+                ]
+            )
+            // hidden inputs
             ->add(
                 'lastChangePrice',
                 HiddenMoneyType::class,

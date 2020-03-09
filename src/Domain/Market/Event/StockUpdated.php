@@ -2,9 +2,9 @@
 
 namespace App\Domain\Market\Event;
 
+use App\Domain\Market\StockDividend;
 use App\Domain\Market\StockInfo;
 use App\Domain\Market\StockMarket;
-use App\Infrastructure\Money\Money;
 
 final class StockUpdated
 {
@@ -48,6 +48,11 @@ final class StockUpdated
      */
     private $industry;
 
+    /**
+     * @var string|null
+     */
+    private $dividendFrequency;
+
     public function __construct(
         string $id,
         ?string $name = null,
@@ -56,7 +61,8 @@ final class StockUpdated
         ?string $description = null,
         ?StockInfo $type = null,
         ?StockInfo $sector = null,
-        ?StockInfo $industry = null
+        ?StockInfo $industry = null,
+        ?string $dividendFrequency = StockDividend::FREQUENCY_QUARTERLY
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -66,6 +72,7 @@ final class StockUpdated
         $this->type = $type;
         $this->sector = $sector;
         $this->industry = $industry;
+        $this->dividendFrequency = $dividendFrequency;
     }
 
     public function getId(): string
@@ -106,5 +113,10 @@ final class StockUpdated
     public function getIndustry(): ?StockInfo
     {
         return $this->industry;
+    }
+
+    public function getDividendFrequency(): ?string
+    {
+        return $this->dividendFrequency;
     }
 }

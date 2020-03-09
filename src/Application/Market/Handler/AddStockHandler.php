@@ -50,7 +50,9 @@ final class AddStockHandler implements MessageHandlerInterface
             $this->stockInfoRepository->save($industry);
         }
 
-        $stock = Stock::add($name, $symbol, $market, $description, $type, $sector, $industry);
+        $dividendFrequency = $message->getDividendFrequency();
+
+        $stock = Stock::add($name, $symbol, $market, $description, $type, $sector, $industry, $dividendFrequency);
 
         $this->stockRepository->save($stock);
 
