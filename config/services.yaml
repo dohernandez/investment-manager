@@ -147,10 +147,16 @@ services:
         arguments:
             $stockDividendsDecorate: '@App\Application\Market\Decorator\StockDividendsDecorate'
 
+    App\Application\Wallet\Handler\ReCalculateWalletCapitalHandler:
+        class: App\Application\Wallet\Handler\ReCalculateWalletCapitalHandler
+        arguments:
+            $walletPositionDecorate: '@App\Application\Wallet\Decorator\WalletOpenPositionDecorate'
+
     # Decorators
     App\Application\Market\Decorator\StockDividendsDecorate: ~
 
     App\Application\Wallet\Decorator\StockPrevDividendDecorator: ~
+    App\Application\Wallet\Decorator\WalletOpenPositionDecorate: ~
 
     # Subscribers
     App\Application\Market\Subscriber\HouseKeeperSubscriber:

@@ -28,7 +28,7 @@ class GetWalletStatisticsHandler implements MessageHandlerInterface
         return new WalletStatistics(
             $book->getInvested(),
             $book->getCapital(),
-            $book->getCapital()->increase($book->getFunds()),
+            $book->getNetCapital(),
             $book->getFunds(),
             $book->getDividends() ? $book->getDividends()->getTotal() : null,
             $book->getCommissions() ? $book->getCommissions()->getTotal() : null,

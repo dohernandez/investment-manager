@@ -125,6 +125,13 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->positions;
     }
 
+    public function setPositions($positions): self
+    {
+        $this->positions = $positions;
+
+        return $this;
+    }
+
     /**
      * @var ArrayCollection|Operation[]
      */
@@ -493,6 +500,61 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         );
 
         return $this;
+    }
+
+    public function forceSetCapital(Money $capital, $toUpdateAt = 'now'): self
+    {
+        $toUpdateAt = new DateTime($toUpdateAt);
+
+        $book = $this->book;
+
+        $benefits = $this->calculateBenefits($capital, $book->getFunds(), $book->getInvested());
+        $percentageBenefits = $this->calculatePercentageBenefits($benefits, $book->getInvested());
+
+        if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, WalletCapitalUpdated::class)) {
+            // This is to avoid have too much update events.
+
+            $this->replaceChangedPayload(
+                $changed,
+                new WalletCapitalUpdated(
+                    $this->id,
+                    $capital,
+                    $benefits,
+                    $percentageBenefits,
+                    $toUpdateAt
+                ),
+                clone $toUpdateAt
+            );
+
+            return $this;
+        }
+
+        $this->recordChange(
+            new WalletCapitalUpdated(
+                $this->id,
+                $capital,
+                $benefits,
+                $percentageBenefits,
+                $toUpdateAt
+            )
+        );
+
+        return $this;
+    }
+
+    private function calculateBenefits(Money $capital, Money $funds, Money $invested): Money
+    {
+        return $capital->increase($funds)->decrease($invested);
+    }
+
+    private function calculatePercentageBenefits(Money $benefits, Money $invested): float
+    {
+        // This covers the case the stock is received by split/reverse at cost zero.
+        if ($invested->getValue() > 0) {
+            return $benefits->getValue() * 100 / $invested->getValue();
+        }
+
+        return 100;
     }
 
     protected function apply(Changed $changed)

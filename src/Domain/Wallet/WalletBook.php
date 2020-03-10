@@ -118,6 +118,13 @@ class WalletBook
         return $this;
     }
 
+    public function getNetCapital(): ?Money
+    {
+        return $this->capital
+            ->increase($this->funds)
+            ;
+    }
+
     public function getFunds(): ?Money
     {
         return $this->funds;

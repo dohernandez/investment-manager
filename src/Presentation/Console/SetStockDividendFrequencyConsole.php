@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class SetStockDividendFrequencyConsole extends Console
 {
-    protected static $defaultName = 'app:event-source:set-stock-dividend-frequency';
+    protected static $defaultName = 'app:set-stock-dividend-frequency';
 
     /**
      * @var ConsoleStockRepository
