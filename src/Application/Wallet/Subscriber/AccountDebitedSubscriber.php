@@ -4,11 +4,11 @@ namespace App\Application\Wallet\Subscriber;
 
 use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
 use App\Application\Wallet\Repository\WalletRepositoryInterface;
-use App\Domain\Account\Event\AccountCredited;
+use App\Domain\Account\Event\AccountDebited;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-final class AccountCreditedSubscriber implements EventSubscriberInterface
+final class AccountDebitedSubscriber implements EventSubscriberInterface
 {
     /**
      * @var ProjectionWalletRepositoryInterface
@@ -41,16 +41,16 @@ final class AccountCreditedSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            AccountCredited::class => ['onAccountCredited', 100],
+            AccountDebited::class => ['onAccountDebited', 100],
         ];
     }
 
-    public function onAccountCredited(AccountCredited $event)
+    public function onAccountDebited(AccountDebited $event)
     {
         $projectionWallet = $this->projectionWalletRepository->findByAccount($event->getId());
 
         if (!$projectionWallet) {
-            $this->logger->debug('Wallet by account not found. Skipped', [
+            $this->logger->warning('Wallet by account not found', [
                 'account_id' => $event->getId(),
             ]);
 
@@ -59,12 +59,12 @@ final class AccountCreditedSubscriber implements EventSubscriberInterface
 
         $wallet = $this->walletRepository->find($projectionWallet->getId());
 
-        $wallet->increaseInvestment($event->getMoney());
+        $wallet->decreaseInvestment($event->getMoney());
 
         $this->walletRepository->save($wallet);
 
         $this->logger->debug(
-            'Wallet invested increased',
+            'Wallet invested decreased',
             [
                 'id' => $wallet->getId(),
                 'amount' => (string) $event->getMoney(),

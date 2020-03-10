@@ -4,6 +4,7 @@ namespace App\Application\Account\Subscriber;
 
 use App\Application\Account\Repository\AccountRepositoryInterface;
 use App\Domain\Transfer\Event\TransferRegistered;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class TransferRegisteredSubscriber implements EventSubscriberInterface
@@ -13,9 +14,17 @@ class TransferRegisteredSubscriber implements EventSubscriberInterface
      */
     private $accountRepository;
 
-    public function __construct(AccountRepositoryInterface $accountRepository)
-    {
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(
+        AccountRepositoryInterface $accountRepository,
+        LoggerInterface $logger
+    ) {
         $this->accountRepository = $accountRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -34,9 +43,28 @@ class TransferRegisteredSubscriber implements EventSubscriberInterface
         $beneficiary->deposit($event->getAmount());
         $this->accountRepository->save($beneficiary);
 
+        $this->logger->debug(
+            'Account credited',
+            [
+                'account_id' => $beneficiary->getId(),
+                'account_no' => $beneficiary->getAccountNo(),
+                'amount' => $event->getAmount(),
+                '$beneficiary' => $beneficiary,
+            ]
+        );
+
         $debtor = $this->accountRepository->find($event->getDebtorParty()->getId());
         $debtor->withdraw($event->getAmount());
         $this->accountRepository->save($debtor);
 
+        $this->logger->debug(
+            'Account debited',
+            [
+                'account_id' => $debtor->getId(),
+                'account_no' => $debtor->getAccountNo(),
+                'amount' => $event->getAmount(),
+                '$debtor' => $debtor,
+            ]
+        );
     }
 }

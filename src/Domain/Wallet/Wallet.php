@@ -8,7 +8,9 @@ use App\Domain\Wallet\Event\WalletConnectivityUpdated;
 use App\Domain\Wallet\Event\WalletCreated;
 use App\Domain\Wallet\Event\WalletDividendsUpdated;
 use App\Domain\Wallet\Event\WalletInterestUpdated;
+use App\Domain\Wallet\Event\WalletInvestmentDecreased;
 use App\Domain\Wallet\Event\WalletInvestmentIncreased;
+use App\Domain\Wallet\Event\WalletInvestmentIncreasedDecreased;
 use App\Domain\Wallet\Event\WalletSellOperationUpdated;
 use App\Domain\Wallet\Event\WalletCapitalUpdated;
 use App\Infrastructure\Date\Date;
@@ -168,8 +170,22 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
             new WalletInvestmentIncreased(
                 $this->id,
                 $book->getInvested()->increase($invested),
-                $book->getCapital()->increase($invested),
                 $book->getFunds()->increase($invested)
+            )
+        );
+
+        return $this;
+    }
+
+    public function decreaseInvestment(Money $invested)
+    {
+        $book = $this->getBook();
+
+        $this->recordChange(
+            new WalletInvestmentDecreased(
+                $this->id,
+                $book->getInvested()->decrease($invested),
+                $book->getFunds()->decrease($invested)
             )
         );
 
@@ -502,10 +518,10 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 break;
 
             case WalletInvestmentIncreased::class:
-                /** @var WalletInvestmentIncreased $event */
+            case WalletInvestmentDecreased::class:
+                /** @var WalletInvestmentIncreasedDecreased $event */
 
                 $this->book->setInvested($event->getInvested());
-                $this->book->setCapital($event->getCapital());
                 $this->book->setFunds($event->getFunds());
 
                 break;
