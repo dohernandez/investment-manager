@@ -129,7 +129,7 @@ final class StockPriceUpdatedSubscriber implements EventSubscriberInterface
             $position->updateStockPrice($stock, $exchangeMoneyRate);
             $this->positionRepository->save($position);
 
-            $wallet->updateCapital(
+            $wallet->increaseCapital(
                 $position->getCapital()->decrease($oldPositionCapital)
             );
             $this->walletRepository->save($wallet);

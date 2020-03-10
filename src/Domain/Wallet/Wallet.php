@@ -458,7 +458,7 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
-    public function updateCapital(Money $capital, $toUpdateAt = 'now'): self
+    public function increaseCapital(Money $capital, $toUpdateAt = 'now'): self
     {
         $toUpdateAt = new DateTime($toUpdateAt);
 
