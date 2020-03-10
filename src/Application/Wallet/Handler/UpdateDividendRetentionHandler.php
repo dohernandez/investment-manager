@@ -3,6 +3,7 @@
 namespace App\Application\Wallet\Handler;
 
 use App\Application\Wallet\Command\UpdateDividendRetention;
+use App\Application\Wallet\Repository\ExchangeMoneyRepositoryInterface;
 use App\Application\Wallet\Repository\PositionRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface;
 use App\Domain\Wallet\Position;
@@ -20,12 +21,19 @@ final class UpdateDividendRetentionHandler extends PositionDividendHandler
      */
     private $projectionPositionRepository;
 
+    /**
+     * @var ExchangeMoneyRepositoryInterface
+     */
+    private $exchangeMoneyRepository;
+
     public function __construct(
         PositionRepositoryInterface $positionRepository,
-        ProjectionPositionRepositoryInterface $projectionPositionRepository
+        ProjectionPositionRepositoryInterface $projectionPositionRepository,
+        ExchangeMoneyRepositoryInterface $exchangeMoneyRepository
     ) {
         $this->positionRepository = $positionRepository;
         $this->projectionPositionRepository = $projectionPositionRepository;
+        $this->exchangeMoneyRepository = $exchangeMoneyRepository;
     }
 
     public function __invoke(UpdateDividendRetention $message)
@@ -48,7 +56,12 @@ final class UpdateDividendRetentionHandler extends PositionDividendHandler
 
         $position = $this->positionRepository->find($projectionPosition->getId());
 
-        $position->updateDividendRetention($message->getRetention());
+        $exchangeMoneyRate = $this->exchangeMoneyRepository->findRate(
+            $position->getStock()->getCurrency(),
+            $position->getBook()->getCurrency()
+        );
+
+        $position->updateDividendRetention($message->getRetention(), $exchangeMoneyRate);
         $this->positionRepository->save($position);
 
         return $this->createPositionDividend($position);

@@ -11,6 +11,7 @@ use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Currency;
+use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -140,6 +141,11 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     public function getNextDividend(): ?StockDividend
     {
         return $this->nextDividend;
+    }
+
+    public function getNextYearDividend(): ?Money
+    {
+        return $this->calculateYearDividend($this->nextDividend);
     }
 
     /**
@@ -332,7 +338,18 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 
     private function calculateNewDividendYield(?StockPrice $price, ?StockDividend $dividend): ?float
     {
-        if (!$dividend || !$price) {
+        $yearDividend = $this->calculateYearDividend($dividend);
+
+        if (!$price || !$yearDividend) {
+            return null;
+        }
+
+        return $yearDividend->getValue() / $price->getPrice()->getValue() * 100;
+    }
+
+    private function calculateYearDividend(?StockDividend $dividend): ?Money
+    {
+        if (!$dividend) {
             return null;
         }
 
@@ -341,10 +358,11 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->getMetadata()->getDividendFrequency()
             );
 
-            return $dividend->getValue()->getValue() * $frequencyMultiplier / $price->getPrice()->getValue() * 100;
+            return $dividend->getValue()->multiply($frequencyMultiplier);
         } catch (InvalidArgumentException $e) {
-            return null;
         }
+
+        return null;
     }
 
     /**

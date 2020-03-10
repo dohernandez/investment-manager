@@ -15,10 +15,11 @@ abstract class PositionDividendHandler  implements MessageHandlerInterface
 
         $displayDividendYield = null;
         if ($nextDividend = $stock->getNextDividend()) {
-            $nextDividendYield = $nextDividend->getValue() * 4 / max(
+            $nextDividendYield = $stock->getNextYearDividend()->getValue() / max(
                     $stock->getPrice()->getValue(),
                     1
                 ) * 100;
+
             $displayDividendYield = sprintf(
                 '%s (%.2f%%)',
                 $nextDividend,
@@ -27,37 +28,31 @@ abstract class PositionDividendHandler  implements MessageHandlerInterface
         }
 
         $realDisplayDividendYield = null;
-        if ($book->getNextDividendAfterTaxes()) {
+        if ($realDividendYield = $book->getNextDividendAfterTaxes()) {
             $realDisplayDividendYield = sprintf(
                 '%s (%.2f%%)',
-                $book->getNextDividendAfterTaxes(),
+                $realDividendYield,
                 $book->getNextDividendYieldAfterTaxes()
             );
         }
 
         $displayToPayDividendYield = null;
-        if ($toPayDividend = $stock->getToPayDividend()) {
-            $toPayDividendYield = $toPayDividend->getValue() * 4 / max(
-                    $stock->getPrice()->getValue(),
-                    1
-                ) * 100;
+        if ($toPayDividend = $book->getToPayDividend()) {
             $displayToPayDividendYield = sprintf(
                 '%s (%.2f%%)',
                 $toPayDividend,
-                $toPayDividendYield
+                $book->getToPayDividendYield()
             );
         }
 
         $realDisplayToPayDividendYield = null;
-        if ($book->getToPayDividendAfterTaxes()) {
+        if ($realToPayDividendYield = $book->getToPayDividendAfterTaxes()) {
             $realDisplayToPayDividendYield = sprintf(
                 '%s (%.2f%%)',
-                $book->getToPayDividendAfterTaxes(),
+                $realToPayDividendYield,
                 $book->getToPayDividendYieldAfterTaxes()
             );
         }
-
-        \dump($position);
 
         return new PositionDividend(
             $position->getId(),

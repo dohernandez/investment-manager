@@ -7,6 +7,7 @@ use App\Application\Market\Command\UpdateStockPrice;
 use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
 use App\Application\Market\Scraper\StockCrawled;
 use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -33,10 +34,16 @@ class UpdateStockPriceConsole extends Console
      */
     private $walletRepository;
 
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
+
     public function __construct(
         ProjectionStockRepositoryInterface $stockRepository,
         ProjectionWalletRepositoryInterface $walletRepository,
         MessageBusInterface $bus,
+        EntityManagerInterface $em,
         LoggerInterface $logger
     ) {
         parent::__construct($bus);
@@ -44,6 +51,7 @@ class UpdateStockPriceConsole extends Console
         $this->stockRepository = $stockRepository;
         $this->logger = $logger;
         $this->walletRepository = $walletRepository;
+        $this->em = $em;
     }
 
     protected function configure()
@@ -125,19 +133,23 @@ class UpdateStockPriceConsole extends Console
                     )
                 );
 
-                $this->handle(
-                    new UpdateStockPrice(
-                        $stock['id'],
-                        $crawled->getValue(),
-                        $crawled->getChangePrice(),
-                        $crawled->getPreClose(),
-                        $crawled->getOpen(),
-                        $crawled->getPeRatio(),
-                        $crawled->getDayLow(),
-                        $crawled->getDayHigh(),
-                        $crawled->getWeek52Low(),
-                        $crawled->getWeek52High()
-                    )
+                $this->em->transactional(
+                    function () use ($stock, $crawled) {
+                        $this->handle(
+                            new UpdateStockPrice(
+                                $stock['id'],
+                                $crawled->getValue(),
+                                $crawled->getChangePrice(),
+                                $crawled->getPreClose(),
+                                $crawled->getOpen(),
+                                $crawled->getPeRatio(),
+                                $crawled->getDayLow(),
+                                $crawled->getDayHigh(),
+                                $crawled->getWeek52Low(),
+                                $crawled->getWeek52High()
+                            )
+                        );
+                    }
                 );
             } catch (\Exception $e) {
                 $io->error(

@@ -78,6 +78,11 @@ final class Stock
      */
     private $notes;
 
+    /**
+     * @var Money|null
+     */
+    private $nextYearDividend;
+
     public function __construct(
         string $id,
         string $name,
@@ -87,6 +92,7 @@ final class Stock
         ?Money $price = null,
         ?Money $change = null,
         ?Money $preClose = null,
+        ?Money $nextYearDividend = null,
         ?Money $nextDividend = null,
         ?DateTime $nextDividendExDate = null,
         ?DateTime $prevDividendExDate = null,
@@ -102,6 +108,7 @@ final class Stock
         $this->price = $price;
         $this->change = $change;
         $this->preClose = $preClose;
+        $this->nextYearDividend = $nextYearDividend;
         $this->nextDividend = $nextDividend;
         $this->nextDividendExDate = $nextDividendExDate;
         $this->prevDividendExDate = $prevDividendExDate;
@@ -160,6 +167,11 @@ final class Stock
         );
     }
 
+    public function getNextYearDividend(): ?Money
+    {
+        return $this->nextYearDividend;
+    }
+
     public function getNextDividend(): ?Money
     {
         return $this->nextDividend;
@@ -207,6 +219,7 @@ final class Stock
             $this->getChange(),
             $this->getPreClose(),
             $this->getNextDividend(),
+            $this->getNextYearDividend(),
             $this->getNextDividendExDate(),
             $prevDividendExDate,
             $this->getToPayDividend(),
