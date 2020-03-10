@@ -218,8 +218,16 @@ class WrapperPositionDividendPanel {
 
     setData(result) {
         this.dividendPanel.setData(result);
-        this.positionComingDividendPanel.setData(result);
-        this.toPayDividendPanel.setData(result);
+
+        let comingDividend = {'items': result.items.filter(function (position) {
+            return position.exDate !== null;
+        })};
+        this.positionComingDividendPanel.setData(comingDividend);
+
+        let toPayDividend = {'items': result.items.filter(function (position) {
+            return position.toPayDate !== null;
+        })};
+        this.toPayDividendPanel.setData(toPayDividend);
     }
 
     toggleExpanded() {
