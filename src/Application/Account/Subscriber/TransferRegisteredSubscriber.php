@@ -49,7 +49,6 @@ class TransferRegisteredSubscriber implements EventSubscriberInterface
                 'account_id' => $beneficiary->getId(),
                 'account_no' => $beneficiary->getAccountNo(),
                 'amount' => $event->getAmount(),
-                '$beneficiary' => $beneficiary,
             ]
         );
 
@@ -63,7 +62,6 @@ class TransferRegisteredSubscriber implements EventSubscriberInterface
                 'account_id' => $debtor->getId(),
                 'account_no' => $debtor->getAccountNo(),
                 'amount' => $event->getAmount(),
-                '$debtor' => $debtor,
             ]
         );
     }
