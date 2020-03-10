@@ -24,6 +24,7 @@ final class YahooStockScraper implements StockScraperInterface
     private const MARKET_MAPPING = [
         'BATS'     => 'NasdaqGS',
         'NasdaqGM' => 'NasdaqGS',
+        'NasdaqCM' => 'NasdaqGS',
     ];
 
     /**
