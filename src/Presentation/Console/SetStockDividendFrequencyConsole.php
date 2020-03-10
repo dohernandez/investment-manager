@@ -50,6 +50,7 @@ class SetStockDividendFrequencyConsole extends Console
     {
         $this
             ->setDescription('Set dividend frequency to stock does not have.')
+            ->addOption('symbol', 's', InputOption::VALUE_OPTIONAL, 'Stock symbol')
             ->addOption(
                 'frequency',
                 'f',
@@ -82,7 +83,15 @@ class SetStockDividendFrequencyConsole extends Console
                 throw new InvalidArgumentException(sprintf('Frequency not supported [%s]', $dividendFrequency));
         }
 
-        $stocks = $this->consoleStockRepository->findAllListed();
+        $stocks = [];
+        if ($symbol = $input->getOption('symbol')) {
+            if ($stock = $this->consoleStockRepository->findBySymbol($symbol)) {
+                $stocks[] = $stock;
+            }
+        } else {
+            $stocks = $this->consoleStockRepository->findAllListed();
+        }
+
         $io->progressStart(count($stocks));
 
         $this->em->transactional(function () use ($stocks, $dividendFrequency, $io) {

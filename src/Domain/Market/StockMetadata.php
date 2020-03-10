@@ -19,6 +19,16 @@ final class StockMetadata
      */
     private $yahooSymbol;
 
+    public function __construct(
+      ?string $yahooSymbol = null,
+      ?float $dividendYield = null,
+      ?string $dividendFrequency = null
+    ) {
+        $this->yahooSymbol = $yahooSymbol;
+        $this->dividendYield = $dividendYield;
+        $this->dividendFrequency = $dividendFrequency;
+    }
+
     public function getDividendFrequency(): ?string
     {
         return $this->dividendFrequency;
@@ -34,27 +44,30 @@ final class StockMetadata
         return $this->yahooSymbol;
     }
 
-    public function updateDividendYield(?float $dividendYield): self
+    public function changeDividendYield(?float $dividendYield): self
     {
-        $self = clone $this;
-        $self->dividendYield = $dividendYield;
-
-        return $self;
+        return new static(
+            $this->getYahooSymbol(),
+            $dividendYield,
+            $this->getDividendFrequency()
+        );
     }
 
-    public function updateYahooSymbol(?string $yahooSymbol): self
+    public function changeYahooSymbol(?string $yahooSymbol): self
     {
-        $self = clone $this;
-        $self->yahooSymbol = $yahooSymbol;
-
-        return $self;
+        return new static(
+            $yahooSymbol,
+            $this->getDividendYield(),
+            $this->getDividendFrequency()
+        );
     }
 
-    public function updateDividendFrequency(?string $frequency): self
+    public function changeDividendFrequency(?string $frequency): self
     {
-        $self = clone $this;
-        $self->dividendFrequency = $frequency;
-
-        return $self;
+        return new static(
+            $this->getYahooSymbol(),
+            $this->getDividendYield(),
+            $frequency
+        );
     }
 }

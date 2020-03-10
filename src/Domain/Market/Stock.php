@@ -532,8 +532,8 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->sector = $event->getSector();
                 $this->industry = $event->getIndustry();
                 $this->metadata = (new StockMetadata())
-                    ->updateYahooSymbol($event->getYahooSymbol())
-                    ->updateDividendFrequency($event->getDividendFrequency());
+                    ->changeYahooSymbol($event->getYahooSymbol())
+                    ->changeDividendFrequency($event->getDividendFrequency());
                 $this->createdAt = $changed->getCreatedAt();
                 $this->updatedAt = $changed->getCreatedAt();
 
@@ -546,8 +546,8 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->name = $event->getName();
                 $this->description = $event->getDescription();
                 $this->metadata = $this->metadata
-                    ->updateYahooSymbol($event->getYahooSymbol())
-                    ->updateDividendFrequency($event->getDividendFrequency());
+                    ->changeYahooSymbol($event->getYahooSymbol())
+                    ->changeDividendFrequency($event->getDividendFrequency());
                 $this->updatedAt = $changed->getCreatedAt();
                 $this->market = $event->getMarket();
                 $this->type = $event->getType();
@@ -563,7 +563,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                 $event = $changed->getPayload();
 
                 $this->price = $event->getPrice();
-                $this->metadata = $this->metadata->updateDividendYield($event->getDividendYield());
+                $this->metadata = $this->metadata->changeDividendYield($event->getDividendYield());
 
                 $this->updatedAt = $changed->getCreatedAt();
                 break;
@@ -574,7 +574,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 
                 $this->nextDividend = $event->getNextDividend();
                 $this->toPayDividend = $event->getToPayDividend();
-                $this->metadata = $this->metadata->updateDividendYield($event->getDividendYield());
+                $this->metadata = $this->metadata->changeDividendYield($event->getDividendYield());
                 $this->dividendsSyncAt = $event->getSynchedAt();
 
                 $this->updatedAt = $changed->getCreatedAt();
