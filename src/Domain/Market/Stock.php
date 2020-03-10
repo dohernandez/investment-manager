@@ -298,7 +298,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 
         $dividendYield = $this->calculateNewDividendYield($price, $this->nextDividend);
 
-        if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, StockPriceUpdated::class)) {
+        if ($changed = $this->findIfLastChangeHappenedIsName(StockPriceUpdated::class)) {
             // This is to avoid have too much update events.
             $this->price->setPrice($price->getPrice());
             $this->price->setChangePrice($price->getChangePrice());
@@ -466,11 +466,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         if ($nextDividend != $this->nextDividend || $toPayDividend != $this->toPayDividend) {
             $dividendYield = $this->calculateNewDividendYield($this->getPrice(), $nextDividend);
 
-            $changed = $this->findFirstChangeHappenedDateAt(
-                $toSyncAt,
-                StockDividendSynched::class,
-                'getSynchedAt'
-            );
+            $changed = $this->findIfLastChangeHappenedIsName(StockDividendSynched::class);
 
             if ($changed) {
                 $this->replaceChangedPayload(

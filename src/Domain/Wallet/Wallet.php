@@ -81,11 +81,11 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
     private $accountId;
 
     /**
-     * @var WalletBook
+     * @var WalletBook|null
      */
     private $book;
 
-    public function getBook(): WalletBook
+    public function getBook(): ?WalletBook
     {
         return $this->book;
     }
@@ -359,7 +359,7 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         $benefits = $this->calculateBenefits($capital, $book->getFunds(), $book->getInvested());
         $percentageBenefits = $this->calculatePercentageBenefits($benefits, $book->getInvested());
 
-        if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, WalletCapitalUpdated::class)) {
+        if ($changed = $this->findIfLastChangeHappenedIsName(WalletCapitalUpdated::class)) {
             // This is to avoid have too much update events.
 
             $this->replaceChangedPayload(

@@ -110,7 +110,7 @@ abstract class Repository
     protected function store(AggregateRoot $object)
     {
         $changes = $object->getChanges();
-        if (!$changes->isEmpty()) {
+        if ($changes && !$changes->isEmpty()) {
 
             $this->em->persist($object);
             $this->em->flush();

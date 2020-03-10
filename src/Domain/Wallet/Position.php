@@ -627,7 +627,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $exchangeMoneyRate
         );
 
-        if ($change = $this->findFirstChangeHappenedDateAt($toUpdateAt, PositionStockPriceUpdated::class)) {
+        if ($change = $this->findIfLastChangeHappenedIsName(PositionStockPriceUpdated::class)) {
             // This is to avoid have too much update events.
 
             $this->replaceChangedPayload(
@@ -713,7 +713,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $exchangeMoneyRate
         );
 
-        if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, PositionDividendRetentionUpdated::class)) {
+        if ($changed = $this->findIfLastChangeHappenedIsName(PositionDividendRetentionUpdated::class)) {
             // This is to avoid have too much update events.
 
             $this->replaceChangedPayload(
@@ -778,7 +778,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $exchangeMoneyRate
         );
 
-        if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, PositionStockDividendUpdated::class)) {
+        if ($changed = $this->findIfLastChangeHappenedIsName(PositionStockDividendUpdated::class)) {
             // This is to avoid have too much update events.
 
             $this->replaceChangedPayload(

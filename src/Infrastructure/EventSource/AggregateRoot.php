@@ -4,6 +4,7 @@ namespace App\Infrastructure\EventSource;
 
 use App\Domain\Market\Event\StockPriceUpdated;
 use App\Domain\Market\Stock;
+use ArrayIterator;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Infrastructure\UUID;
@@ -121,42 +122,27 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
-    protected function findFirstChangeHappenedDateAt(
-        DateTime $dateAt,
-        ?string $type = null,
-        string $method = 'getUpdatedAt'
+    protected function findIfLastChangeHappenedIsName(
+        ?string $type = null
     ): ?Changed {
-        $changes = ($type) ? $this->getChanges()->filter(
-            function (Changed $changed) use ($type) {
-                if ($changed->getEventName() == $type) {
-                    return true;
-                }
-
-                return false;
-            }
-        ) : $this->getChanges();
-
-        $changed = null;
-
-        /** @var Changed $change */
-        foreach ($changes as $change) {
-            /** @var StockPriceUpdated $payload */
-            $payload = $change->getPayload();
-
-            if (!\method_exists($payload, $method) || !$payload->$method()) {
-                continue;
-            }
-
-            if (
-                $payload->$method()->format('Y') === $dateAt->format('Y') &&
-                $payload->$method()->format('z') === $dateAt->format('z')
-            ) {
-                $changed = $change;
-
-                break;
-            }
+        if ($this->getChanges()->isEmpty()) {
+            return null;
         }
 
-        return $changed;
+        $iterator = new ArrayIterator($this->getChanges()->getValues());
+        // define ordering closure, using preferred comparison method/field
+        $iterator->uasort(
+            function ($first, $second) {
+                /** @var Changed $first */
+                /** @var Changed $second */
+                return $first->getAggregateVersion() < $second->getAggregateVersion() ? 1 : -1;
+            }
+        );
+
+        // reset current to the beginning
+        $iterator->rewind();
+        /** @var Changed $changed */
+        $changed = $iterator->current();
+        return $changed->getEventName() === $type ? $changed : null;
     }
 }
