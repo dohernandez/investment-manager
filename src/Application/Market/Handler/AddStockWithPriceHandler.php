@@ -25,7 +25,7 @@ final class AddStockWithPriceHandler implements MessageHandlerInterface
 
     public function __invoke(AddStockWithPrice $message)
     {
-        $this->bus->dispatch(
+        $envelope = $this->bus->dispatch(
             new AddStock(
                 $message->getName(),
                 $message->getSymbol(),
@@ -39,9 +39,12 @@ final class AddStockWithPriceHandler implements MessageHandlerInterface
             )
         );
 
+        $handledStamp = $envelope->last(HandledStamp::class);
+        $stock = $handledStamp->getResult();
+
         $envelope = $this->bus->dispatch(
             new UpdateStockPrice(
-                $message->getId(),
+                $stock->getId(),
                 $message->getValue(),
                 $message->getChangePrice(),
                 $message->getPreClose(),

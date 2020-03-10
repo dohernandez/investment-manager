@@ -529,7 +529,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
         // set current total, year and month value
         if ($book) {
-            $book->setTotal($book->getTotal());
+            $copyBook->setTotal($book->getTotal());
 
             if ($entry = $book->getBookEntry($year)) {
                 $copyBookYearEntry->setTotal($entry->getTotal());
