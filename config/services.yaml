@@ -134,6 +134,7 @@ services:
     App\Application\Wallet\Repository\PositionRepositoryInterface: '@App\Infrastructure\Storage\Wallet\PositionRepository'
     App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ProjectionPositionRepository'
     App\Application\Wallet\Repository\ExchangeMoneyRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ExchangeMoneyRepository'
+    App\Application\Wallet\Repository\StockDividendRepositoryInterface: '@App\Infrastructure\Storage\Wallet\StockDividendRepository'
 
     App\Application\ExchangeMoney\Exchange\ExchangeMoneyInterface: '@App\Application\ExchangeMoney\Exchange\CurrencyConverter'
     App\Application\ExchangeMoney\Repository\ExchangeMoneyRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\ExchangeMoneyRepository'
@@ -146,13 +147,22 @@ services:
         arguments:
             $stockDividendsDecorate: '@App\Application\Market\Decorator\StockDividendsDecorate'
 
+    # Decorators
     App\Application\Market\Decorator\StockDividendsDecorate: ~
+
+    App\Application\Wallet\Decorator\StockPrevDividendDecorator: ~
 
     # Subscribers
     App\Application\Market\Subscriber\HouseKeeperSubscriber:
         class: App\Application\Market\Subscriber\HouseKeeperSubscriber
         arguments:
             $houseKeeperStockDividendRepository: '@App\Infrastructure\Storage\Market\HouseKeeperStockDividendRepository'
+
+    App\Application\Wallet\Subscriber\DividendOperationRegisteredSubscriber:
+        class: App\Application\Wallet\Subscriber\DividendOperationRegisteredSubscriber
+        arguments:
+            $stockPrevDividendDecorator: '@App\Application\Wallet\Decorator\StockPrevDividendDecorator'
+
 
     # Exchange
     App\Application\ExchangeMoney\Exchange\CurrencyConverter:
@@ -219,6 +229,7 @@ services:
     App\Infrastructure\Storage\Wallet\PositionRepository: ~
     App\Infrastructure\Storage\Wallet\ProjectionPositionRepository: ~
     App\Infrastructure\Storage\Wallet\ExchangeMoneyRepository: ~
+    App\Infrastructure\Storage\Wallet\StockDividendRepository: ~
 
     App\Infrastructure\Storage\ExchangeMoney\ExchangeMoneyRepository: ~
     App\Infrastructure\Storage\ExchangeMoney\MarketRepository: ~

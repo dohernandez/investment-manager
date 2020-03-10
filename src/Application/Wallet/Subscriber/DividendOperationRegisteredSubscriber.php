@@ -2,13 +2,12 @@
 
 namespace App\Application\Wallet\Subscriber;
 
-use App\Application\Wallet\Calculator;
+use App\Application\Wallet\Decorator\StockPrevDividendDecoratorInterface;
 use App\Application\Wallet\Repository\PositionRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionOperationRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface;
 use App\Application\Wallet\Repository\WalletRepositoryInterface;
 use App\Domain\Wallet\Event\DividendOperationRegistered;
-use App\Domain\Wallet\Position;
 use App\Infrastructure\Exception\NotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -34,16 +33,23 @@ final class DividendOperationRegisteredSubscriber implements EventSubscriberInte
      */
     private $walletRepository;
 
+    /**
+     * @var StockPrevDividendDecoratorInterface
+     */
+    private $stockPrevDividendDecorator;
+
     public function __construct(
         PositionRepositoryInterface $positionRepository,
         ProjectionPositionRepositoryInterface $projectionPositionRepository,
         ProjectionOperationRepositoryInterface $projectionOperationRepository,
-        WalletRepositoryInterface $walletRepository
+        WalletRepositoryInterface $walletRepository,
+        StockPrevDividendDecoratorInterface $stockPrevDividendDecorator
     ) {
         $this->positionRepository = $positionRepository;
         $this->projectionPositionRepository = $projectionPositionRepository;
         $this->projectionOperationRepository = $projectionOperationRepository;
         $this->walletRepository = $walletRepository;
+        $this->stockPrevDividendDecorator = $stockPrevDividendDecorator;
     }
 
     /**
@@ -60,9 +66,11 @@ final class DividendOperationRegisteredSubscriber implements EventSubscriberInte
     {
         $wallet = $this->walletRepository->find($event->getWallet()->getId());
         if ($wallet === null) {
-            throw new NotFoundException('Wallet not found', [
-                'id' => $event->getWallet()->getId()
-            ]);
+            throw new NotFoundException(
+                'Wallet not found', [
+                                      'id' => $event->getWallet()->getId()
+                                  ]
+            );
         }
 
         $operation = $this->projectionOperationRepository->find($event->getId());
@@ -72,17 +80,24 @@ final class DividendOperationRegisteredSubscriber implements EventSubscriberInte
             ]);
         }
 
+        $stock = $operation->getStock();
+        $this->stockPrevDividendDecorator->decorate($stock, $operation->getDateAt());
+
+
         $projectionPosition = $this->projectionPositionRepository->findByWalletStockOpenDateAt(
             $wallet->getId(),
-            $event->getStock()->getId(),
-            $event->getStock()->getPrevDividendExDate()
+            $stock->getId(),
+            $stock->getPrevDividendExDate()
         );
         if ($projectionPosition === null) {
-            throw new NotFoundException('Position not found', [
-                'walletId' => $wallet->getId(),
-                'stockId' => $event->getStock()->getId(),
-                'ex_date' => $event->getStock()->getPrevDividendExDate()->format('c'),
-            ]);
+            throw new NotFoundException(
+                'Position not found',
+                [
+                    'walletId' => $wallet->getId(),
+                    'stockId'  => $stock->getId(),
+                    'ex_date'  => $stock->getPrevDividendExDate()->format('c'),
+                ]
+            );
         }
 
         $position = $this->positionRepository->find($projectionPosition->getId());

@@ -362,6 +362,11 @@ class OperationForm extends SwalForm {
             ],
         };
 
+        this.priceChangeCommission = {
+            'buy': 0.16,
+            'sell': 0.16,
+        };
+
         eventBus.on("entity_operation_created", this.onCreated.bind(this));
     }
 
@@ -386,12 +391,20 @@ class OperationForm extends SwalForm {
             let selected = $type.val();
 
             if (selected in this.disableInputInOperations) {
+                let $input = $form.find('#priceChangeCommission');
+                $input.val('');
+
                 let operation = this.disableInputInOperations[selected];
 
                 for (let i = 0; i < operation.length; i++) {
                     let $input = $form.find('#' + operation[i]);
                     $input.prop('disabled', true);
                 }
+            }
+
+            if (selected in this.priceChangeCommission) {
+                let $input = $form.find('#priceChangeCommission');
+                $input.val(this.priceChangeCommission[selected]);
             }
         }.bind(this));
 

@@ -2,13 +2,10 @@
 
 namespace App\Presentation\Console;
 
-use App\Application\Market\Repository\StockDividendRepositoryInterface;
 use App\Application\Wallet\Command\RegisterOperation;
 use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
 use App\Application\Wallet\Repository\StockRepositoryInterface;
-use App\Domain\Market;
 use App\Domain\Wallet\Operation;
-use App\Domain\Wallet\Stock;
 use App\Repository\OperationRepository;
 use DateTime;
 use Symfony\Component\Console\Input\InputArgument;
@@ -38,16 +35,10 @@ final class MigrateOperationToEventSourceConsole extends Console
      */
     private $stockRepository;
 
-    /**
-     * @var StockDividendRepositoryInterface
-     */
-    private $stockDividendRepository;
-
     public function __construct(
         OperationRepository $operationRepository,
         ProjectionWalletRepositoryInterface $walletRepository,
         StockRepositoryInterface $stockRepository,
-        StockDividendRepositoryInterface $stockDividendRepository,
         MessageBusInterface $bus
     ) {
         parent::__construct($bus);
@@ -55,7 +46,6 @@ final class MigrateOperationToEventSourceConsole extends Console
         $this->operationRepository = $operationRepository;
         $this->walletRepository = $walletRepository;
         $this->stockRepository = $stockRepository;
-        $this->stockDividendRepository = $stockDividendRepository;
     }
 
     protected function configure()
@@ -111,15 +101,6 @@ final class MigrateOperationToEventSourceConsole extends Console
             $dateAt = (new DateTime(null, $operation->getDateAt()->getTimezone()))->setTimestamp(
                 $operation->getDateAt()->getTimestamp()
             );
-
-            if ($operation->getType() === Operation::TYPE_DIVIDEND) {
-                $dividend = $this->stockDividendRepository->findLastBeforeDateByStock(
-                    new Market\Stock($stock->getId()),
-                    $dateAt
-                );
-
-                $stock = $stock->changePrevDividendExDate($dividend ? $dividend->getExDate() : $dateAt);
-            }
 
             try {
                 $this->bus->dispatch(

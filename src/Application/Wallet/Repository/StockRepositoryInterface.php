@@ -3,6 +3,7 @@
 namespace App\Application\Wallet\Repository;
 
 use App\Domain\Wallet\Stock;
+use DateTime;
 
 interface StockRepositoryInterface
 {

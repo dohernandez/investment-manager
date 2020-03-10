@@ -229,7 +229,7 @@ class OperationForm extends SwalForm {
 
             if (selected in ['buy', 'sell']) {
                 let $input = $form.find('#priceChangeCommission');
-                $input.value(this.priceChangeCommission);
+                $input.val(this.priceChangeCommission);
             }
         }.bind(this));
 
