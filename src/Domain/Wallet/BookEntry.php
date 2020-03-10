@@ -3,9 +3,12 @@
 namespace App\Domain\Wallet;
 
 use App\Domain\Wallet\Exception\BookEntryNotEqualsException;
+use App\Infrastructure\Date\Date;
 use App\Infrastructure\Money\Money;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use InvalidArgumentException;
 
 class BookEntry
 {
@@ -184,5 +187,48 @@ class BookEntry
         }
 
         return $this;
+    }
+
+    public static function copyBookAtDateAndIncreasedValue(
+        DateTime $date,
+        Money $value,
+        ?BookEntry $book,
+        ?string $copyBookName = null
+    ): BookEntry {
+        $copyBookName = $copyBookName ? $copyBookName : $book ? $book->getName() : null;
+        if (!$copyBookName) {
+            throw new InvalidArgumentException('Copy book name can not be empty');
+        }
+
+        $copyBook = BookEntry::createBookEntry($copyBookName);
+
+        // book entry year
+        $year = (string)Date::getYear($date);
+        $copyBookYearEntry = BookEntry::createYearEntry($book, $year);
+        $copyBook->getEntries()->add($copyBookYearEntry);
+
+        // book entry month
+        $month = (string)Date::getMonth($date);
+        $copyBookMonthEntry = BookEntry::createMonthEntry($copyBookYearEntry, $month);
+        $copyBookYearEntry->getEntries()->add($copyBookMonthEntry);
+
+        // set current total, year and month value
+        if ($book) {
+            $copyBook->setTotal($book->getTotal());
+
+            if ($entry = $book->getBookEntry($year)) {
+                $copyBookYearEntry->setTotal($entry->getTotal());
+
+                if ($entry = $entry->getBookEntry($month)) {
+                    $copyBookMonthEntry->setTotal($entry->getTotal());
+                }
+            }
+        }
+
+        $copyBook->increaseTotal($value);
+        $copyBookYearEntry->increaseTotal($value);
+        $copyBookMonthEntry->increaseTotal($value);
+
+        return $copyBook;
     }
 }

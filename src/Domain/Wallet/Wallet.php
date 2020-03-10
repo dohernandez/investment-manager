@@ -205,37 +205,14 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 
         $capital = $book->getCapital()->increase($operation->getCapital());
         $funds = $book->getFunds()->decrease($operation->getTotalPaid());
-        $benefits = $capital->increase($funds->decrease($book->getInvested()));
+        $benefits = $this->calculateBenefits($capital, $funds, $book->getInvested());
+        $percentageBenefits = $this->calculatePercentageBenefits($benefits, $book->getInvested());
 
-        $percentageBenefits = $book->getInvested()->getValue() ?
-            $benefits->getValue() * 100 / $book->getInvested()->getValue() :
-            100;
-
-        $bookCommissions = BookEntry::createBookEntry('commissions');
-
-        $year = (string)Date::getYear($operation->getDateAt());
-        $bookCommissionsYearEntry = BookEntry::createYearEntry($bookCommissions, $year);
-        $bookCommissions->getEntries()->add($bookCommissionsYearEntry);
-
-        $month = (string)Date::getMonth($operation->getDateAt());
-        $bookCommissionsMonthEntry = BookEntry::createMonthEntry($bookCommissionsYearEntry, $month);
-        $bookCommissionsYearEntry->getEntries()->add($bookCommissionsMonthEntry);
-
-        if ($commissions = $book->getCommissions()) {
-            $bookCommissions->setTotal($commissions->getTotal());
-
-            if ($entry = $commissions->getBookEntry($year)) {
-                $bookCommissionsYearEntry->setTotal($entry->getTotal());
-
-                if ($entry = $entry->getBookEntry($month)) {
-                    $bookCommissionsMonthEntry->setTotal($entry->getTotal());
-                }
-            }
-        }
-
-        $bookCommissions->increaseTotal($operation->getCommissionsPaid());
-        $bookCommissionsYearEntry->increaseTotal($operation->getCommissionsPaid());
-        $bookCommissionsMonthEntry->increaseTotal($operation->getCommissionsPaid());
+        $bookCommissions = BookEntry::copyBookAtDateAndIncreasedValue(
+            $operation->getDateAt(),
+            $operation->getCommissionsPaid(),
+            $book->getCommissions(),
+            'commissions');
 
         $this->recordChange(
             new WalletBuyOperationUpdated(
@@ -258,37 +235,14 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 
         $capital = $book->getCapital()->decrease($operation->getCapital());
         $funds = $book->getFunds()->increase($operation->getTotalEarned());
-        $benefits = $capital->increase($funds->decrease($book->getInvested()));
+        $benefits = $this->calculateBenefits($capital, $funds, $book->getInvested());
+        $percentageBenefits = $this->calculatePercentageBenefits($benefits, $book->getInvested());
 
-        $percentageBenefits = $book->getInvested()->getValue() ?
-            $benefits->getValue() * 100 / $book->getInvested()->getValue() :
-            100;
-
-        $bookCommissions = BookEntry::createBookEntry('commissions');
-
-        $year = (string)Date::getYear($operation->getDateAt());
-        $bookCommissionsYearEntry = BookEntry::createYearEntry($bookCommissions, $year);
-        $bookCommissions->getEntries()->add($bookCommissionsYearEntry);
-
-        $month = (string)Date::getMonth($operation->getDateAt());
-        $bookCommissionsMonthEntry = BookEntry::createMonthEntry($bookCommissionsYearEntry, $month);
-        $bookCommissionsYearEntry->getEntries()->add($bookCommissionsMonthEntry);
-
-        if ($commissions = $book->getCommissions()) {
-            $bookCommissions->setTotal($commissions->getTotal());
-
-            if ($entry = $commissions->getBookEntry($year)) {
-                $bookCommissionsYearEntry->setTotal($entry->getTotal());
-
-                if ($entry = $entry->getBookEntry($month)) {
-                    $bookCommissionsMonthEntry->setTotal($entry->getTotal());
-                }
-            }
-        }
-
-        $bookCommissions->increaseTotal($operation->getCommissionsPaid());
-        $bookCommissionsYearEntry->increaseTotal($operation->getCommissionsPaid());
-        $bookCommissionsMonthEntry->increaseTotal($operation->getCommissionsPaid());
+        $bookCommissions = BookEntry::copyBookAtDateAndIncreasedValue(
+            $operation->getDateAt(),
+            $operation->getCommissionsPaid(),
+            $book->getCommissions(),
+            'commissions');
 
         $this->recordChange(
             new WalletSellOperationUpdated(
@@ -310,37 +264,14 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         $book = $this->book;
 
         $funds = $book->getFunds()->decrease($operation->getValue());
-        $benefits = $book->getCapital()->increase($funds->decrease($book->getInvested()));
+        $benefits = $this->calculateBenefits($book->getCapital(), $funds, $book->getInvested());
+        $percentageBenefits = $this->calculatePercentageBenefits($benefits, $book->getInvested());
 
-        $percentageBenefits = $book->getInvested()->getValue() ?
-            $benefits->getValue() * 100 / $book->getInvested()->getValue() :
-            100;
-
-        $bookConnectivity = BookEntry::createBookEntry('connectivity');
-
-        $year = (string)Date::getYear($operation->getDateAt());
-        $bookConnectivityYearEntry = BookEntry::createYearEntry($bookConnectivity, $year);
-        $bookConnectivity->getEntries()->add($bookConnectivityYearEntry);
-
-        $month = (string)Date::getMonth($operation->getDateAt());
-        $bookConnectivityMonthEntry = BookEntry::createMonthEntry($bookConnectivityYearEntry, $month);
-        $bookConnectivityYearEntry->getEntries()->add($bookConnectivityMonthEntry);
-
-        if ($connectivity = $book->getConnection()) {
-            $bookConnectivity->setTotal($connectivity->getTotal());
-
-            if ($entry = $connectivity->getBookEntry($year)) {
-                $bookConnectivityYearEntry->setTotal($entry->getTotal());
-
-                if ($entry = $entry->getBookEntry($month)) {
-                    $bookConnectivityMonthEntry->setTotal($entry->getTotal());
-                }
-            }
-        }
-
-        $bookConnectivity->increaseTotal($operation->getValue());
-        $bookConnectivityYearEntry->increaseTotal($operation->getValue());
-        $bookConnectivityMonthEntry->increaseTotal($operation->getValue());
+        $bookConnectivity = BookEntry::copyBookAtDateAndIncreasedValue(
+            $operation->getDateAt(),
+            $operation->getValue(),
+            $book->getConnection(),
+            'connectivity');
 
         $this->recordChange(
             new WalletConnectivityUpdated(
@@ -361,37 +292,14 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         $book = $this->book;
 
         $funds = $book->getFunds()->decrease($operation->getValue());
-        $benefits = $book->getCapital()->increase($funds->decrease($book->getInvested()));
+        $benefits = $this->calculateBenefits($book->getCapital(), $funds, $book->getInvested());
+        $percentageBenefits = $this->calculatePercentageBenefits($benefits, $book->getInvested());
 
-        $percentageBenefits = $book->getInvested()->getValue() ?
-            $benefits->getValue() * 100 / $book->getInvested()->getValue() :
-            100;
-
-        $bookInterests = BookEntry::createBookEntry('interests');
-
-        $year = (string)Date::getYear($operation->getDateAt());
-        $bookInterestsYearEntry = BookEntry::createYearEntry($bookInterests, $year);
-        $bookInterests->getEntries()->add($bookInterestsYearEntry);
-
-        $month = (string)Date::getMonth($operation->getDateAt());
-        $bookInterestsMonthEntry = BookEntry::createMonthEntry($bookInterestsYearEntry, $month);
-        $bookInterestsYearEntry->getEntries()->add($bookInterestsMonthEntry);
-
-        if ($interests = $book->getInterest()) {
-            $bookInterests->setTotal($interests->getTotal());
-
-            if ($entry = $interests->getBookEntry($year)) {
-                $bookInterestsYearEntry->setTotal($entry->getTotal());
-
-                if ($entry = $entry->getBookEntry($month)) {
-                    $bookInterestsMonthEntry->setTotal($entry->getTotal());
-                }
-            }
-        }
-
-        $bookInterests->increaseTotal($operation->getValue());
-        $bookInterestsYearEntry->increaseTotal($operation->getValue());
-        $bookInterestsMonthEntry->increaseTotal($operation->getValue());
+        $bookInterests = BookEntry::copyBookAtDateAndIncreasedValue(
+            $operation->getDateAt(),
+            $operation->getValue(),
+            $book->getInterest(),
+            'interests');
 
         $this->recordChange(
             new WalletInterestUpdated(
@@ -412,37 +320,14 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         $book = $this->book;
 
         $funds = $book->getFunds()->increase($operation->getValue());
-        $benefits = $book->getCapital()->increase($funds->decrease($book->getInvested()));
+        $benefits = $this->calculateBenefits($book->getCapital(), $funds, $book->getInvested());
+        $percentageBenefits = $this->calculatePercentageBenefits($benefits, $book->getInvested());
 
-        $percentageBenefits = $book->getInvested()->getValue() ?
-            $benefits->getValue() * 100 / $book->getInvested()->getValue() :
-            100;
-
-        $bookDividends = BookEntry::createBookEntry('dividends');
-
-        $year = (string)Date::getYear($operation->getDateAt());
-        $bookDividendsYearEntry = BookEntry::createYearEntry($bookDividends, $year);
-        $bookDividends->getEntries()->add($bookDividendsYearEntry);
-
-        $month = (string)Date::getMonth($operation->getDateAt());
-        $bookDividendsMonthEntry = BookEntry::createMonthEntry($bookDividendsYearEntry, $month);
-        $bookDividendsYearEntry->getEntries()->add($bookDividendsMonthEntry);
-
-        if ($dividends = $book->getDividends()) {
-            $bookDividends->setTotal($dividends->getTotal());
-
-            if ($entry = $dividends->getBookEntry($year)) {
-                $bookDividendsYearEntry->setTotal($entry->getTotal());
-
-                if ($entry = $entry->getBookEntry($month)) {
-                    $bookDividendsMonthEntry->setTotal($entry->getTotal());
-                }
-            }
-        }
-
-        $bookDividends->increaseTotal($operation->getValue());
-        $bookDividendsYearEntry->increaseTotal($operation->getValue());
-        $bookDividendsMonthEntry->increaseTotal($operation->getValue());
+        $bookDividends = BookEntry::copyBookAtDateAndIncreasedValue(
+            $operation->getDateAt(),
+            $operation->getValue(),
+            $book->getDividends(),
+            'dividends');
 
         $this->recordChange(
             new WalletDividendsUpdated(
@@ -460,49 +345,12 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 
     public function increaseCapital(Money $capital, $toUpdateAt = 'now'): self
     {
-        $toUpdateAt = new DateTime($toUpdateAt);
+        $capital = $this->book->getCapital()->increase($capital);
 
-        $book = $this->book;
-
-        $capital = $book->getCapital()->increase($capital);
-        $benefits = $capital->increase($book->getFunds()->decrease($book->getInvested()));
-
-        $percentageBenefits = $book->getInvested()->getValue() ?
-            $benefits->getValue() * 100 / $book->getInvested()->getValue() :
-            100;
-
-        if ($changed = $this->findFirstChangeHappenedDateAt($toUpdateAt, WalletCapitalUpdated::class)) {
-            // This is to avoid have too much update events.
-
-            $this->replaceChangedPayload(
-                $changed,
-                new WalletCapitalUpdated(
-                    $this->id,
-                    $capital,
-                    $benefits,
-                    $percentageBenefits,
-                    $toUpdateAt
-                ),
-                clone $toUpdateAt
-            );
-
-            return $this;
-        }
-
-        $this->recordChange(
-            new WalletCapitalUpdated(
-                $this->id,
-                $capital,
-                $benefits,
-                $percentageBenefits,
-                $toUpdateAt
-            )
-        );
-
-        return $this;
+        return $this->updateCapital($capital, $toUpdateAt);
     }
 
-    public function forceSetCapital(Money $capital, $toUpdateAt = 'now'): self
+    private function updateCapital(Money $capital, $toUpdateAt = 'now'): self
     {
         $toUpdateAt = new DateTime($toUpdateAt);
 
@@ -540,6 +388,11 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         );
 
         return $this;
+    }
+
+    public function forceSetCapital(Money $capital, $toUpdateAt = 'now'): self
+    {
+        return $this->updateCapital($capital, $toUpdateAt);
     }
 
     private function calculateBenefits(Money $capital, Money $funds, Money $invested): Money

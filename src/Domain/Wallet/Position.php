@@ -510,41 +510,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         ?BookEntry $book,
         ?string $copyBookName = null
     ): BookEntry {
-        $copyBookName = $copyBookName ? $copyBookName : $book ? $book->getName() : null;
-        if (!$copyBookName) {
-            throw new InvalidArgumentException('Copy book name can not be empty');
-        }
-
-        $copyBook = BookEntry::createBookEntry($copyBookName);
-
-        // book entry year
-        $year = (string)Date::getYear($date);
-        $copyBookYearEntry = BookEntry::createYearEntry($book, $year);
-        $copyBook->getEntries()->add($copyBookYearEntry);
-
-        // book entry month
-        $month = (string)Date::getMonth($date);
-        $copyBookMonthEntry = BookEntry::createMonthEntry($copyBookYearEntry, $month);
-        $copyBookYearEntry->getEntries()->add($copyBookMonthEntry);
-
-        // set current total, year and month value
-        if ($book) {
-            $copyBook->setTotal($book->getTotal());
-
-            if ($entry = $book->getBookEntry($year)) {
-                $copyBookYearEntry->setTotal($entry->getTotal());
-
-                if ($entry = $entry->getBookEntry($month)) {
-                    $copyBookMonthEntry->setTotal($entry->getTotal());
-                }
-            }
-        }
-
-        $copyBook->increaseTotal($value);
-        $copyBookYearEntry->increaseTotal($value);
-        $copyBookMonthEntry->increaseTotal($value);
-
-        return $copyBook;
+        return BookEntry::copyBookAtDateAndIncreasedValue($date, $value, $book, $copyBookName);
     }
 
     public function splitReversePosition(Operation $operation): self
