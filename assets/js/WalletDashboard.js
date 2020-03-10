@@ -179,19 +179,21 @@ class OperationForm extends SwalForm {
         this.select2StockTemplate = new Select2StockTemplate();
 
         this.disableInputInOperations = {
-            connectivity: [
+            'connectivity': [
                 'stock', 'amount', 'price', 'priceChange', 'priceChangeCommission', 'commission'
             ],
-            interest: [
+            'interest': [
                 'stock', 'amount', 'price', 'priceChange', 'priceChangeCommission', 'commission'
             ],
-            dividend: [
+            'dividend': [
                 'amount', 'commission'
             ],
             'split/reverse': [
                 'commission', 'price', 'priceChange', 'priceChangeCommission', 'commission', 'value'
             ],
-        }
+        };
+
+        this.priceChangeCommission = 0.16;
 
         eventBus.on("entity_operation_created", this.onCreated.bind(this));
     }
@@ -224,13 +226,17 @@ class OperationForm extends SwalForm {
                     $input.prop('disabled', true);
                 }
             }
+
+            if (selected in ['buy', 'sell']) {
+                let $input = $form.find('#priceChangeCommission');
+                $input.value(this.priceChangeCommission);
+            }
         }.bind(this));
 
         if (data) {
             for (const property in data) {
                 let $input = $form.find('#' + property);
 
-                // setting date pickerenable property
                 if (property === 'type') {
                     $input.val(data[property]).change();
 
