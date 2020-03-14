@@ -2,16 +2,15 @@
 
 namespace App\Infrastructure\Storage;
 
-use App\Domain\Market\Stock;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
-use App\Infrastructure\Storage\Market\StockRepository;
+use App\Infrastructure\EventSource\Snapshot;
+use App\Infrastructure\EventSource\SnapshotRepositoryInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMInvalidArgumentException;
 use ReflectionClass;
-
 use ReflectionException;
 
 use function method_exists;
@@ -39,33 +38,55 @@ abstract class Repository
      */
     protected $eventSource;
 
-    public function __construct(EntityManagerInterface $em, EventSourceRepositoryInterface $eventSource)
-    {
+    /**
+     * @var SnapshotRepositoryInterface
+     */
+    private $snapshot;
+
+    public function __construct(
+        EntityManagerInterface $em,
+        EventSourceRepositoryInterface $eventSource,
+        SnapshotRepositoryInterface $snapshot
+    ) {
         $this->em = $em;
         $this->eventSource = $eventSource;
+        $this->snapshot = $snapshot;
     }
 
     /**
-     * @param string $class
+     * @param string $type
      * @param string $id
      *
      * @return mixed object
      * @throws ReflectionException
      */
-    protected function load(string $class, string $id)
+    protected function load(string $type, string $id)
     {
         if (isset($this->loaded[$id])) {
             return $this->loaded[$id];
         }
 
-        $changes = $this->eventSource->findEvents($id, $class);
+        $snapshot = $this->snapshot->load($id, $type);
+
+        if ($snapshot) {
+            $object = $this->deserializeFromSnapshot($snapshot->getData());
+        } else {
+            $object = new $type($id);
+        }
+
+        $changes = $this->eventSource->findEvents($id, $type, $object->getVersion());
         $this->overloadDependencies($changes);
 
-        $object = (new $class($id))->replay($changes);
+        $object->replay($changes);
 
         $object = $this->em->merge($object);
         $this->loaded[$id] = $object;
 
+        return $object;
+    }
+
+    protected function deserializeFromSnapshot($object)
+    {
         return $object;
     }
 
@@ -111,13 +132,21 @@ abstract class Repository
     {
         $changes = $object->getChanges();
         if ($changes && !$changes->isEmpty()) {
-
             $this->em->persist($object);
             $this->em->flush();
 
             $this->unburdenDependencies($changes);
             $this->eventSource->saveEvents($changes);
             $this->em->flush();
+
+            if (!($object->getVersion() % 5)) {
+                $this->snapshot->save(
+                    (new Snapshot($object->getId()))
+                        ->setType(\get_class($object))
+                        ->setVersion($object->getVersion())
+                        ->setData($this->serializeToSnapshot($object))
+                );
+            }
         }
 
         $this->loaded[$object->getId()] = $object;
@@ -146,5 +175,10 @@ abstract class Repository
         }
 
         return $this;
+    }
+
+    protected function serializeToSnapshot($object)
+    {
+        return $object;
     }
 }

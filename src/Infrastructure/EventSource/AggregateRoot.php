@@ -112,6 +112,10 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
      */
     public function replay(array $changes)
     {
+        if (!$this->changes) {
+            $this->changes = new ArrayCollection();
+        }
+
         foreach ($changes as $changed) {
             $this->version = $changed->getAggregateVersion();
             $this->changes->add($changed);

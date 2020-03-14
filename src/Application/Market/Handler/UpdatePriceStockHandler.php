@@ -24,6 +24,8 @@ final class UpdatePriceStockHandler implements MessageHandlerInterface
     {
         $stock = $this->stockRepository->find($message->getId());
 
+        \dump($stock->getVersion());
+
         $price = (new StockPrice())
             ->setPrice($message->getValue())
             ->setChangePrice($message->getChangePrice())
@@ -40,6 +42,8 @@ final class UpdatePriceStockHandler implements MessageHandlerInterface
 
             $this->stockRepository->save($stock);
         }
+
+        \dump($stock->getVersion());
 
         return $stock;
     }

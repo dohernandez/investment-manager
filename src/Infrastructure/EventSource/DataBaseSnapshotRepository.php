@@ -24,10 +24,10 @@ final class DataBaseSnapshotRepository extends ServiceEntityRepository implement
      */
     public function load(string $id, string $type): ?Snapshot
     {
-        return $this->_em->createQueryBuilder('s')
-            ->where('s.id = :id')
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.id = :id')
             ->setParameter('id', $id)
-            ->where('type = :type')
+            ->andWhere('s.type = :type')
             ->setParameter('type', $type)
             ->getQuery()
             ->getOneOrNullResult();

@@ -202,9 +202,11 @@ services:
 
     # Interface
     App\Infrastructure\EventSource\EventSourceRepositoryInterface: '@App\Infrastructure\EventSource\EventSourceRepository'
+    App\Infrastructure\EventSource\SnapshotRepositoryInterface: '@App\Infrastructure\EventSource\DataBaseSnapshotRepository'
 
     # Storage
     App\Infrastructure\EventSource\EventSourceRepository: ~
+    App\Infrastructure\EventSource\DataBaseSnapshotRepository: ~
 
     App\Infrastructure\Storage\ProjectionAccountRepository: ~
     App\Infrastructure\Storage\AccountRepository: ~
