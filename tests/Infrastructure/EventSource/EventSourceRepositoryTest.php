@@ -3,6 +3,7 @@
 namespace App\Tests\Infrastructure\EventSource;
 
 use App\Domain\Account\Account;
+use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\EventSourceRepository;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
@@ -24,6 +25,8 @@ final class EventSourceRepositoryTest extends AppDoctrineKernelTestCase
 
         // implementation of the abstract class AggregateRoot
         $anonymous = new class($aggregateId) extends AggregateRoot {
+            use AggregateRootTypeTrait;
+
             /**
              * @@var string $name
              */

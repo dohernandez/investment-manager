@@ -7,6 +7,7 @@ use App\Domain\Transfer\Event\TransferRegistered;
 use App\Domain\Transfer\Event\TransferRemoved;
 use App\Domain\Transfer\Exception\TransferRemovedException;
 use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Money;
@@ -15,6 +16,8 @@ use DateTime;
 
 final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot
 {
+    use AggregateRootTypeTrait;
+
     /**
      * @var Account
      */

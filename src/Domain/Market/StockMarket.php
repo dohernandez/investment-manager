@@ -4,6 +4,7 @@ namespace App\Domain\Market;
 
 use App\Domain\Market\Event\StockMarketRegistered;
 use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Currency;
@@ -13,6 +14,8 @@ use Symfony\Component\Intl\Countries;
 
 class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
 {
+    use AggregateRootTypeTrait;
+
     /**
      * @var string
      */

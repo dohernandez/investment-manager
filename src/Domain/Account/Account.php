@@ -8,6 +8,7 @@ use App\Domain\Account\Event\AccountDebited;
 use App\Domain\Account\Event\AccountOpened;
 use App\Domain\Account\Exception\AccountClosedException;
 use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
@@ -16,6 +17,8 @@ use DateTime;
 
 class Account extends AggregateRoot
 {
+    use AggregateRootTypeTrait;
+
     /**
      * @var string
      */

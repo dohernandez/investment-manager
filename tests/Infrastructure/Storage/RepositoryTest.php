@@ -44,7 +44,7 @@ class RepositoryTest extends TestCase
 
             public function overload(array $changes): self
             {
-                return $this->overloadDependencies($changes);
+                return $this->overloadChangesDependencies($changes);
             }
         };
 
@@ -149,7 +149,7 @@ class RepositoryTest extends TestCase
 
             public function unburden(ArrayCollection $changes): self
             {
-                return $this->unburdenDependencies($changes);
+                return $this->unburdenChangesDependencies($changes);
             }
         };
 

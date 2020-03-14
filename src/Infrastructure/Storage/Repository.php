@@ -8,6 +8,7 @@ use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
 use App\Infrastructure\EventSource\Snapshot;
 use App\Infrastructure\EventSource\SnapshotRepositoryInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Persistence\Proxy;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMInvalidArgumentException;
 use ReflectionClass;
@@ -74,8 +75,8 @@ abstract class Repository
             $object = new $type($id);
         }
 
-        $changes = $this->eventSource->findEvents($id, $type, $object->getVersion());
-        $this->overloadDependencies($changes);
+        $changes = $this->eventSource->findEvents($id, $type, $snapshot->getVersion());
+        $this->overloadChangesDependencies($changes);
 
         $object->replay($changes);
 
@@ -99,27 +100,55 @@ abstract class Repository
      * @return $this
      * @throws ReflectionException
      */
-    protected function overloadDependencies(array $changes): self
+    protected function overloadChangesDependencies(array $changes): self
     {
         /** @var Changed $change */
         foreach ($changes as $change) {
             $payload = $change->getPayload();
 
-            foreach ($this->dependencies as $property => $class) {
-                if (property_exists($payload, $property)) {
-                    $reflectionClass = new ReflectionClass(get_class($payload));
-                    $reflectionProperty = $reflectionClass->getProperty($property);
-                    $reflectionProperty->setAccessible(true);
+            $this->overloadDependencies($payload, $this->dependencies);
+        }
 
-                    $value = $reflectionProperty->getValue($payload);
-                    if ($value) {
-                        try {
-                            $value = $this->em->find($class, $value);
-                        } catch (ORMInvalidArgumentException $e) {
-                            continue;
-                        }
+        return $this;
+    }
 
-                        $reflectionProperty->setValue($payload, $value);
+    /**
+     * @param $object
+     * @param array $dependencies [property => class]
+     *
+     * @return $this
+     * @throws ReflectionException
+     */
+    protected function overloadDependencies($object, array $dependencies): self
+    {
+        if (empty($dependencies)) {
+            return $this;
+        }
+
+        $reflect = new ReflectionClass(get_class($object));
+        // This gets the real object, the one that the Doctrine\Common\Persistence\Proxy extends
+        if ($object instanceof Proxy) {
+            $reflect = $reflect->getParentClass();
+        }
+
+        foreach ($dependencies as $property => $class) {
+            $reflectionProperty = null;
+            if ($reflect->hasProperty($property)) {
+                $reflectionProperty = $reflect->getProperty($property);
+            } elseif ($reflect->getParentClass() && $reflect->getParentClass()->hasProperty($property)) {
+                $reflectionProperty = $reflect->getParentClass()->getProperty($property);
+            }
+
+            if($reflectionProperty) {
+                $reflectionProperty->setAccessible(true);
+
+                $value = $reflectionProperty->getValue($object);
+                if ($value && !$value instanceof \ArrayAccess) {
+                    try {
+                        $value = $this->em->find($class, $value);
+                        $reflectionProperty->setValue($object, $value);
+                    } catch (ORMInvalidArgumentException $e) {
+                        continue;
                     }
                 }
             }
@@ -135,14 +164,14 @@ abstract class Repository
             $this->em->persist($object);
             $this->em->flush();
 
-            $this->unburdenDependencies($changes);
+            $this->unburdenChangesDependencies($changes);
             $this->eventSource->saveEvents($changes);
             $this->em->flush();
 
             if (!($object->getVersion() % 5)) {
                 $this->snapshot->save(
                     (new Snapshot($object->getId()))
-                        ->setType(\get_class($object))
+                        ->setType($object->getAggregateType())
                         ->setVersion($object->getVersion())
                         ->setData($this->serializeToSnapshot($object))
                 );
@@ -152,25 +181,57 @@ abstract class Repository
         $this->loaded[$object->getId()] = $object;
     }
 
-    protected function unburdenDependencies(ArrayCollection $changes): self
+    protected function unburdenChangesDependencies(ArrayCollection $changes): self
     {
         /** @var Changed $change */
         foreach ($changes as $change) {
             $payload = $change->getPayload();
 
-            foreach ($this->dependencies as $property => $class) {
-                if (property_exists($payload, $property)) {
-                    $reflectionClass = new ReflectionClass(get_class($payload));
-                    $reflectionProperty = $reflectionClass->getProperty($property);
-                    $reflectionProperty->setAccessible(true);
+            $this->unburdenDependencies($payload, $this->dependencies);
+        }
 
-                    $value = $reflectionProperty->getValue($payload);
-                    if ($value && method_exists($value, 'getId')) {
-                        $value = new $class($value->getId());
+        return $this;
+    }
 
-                        $reflectionProperty->setValue($payload, $value);
-                    }
+    /**
+     * @param $object
+     * @param array $dependencies [property => class]
+     *
+     * @return $this
+     * @throws ReflectionException
+     */
+    protected function unburdenDependencies($object, array $dependencies): self
+    {
+        if (empty($dependencies)) {
+            return $this;
+        }
+
+        $reflect = new ReflectionClass(get_class($object));
+        // This gets the real object, the one that the Proxy extends
+        if ($object instanceof Proxy) {
+            $reflect = $reflect->getParentClass();
+        }
+
+        foreach ($dependencies as $property => $class) {
+            $reflectionProperty = null;
+            if ($reflect->hasProperty($property)) {
+                $reflectionProperty = $reflect->getProperty($property);
+            } elseif ($reflect->getParentClass() && $reflect->getParentClass()->hasProperty($property)) {
+                $reflectionProperty = $reflect->getParentClass()->getProperty($property);
+            }
+
+            if($reflectionProperty) {
+                $reflectionProperty->setAccessible(true);
+
+                $value = $reflectionProperty->getValue($object);
+
+                if ($value && method_exists($value, 'getId')) {
+                    $value = new $class($value->getId());
+                } else {
+                    $value = new $class();
                 }
+
+                $reflectionProperty->setValue($object, $value);
             }
         }
 

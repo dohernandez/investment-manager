@@ -8,6 +8,7 @@ use App\Domain\Market\Event\StockDividendSynched;
 use App\Domain\Market\Event\StockPriceUpdated;
 use App\Domain\Market\Event\StockUpdated;
 use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Currency;
@@ -19,6 +20,8 @@ use InvalidArgumentException;
 
 class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 {
+    use AggregateRootTypeTrait;
+
     public function __construct(string $id)
     {
         parent::__construct($id);

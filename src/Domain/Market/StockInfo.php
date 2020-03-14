@@ -4,6 +4,7 @@ namespace App\Domain\Market;
 
 use App\Domain\Market\Event\StockInfoAdded;
 use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\UUID;
@@ -14,6 +15,8 @@ class StockInfo extends AggregateRoot implements EventSourcedAggregateRoot
     public const TYPE = 'type';
     public const SECTOR = 'sector';
     public const INDUSTRY = 'industry';
+
+    use AggregateRootTypeTrait;
 
     /**
      * @var string

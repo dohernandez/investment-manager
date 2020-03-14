@@ -15,6 +15,7 @@ use App\Domain\Wallet\Event\WalletSellOperationUpdated;
 use App\Domain\Wallet\Event\WalletCapitalUpdated;
 use App\Infrastructure\Date\Date;
 use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Currency;
@@ -25,6 +26,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 {
+    use AggregateRootTypeTrait;
+
     public function __construct(string $id)
     {
         parent::__construct($id);

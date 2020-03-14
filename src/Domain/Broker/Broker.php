@@ -5,6 +5,7 @@ namespace App\Domain\Broker;
 use App\Domain\Broker\Event\BrokerChanged;
 use App\Domain\Broker\Event\BrokerRegistered;
 use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Currency;
@@ -13,6 +14,8 @@ use DateTime;
 
 class Broker extends AggregateRoot implements EventSourcedAggregateRoot
 {
+    use AggregateRootTypeTrait;
+
     /**
      * @var string
      */

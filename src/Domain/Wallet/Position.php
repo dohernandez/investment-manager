@@ -13,6 +13,7 @@ use App\Domain\Wallet\Event\PositionStockDividendUpdated;
 use App\Domain\Wallet\Event\PositionStockPriceUpdated;
 use App\Infrastructure\Date\Date;
 use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Money;
@@ -27,6 +28,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 {
     public const STATUS_OPEN = 'open';
     public const STATUS_CLOSE = 'close';
+
+    use AggregateRootTypeTrait;
 
     public function __construct(string $id)
     {

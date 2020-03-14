@@ -68,7 +68,7 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
             get_class($event),
             $event,
             new Metadata(),
-            get_class($this),
+            $this->getAggregateType(),
             $this->id,
             $this->getVersion()
         );
@@ -149,4 +149,10 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
         $changed = $iterator->current();
         return $changed->getEventName() === $type ? $changed : null;
     }
+
+    /**
+     * This function is required in the aggregate root because when the object is merged with in
+     * the entity manage, the class is changed to a Proxies\__CG__ giving a wrong aggregate type.
+     */
+     abstract public function getAggregateType(): string;
 }

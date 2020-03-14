@@ -10,6 +10,7 @@ use App\Domain\Wallet\Event\InterestOperationRegistered;
 use App\Domain\Wallet\Event\SellOperationRegistered;
 use App\Domain\Wallet\Event\SplitReverseOperationRegistered;
 use App\Infrastructure\EventSource\AggregateRoot;
+use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Money;
@@ -46,6 +47,8 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         self::TYPE_SPLIT_REVERSE,
         self::TYPE_DIVIDEND,
     ];
+
+    use AggregateRootTypeTrait;
 
     /**
      * @var Stock|null
