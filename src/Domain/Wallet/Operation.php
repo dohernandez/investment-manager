@@ -7,6 +7,7 @@ use App\Domain\Wallet\Event\BuySellOperationRegistered;
 use App\Domain\Wallet\Event\ConnectivityOperationRegistered;
 use App\Domain\Wallet\Event\DividendOperationRegistered;
 use App\Domain\Wallet\Event\InterestOperationRegistered;
+use App\Domain\Wallet\Event\OperationPriceFixed;
 use App\Domain\Wallet\Event\SellOperationRegistered;
 use App\Domain\Wallet\Event\SplitReverseOperationRegistered;
 use App\Infrastructure\EventSource\AggregateRoot;
@@ -395,16 +396,47 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
         return $self;
     }
 
+    public function fixPrice(Money $price, $toUpdateAt = 'now'): self
+    {
+        $toUpdateAt = new DateTime($toUpdateAt);
+
+        if ($changed = $this->findIfLastChangeHappenedIsName(OperationPriceFixed::class)) {
+            // This is to avoid have too much update events.
+            $this->replaceChangedPayload(
+                $changed,
+                new OperationPriceFixed(
+                    $this->id,
+                    $price,
+                    $toUpdateAt
+                ),
+                clone $toUpdateAt
+            );
+
+            return $this;
+        }
+
+        $this->recordChange(
+            new OperationPriceFixed(
+                $this->id,
+                $price,
+                $toUpdateAt
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         $event = $changed->getPayload();
-
-        $this->wallet = $event->getWallet();
-        $this->dateAt = $event->getDateAt();
-        $this->type = $event->getType();
-
-        $this->createdAt = $changed->getCreatedAt();
         $this->updatedAt = $changed->getCreatedAt();
+
+        if ($changed->getEventName() !== OperationPriceFixed::class) {
+            $this->wallet = $event->getWallet();
+            $this->type = $event->getType();
+            $this->dateAt = $event->getDateAt();
+            $this->createdAt = $changed->getCreatedAt();
+        }
 
         switch ($changed->getEventName()) {
             case BuyOperationRegistered::class:
@@ -450,6 +482,13 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->stockId = $this->stock->getId();
                 $this->amount = $event->getAmount();
                 $this->exchangeMoneyRate = $event->getRate();
+
+                break;
+
+            case OperationPriceFixed::class:
+                /** @var OperationPriceFixed $event */
+
+                $this->price = $event->getPrice();
 
                 break;
         }

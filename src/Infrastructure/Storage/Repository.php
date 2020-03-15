@@ -11,11 +11,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\Proxy;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMInvalidArgumentException;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
 
 use function array_merge;
+use function get_class;
 use function method_exists;
+use function sprintf;
 
 abstract class Repository
 {
@@ -70,6 +73,7 @@ abstract class Repository
      *
      * @return mixed object
      * @throws ReflectionException
+     * @throws \Doctrine\ORM\ORMException
      */
     protected function load(string $type, string $id)
     {
@@ -80,9 +84,9 @@ abstract class Repository
         $snapshot = $this->snapshot->load($id, $type);
 
         if ($snapshot) {
-            $object = $this->deserializeFromSnapshot($snapshot->getData());
+            $object = $this->getReference($type, $id, $this->deserializeFromSnapshot($snapshot->getData()));
         } else {
-            $object = new $type($id);
+            $object = $this->getReference($type, $id, new $type($id));
         }
 
         $changes = $this->eventSource->findEvents($id, $type, $object->getVersion());
@@ -90,7 +94,6 @@ abstract class Repository
 
         $object->replay($changes);
 
-        $object = $this->em->merge($object);
         $this->loaded[$id] = $object;
 
         return $object;
@@ -103,6 +106,56 @@ abstract class Repository
         $this->overloadDependencies($serialize, $this->serializeDependencies);
 
         return $serialize;
+    }
+
+    protected function getReference(string $type, string $id, AggregateRoot $data)
+    {
+        $object = $this->em->getReference($type, $id);
+        $this->em->refresh($object);
+        if (get_class($object) !== get_class($data)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Reference type %s is different than data type %s',
+                    get_class($object),
+                    get_class($data)
+                )
+            );
+        }
+
+        $reflect = $this->getAggregateRootReflect($object);
+        $dataReflect = $this->getAggregateRootReflect($data);
+
+        /** @var  $property */
+        foreach ($dataReflect->getProperties() as $property) {
+            if ($reflect->hasProperty($property->getName())) {
+                $reflectionProperty = $reflect->getProperty($property->getName());
+                $property->setAccessible(true);
+                $reflectionProperty->setAccessible(true);
+                $reflectionProperty->setValue($object, $property->getValue($data));
+            }
+        }
+
+        foreach ($dataReflect->getParentClass()->getProperties() as $property) {
+            if ($property->getName() !== 'id' && $reflect->getParentClass()->hasProperty($property->getName())) {
+                $reflectionProperty = $reflect->getParentClass()->getProperty($property->getName());
+                $property->setAccessible(true);
+                $reflectionProperty->setAccessible(true);
+                $reflectionProperty->setValue($object, $property->getValue($data));
+            }
+        }
+
+        return $object;
+    }
+
+    private function getAggregateRootReflect(AggregateRoot $object): ReflectionClass
+    {
+        $reflect = new ReflectionClass(get_class($object));
+        // This gets the real object, the one that the Doctrine\Common\Persistence\Proxy extends
+        if ($object instanceof Proxy) {
+            $reflect = $reflect->getParentClass();
+        }
+
+        return $reflect;
     }
 
     /**
@@ -194,6 +247,19 @@ abstract class Repository
 
         $this->loaded[$object->getId()] = $object;
     }
+
+//    protected function persistProjection(AggregateRoot $object)
+//    {
+//        $projection = $this->em->find($object->getAggregateType(), $object->getId());
+//        if (!$projection) {
+//            $projection = clone $object;
+//        } else {
+//
+//        }
+//
+//        $this->em->persist($projection);
+//        $this->em->flush();
+//    }
 
     protected function unburdenChangesDependencies(ArrayCollection $changes): self
     {
