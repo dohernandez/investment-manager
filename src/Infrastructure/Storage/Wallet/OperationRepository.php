@@ -17,6 +17,14 @@ final class OperationRepository extends Repository implements OperationRepositor
         'wallet' => Wallet::class,
     ];
 
+    /**
+     * @inherent
+     */
+    protected $serializeDependencies = [
+        'wallet' => Wallet::class,
+        'position' => Position::class,
+    ];
+
     public function find(string $id): Operation
     {
         return $this->load(Operation::class, $id);

@@ -6,6 +6,7 @@ use App\Application\Wallet\Repository\WalletRepositoryInterface;
 use App\Domain\Wallet\Wallet;
 use App\Domain\Wallet\WalletBook;
 use App\Infrastructure\Storage\Repository;
+use Doctrine\Common\Collections\ArrayCollection;
 
 final class WalletRepository extends Repository implements WalletRepositoryInterface
 {
@@ -14,6 +15,15 @@ final class WalletRepository extends Repository implements WalletRepositoryInter
      */
     protected $dependencies = [
         'book' => WalletBook::class,
+    ];
+
+    /**
+     * @inherent
+     */
+    protected $serializeDependencies = [
+        'book' => WalletBook::class,
+        'positions'   => ArrayCollection::class,
+        'operations'   => ArrayCollection::class,
     ];
 
     public function find(string $id): Wallet

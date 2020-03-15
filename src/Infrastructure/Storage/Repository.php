@@ -14,6 +14,7 @@ use Doctrine\ORM\ORMInvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
 
+use function array_merge;
 use function method_exists;
 
 abstract class Repository
@@ -25,9 +26,18 @@ abstract class Repository
     private $loaded;
 
     /**
+     * Properties have to be unburden before store them in the event source table.
+     *
      * @var array [property => class]
      */
     protected $dependencies = [];
+
+    /**
+     * Properties have to be unburden during serialize for snapshot.
+     *
+     * @var array [property => class]
+     */
+    protected $serializeDependencies = [];
 
     /**
      * @var EntityManagerInterface
@@ -75,7 +85,7 @@ abstract class Repository
             $object = new $type($id);
         }
 
-        $changes = $this->eventSource->findEvents($id, $type, $snapshot->getVersion());
+        $changes = $this->eventSource->findEvents($id, $type, $object->getVersion());
         $this->overloadChangesDependencies($changes);
 
         $object->replay($changes);
@@ -88,7 +98,11 @@ abstract class Repository
 
     protected function deserializeFromSnapshot($object)
     {
-        return $object;
+        $serialize = clone $object;
+
+        $this->overloadDependencies($serialize, $this->serializeDependencies);
+
+        return $serialize;
     }
 
     /**
@@ -119,7 +133,7 @@ abstract class Repository
      * @return $this
      * @throws ReflectionException
      */
-    protected function overloadDependencies($object, array $dependencies): self
+    private function overloadDependencies($object, array $dependencies): self
     {
         if (empty($dependencies)) {
             return $this;
@@ -143,7 +157,7 @@ abstract class Repository
                 $reflectionProperty->setAccessible(true);
 
                 $value = $reflectionProperty->getValue($object);
-                if ($value && !$value instanceof \ArrayAccess) {
+                if ($value && !$value instanceof ArrayCollection) {
                     try {
                         $value = $this->em->find($class, $value);
                         $reflectionProperty->setValue($object, $value);
@@ -200,7 +214,7 @@ abstract class Repository
      * @return $this
      * @throws ReflectionException
      */
-    protected function unburdenDependencies($object, array $dependencies): self
+    private function unburdenDependencies($object, array $dependencies): self
     {
         if (empty($dependencies)) {
             return $this;
@@ -224,10 +238,9 @@ abstract class Repository
                 $reflectionProperty->setAccessible(true);
 
                 $value = $reflectionProperty->getValue($object);
-
                 if ($value && method_exists($value, 'getId')) {
                     $value = new $class($value->getId());
-                } else {
+                } elseif ($value instanceof ArrayCollection) {
                     $value = new $class();
                 }
 
@@ -240,6 +253,13 @@ abstract class Repository
 
     protected function serializeToSnapshot($object)
     {
-        return $object;
+        $serialize = clone $object;
+
+        $this->unburdenDependencies(
+            $serialize,
+            array_merge($this->serializeDependencies, ['changes' => ArrayCollection::class])
+        );
+
+        return $serialize;
     }
 }

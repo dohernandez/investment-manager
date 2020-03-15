@@ -28,6 +28,20 @@ final class StockRepository extends Repository implements StockRepositoryInterfa
         'toPayDividend' => StockDividend::class,
     ];
 
+    /**
+     * @inherent
+     */
+    protected $serializeDependencies = [
+        'market'        => StockMarket::class,
+        'type'          => StockInfo::class,
+        'sector'        => StockInfo::class,
+        'industry'      => StockInfo::class,
+        'price'         => StockPrice::class,
+        'nextDividend'  => StockDividend::class,
+        'toPayDividend' => StockDividend::class,
+        'dividends' => ArrayCollection::class,
+    ];
+
     public function find(string $id): Stock
     {
         return $this->load(Stock::class, $id);
@@ -37,32 +51,4 @@ final class StockRepository extends Repository implements StockRepositoryInterfa
     {
         $this->store($stock);
     }
-
-    protected function serializeToSnapshot($object)
-    {
-        $serialize = clone $object;
-
-        $this->unburdenDependencies(
-            $serialize,
-            array_merge(
-                $this->dependencies,
-                [
-                    'changes'   => ArrayCollection::class,
-                    'dividends' => ArrayCollection::class,
-                ]
-            )
-        );
-
-        return $serialize;
-    }
-
-    protected function deserializeFromSnapshot($object)
-    {
-        $serialize = clone $object;
-
-        $this->overloadDependencies($serialize, $this->dependencies);
-
-        return $serialize;
-    }
-
 }
