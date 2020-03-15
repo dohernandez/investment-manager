@@ -120,6 +120,7 @@
 
             operationPanelTable.addButton(createOperationButton);
             positionPanelTable.addButton(createOperationButton);
+            appendPositionButtons(positionPanelTable, createOperationButton.getForm(), createOperationButton.getUrl(), createOperationEventName);
 
             let panel = new WalletDashboard(
                 walletId,

@@ -249,6 +249,48 @@ class WrapperPositionDividendPanel {
     }
 }
 
+class PositionOperationRowButton extends RowButton {
+    /**
+     *
+     * @param form {Object}
+     * @param swalOptions {Object}
+     * @param type {string}
+     * @param url {string}
+     * @param eventName {string}
+     */
+    constructor(form, swalOptions, type, url, eventName) {
+        super('.js-position-' + type, function (e) {
+            e.preventDefault();
+
+            // find entity to edit
+            const $row = $(e.currentTarget).closest('tr');
+            const id = $row.data('id');
+
+            let entity = this.table.getRecord(id);
+            let amount = entity.amount;
+
+            entity.type = type;
+            if (type === 'buy' || type == 'dividend') {
+                entity.amount = '';
+            }
+
+            return form.display(swalOptions, url, 'create', entity)
+                .then((result) => {
+                    if (result.value) {
+                        let entity = result.value.item;
+
+                        eventBus.emit(eventName, null, entity);
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === 'cancel' || result.dismiss === 'close'
+                    ) {
+                        entity.amount = amount;
+                    }
+                });
+        });
+    }
+}
+
 class PositionDividendForm extends SwalForm {
     constructor(swalOptions, table, template = '#js-panel-form-template', selector = '.js-entity-from') {
         super(swalOptions, template, selector);
@@ -499,6 +541,7 @@ class OperationForm extends SwalForm {
 }
 
 global.WalletDashboard = WalletDashboard;
+global.PositionOperationRowButton = PositionOperationRowButton;
 global.PositionDividendForm = PositionDividendForm;
 global.PositionDividendRowButton = PositionDividendRowButton;
 global.OperationForm = OperationForm;

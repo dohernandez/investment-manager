@@ -182,7 +182,28 @@ final class DashboardView
                 ],
             ],
 
-            'buttons' => [],
+            'buttons' => [
+//                [
+//                    'type' => 'secondary',
+//                    'jsClass' => 'js-stock-note',
+//                    'icon' => 'far fa-sticky-note',
+//                ],
+                [
+                    'type' => 'warning',
+                    'jsClass' => 'js-position-dividend',
+                    'icon' => 'fas fa-donate',
+                ],
+                [
+                    'type' => 'success',
+                    'jsClass' => 'js-position-buy',
+                    'icon' => 'fas fa-bold',
+                ],
+                [
+                    'type' => 'danger',
+                    'jsClass' => 'js-position-sell',
+                    'icon' => 'fab fa-stripe-s',
+                ],
+            ],
 
             'stock_note' => [
                 'entity_name' => 'stock note',
@@ -277,7 +298,7 @@ final class DashboardView
                     ],
                     [
                         'name'        => 'exDate',
-                        'label'       => 'Payment Date',
+                        'label'       => 'Ex Date',
                         'render'      => 'date',
                         'date_format' => 'DD/MM/YYYY',
                         // moment date format https://momentjs.com/docs/#/displaying/format/

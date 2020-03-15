@@ -37,4 +37,28 @@
             }
         });
     }
+
+    function appendPositionButtons(positionPanelTable, form, url, eventName) {
+        const swalOptionsCreateOperation = {
+            options: window.OperationswalOptions.editView,
+            onBeforeOpen: form.onBeforeOpenEditView.bind(form),
+            confirmButtonText: window.OperationswalOptions.text.create.confirmButtonText,
+            titleText: window.OperationswalOptions.text.create.titleText,
+            confirmTitleText: window.OperationswalOptions.text.create.confirmTitleText,
+        };
+
+        $.each(['dividend', 'buy', 'sell'], function (index, type) {
+            positionPanelTable.addRowButton(
+                new PositionOperationRowButton(
+                    form,
+                    swalOptionsCreateOperation,
+                    type,
+                    url,
+                    eventName
+                )
+            );
+        });
+
+        return positionPanelTable;
+    }
 </script>
