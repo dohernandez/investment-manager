@@ -46,6 +46,8 @@ class CreateButton extends Button {
         $wrapper.find(this.container)
             .append($button);
 
+        this._$button = $button;
+
         this.register($wrapper);
     }
 
@@ -54,7 +56,7 @@ class CreateButton extends Button {
     }
 
     getUrl() {
-        return this.url;
+        return this.url();
     }
 }
 

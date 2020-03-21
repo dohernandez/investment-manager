@@ -10,6 +10,7 @@ class Button {
         this.handler = handler;
 
         this._width = width;
+        this._$button = null;
     }
 
     /**
@@ -21,6 +22,8 @@ class Button {
 
         $wrapper.find(this.container)
             .append($button);
+
+        this._$button = $button;
 
         this.register($wrapper);
     }
@@ -41,6 +44,12 @@ class Button {
 
     get width() {
         return this._width
+    }
+
+    click() {
+        if (this._$button) {
+            this._$button.click();
+        }
     }
 }
 

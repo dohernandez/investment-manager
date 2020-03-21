@@ -32,7 +32,8 @@ class ViewRowButton extends RowButton {
                 html,
                 title,
                 onBeforeOpen: () => {
-                    form.onBeforeOpenPreview(entity);
+                    const $modal = $(swalView.getContainer()).find('.swal2-modal');
+                    form.onBeforeOpenPreview(entity, $modal);
                 },
             });
         });
