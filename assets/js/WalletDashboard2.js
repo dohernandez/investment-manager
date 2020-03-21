@@ -218,13 +218,14 @@ class WrapperPositionDividendPanel {
     setData(result) {
         this.dividendPanel.setData(result);
 
+        const today = new Date();
         let comingDividend = {'items': result.items.filter(function (position) {
-            return position.exDate !== null;
+            return position.exDate !== null &&  new Date(position.exDate) >= today;
         })};
         this.positionComingDividendPanel.setData(comingDividend);
 
         let toPayDividend = {'items': result.items.filter(function (position) {
-            return position.toPayDate !== null;
+            return position.toPayDate !== null &&  new Date(position.toPayDate) >= today;
         })};
         this.toPayDividendPanel.setData(toPayDividend);
     }
