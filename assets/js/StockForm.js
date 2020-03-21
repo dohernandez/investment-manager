@@ -293,6 +293,7 @@ class StockForm extends SwalForm {
     }
 
     preview(title, data = null) {
+        console.log(data);
         let html = Template.compile(this.templateView, data);
 
         // Swal form modal
@@ -409,9 +410,11 @@ class StockForm extends SwalForm {
 }
 
 class StockOperationForm extends OperationForm {
-    constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
-        super(swalOptions, table, template, selector);
+    constructor(swalOptions, url, template = '#js-table-form-template', selector = '.js-entity-from') {
+        super(swalOptions, null, template, selector);
 
+        // function to get the url
+        this.url = url;
         this.select2WalletTemplate = new Select2WalletTemplate();
     }
     /**
@@ -470,8 +473,21 @@ class StockOperationForm extends OperationForm {
             });
         });
     }
+
+    preConfirm($wrapper, url, method) {
+        const $form = $wrapper.find(this.selector);
+
+        let $type = $form.find('#type');
+        $type.prop('disabled', false);
+
+        let $stock = $form.find('#stock');
+        $stock.prop('disabled', false);
+
+        let $wallet = $form.find('#wallet');
+        return super.preConfirm($wrapper, this.url($wallet.val()), method, ['wallet']);
+    }
 }
 
 global.StockForm = StockForm;
-global.OperationForm = StockOperationForm;
+global.StockOperationForm = StockOperationForm;
 

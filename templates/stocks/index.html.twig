@@ -128,9 +128,14 @@
             panelTable.addRowButton(viewRowButton);
 
             // Buy|Sell operation
-            const operationform = new OperationForm(
+            const operationform = new StockOperationForm(
                 window.OperationswalOptions,
-                null,
+                function (walletId) {
+                    return Routing.generate(
+                        'wallet_operation_new',
+                        {'walletId': walletId }
+                    )
+                },
                 '#js-panel-operation-form-template',
             );
             form.setOperationForm(operationform);
