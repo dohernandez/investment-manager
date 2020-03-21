@@ -17,6 +17,12 @@
 
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
 
+    {% include 'Components/Form/swal-from-html.twig' with {
+        'swalOptionsVariablePrefix': 'Operation',
+        'entity_name': 'Operation',
+        'form': operation.form,
+    }%}
+
     <script src="{{ asset('build/stock_form.js') }}"></script>
     <script src="{{ asset('build/stock_panel_table.js') }}"></script>
 
