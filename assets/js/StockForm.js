@@ -6,13 +6,13 @@ import Select2StockInfoTemplate from './Components/Select2StockInfoTemplate';
 import Slider from 'bootstrap-slider';
 import Routing from './Components/Routing';
 import InvestmentManagerClient from "./Components/InvestmentManagerClient";
-
 import $ from 'jquery';
-
 import 'select2';
-
 import './../css/StockForm.scss';
 import './../css/StockView.scss';
+import OperationForm from "./OperationForm";
+import Template from "./Components/Template";
+import Swal from 'sweetalert2';
 
 const eventBus = require('js-event-bus')();
 
@@ -20,7 +20,13 @@ const eventBus = require('js-event-bus')();
  * Form manage how the stock form should be build when a crud manager invokes a create or an update action.
  */
 class StockForm extends SwalForm {
-    constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
+    constructor(
+        swalOptions,
+        table,
+        template = '#js-table-form-template',
+        selector = '.js-entity-from',
+        templateView = '#js-view-template'
+    ) {
         super(swalOptions, template, selector);
 
         this.table = table;
@@ -35,6 +41,9 @@ class StockForm extends SwalForm {
         eventBus.on("entity_updated", this.onUpdated.bind(this));
         eventBus.on("entity_deleted", this.onDeleted.bind(this));
 
+        this.templateView = templateView;
+
+        this.operationForm = null;
     }
 
     /**
@@ -282,6 +291,21 @@ class StockForm extends SwalForm {
         }
     }
 
+    preview(title, data = null) {
+        let html = Template.compile(this.templateView, data);
+
+        // Swal form modal
+        const swalView = Swal.mixin(this.swalOptions.previewView);
+        swalView.fire({
+            html,
+            title,
+            onBeforeOpen: () => {
+                const $modal = $(swalView.getContainer()).find('.swal2-modal');
+                this.onBeforeOpenPreview(data, $modal);
+            },
+        });
+    }
+
     /**
      * Callback function when data is preview
      *
@@ -289,13 +313,74 @@ class StockForm extends SwalForm {
      *
      * @param {Object} data
      */
-    onBeforeOpenPreview(data) {
+    onBeforeOpenPreview(data, $wrapper) {
         let sliderDay = new Slider('#low-high-day-price', {
             precision: 3
         });
         let sliderWeek = new Slider('#low-high-52-week-price', {
             precision: 3
         });
+
+        // console.log($wrapper.find('.stock-buttons-block'));
+        const swalOptionsOperation = {
+            options: this.operationForm.swalOptions.editView,
+            onBeforeOpen: this.operationForm.onBeforeOpenEditView.bind(this.operationForm),
+            confirmButtonText: this.operationForm.swalOptions.text.create.confirmButtonText,
+            titleText: this.operationForm.swalOptions.text.create.titleText,
+            confirmTitleText: this.operationForm.swalOptions.text.create.confirmTitleText,
+            onClose: function () {
+                const title = data.title;
+
+                this.preview(title, data);
+            }.bind(this)
+        };
+
+        $wrapper.on(
+            'click',
+            '.js-stock-buy',
+            function (e) {
+                e.preventDefault();
+
+                let entity = {
+                    stock: {
+                        id: data.id,
+                        title: data.title,
+                    },
+                    type: 'buy',
+                };
+                return this.operationForm.display(swalOptionsOperation, 'url', 'create', entity)
+                    .then((result) => {
+                        // console.log(result);
+                    });
+            }.bind(this)
+        );
+
+        $wrapper.on(
+            'click',
+            '.js-stock-sell',
+            function (e) {
+                e.preventDefault();
+                if (!this.operationForm) {
+                    console.log('click button sell');
+                    console.log(data.id, 'sell', data.title);
+
+                    return;
+                }
+
+                let entity = {
+                    stock: {
+                        id: data.id,
+                        title: data.title,
+                    },
+                    type: 'sell',
+                };
+
+                return this.operationForm.display(swalOptionsOperation, 'url', 'create', entity)
+                    .then((result) => {
+                        // console.log(result);
+                    });
+            }.bind(this)
+        );
     }
 
     onCreated(entity) {
@@ -316,7 +401,12 @@ class StockForm extends SwalForm {
             this.table.replaceRecord(entity, entity.id);
         });
     }
+
+    setOperationForm(form) {
+        this.operationForm = form;
+    }
 }
 
 global.StockForm = StockForm;
+global.OperationForm = OperationForm;
 

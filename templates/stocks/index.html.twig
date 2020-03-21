@@ -71,8 +71,23 @@
                 },
             });
 
+            let swalOptions = window.swalOptions;
+            // preview swal option
+            swalOptions.previewView = {
+                customClass: {
+                    title: 'swal2-form-title',
+                    content: 'swal2-form-content',
+                },
+                showConfirmButton: false,
+                buttonsStyling: false,
+                width: 700,
+                allowEscapeKey: true,
+                allowOutsideClick: true,
+                showCloseButton: true,
+                position: 'top',
+            };
             const form = new StockForm(
-                window.swalOptions,
+                swalOptions,
                 panelTable,
                 '#js-panel-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
             );
@@ -106,26 +121,19 @@
             );
             panelTable.addRowButton(deleteRowButton);
 
-            let swalOptions = {
-                customClass: {
-                    title: 'swal2-form-title',
-                    content: 'swal2-form-content',
-                },
-                showConfirmButton: false,
-                buttonsStyling: false,
-                width: 700,
-                allowEscapeKey: true,
-                allowOutsideClick: true,
-                showCloseButton: true,
-                position: 'top',
-            };
-
             const viewRowButton = new ViewRowButton(
                 form,
                 '.js-entity-view',
-                swalOptions,
             );
             panelTable.addRowButton(viewRowButton);
+
+            // Buy|Sell operation
+            const operationform = new OperationForm(
+                window.OperationswalOptions,
+                null,
+                '#js-panel-operation-form-template',
+            );
+            form.setOperationForm(operationform);
 
             // Dividend dialog
             const dividendAwalOptions = swalOptions = {

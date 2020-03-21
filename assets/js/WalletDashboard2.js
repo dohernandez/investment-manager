@@ -5,11 +5,9 @@ import Routing from './Components/Routing';
 import InvestmentManagerClient from './Components/InvestmentManagerClient';
 import 'canvasjs/dist/canvasjs';
 import 'select2';
-import 'eonasdan-bootstrap-datetimepicker';
 import './../css/Select2.scss';
 import './../css/WalletDashboard.scss';
 import SwalForm from "./Components/SwalForm";
-import Select2StockTemplate from "./Components/Select2StockTemplate";
 import RowButton from "./Components/RowButton";
 import OperationForm from "./OperationForm";
 

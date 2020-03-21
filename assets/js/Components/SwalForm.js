@@ -84,6 +84,13 @@ class SwalForm {
 
                 return this.preConfirm($modal, url, method);
             },
+            onClose: () => {
+                const $modal = $(swalForm.getContainer()).find('.swal2-modal');
+
+                if (swalOptions.onClose) {
+                    return swalOptions.onClose($modal);
+                }
+            },
         }).then((result) => {
             // Show popup with success message
             if (result.value) {

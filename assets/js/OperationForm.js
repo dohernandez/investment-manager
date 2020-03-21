@@ -2,7 +2,9 @@
 
 import SwalForm from "./Components/SwalForm";
 import Select2StockTemplate from "./Components/Select2StockTemplate";
-import Button from "./Components/Button";
+import 'eonasdan-bootstrap-datetimepicker';
+
+const eventBus = require('js-event-bus')();
 
 class OperationForm extends SwalForm {
     constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
@@ -151,7 +153,9 @@ class OperationForm extends SwalForm {
     }
 
     onCreated(entity) {
-        this.table.addRecord(entity);
+        if (this.table) {
+            this.table.addRecord(entity);
+        }
     }
 }
 

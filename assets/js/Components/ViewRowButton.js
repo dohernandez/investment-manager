@@ -1,8 +1,6 @@
 'use strict';
 
 import RowButton from "./RowButton";
-import Swal from 'sweetalert2';
-import Template from "./Template";
 
 import $ from 'jquery';
 
@@ -12,7 +10,7 @@ class ViewRowButton extends RowButton {
      * @param form {Object}
      * @param selector {string}
      */
-    constructor(form, selector, swalOptions, template = '#js-view-template') {
+    constructor(form, selector) {
         super(selector, function (e) {
             e.preventDefault();
 
@@ -23,19 +21,8 @@ class ViewRowButton extends RowButton {
             const id = $row.data('id');
 
             let entity = this.table.getRecord(id);
-            let html = Template.compile(template, entity);
 
-            // Swal form modal
-            const swalView = Swal.mixin(swalOptions);
-
-            return swalView.fire({
-                html,
-                title,
-                onBeforeOpen: () => {
-                    const $modal = $(swalView.getContainer()).find('.swal2-modal');
-                    form.onBeforeOpenPreview(entity, $modal);
-                },
-            });
+            return form.preview(title, entity);
         });
     }
 }
