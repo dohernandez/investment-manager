@@ -4,7 +4,7 @@ namespace App\Presentation\View\Market\Stock;
 
 use App\Domain\Market\Stock;
 use App\Presentation\Form\Market\CreateStockType;
-use App\Presentation\Form\Wallet\CreateOperationType;
+use App\Presentation\Form\Market\CreateOperationType;
 use App\Presentation\View\AbstractView;
 
 final class IndexView extends AbstractView

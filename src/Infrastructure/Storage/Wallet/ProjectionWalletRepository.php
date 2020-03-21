@@ -84,4 +84,14 @@ final class ProjectionWalletRepository extends ServiceEntityRepository implement
                 ->getResult()
         );
     }
+
+    public function findAllMatching(string $nameOrSlug): array
+    {
+       return $this->createQueryBuilder('w')
+           ->andWhere('w.name LIKE :name OR w.slug LIKE :slug')
+           ->setParameter('name', '%'.$nameOrSlug.'%')
+           ->setParameter('slug', '%'.$nameOrSlug.'%')
+           ->getQuery()
+           ->getResult();
+    }
 }

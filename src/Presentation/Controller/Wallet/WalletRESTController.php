@@ -26,13 +26,22 @@ final class WalletRESTController extends RESTController
     /**
      * @Route("/", name="wallet_list", methods={"GET"}, options={"expose"=true})
      *
+     * @param Request $request
      * @param ProjectionWalletRepositoryInterface $repo
      *
      * @return JsonResponse
      */
-    public function all(ProjectionWalletRepositoryInterface $repo): JsonResponse
+    public function all(Request $request, ProjectionWalletRepositoryInterface $repo): JsonResponse
     {
-        return $this->createApiResponse($repo->findAll());
+        $query = $request->query->get('q');
+
+        if ($query !== null) {
+            $wallets = $repo->findAllMatching($query);
+        } else {
+            $wallets = $repo->findAll();
+        }
+
+        return $this->createApiResponse($wallets);
     }
 
     /**

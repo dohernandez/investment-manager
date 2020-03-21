@@ -13,6 +13,7 @@ import './../css/StockView.scss';
 import OperationForm from "./OperationForm";
 import Template from "./Components/Template";
 import Swal from 'sweetalert2';
+import Select2WalletTemplate from "./Components/Select2WalletTemplate";
 
 const eventBus = require('js-event-bus')();
 
@@ -407,6 +408,70 @@ class StockForm extends SwalForm {
     }
 }
 
+class StockOperationForm extends OperationForm {
+    constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
+        super(swalOptions, table, template, selector);
+
+        this.select2WalletTemplate = new Select2WalletTemplate();
+    }
+    /**
+     * @inheritDoc
+     */
+    onBeforeOpenEditView(data, $wrapper) {
+        super.onBeforeOpenEditView(data, $wrapper);
+
+        let $form = $wrapper.find(this.selector);
+
+        let $type = $form.find('#type');
+        $type.prop('disabled', true);
+
+        let $stock = $form.find('#stock');
+        $stock.prop('disabled', true);
+
+        let $autocomplete = $('.js-wallet-autocomplete');
+
+        $autocomplete.each((index, select) => {
+            const url = $(select).data('autocomplete-url');
+
+            $(select).select2({
+                dropdownParent: $wrapper,
+                ajax: {
+                    url,
+                    dataType: 'json',
+                    delay: 10,
+                    allowClear: true,
+                    data: (params) => {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: (data, params) => {
+                        // parse the results into the format expected by Select2
+                        // since we are using custom formatting functions we do not need to
+                        // alter the remote JSON data, except to indicate that infinite
+                        // scrolling can be used
+                        params.page = params.page || 1;
+
+                        return {
+                            results: data.items,
+                            pagination: {
+                                more: (params.page * 30) < data.total_count
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                placeholder: 'Search for an wallet',
+                escapeMarkup: (markup) => markup,
+                minimumInputLength: 1,
+                templateResult: this.select2WalletTemplate.templateResult,
+                templateSelection: this.select2WalletTemplate.templateSelection
+            });
+        });
+    }
+}
+
 global.StockForm = StockForm;
-global.OperationForm = OperationForm;
+global.OperationForm = StockOperationForm;
 

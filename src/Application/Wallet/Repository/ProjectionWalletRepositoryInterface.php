@@ -38,4 +38,6 @@ interface ProjectionWalletRepositoryInterface
      * @return Stock[]
      */
     public function findAllStocksInWalletOnOpenPositionBySlug(string $slug): array;
+
+    public function findAllMatching(string $nameOrSlug): array;
 }
