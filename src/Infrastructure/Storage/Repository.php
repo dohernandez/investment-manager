@@ -93,7 +93,6 @@ abstract class Repository
         $this->overloadChangesDependencies($changes);
 
         $object->replay($changes);
-
         $this->loaded[$id] = $object;
 
         return $object;
@@ -108,11 +107,12 @@ abstract class Repository
         return $serialize;
     }
 
-    protected function getReference(string $type, string $id, AggregateRoot $data)
+    protected function getReference(string $type, string $id, AggregateRoot $data): AggregateRoot
     {
         $object = $this->em->getReference($type, $id);
         $this->em->refresh($object);
-        if (get_class($object) !== get_class($data)) {
+
+        if (get_class($object) !== get_class($data) && (!$object instanceof Proxy || get_parent_class($object) !== get_class($data))) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Reference type %s is different than data type %s',
@@ -199,6 +199,10 @@ abstract class Repository
         }
 
         foreach ($dependencies as $property => $class) {
+            if ($class === ArrayCollection::class) {
+                continue;
+            }
+
             $reflectionProperty = null;
             if ($reflect->hasProperty($property)) {
                 $reflectionProperty = $reflect->getProperty($property);
@@ -210,7 +214,7 @@ abstract class Repository
                 $reflectionProperty->setAccessible(true);
 
                 $value = $reflectionProperty->getValue($object);
-                if ($value && !$value instanceof ArrayCollection) {
+                if ($value) {
                     try {
                         $value = $this->em->find($class, $value);
                         $reflectionProperty->setValue($object, $value);
@@ -303,14 +307,18 @@ abstract class Repository
             if($reflectionProperty) {
                 $reflectionProperty->setAccessible(true);
 
+                if ($class === ArrayCollection::class) {
+                    $value = new $class();
+                    $reflectionProperty->setValue($object, $value);
+
+                    continue;
+                }
+
                 $value = $reflectionProperty->getValue($object);
                 if ($value && method_exists($value, 'getId')) {
                     $value = new $class($value->getId());
-                } elseif ($value instanceof ArrayCollection) {
-                    $value = new $class();
+                    $reflectionProperty->setValue($object, $value);
                 }
-
-                $reflectionProperty->setValue($object, $value);
             }
         }
 
