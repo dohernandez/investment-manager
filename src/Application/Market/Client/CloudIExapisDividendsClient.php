@@ -5,6 +5,7 @@ namespace App\Application\Market\Client;
 use League\Csv\Reader;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+use function reset;
 use function str_replace;
 use function time;
 
@@ -36,7 +37,9 @@ class CloudIExapisDividendsClient implements DividendsClientInterface
 
         $response = $this->getResponse($stock, '1m');
         $body = $response->toArray();
-        $dividends[] = $body[0];
+        if (!empty($body)) {
+            $dividends[] = reset($body);
+        }
 
         $response = $this->getResponse($stock, 'next');
         $body = $response->toArray();

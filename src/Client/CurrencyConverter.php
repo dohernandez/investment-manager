@@ -9,7 +9,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class CurrencyConverter
 {
-    const CURRENCY_CONVERTER_URI = 'http://free.currencyconverterapi.com/api/v6/convert?q=%s&compact=ultra&apiKey=%s';
+    const CURRENCY_CONVERTER_URI = 'https://free.currencyconverterapi.com/api/v6/convert?q=%s&compact=ultra&apiKey=%s';
 
     /**
      * @var string
@@ -25,6 +25,12 @@ class CurrencyConverter
      * @var LoggerInterface
      */
     private $logger;
+
+    /**
+     * Maximum of 2 is supported for this free version.
+     * @param int $maximum
+     */
+    private $maximum = 2;
 
     public function __construct(
         LoggerInterface $logger
@@ -48,27 +54,22 @@ class CurrencyConverter
      */
     public function updateRates(array $exchanges)
     {
-        $convert = [];
-        foreach ($exchanges as $exchange) {
-            $convert[] = $exchange->getFromCurrency()->getCurrencyCode() . '_' . $exchange->getToCurrency()->getCurrencyCode();
-        }
-
-        $response = $this->httpClient->request(
-            'GET',
-            sprintf(self::CURRENCY_CONVERTER_URI, implode(',', $convert), $this->apiKey)
-        );
-
-        $rates = $response->toArray();
-
         foreach ($exchanges as $key => $exchange) {
             $rateKey = $exchange->getFromCurrency()->getCurrencyCode() . '_' . $exchange->getToCurrency()->getCurrencyCode();
 
-            if (isset($rateKey)) {
-                $exchange->setRate($rates[$rateKey]);
+            if (!isset($rateKey)) {
+                continue;
             }
 
+            $response = $this->httpClient->request(
+                'GET',
+                sprintf(self::CURRENCY_CONVERTER_URI, $rateKeys, $this->apiKey)
+            );
+
+            $rates = $response->toArray();
+
+            $exchange->setRate($rates[$rateKey]);
             $exchanges[$key] = $exchange;
         }
-
     }
 }
