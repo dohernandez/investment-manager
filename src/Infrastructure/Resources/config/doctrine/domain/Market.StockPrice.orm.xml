@@ -13,6 +13,7 @@
 
         <field name="price" column="price" type="object"/>
         <field name="changePrice" column="change_price" type="object"/>
+        <field name="changePriceValue" column="change_price_value" type="integer"/>
         <field name="peRatio" column="pe_ratio" type="float"/>
         <field name="preClose" column="pre_close" type="object"/>
         <field name="open" column="open" type="object"/>

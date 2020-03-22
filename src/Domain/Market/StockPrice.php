@@ -24,6 +24,11 @@ class StockPrice
     private $changePrice;
 
     /**
+     * @var int|null
+     */
+    private $changePriceValue;
+
+    /**
      * @var float|null
      */
     private $peRatio;
@@ -93,6 +98,7 @@ class StockPrice
     public function setChangePrice(?Money $changePrice): self
     {
         $this->changePrice = $changePrice;
+        $this->changePriceValue = $changePrice->getValue();
 
         return $this;
     }
