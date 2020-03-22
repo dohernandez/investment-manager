@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Client;
+namespace App\Application\Market\Client;
 
 interface DividendsClientInterface
 {

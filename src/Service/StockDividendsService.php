@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Client\DividendsClientInterface;
+use App\Application\Market\Client\DividendsClientInterface;
 use App\Entity\Stock;
 use App\Entity\StockDividend;
 use App\VO\Money;

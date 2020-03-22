@@ -3,7 +3,7 @@
 namespace App\Application\Market\Service;
 
 use App\Application\Market\Parser\DividendsParserInterface;
-use App\Client\DividendsClientInterface;
+use App\Application\Market\Client\DividendsClientInterface;
 use App\Domain\Market\Stock;
 use App\Domain\Market\StockDividend;
 use DateInterval;

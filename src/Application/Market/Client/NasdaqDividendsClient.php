@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Client;
+namespace App\Application\Market\Client;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
