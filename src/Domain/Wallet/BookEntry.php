@@ -195,7 +195,9 @@ class BookEntry
         ?BookEntry $book,
         ?string $copyBookName = null
     ): BookEntry {
-        $copyBookName = $copyBookName ? $copyBookName : $book ? $book->getName() : null;
+        if (!$copyBookName && $book) {
+            $copyBookName = $book->getName();
+        }
         if (!$copyBookName) {
             throw new InvalidArgumentException('Copy book name can not be empty');
         }
@@ -204,7 +206,7 @@ class BookEntry
 
         // book entry year
         $year = (string)Date::getYear($date);
-        $copyBookYearEntry = BookEntry::createYearEntry($book, $year);
+        $copyBookYearEntry = BookEntry::createYearEntry($copyBook, $year);
         $copyBook->getEntries()->add($copyBookYearEntry);
 
         // book entry month
