@@ -9,6 +9,7 @@ parameters:
     margin_rate: 0.475
     jms_serializer.camel_case_naming_strategy.class: JMS\Serializer\Naming\IdenticalPropertyNamingStrategy
     converter_api_key: '%env(CURRENCY_CONVERTER_API_KEY)%'
+    cloud_iexapis_api_key: '%env(CLOUD_IEXAPIS_API_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -176,7 +177,7 @@ services:
         class: App\Application\Market\Service\StockDividendsMediatorService
         arguments:
             - '@service.stock.dividends.nasdaq'
-            - '@service.stock.dividends.nasdaq'
+            - '@service.stock.dividends.cloudiexapis'
 
     service.stock.dividends.nasdaq:
         class: App\Application\Market\Service\StockDividendsService
@@ -184,11 +185,30 @@ services:
             - '@App\Application\Market\Client\NasdaqDividendsClient'
             - '@App\Application\Market\Parser\NasdaqDividendsParser'
 
+    service.stock.dividends.yahoo:
+        class: App\Application\Market\Service\StockDividendsService
+        arguments:
+            - '@App\Application\Market\Client\YahooDividendsClient'
+            - '@App\Application\Market\Parser\YahooDividendsParser'
+
+    service.stock.dividends.cloudiexapis:
+        class: App\Application\Market\Service\StockDividendsService
+        arguments:
+            - '@App\Application\Market\Client\CloudIExapisDividendsClient'
+            - '@App\Application\Market\Parser\CloudIExapisDividendsParser'
+
     # Client
     App\Application\Market\Client\NasdaqDividendsClient: ~
+    App\Application\Market\Client\YahooDividendsClient: ~
+    App\Application\Market\Client\CloudIExapisDividendsClient:
+        class: App\Application\Market\Client\CloudIExapisDividendsClient
+        arguments:
+            $token: '%cloud_iexapis_api_key%'
 
     # Parser
     App\Application\Market\Parser\NasdaqDividendsParser: ~
+    App\Application\Market\Parser\YahooDividendsParser: ~
+    App\Application\Market\Parser\CloudIExapisDividendsParser: ~
 
     # Exchange
     App\Application\ExchangeMoney\Exchange\CurrencyConverter:

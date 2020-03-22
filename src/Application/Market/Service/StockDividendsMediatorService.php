@@ -32,7 +32,7 @@ final class StockDividendsMediatorService implements StockDividendsServiceInterf
     public function getStockDividends(Stock $stock): array
     {
         if (strtolower($stock->getMarket()->getCountry()) != 'us') {
-            $this->yahooDividendsService->getStockDividends($stock);
+            return $this->yahooDividendsService->getStockDividends($stock);
         }
 
         return $this->nasdaqDividendsService->getStockDividends($stock);
