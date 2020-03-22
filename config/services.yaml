@@ -103,16 +103,21 @@ services:
     ##### APPLICATION LAYER START
 
     # Interfaces
+
+    # Account
     App\Application\Account\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\AccountRepository'
     App\Application\Account\Repository\ProjectionAccountRepositoryInterface: '@App\Infrastructure\Storage\ProjectionAccountRepository'
 
+    # Transfer
     App\Application\Transfer\Repository\TransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\TransferRepository'
     App\Application\Transfer\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\Transfer\AccountRepository'
     App\Application\Transfer\Repository\ProjectionTransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\ProjectionTransferRepository'
 
+    # Broker
     App\Application\Broker\Repository\BrokerRepositoryInterface: '@App\Infrastructure\Storage\Broker\BrokerRepository'
     App\Application\Broker\Repository\ProjectionBrokerRepositoryInterface: '@App\Infrastructure\Storage\Broker\ProjectionBrokerRepository'
 
+    # Market
     App\Application\Market\Repository\ProjectionStockInfoRepositoryInterface: '@App\Infrastructure\Storage\Market\ProjectionStockInfoRepository'
     App\Application\Market\Repository\ProjectionStockMarketRepositoryInterface: '@App\Infrastructure\Storage\Market\ProjectionStockMarketRepository'
     App\Application\Market\Repository\ProjectionStockRepositoryInterface: '@App\Infrastructure\Storage\Market\ProjectionStockRepository'
@@ -121,9 +126,15 @@ services:
     App\Application\Market\Repository\StockRepositoryInterface: '@App\Infrastructure\Storage\Market\StockRepository'
     App\Application\Market\Repository\StockDividendRepositoryInterface: '@App\Infrastructure\Storage\Market\StockDividendRepository'
 
+    # Market\Service
     App\Application\Market\Service\StockDividendsServiceInterface: '@App\Application\Market\Service\StockDividendsService'
     App\Application\Market\Service\StockDividendsService: ~
 
+    # Market\Service
+    App\Application\Market\Parser\DividendsParserInterface: '@App\Application\Market\Parser\NasdaqDividendsParser'
+    App\Application\Market\Parser\NasdaqDividendsParser: ~
+
+    # Wallet
     App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ProjectionWalletRepository'
     App\Application\Wallet\Repository\BrokerRepositoryInterface: '@App\Infrastructure\Storage\Wallet\BrokerRepository'
     App\Application\Wallet\Repository\WalletRepositoryInterface: '@App\Infrastructure\Storage\Wallet\WalletRepository'
@@ -136,6 +147,7 @@ services:
     App\Application\Wallet\Repository\ExchangeMoneyRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ExchangeMoneyRepository'
     App\Application\Wallet\Repository\StockDividendRepositoryInterface: '@App\Infrastructure\Storage\Wallet\StockDividendRepository'
 
+    # ExchangeMoney
     App\Application\ExchangeMoney\Exchange\ExchangeMoneyInterface: '@App\Application\ExchangeMoney\Exchange\CurrencyConverter'
     App\Application\ExchangeMoney\Repository\ExchangeMoneyRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\ExchangeMoneyRepository'
     App\Application\ExchangeMoney\Repository\MarketRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\MarketRepository'

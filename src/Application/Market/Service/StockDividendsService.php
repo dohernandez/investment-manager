@@ -2,13 +2,12 @@
 
 namespace App\Application\Market\Service;
 
+use App\Application\Market\Parser\DividendsParserInterface;
 use App\Client\DividendsClientInterface;
 use App\Domain\Market\Stock;
 use App\Domain\Market\StockDividend;
-use App\Infrastructure\Money\Money;
 use DateInterval;
 use DateTime;
-use Psr\Log\LoggerInterface;
 
 final class StockDividendsService implements StockDividendsServiceInterface
 {
@@ -18,16 +17,16 @@ final class StockDividendsService implements StockDividendsServiceInterface
     private $client;
 
     /**
-     * @var LoggerInterface
+     * @var DividendsParserInterface
      */
-    private $logger;
+    private $parser;
 
     public function __construct(
         DividendsClientInterface $client,
-        LoggerInterface $logger
+        DividendsParserInterface $parser
     ) {
         $this->client = $client;
-        $this->logger = $logger;
+        $this->parser = $parser;
     }
 
     /**
@@ -36,56 +35,14 @@ final class StockDividendsService implements StockDividendsServiceInterface
     public function getStockDividends(Stock $stock): array
     {
         $dividends = $this->client->getDividends($stock->getSymbol());
+        $stockDividends = $this->parser->parser($dividends);
 
         /** @var StockDividend $lastDividend */
         $lastDividend = null;
 
-        $stockDividends = [];
-
-        foreach ($dividends as $dividend) {
-            try {
-                $stockDividend = new StockDividend();
-                $stockDividend->setStatus(StockDividend::STATUS_ANNOUNCED);
-
-                // Ex/Eff Date
-                $stockDividend->setExDate(new DateTime($dividend['exOrEffDate']));
-
-                // Cash Amount
-                $stockDividend->setValue(Money::fromUSDValue(Money::parser($dividend['amount'])));
-
-                // Record Date
-                try {
-                    $stockDividend->setRecordDate(new DateTime($dividend['recordDate']));
-                } catch (\Exception $e) {
-                    $stockDividend->setRecordDate($stockDividend->getExDate());
-                }
-
-                // Payment Date
-                try {
-                    $stockDividend->setPaymentDate(new DateTime($dividend['paymentDate']));
-                } catch (\Exception $e) {
-                    $stockDividend->setPaymentDate($stockDividend->getExDate());
-                }
-
-                $now = new DateTime();
-                if ($stockDividend->getPaymentDate() < $now) {
-                    $stockDividend->setStatus(StockDividend::STATUS_PAYED);
-                }
-
-                $stockDividends[] = $stockDividend;
-
-                if (!$lastDividend || $lastDividend->getExDate() < $stockDividend->getExDate()) {
-                    $lastDividend = $stockDividend;
-                }
-            } catch (\Exception $e) {
-                $this->logger->debug(
-                    'Failed parsing row dividend',
-                    [
-                        'stock'     => $stock->getSymbol(),
-                        'row'       => $dividend,
-                        'exception' => $e->getMessage(),
-                    ]
-                );
+        foreach ($stockDividends as $stockDividend) {
+            if (!$lastDividend || $lastDividend->getExDate() < $stockDividend->getExDate()) {
+                $lastDividend = $stockDividend;
             }
         }
 
