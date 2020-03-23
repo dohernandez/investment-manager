@@ -15,51 +15,28 @@ final class HomePageView
     {
         return [
                 'stock' => [
-                    'movers' => $this->getStockMoversPanel(),
-                    'shakers' => $this->getStockShakersPanel(),
+                    'movers' => $this->getStockDailyPanel('movers'),
+                    'shakers' => $this->getStockDailyPanel('shakers'),
                 ]
             ] + $context;
     }
 
-    private function getStockMoversPanel()
+    private function getStockDailyPanel(string $type)
     {
         return [
             'daily' => [
-                'entity_name'  => 'stock_movers_daily',
+                'entity_name'  => 'stock_' . $type . '_daily',
             ],
 
             'fields' => [
                 [
                     'name' => 'symbol',
+                    'class'    => 'js-manager-table-extra-cell-show',
                 ],
                 [
-                    'name' => 'market.symbol',
-                    'label' => 'Market',
-                ],
-                [
-                    'name'   => 'value',
-                    'render' => 'money',
-                ],
-                [
-                    'name'     => 'displayChange',
-                    'label'    => 'Change',
-                    'render'   => 'quantity',
-                    'quantity' => 'change ? change.value : null',
-                ],
-            ]
-        ];
-    }
-
-    private function getStockShakersPanel()
-    {
-        return [
-            'daily' => [
-                'entity_name'  => 'stock_shakers_daily',
-            ],
-
-            'fields' => [
-                [
-                    'name' => 'symbol',
+                    'name' => 'name',
+                    'col_with' => '215',
+                    'class'    => 'js-manager-table-extra-cell-hide',
                 ],
                 [
                     'name' => 'market.symbol',
