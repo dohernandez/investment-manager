@@ -2,13 +2,24 @@
 
 namespace App\Presentation\Controller;
 
+use App\Presentation\View\HomePageView;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
-class DefaultController extends AbstractController
+final class HomePageController extends AbstractController
 {
+    /**
+     * @var HomePageView
+     */
+    private $homePageView;
+
+    public function __construct(HomePageView $homePageView)
+    {
+        $this->homePageView = $homePageView;
+    }
+
     /**
      * @Route("/", name="homepage")
      *
@@ -19,8 +30,6 @@ class DefaultController extends AbstractController
     public function indexAction(Request $request): Response
     {
         // replace this example code with whatever you need
-        return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
-        ]);
+        return $this->render('default/index.html.twig', $this->homePageView->index());
     }
 }

@@ -34,4 +34,11 @@ interface ProjectionStockRepositoryInterface
      * @return Stock[] The objects.
      */
     public function findAllListed(): array;
+
+    /**
+     * @param int $limit
+     *
+     * @return Stock[] The objects.
+     */
+    public function findAllMoversDaily(int $limit = 5): array;
 }

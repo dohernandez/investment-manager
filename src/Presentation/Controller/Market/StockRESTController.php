@@ -217,7 +217,7 @@ final class StockRESTController extends RESTController
      *
      * @return Response
      */
-    public function dDividends(
+    public function dividends(
         string $id,
         ProjectionStockRepositoryInterface $stockRepository,
         StockDividendRepositoryInterface $stockDividendRepository
@@ -233,5 +233,24 @@ final class StockRESTController extends RESTController
         }
 
         return $this->createApiResponse($stockDividendRepository->findAllByStock($stock), Response::HTTP_OK);
+    }
+
+    /**
+     * @Route("/movers/daily", name="stock_movers_daily_list", methods={"GET"}, options={"expose"=true})
+     *
+     * @param ProjectionStockRepositoryInterface $stockRepository
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function moversDaily(
+        ProjectionStockRepositoryInterface $stockRepository,
+        Request $request
+    ): Response {
+        $limit = $request->query->get('l', 10);
+
+        $stocks = $stockRepository->findAllMoversDaily($limit);
+
+        return $this->createApiResponse($stocks, Response::HTTP_OK);
     }
 }

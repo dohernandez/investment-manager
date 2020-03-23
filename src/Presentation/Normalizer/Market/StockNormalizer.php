@@ -74,13 +74,11 @@ final class StockNormalizer implements SubscribingHandlerInterface
             $displayToPayDividend = (string)$toPayDividend->getValue();
         }
 
-        $changePercentage = null;
-        if ($price && $price->getPreClose() && $price->getPreClose()->getValue()) {
-            $changePercentage = round(
-                $price->getChangePrice()->getValue() * 100 / $price->getPreClose()->getValue(),
-                3
-            );
-        }
+        $displayChange = $price->getChangePrice() ? sprintf(
+            '%s (%.2f%%)',
+            $price->getChangePrice(),
+            $price->getChangePercentage()
+        ) : null;
 
         return [
             'id'                   => $stock->getId(),
@@ -103,7 +101,8 @@ final class StockNormalizer implements SubscribingHandlerInterface
             'week52High'           => $price ? $this->serializer->toArray($price->getWeek52High()) : null,
             'change'               => $price ? $this->serializer->toArray($price->getChangePrice()) : null,
             'priceUpdatedAt'       => $price ? $price->getUpdatedAt()->format('c') : null,
-            'changePercentage'     => $changePercentage,
+            'changePercentage'     => $price->getChangePercentage(),
+            'displayChange'        => $displayChange,
             'type'                 => $stock->getType() ? $this->serializer->toArray($stock->getType()) : null,
             'sector'               => $stock->getSector() ? $this->serializer->toArray($stock->getSector()) : null,
             'industry'             => $stock->getIndustry() ? $this->serializer->toArray($stock->getIndustry()) : null,

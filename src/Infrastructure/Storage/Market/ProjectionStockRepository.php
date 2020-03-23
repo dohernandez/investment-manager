@@ -56,4 +56,15 @@ final class ProjectionStockRepository extends ServiceEntityRepository implements
     {
         return $this->findBy(['delisted' => 0]);
     }
+
+    public function findAllMoversDaily(int $limit = 5): array
+    {
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.price', 'p')
+            ->orderBy('p.changePercentage', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

@@ -24,9 +24,9 @@ class StockPrice
     private $changePrice;
 
     /**
-     * @var int|null
+     * @var float|null
      */
-    private $changePriceValue;
+    private $changePercentage;
 
     /**
      * @var float|null
@@ -98,9 +98,27 @@ class StockPrice
     public function setChangePrice(?Money $changePrice): self
     {
         $this->changePrice = $changePrice;
-        $this->changePriceValue = $changePrice->getValue();
+
+        $this->updateChangePercentage();
 
         return $this;
+    }
+
+    private function updateChangePercentage() {
+        $changePercentage = null;
+        if ($this->changePrice && $this->preClose && $this->preClose->getValue()) {
+            $changePercentage = round(
+                $this->changePrice->getValue() * 100 / $this->preClose->getValue(),
+                3
+            );
+        }
+
+        $this->changePercentage = $changePercentage;
+    }
+
+    public function getChangePercentage(): ?float
+    {
+        return $this->changePercentage;
     }
 
     public function getPeRatio(): float
@@ -123,6 +141,8 @@ class StockPrice
     public function setPreClose(?Money $preClose): self
     {
         $this->preClose = $preClose;
+
+        $this->updateChangePercentage();
 
         return $this;
     }

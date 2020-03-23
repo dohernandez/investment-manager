@@ -1,0 +1,21 @@
+<script>
+    function createStockMoversDaily(entityName) {
+        // Create stock movers daily panel instance
+        let $stockMoversDailyPanelBox = $('.js-stock-movers-daily-panel-box');
+
+        let stockMoversDailyContentWrapper = $stockMoversDailyPanelBox.closest('.js-stock-movers-daily-panel');
+        let stockMoversDailyEntityType = $stockMoversDailyPanelBox.data('entity-type');
+
+        // Create panelTable instance @see assets/js/PanelTable.js
+        return new PanelTable({
+            entityType: stockMoversDailyEntityType,
+            wrapper: stockMoversDailyContentWrapper,
+            pagination: false,
+            selectors: {
+                searchTemplate: '#js-table-' + entityName + '-search-template',
+                showPerPageTemplate: '#js-table-' + entityName + '-show-per-page-template',
+                rowTemplate: '#js-table-' + entityName + '-row-template',
+            },
+        });
+    }
+</script>
