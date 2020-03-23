@@ -12,7 +12,7 @@
             {% include 'default/partial/stock-movers.html.twig' %}
         </div>
         <div class="col-md-6">
-{#            {% include 'default/partial/stock-movers.html.twig' %}#}
+            {% include 'default/partial/stock-shakers.html.twig' %}
         </div>
     </div>
 {% endblock %}
@@ -22,6 +22,7 @@
 
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
     {% include 'default/partial/stock-movers-scripts.html.twig' %}
+    {% include 'default/partial/stock-shakers-scripts.html.twig' %}
 
     <script>
         $(document).ready(function() {
@@ -29,6 +30,11 @@
 
             stockMoversDailyPanelTable.render();
             stockMoversDailyPanelTable.loadRows()
+
+            let stockShakersDailyPanelTable = createStockShakersDaily("{{ stock.shakers.daily.entity_name|trans|lower }}");
+
+            stockShakersDailyPanelTable.render();
+            stockShakersDailyPanelTable.loadRows()
         });
     </script>
 {% endblock %}

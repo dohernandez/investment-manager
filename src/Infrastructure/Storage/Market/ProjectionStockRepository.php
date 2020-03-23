@@ -67,4 +67,15 @@ final class ProjectionStockRepository extends ServiceEntityRepository implements
             ->getResult()
             ;
     }
+
+    public function findAllShakersDaily(int $limit = 5): array
+    {
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.price', 'p')
+            ->orderBy('p.changePercentage', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

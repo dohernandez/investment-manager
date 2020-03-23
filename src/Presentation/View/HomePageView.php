@@ -15,7 +15,8 @@ final class HomePageView
     {
         return [
                 'stock' => [
-                    'movers' => $this->getStockMoversPanel()
+                    'movers' => $this->getStockMoversPanel(),
+                    'shakers' => $this->getStockShakersPanel(),
                 ]
             ] + $context;
     }
@@ -25,6 +26,35 @@ final class HomePageView
         return [
             'daily' => [
                 'entity_name'  => 'stock_movers_daily',
+            ],
+
+            'fields' => [
+                [
+                    'name' => 'symbol',
+                ],
+                [
+                    'name' => 'market.symbol',
+                    'label' => 'Market',
+                ],
+                [
+                    'name'   => 'value',
+                    'render' => 'money',
+                ],
+                [
+                    'name'     => 'displayChange',
+                    'label'    => 'Change',
+                    'render'   => 'quantity',
+                    'quantity' => 'change ? change.value : null',
+                ],
+            ]
+        ];
+    }
+
+    private function getStockShakersPanel()
+    {
+        return [
+            'daily' => [
+                'entity_name'  => 'stock_shakers_daily',
             ],
 
             'fields' => [

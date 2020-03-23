@@ -253,4 +253,23 @@ final class StockRESTController extends RESTController
 
         return $this->createApiResponse($stocks, Response::HTTP_OK);
     }
+
+    /**
+     * @Route("/shakers/daily", name="stock_shakers_daily_list", methods={"GET"}, options={"expose"=true})
+     *
+     * @param ProjectionStockRepositoryInterface $stockRepository
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function shakersDaily(
+        ProjectionStockRepositoryInterface $stockRepository,
+        Request $request
+    ): Response {
+        $limit = $request->query->get('l', 10);
+
+        $stocks = $stockRepository->findAllShakersDaily($limit);
+
+        return $this->createApiResponse($stocks, Response::HTTP_OK);
+    }
 }
