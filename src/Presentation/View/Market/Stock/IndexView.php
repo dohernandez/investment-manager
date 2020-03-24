@@ -55,6 +55,13 @@ final class IndexView extends AbstractView
                 'date_format' => 'DD/MM/YYYY',
                 'class'       => 'js-manager-table-extra-cell-hide',
             ],
+            [
+                'name'        => 'displayChange',
+                'label'       => 'Change',
+                'render'      => 'quantity',
+                'quantity'    => 'change ? change.value : null',
+                'class'       => 'js-manager-table-extra-cell-hide',
+            ],
         ];
     }
 
