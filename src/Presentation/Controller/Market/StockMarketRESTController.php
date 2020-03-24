@@ -3,6 +3,7 @@
 namespace App\Presentation\Controller\Market;
 
 use App\Application\Market\Command\RegisterStockMarket;
+use App\Application\Market\Command\UpdateStockMarket;
 use App\Application\Market\Repository\ProjectionStockMarketRepositoryInterface;
 use App\Application\Transfer\Command\ChangeTransfer;
 use App\Application\Transfer\Command\RegisterTransfer;
@@ -79,19 +80,20 @@ final class StockMarketRESTController extends RESTController
      */
     public function edit(string $id, Request $request, MessageBusInterface $bus): Response
     {
-        $form = $this->createForm(EditTransferType::class);
+        $form = $this->createForm(CreateStockMarketType::class);
 
         return $this->dispatch(
             $form,
             $request,
             $bus,
             function ($data) use ($id) {
-                return new ChangeTransfer(
+                return new UpdateStockMarket(
                     $id,
-                    $data['beneficiaryParty'],
-                    $data['debtorParty'],
-                    $data['amount'],
-                    $data['date']
+                    $data['name'],
+                    $data['currency'],
+                    $data['country'],
+                    $data['symbol'],
+                    $data['yahooSymbol']
                 );
             }
         );

@@ -3,6 +3,7 @@
 namespace App\Domain\Market;
 
 use App\Domain\Market\Event\StockMarketRegistered;
+use App\Domain\Market\Event\StockMarketUpdated;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
@@ -125,12 +126,37 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
         return $self;
     }
 
+    public function update(
+        string $name,
+        Currency $currency,
+        string $country,
+        string $symbol,
+        ?string $yahooSymbol = null
+    ): self {
+        $this->recordChange(
+            new StockMarketUpdated(
+                $this->id,
+                $name,
+                $currency,
+                $country,
+                $symbol,
+                $this->metadata,
+                $yahooSymbol
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
+        $this->updatedAt = $changed->getCreatedAt();
+
+        $event = $changed->getPayload();
+
         switch ($changed->getEventName()) {
             case StockMarketRegistered::class:
                 /** @var StockMarketRegistered $event */
-                $event = $changed->getPayload();
 
                 $this->id = $changed->getAggregateId();
                 $this->name = $event->getName();
@@ -138,10 +164,20 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->currency = $event->getCurrency();
                 $this->symbol = $event->getSymbol();
                 $this->metadata = $event->getMetadata();
-                $this->metadata = $event->getMetadata();
                 $this->yahooSymbol = $event->getYahooSymbol();
                 $this->createdAt = $changed->getCreatedAt();
-                $this->updatedAt = $changed->getCreatedAt();
+
+                break;
+
+            case StockMarketUpdated::class:
+                /** @var StockMarketUpdated $event */
+
+                $this->name = $event->getName();
+                $this->country = $event->getCountry();
+                $this->currency = $event->getCurrency();
+                $this->symbol = $event->getSymbol();
+                $this->metadata = $event->getMetadata();
+                $this->yahooSymbol = $event->getYahooSymbol();
 
                 break;
         }

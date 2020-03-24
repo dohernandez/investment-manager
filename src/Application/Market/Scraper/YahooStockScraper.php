@@ -22,9 +22,18 @@ final class YahooStockScraper implements StockScraperInterface
     ];
 
     private const MARKET_MAPPING = [
-        'BATS'     => 'NasdaqGS',
-        'NasdaqGM' => 'NasdaqGS',
-        'NasdaqCM' => 'NasdaqGS',
+        'BATS'     => 'NASDAQ',
+        'NasdaqGM' => 'NASDAQ',
+        'NasdaqCM' => 'NASDAQ',
+        'NasdaqGS' => 'NASDAQ',
+
+        'MCE' => 'BME',
+
+        'Frankfurt' => 'FRA',
+
+        'Milan' => 'BIT',
+
+        'Toronto' => 'TSX',
     ];
 
     /**
@@ -144,9 +153,9 @@ final class YahooStockScraper implements StockScraperInterface
                             if (!$market) {
                                 throw new NotFoundException(
                                     'Market not found', [
-                                    'stock_symbol' => $stockCrawled->getSymbol(),
-                                    'stock_market' => $matches[1],
-                                ]
+                                                          'stock_symbol' => $stockCrawled->getSymbol(),
+                                                          'stock_market' => $matches[1],
+                                                      ]
                                 );
                             }
 
