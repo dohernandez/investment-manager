@@ -107,6 +107,16 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
         return $this->getSymbol() . ' - ' . $this->getName();
     }
 
+    /**
+     * @var StockMarketPrice|null
+     */
+    private $price;
+
+    public function getPrice(): ?StockMarketPrice
+    {
+        return $this->price;
+    }
+
     public static function register(
         string $name,
         Currency $currency,
