@@ -23,6 +23,10 @@
         <field name="aggregateVersion" column="aggregate_version" type="smallint" />
         <field name="createdAt" column="created_at" type="datetime" />
 
+        <indexes>
+            <index name="type_id_version_idx" columns="aggregate_type,aggregate_id,aggregate_version"/>
+        </indexes>
+
         <entity-listeners>
             <entity-listener class="App\Infrastructure\EventSource\EventSourceListener">
                 <lifecycle-callback type="postPersist"  method="postPersistHandler"/>
