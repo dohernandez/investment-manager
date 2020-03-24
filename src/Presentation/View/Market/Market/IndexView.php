@@ -44,8 +44,19 @@ final class IndexView extends AbstractView
                 'name' => 'currency',
             ],
             [
+                'name'   => 'price',
+                'render' => 'money',
+            ],
+            [
+                'name'        => 'displayChange',
+                'label'       => 'Change',
+                'render'      => 'quantity',
+                'quantity'    => 'change ? change.value : null',
+            ],
+            [
                 'name' => 'yahooSymbol',
                 'label' => 'yahoo symbol',
+                'class'       => 'js-manager-table-extra-cell-hide',
             ],
         ];
     }
