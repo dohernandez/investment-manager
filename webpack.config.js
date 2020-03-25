@@ -64,6 +64,7 @@ module.exports = {
         panel_table: './assets/js/PanelTable.js',
         stock_panel_table: './assets/js/StockPanelTable.js',
         stock_note_form: './assets/js/StockNoteForm.js',
+        homepage: './assets/js/Homepage.js',
     },
     output: {
         path: path.resolve(__dirname, 'public', 'build'),

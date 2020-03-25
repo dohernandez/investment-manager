@@ -29,6 +29,8 @@
 {% block javascripts %}
     {{ parent() }}
 
+    <script src="{{ asset('build/homepage.js') }}"></script>
+
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
     {% include 'homepage/partial/stock-movers-scripts.html.twig' %}
     {% include 'homepage/partial/stock-shakers-scripts.html.twig' %}
