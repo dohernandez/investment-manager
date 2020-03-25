@@ -10,21 +10,28 @@
 
 {% block page_content %}
     <div class="row">
-        <div class="col-md-6">
-            {% include 'default/partial/stock-movers.html.twig' %}
-        </div>
-        <div class="col-md-6">
-            {% include 'default/partial/stock-shakers.html.twig' %}
-        </div>
+    {% include 'homepage/partial/stock-markets.html.twig' %}
     </div>
+    <!-- /.row -->
+    <div class="row">
+        <div class="col-md-6">
+            {% include 'homepage/partial/stock-movers.html.twig' %}
+        </div>
+        <!-- ./col -->
+        <div class="col-md-6">
+            {% include 'homepage/partial/stock-shakers.html.twig' %}
+        </div>
+        <!-- ./col -->
+    </div>
+    <!-- /.row -->
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
 
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
-    {% include 'default/partial/stock-movers-scripts.html.twig' %}
-    {% include 'default/partial/stock-shakers-scripts.html.twig' %}
+    {% include 'homepage/partial/stock-movers-scripts.html.twig' %}
+    {% include 'homepage/partial/stock-shakers-scripts.html.twig' %}
 
     <script>
         $(document).ready(function() {

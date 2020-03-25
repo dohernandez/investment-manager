@@ -17,6 +17,9 @@ final class HomePageView
                 'stock' => [
                     'movers' => $this->getStockDailyPanel('movers'),
                     'shakers' => $this->getStockDailyPanel('shakers'),
+                ],
+                'market' => [
+                    'entity_name'  => 'stock_market'
                 ]
             ] + $context;
     }

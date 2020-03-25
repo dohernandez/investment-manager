@@ -30,6 +30,6 @@ final class HomePageController extends AbstractController
     public function indexAction(Request $request): Response
     {
         // replace this example code with whatever you need
-        return $this->render('default/index.html.twig', $this->homePageView->index());
+        return $this->render('homepage/index.html.twig', $this->homePageView->index());
     }
 }
