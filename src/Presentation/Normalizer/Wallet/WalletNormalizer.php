@@ -43,11 +43,20 @@ final class WalletNormalizer implements SubscribingHandlerInterface
 
     public function serializeWalletToJson(JsonSerializationVisitor $visitor, Wallet $wallet, array $type, Context $context)
     {
+        $book = $wallet->getBook();
+
+        $displayBenefits = sprintf(
+            '%s (%.2f%%)',
+            $book->getBenefits(),
+            $book->getPercentageBenefits()
+        );
+
         return [
             'id' => $wallet->getId(),
             'name' => $wallet->getName(),
             'broker' => $this->serializer->toArray($wallet->getBroker()),
-            'metadata' => $this->serializer->toArray($wallet->getBook()),
+            'book' => $this->serializer->toArray($wallet->getBook()),
+            'displayBenefits' => $displayBenefits,
             'title' => $wallet->getTitle(),
         ];
     }
