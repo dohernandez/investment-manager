@@ -37,15 +37,16 @@
 
     <script>
         $(document).ready(function() {
-            let stockMoversDailyPanelTable = createStockMoversDaily("{{ stock.movers.daily.entity_name|trans|lower }}");
+            const stockMoversDailyPanelTable = createStockMoversDaily("{{ stock.movers.daily.entity_name|trans|lower }}");
+            const stockShakersDailyPanelTable = createStockShakersDaily("{{ stock.shakers.daily.entity_name|trans|lower }}");
 
-            stockMoversDailyPanelTable.render();
-            stockMoversDailyPanelTable.loadRows();
+            const homepage = new Homepage(
+                stockMoversDailyPanelTable,
+                stockShakersDailyPanelTable
+            );
 
-            let stockShakersDailyPanelTable = createStockShakersDaily("{{ stock.shakers.daily.entity_name|trans|lower }}");
-
-            stockShakersDailyPanelTable.render();
-            stockShakersDailyPanelTable.loadRows();
+            homepage.render();
+            homepage.load();
 
             // Tweak button toggle main menu to show/hide columns
             $('.sidebar-toggle').on(
@@ -54,8 +55,7 @@
                     let $button = $(e.currentTarget);
 
                     if ($button.data('toggle') === 'push-menu') {
-                        stockMoversDailyPanelTable.toggleExpanded();
-                        stockShakersDailyPanelTable.toggleExpanded();
+                        homepage.toggle();
                     }
                 }
             );
