@@ -12,6 +12,8 @@
         </id>
 
         <field name="price" column="price" type="object"/>
+        <field name="changePrice" column="change_price" type="object"/>
+        <field name="changePercentage" column="change_percentage" type="float"/>
         <field name="preClose" column="pre_close" type="object"/>
         <field name="open" column="open" type="object"/>
         <field name="dayLow" column="day_low" type="object"/>

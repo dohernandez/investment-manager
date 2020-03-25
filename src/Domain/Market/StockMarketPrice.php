@@ -116,18 +116,6 @@ class StockMarketPrice
         return $this->changePercentage;
     }
 
-    public function getPeRatio(): float
-    {
-        return $this->peRatio;
-    }
-
-    public function setPeRatio(?float $peRatio): self
-    {
-        $this->peRatio = $peRatio;
-
-        return $this;
-    }
-
     public function getPreClose(): Money
     {
         return $this->preClose;
@@ -214,11 +202,10 @@ class StockMarketPrice
         return $this;
     }
 
-    public function equals(StockPrice $price): bool
+    public function equals(self $price): bool
     {
         return $this->price->equals($price->getPrice()) &&
             $this->changePrice->equals($price->getChangePrice()) &&
-            $this->peRatio == $price->getPeRatio() &&
             $this->preClose->equals($price->getPreClose()) &&
             $this->open->equals($price->getOpen()) &&
             $this->dayLow->equals($price->getDayLow()) &&

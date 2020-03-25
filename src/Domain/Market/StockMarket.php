@@ -2,6 +2,7 @@
 
 namespace App\Domain\Market;
 
+use App\Domain\Market\Event\StockMarketPriceUpdated;
 use App\Domain\Market\Event\StockMarketRegistered;
 use App\Domain\Market\Event\StockMarketUpdated;
 use App\Infrastructure\EventSource\AggregateRoot;
@@ -158,6 +159,45 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
+    public function updatePrice(StockMarketPrice $price, $toUpdateAt = 'now'): self
+    {
+        $toUpdateAt = new DateTime($toUpdateAt);
+
+        if ($changed = $this->findIfLastChangeHappenedIsName(StockMarketPriceUpdated::class)) {
+            // This is to avoid have too much update events.
+            $this->price->setPrice($price->getPrice());
+            $this->price->setChangePrice($price->getChangePrice());
+            $this->price->setPreClose($price->getPreClose());
+            $this->price->setOpen($price->getOpen());
+            $this->price->setDayLow($price->getDayLow());
+            $this->price->setDayHigh($price->getDayHigh());
+            $this->price->setWeek52Low($price->getWeek52Low());
+            $this->price->setWeek52High($price->getWeek52High());
+
+            $this->replaceChangedPayload(
+                $changed,
+                new StockMarketPriceUpdated(
+                    $this->getId(),
+                    $this->price,
+                    $toUpdateAt
+                ),
+                clone $toUpdateAt
+            );
+
+            return $this;
+        }
+
+        $this->recordChange(
+            new StockMarketPriceUpdated(
+                $this->getId(),
+                $price,
+                $toUpdateAt
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         $this->updatedAt = $changed->getCreatedAt();
@@ -189,6 +229,15 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
                 $this->metadata = $event->getMetadata();
                 $this->yahooSymbol = $event->getYahooSymbol();
 
+                break;
+
+            case StockMarketPriceUpdated::class:
+                /** @var StockMarketPriceUpdated $event */
+                $event = $changed->getPayload();
+
+                $this->price = $event->getPrice();
+
+                $this->updatedAt = $changed->getCreatedAt();
                 break;
         }
     }

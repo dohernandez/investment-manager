@@ -31,7 +31,7 @@ final class IndexView extends AbstractView
         return [
             [
                 'name' => 'name',
-                'col_with' => '350',
+                'col_with' => '250',
             ],
             [
                 'name' => 'countryName',

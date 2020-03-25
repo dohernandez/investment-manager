@@ -48,7 +48,6 @@ final class StockMarketNormalizer implements SubscribingHandlerInterface
         Context $context
     ) {
         $price = $market->getPrice();
-
         $displayChange = $price && $price->getChangePrice() ? sprintf(
             '%s (%.2f%%)',
             $price->getChangePrice(),
@@ -64,7 +63,7 @@ final class StockMarketNormalizer implements SubscribingHandlerInterface
             'yahooSymbol'   => $market->getYahooSymbol(),
             'currency'      => $market->getCurrency()->getCurrencyCode(),
             'price'         => $price ? $this->serializer->toArray($price->getPrice()) : null,
-            'change'        => $price ? $this->serializer->toArray($price->getChangePrice()) : null,
+            'change'        => $price && $price->getChangePrice() ? $this->serializer->toArray($price->getChangePrice()) : null,
             'displayChange' => $displayChange,
             'title'         => $market->getTitle(),
         ];

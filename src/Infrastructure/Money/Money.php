@@ -6,6 +6,10 @@ use LogicException;
 
 final class Money
 {
+    public const DECIMAL_SYSTEM_UNITS = 'System of Units';
+    public const DECIMAL_EUROPE = 'Europe';
+    public const DECIMAL_UK = 'UK';
+
     public function __construct(Currency $currency, int $value = 0, int $precision = 2)
     {
         $this->currency = $currency;
@@ -181,10 +185,25 @@ final class Money
         );
     }
 
-    public static function parser(string $price, int $divisor = 100): float
+    public static function parser(string $price, int $divisor = 100, string $decSystem = self::DECIMAL_UK): float
     {
         $price = str_replace('$', '', $price);
-        $price = str_replace(',', '.', $price);
+        switch ($decSystem) {
+            case self::DECIMAL_UK:
+                $price = str_replace(',', '', $price);
+
+                break;
+            case self::DECIMAL_EUROPE:
+                $price = str_replace('.', '', $price);
+                $price = str_replace(',', '.', $price);
+
+                break;
+            case self::DECIMAL_SYSTEM_UNITS:
+                    $price = str_replace(',', '.', $price);
+                break;
+            default:
+                throw new \BadMethodCallException('decimal system not supported');
+        }
 
         return floatval($price) * $divisor;
     }
