@@ -1,47 +1,15 @@
-<div class="js-stock-market-panel box no-border">
-    <div class="box-body no-padding">
-        <div class="row">
-            <div class="col-xs-2 text-center" style="border-right: 1px solid #f4f4f4">
-                <span class="info-box-text">NASDAQ</span>
-                <h5 class="description-header">$35,210.43</h5>
-                <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 17%</span>
-            </div>
-            <!-- ./col -->
-            <div class="col-xs-2 text-center" style="border-right: 1px solid #f4f4f4">
-                <span class="info-box-text">NASDAQ</span>
-                <h5 class="description-header">$35,210.43</h5>
-                <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 17%</span>
-            </div>
-            <!-- ./col -->
-            <div class="col-xs-2 text-center" style="border-right: 1px solid #f4f4f4">
-                <span class="info-box-text">NASDAQ</span>
-                <h5 class="description-header">$35,210.43</h5>
-                <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 17%</span>
-            </div>
-            <!-- ./col -->
-            <div class="col-xs-2 text-center" style="border-right: 1px solid #f4f4f4">
-                <span class="info-box-text">NASDAQ</span>
-                <h5 class="description-header">$35,210.43</h5>
-                <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 17%</span>
-            </div>
-            <!-- ./col -->
-            <div class="col-xs-2 text-center" style="border-right: 1px solid #f4f4f4">
-                <span class="info-box-text">NASDAQ</span>
-                <h5 class="description-header">$35,210.43</h5>
-                <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 17%</span>
-            </div>
-            <!-- ./col -->
-            <div class="col-xs-2 text-center">
-                <span class="info-box-text">NASDAQ</span>
-                <h5 class="description-header">$35,210.43</h5>
-                <span class="description-percentage text-green"><i class="fa fa-caret-up"></i> 17%</span>
-            </div>
-            <!-- ./col -->
-        </div>
-        <!-- /.row -->
+{% import 'Components/Macros/table-render.html.twig' as render %}
+
+<div id="js-stock-markets-panel" class="box">
+    <div class="box-body">
     </div>
     <!-- /.box-body -->
 </div>
 
 <script type="text/template" id="js-panel-{{ market.entity_name|lower|replace({' ': '_'}) }}-row-template">
+    <div class="col-xs-<%= colSize %> text-left" style="border-right: 1px solid #f4f4f4">
+        <span class="info-box-text"><%= symbol %></span>
+        <h5 class="description-header">{{ render.render_money('price') }}</h5>
+        <span class="info-box-text pull-left">{{ render.render_quantity('displayChange', 'change ? change.value : null') }}</span>
+    </div>
 </script>

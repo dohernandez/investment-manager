@@ -34,15 +34,18 @@
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
     {% include 'homepage/partial/stock-movers-scripts.html.twig' %}
     {% include 'homepage/partial/stock-shakers-scripts.html.twig' %}
+    {% include 'homepage/partial/stock-markets-scripts.html.twig' %}
 
     <script>
         $(document).ready(function() {
             const stockMoversDailyPanelTable = createStockMoversDaily("{{ stock.movers.daily.entity_name|trans|lower }}");
             const stockShakersDailyPanelTable = createStockShakersDaily("{{ stock.shakers.daily.entity_name|trans|lower }}");
+            const stockMarketsPanel = createStockMarkets("{{ market.entity_name|trans|lower }}");
 
             const homepage = new Homepage(
                 stockMoversDailyPanelTable,
-                stockShakersDailyPanelTable
+                stockShakersDailyPanelTable,
+                stockMarketsPanel
             );
 
             homepage.render();
