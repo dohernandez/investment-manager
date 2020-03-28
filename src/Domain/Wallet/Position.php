@@ -238,7 +238,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividendYield = null;
         $nextDividendAfterTaxes = null;
         $nextDividendYieldAfterTaxes = null;
-        $this->binDividendValue(
+        $this->bindDividendValue(
             $nextDividend,
             $stock->getNextYearDividend(),
             $nextDividendYield,
@@ -293,7 +293,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             ->increase($capital);
     }
 
-    private function binDividendValue(
+    private function bindDividendValue(
         ?Money &$dividend,
         ?Money $yearDividend,
         ?float &$dividendYield,
@@ -442,7 +442,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividendYield = null;
         $nextDividendAfterTaxes = null;
         $nextDividendYieldAfterTaxes = null;
-        $this->binDividendValue(
+        $this->bindDividendValue(
             $nextDividend,
             $stock->getNextYearDividend(),
             $nextDividendYield,
@@ -544,7 +544,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividendYield = null;
         $nextDividendAfterTaxes = null;
         $nextDividendYieldAfterTaxes = null;
-        $this->binDividendValue(
+        $this->bindDividendValue(
             $nextDividend,
             $stock->getNextYearDividend(),
             $nextDividendYield,
@@ -621,7 +621,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividendYield = null;
         $nextDividendAfterTaxes = null;
         $nextDividendYieldAfterTaxes = null;
-        $this->binDividendValue(
+        $this->bindDividendValue(
             $nextDividend,
             $stock->getNextYearDividend(),
             $nextDividendYield,
@@ -694,7 +694,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividendYield = null;
         $nextDividendAfterTaxes = null;
         $nextDividendYieldAfterTaxes = null;
-        $this->binDividendValue(
+        $this->bindDividendValue(
             $nextDividend,
             $stock->getNextYearDividend(),
             $nextDividendYield,
@@ -707,7 +707,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $toPayDividendYield = null;
         $toPayDividendAfterTaxes = null;
         $toPayDividendYieldAfterTaxes = null;
-        $this->binDividendValue(
+        $this->bindDividendValue(
             $toPayDividend,
             $stock->getNextYearDividend(),
             $toPayDividendYield,
@@ -759,7 +759,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $nextDividendYield = null;
         $nextDividendAfterTaxes = null;
         $nextDividendYieldAfterTaxes = null;
-        $this->binDividendValue(
+        $this->bindDividendValue(
             $nextDividend,
             $stock->getNextYearDividend(),
             $nextDividendYield,
@@ -772,7 +772,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         $toPayDividendYield = null;
         $toPayDividendAfterTaxes = null;
         $toPayDividendYieldAfterTaxes = null;
-        $this->binDividendValue(
+        $this->bindDividendValue(
             $toPayDividend,
             $stock->getNextYearDividend(),
             $toPayDividendYield,
