@@ -40,6 +40,11 @@ class WalletBook
     /**
      * @var BookEntry|null
      */
+    private $dividendsProjection;
+
+    /**
+     * @var BookEntry|null
+     */
     private $commissions;
 
     /**
@@ -67,7 +72,7 @@ class WalletBook
         $this->id = $id;
     }
 
-    public static function createWithInitialBalance(Currency $currency, ?Money $balance): self
+    public static function createWithInitialBalance(Currency $currency, ?Money $balance = null): self
     {
         $self = new static();
 
@@ -147,6 +152,16 @@ class WalletBook
         $this->dividends = $dividends;
 
         return $this;
+    }
+
+    public function getDividendsProjection(): ?BookEntry
+    {
+        return $this->dividendsProjection;
+    }
+
+    public function setDividendsProjection(?BookEntry $dividendsProjection): void
+    {
+        $this->dividendsProjection = $dividendsProjection;
     }
 
     public function getCommissions(): ?BookEntry

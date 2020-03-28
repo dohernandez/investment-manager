@@ -31,6 +31,13 @@
             </cascade>
         </one-to-one>
 
+        <one-to-one field="dividendsProjection" target-entity="App\Domain\Wallet\BookEntry">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-one>
+
         <one-to-one field="connection" target-entity="App\Domain\Wallet\BookEntry">
             <cascade>
                 <cascade-persist/>

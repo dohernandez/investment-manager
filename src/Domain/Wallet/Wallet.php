@@ -4,6 +4,7 @@ namespace App\Domain\Wallet;
 
 use App\Domain\Wallet\Event\WalletBuyOperationUpdated;
 use App\Domain\Wallet\Event\WalletBuySellOperationUpdated;
+use App\Domain\Wallet\Event\WalletYearDividendProjectionCalculated;
 use App\Domain\Wallet\Event\WalletConnectivityUpdated;
 use App\Domain\Wallet\Event\WalletCreated;
 use App\Domain\Wallet\Event\WalletDividendsUpdated;
@@ -413,6 +414,82 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return 100;
     }
 
+    public function calculateYearDividendProjected(int $year, ?Rate $exchangeMoneyRate = null, $toUpdateAt = 'now'): self
+    {
+        $toUpdateAt = new DateTime($toUpdateAt);
+
+        $book = BookEntry::createBookEntry('dividends_projection');
+        // book entry year
+        $bookYearEntry = BookEntry::createYearEntry($book, $year);
+        $book->getEntries()->add($bookYearEntry);
+        $bookYearEntry->setTotal(new Money($this->getCurrency()));
+
+        foreach ($this->positions as $position) {
+            $amount = $position->getAmount();
+            $totalDividendRetention = $position->getBook()->getTotalDividendRetention() ?
+                $position->getBook()->getTotalDividendRetention()->multiply($amount) :
+                null;
+
+            if ($exchangeMoneyRate) {
+                $totalDividendRetention = $exchangeMoneyRate->exchange($totalDividendRetention);
+            }
+
+            // dividends year
+            $dividends = $position->getStock()->getDividends()->filter(
+                function (StockDividend $dividend) use($year) {
+                    return (int)$dividend->getExDate()->format('Y') === $year;
+                }
+            );
+
+            /** @var StockDividend $dividend */
+            foreach ($dividends as $dividend) {
+                // book entry month
+                $month = (string)Date::getMonth($dividend->getExDate());
+                $bookMonthEntry = $bookYearEntry->getBookEntry($month);
+                if(!$bookMonthEntry) {
+                    $bookMonthEntry = BookEntry::createMonthEntry($bookYearEntry, $month);
+                    $bookMonthEntry->setTotal(new Money($this->getCurrency()));
+                    $bookYearEntry->getEntries()->add($bookMonthEntry);
+                }
+
+                $totalValue = $dividend->getValue()->multiply($amount);
+                if ($exchangeMoneyRate) {
+                    $totalValue = $exchangeMoneyRate->exchange($totalValue);
+                }
+
+                $totalValue = $totalValue->decrease($totalDividendRetention);
+                $bookMonthEntry->setTotal($bookMonthEntry->getTotal()->increase($totalValue));
+                $bookYearEntry->setTotal($bookYearEntry->getTotal()->increase($totalValue));
+            }
+        }
+
+        if ($changed = $this->findIfLastChangeHappenedIsName(WalletYearDividendProjectionCalculated::class)) {
+            // This is to avoid have too much update events.
+
+            $this->replaceChangedPayload(
+                $changed,
+                new WalletYearDividendProjectionCalculated(
+                    $this->id,
+                    $book,
+                    $toUpdateAt
+                ),
+                clone $toUpdateAt
+            );
+
+            return $this;
+        }
+
+        $this->recordChange(
+            new WalletYearDividendProjectionCalculated(
+                $this->id,
+                $book,
+                $toUpdateAt
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         $event = $changed->getPayload();
@@ -525,6 +602,13 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     ->setCapital($event->getCapital())
                     ->setBenefits($event->getBenefits())
                     ->setPercentageBenefits($event->getPercentageBenefits());
+
+                break;
+
+            case WalletYearDividendProjectionCalculated::class:
+                /** @var WalletYearDividendProjectionCalculated $event */
+
+                $this->book->setDividendsProjection($event->getYearDividendProjected());
 
                 break;
         }
