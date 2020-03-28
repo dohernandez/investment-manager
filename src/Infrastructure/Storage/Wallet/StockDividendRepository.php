@@ -39,7 +39,8 @@ final class StockDividendRepository implements StockDividendRepositoryInterface
         }
 
         return new StockDividend(
-            $dividend->getExDate()
+            $dividend->getExDate(),
+            $dividend->getValue()
         );
     }
 }

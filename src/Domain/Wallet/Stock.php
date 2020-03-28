@@ -5,6 +5,7 @@ namespace App\Domain\Wallet;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 
 final class Stock
 {
@@ -83,6 +84,11 @@ final class Stock
      */
     private $nextYearDividend;
 
+    /**
+     * @var ArrayCollection|StockDividend[]|null
+     */
+    private $dividends;
+
     public function __construct(
         string $id,
         string $name,
@@ -98,7 +104,8 @@ final class Stock
         ?DateTime $prevDividendExDate = null,
         ?Money $toPayDividend = null,
         ?DateTime $toPayDividendDate = null,
-        ?string $notes = null
+        ?string $notes = null,
+        ?ArrayCollection $dividends = null
     ) {
         $this->id = $id;
         $this->symbol = $symbol;
@@ -115,6 +122,7 @@ final class Stock
         $this->toPayDividend = $toPayDividend;
         $this->toPayDividendDate = $toPayDividendDate;
         $this->notes = $notes;
+        $this->dividends = $dividends;
     }
 
     public function getId(): string
@@ -225,6 +233,33 @@ final class Stock
             $this->getToPayDividend(),
             $this->getToPayDividendDate(),
             $this->getNotes()
+        );
+    }
+
+    public function getDividends(): ?ArrayCollection
+    {
+        return $this->dividends;
+    }
+
+    public function appendStockDividends(ArrayCollection $dividends): self
+    {
+        return new static(
+            $this->getId(),
+            $this->getName(),
+            $this->getSymbol(),
+            $this->getMarket(),
+            $this->getYahooSymbol(),
+            $this->getPrice(),
+            $this->getChange(),
+            $this->getPreClose(),
+            $this->getNextDividend(),
+            $this->getNextYearDividend(),
+            $this->getNextDividendExDate(),
+            $this->getPrevDividendExDate(),
+            $this->getToPayDividend(),
+            $this->getToPayDividendDate(),
+            $this->getNotes(),
+            $dividends
         );
     }
 }

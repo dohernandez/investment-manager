@@ -13,13 +13,24 @@ final class StockDividend
      */
     private $exDate;
 
-    public function __construct(DateTime $exDate)
+    /**
+     * @var Money|null
+     */
+    private $value;
+
+    public function __construct(DateTime $exDate, Money $value)
     {
         $this->exDate = $exDate;
+        $this->value = $value;
     }
 
     public function getExDate(): ?DateTime
     {
         return $this->exDate;
+    }
+
+    public function getValue(): ?Money
+    {
+        return $this->value;
     }
 }
