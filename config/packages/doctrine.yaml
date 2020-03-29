@@ -29,12 +29,6 @@ doctrine:
         auto_mapping: true
         entity_listener_resolver: app.doctrine.entity_listener_resolver
         mappings:
-            App:
-                is_bundle: false
-                type: annotation
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
-                alias: App
             Infrastructure:
                 is_bundle: false
                 type: xml
