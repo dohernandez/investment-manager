@@ -5,12 +5,11 @@ namespace App\Presentation\Controller\Wallet;
 use App\Application\Market\Command\UpdateStockWithPrice;
 use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
 use App\Application\Wallet\Command\CreateWallet;
+use App\Application\Wallet\Command\GetWalletDividendStatistics;
 use App\Application\Wallet\Command\GetWalletStatistics;
-use App\Application\Wallet\Command\RegisterOperation;
 use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
 use App\Presentation\Controller\RESTController;
 use App\Presentation\Form\Market\EditStockType;
-use App\Presentation\Form\Wallet\CreateOperationType;
 use App\Presentation\Form\Wallet\CreateWalletType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -142,6 +141,25 @@ final class WalletRESTController extends RESTController
         }
 
         $result = $this->handle(new GetWalletStatistics($id), $bus);
+
+        return $this->createApiResponse($result);
+    }
+
+    /**
+     * @Route("/{id}/dividend_statistics", name="wallet_dividend_statistics", methods={"GET"}, options={"expose"=true})
+     *
+     * @param string $id
+     * @param MessageBusInterface $bus
+     *
+     * @return Response
+     */
+    public function dividendStatistics(string $id, MessageBusInterface $bus): Response
+    {
+        if ($id == '' || $id == null) {
+            return $this->createApiErrorResponse('Wallet not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $result = $this->handle(new GetWalletDividendStatistics($id), $bus);
 
         return $this->createApiResponse($result);
     }
