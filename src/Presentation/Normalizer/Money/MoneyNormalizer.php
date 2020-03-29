@@ -48,6 +48,7 @@ class MoneyNormalizer implements SubscribingHandlerInterface
             'value' => $money->getValue(),
             'precision' => $money->getPrecision(),
             'preciseValue' => $money->getPreciseValue(),
+            'displayValue' => (string) $money,
         ];
     }
 }
