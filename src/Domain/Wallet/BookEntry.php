@@ -46,6 +46,11 @@ class BookEntry
      */
     private $entries;
 
+    /**
+     * @var BookEntryMetadata|null
+     */
+    private $metadata;
+
     public function __construct(?int $id = null)
     {
         $this->id = $id;
@@ -232,5 +237,17 @@ class BookEntry
         $copyBookMonthEntry->increaseTotal($value);
 
         return $copyBook;
+    }
+
+    public function getMetadata(): ?BookEntryMetadata
+    {
+        return $this->metadata;
+    }
+
+    public function setMetadata(?BookEntryMetadata $metadata): self
+    {
+        $this->metadata = $metadata;
+
+        return $this;
     }
 }

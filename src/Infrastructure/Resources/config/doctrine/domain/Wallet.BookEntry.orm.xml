@@ -21,6 +21,7 @@
                 <cascade-remove />
             </cascade>
         </one-to-many>
+        <field name="metadata" column="metadata" type="object" />
     </entity>
 
 </doctrine-mapping>

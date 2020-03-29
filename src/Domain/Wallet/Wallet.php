@@ -457,12 +457,13 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
             }
 
             $amount = $position->getAmount();
-            $totalDividendRetention = $position->getBook()->getTotalDividendRetention() ?
+            // TODO get retention based on dividend exDate for more accuracy projection
+            $totalDividendRetentionExchanged = $totalDividendRetention = $position->getBook()->getTotalDividendRetention() ?
                 $position->getBook()->getTotalDividendRetention()->multiply($amount) :
                 null;
 
             if ($exchangeMoneyRate) {
-                $totalDividendRetention = $exchangeMoneyRate->exchange($totalDividendRetention);
+                $totalDividendRetentionExchanged = $exchangeMoneyRate->exchange($totalDividendRetention);
             }
 
             /** @var StockDividend $dividend */
@@ -476,14 +477,33 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     $bookYearEntry->getEntries()->add($bookMonthEntry);
                 }
 
-                $totalValue = $dividend->getValue()->multiply($amount);
+                $totalValueExchanged = $totalValue = $dividend->getValue()->multiply($amount);
                 if ($exchangeMoneyRate) {
-                    $totalValue = $exchangeMoneyRate->exchange($totalValue);
+                    $totalValueExchanged = $exchangeMoneyRate->exchange($totalValue);
                 }
 
                 $totalValue = $totalValue->decrease($totalDividendRetention);
-                $bookMonthEntry->setTotal($bookMonthEntry->getTotal()->increase($totalValue));
-                $bookYearEntry->setTotal($bookYearEntry->getTotal()->increase($totalValue));
+                $totalValueExchanged = $totalValueExchanged->decrease($totalDividendRetentionExchanged);
+
+                $bookMonthEntry->setTotal($bookMonthEntry->getTotal()->increase($totalValueExchanged));
+                $bookMonthEntry->setMetadata(
+                    new BookEntryMetadata(
+                        $exchangeMoneyRate,
+                        $bookMonthEntry->getMetadata() ?
+                            $bookMonthEntry->getMetadata()->getMoneyOriginalCurrency()->increase($totalValue) :
+                            $totalValue
+                    )
+                );
+
+                $bookYearEntry->setTotal($bookYearEntry->getTotal()->increase($totalValueExchanged));
+                $bookYearEntry->setMetadata(
+                    new BookEntryMetadata(
+                        $exchangeMoneyRate,
+                        $bookYearEntry->getMetadata() ?
+                            $bookYearEntry->getMetadata()->getMoneyOriginalCurrency()->increase($totalValue) :
+                            $totalValue
+                    )
+                );
             }
         }
 
@@ -555,13 +575,13 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     ->setBenefits($event->getBenefits())
                     ->setPercentageBenefits($event->getPercentageBenefits());
 
-                $dividends = $this->book->getCommissions();
-                if (!$dividends) {
-                    $dividends = $event->getCommissions();
+                $dividendsProjection = $this->book->getCommissions();
+                if (!$dividendsProjection) {
+                    $dividendsProjection = $event->getCommissions();
                 } else {
-                    $dividends->merge($event->getCommissions());
+                    $dividendsProjection->merge($event->getCommissions());
                 }
-                $this->book->setCommissions($dividends);
+                $this->book->setCommissions($dividendsProjection);
 
                 break;
 
@@ -573,13 +593,13 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     ->setBenefits($event->getBenefits())
                     ->setPercentageBenefits($event->getPercentageBenefits());
 
-                $dividends = $this->book->getConnection();
-                if (!$dividends) {
-                    $dividends = $event->getConnectivity();
+                $dividendsProjection = $this->book->getConnection();
+                if (!$dividendsProjection) {
+                    $dividendsProjection = $event->getConnectivity();
                 } else {
-                    $dividends->merge($event->getConnectivity());
+                    $dividendsProjection->merge($event->getConnectivity());
                 }
-                $this->book->setConnection($dividends);
+                $this->book->setConnection($dividendsProjection);
 
                 break;
 
@@ -591,13 +611,13 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     ->setBenefits($event->getBenefits())
                     ->setPercentageBenefits($event->getPercentageBenefits());
 
-                $dividends = $this->book->getInterest();
-                if (!$dividends) {
-                    $dividends = $event->getInterests();
+                $dividendsProjection = $this->book->getInterest();
+                if (!$dividendsProjection) {
+                    $dividendsProjection = $event->getInterests();
                 } else {
-                    $dividends->merge($event->getInterests());
+                    $dividendsProjection->merge($event->getInterests());
                 }
-                $this->book->setInterest($dividends);
+                $this->book->setInterest($dividendsProjection);
 
                 break;
 
@@ -609,13 +629,13 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     ->setBenefits($event->getBenefits())
                     ->setPercentageBenefits($event->getPercentageBenefits());
 
-                $dividends = $this->book->getDividends();
-                if (!$dividends) {
-                    $dividends = $event->getDividends();
+                $dividendsProjection = $this->book->getDividends();
+                if (!$dividendsProjection) {
+                    $dividendsProjection = $event->getDividends();
                 } else {
-                    $dividends->merge($event->getDividends());
+                    $dividendsProjection->merge($event->getDividends());
                 }
-                $this->book->setDividends($dividends);
+                $this->book->setDividends($dividendsProjection);
 
                 break;
 
@@ -632,7 +652,13 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
             case WalletYearDividendProjectionCalculated::class:
                 /** @var WalletYearDividendProjectionCalculated $event */
 
-                $this->book->setDividendsProjection($event->getYearDividendProjected());
+                $dividendsProjection = $this->book->getDividendsProjection();
+                if (!$dividendsProjection) {
+                    $dividendsProjection = $event->getYearDividendProjected();
+                } else {
+                    $dividendsProjection->merge($event->getYearDividendProjected());
+                }
+                $this->book->setDividendsProjection($dividendsProjection);
 
                 break;
         }
