@@ -27,4 +27,12 @@ interface ProjectionPositionRepositoryInterface
     public function findByWalletStockOpenDateAt(string $walletId, string $stockId, DateTime $datedAt): ?Position;
 
     public function findByWalletAndStatus(string $id, string $walletId, string $status): ?Position;
+
+    /**
+     * @param string $walletId
+     * @param int $year
+     *
+     * @return Position[]
+     */
+    public function findAllOpenOrHasOpenedByWalletInYear(string $walletId, int $year): array;
 }

@@ -97,4 +97,17 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findAllOpenOrHasOpenedByWalletInYear(string $walletId, int $year): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.wallet = :walletId')
+            ->andWhere(
+                'YEAR(p.openedAt) <= :year AND (p.closedAt is null OR YEAR(p.closedAt) = :year)'
+            )
+            ->setParameter('walletId', $walletId)
+            ->setParameter('year', $year)
+            ->getQuery()
+            ->getResult();
+    }
 }
