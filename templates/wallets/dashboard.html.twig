@@ -12,10 +12,10 @@
 
 {% block page_content %}
 
-    {% include 'wallets/partial/head-dashboard-2.html.twig' %}
-    {% include 'wallets/partial/position-box-2.html.twig' %}
-    {% include 'wallets/partial/position-dividend-box-2.html.twig' %}
-    {% include 'wallets/partial/operation-box-2.html.twig' %}
+    {% include 'wallets/partial/head-dashboard.html.twig' %}
+    {% include 'wallets/partial/position-box.html.twig' %}
+    {% include 'wallets/partial/position-dividend-box.html.twig' %}
+    {% include 'wallets/partial/operation-box.html.twig' %}
 
 {% endblock %}
 
@@ -23,11 +23,11 @@
     {{ parent() }}
 
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
-    {% include 'wallets/partial/position-box-2-scripts.html.twig' %}
-    {% include 'wallets/partial/position-dividend-box-2-scripts.html.twig' %}
-    {% include 'wallets/partial/operation-box-2-scripts.html.twig' %}
+    {% include 'wallets/partial/position-box-scripts.html.twig' %}
+    {% include 'wallets/partial/position-dividend-box-scripts.html.twig' %}
+    {% include 'wallets/partial/operation-box-scripts.html.twig' %}
 
-    <script type="text/javascript"  src="{{ asset('build/wallet_dashboard_2.js') }}"></script>
+    <script type="text/javascript"  src="{{ asset('build/wallet_dashboard.js') }}"></script>
 
     <script>
         $(document).ready(function() {
