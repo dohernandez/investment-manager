@@ -36,11 +36,14 @@ final class ExchangeMoneyRepository extends ServiceEntityRepository implements E
         );
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findAllByToCurrency(string $toCurrency): array
     {
-        return $this->_em->createQueryBuilder('ec')
+        return $this->createQueryBuilder('ec')
             ->andWhere('ec.paarCurrency LIKE :toCurrency')
-            ->setParameter('toCurrency', '%_' . $toCurrency)
+            ->setParameter('toCurrency', $toCurrency . '_%' )
             ->getQuery()
             ->getResult();
     }

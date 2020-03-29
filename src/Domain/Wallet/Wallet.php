@@ -432,6 +432,18 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         $bookYearEntry->setTotal(new Money($this->getCurrency()));
 
         foreach ($this->positions as $position) {
+            $dividends = $position->getStock()->getDividends();
+            if (!$dividends || $dividends->isEmpty()) {
+                continue;
+            }
+
+            // dividends year
+            $dividends = $dividends->filter(
+                function (StockDividend $dividend) use($year) {
+                    return (int)$dividend->getExDate()->format('Y') === $year;
+                }
+            );
+
             $exchangeMoneyRate = null;
 
             if (!empty($exchangeMoneyRates) && !$position->getStock()->getCurrency()->equals($this->getCurrency())) {
@@ -452,13 +464,6 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
             if ($exchangeMoneyRate) {
                 $totalDividendRetention = $exchangeMoneyRate->exchange($totalDividendRetention);
             }
-
-            // dividends year
-            $dividends = $position->getStock()->getDividends()->filter(
-                function (StockDividend $dividend) use($year) {
-                    return (int)$dividend->getExDate()->format('Y') === $year;
-                }
-            );
 
             /** @var StockDividend $dividend */
             foreach ($dividends as $dividend) {

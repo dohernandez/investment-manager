@@ -7,6 +7,7 @@ use App\Application\Wallet\Repository\StockDividendRepositoryInterface;
 use App\Application\Wallet\Repository\StockRepositoryInterface;
 use App\Domain\Wallet\Wallet;
 use App\Infrastructure\Date\Date;
+use App\Infrastructure\Reflection\PropertySetter;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -46,7 +47,7 @@ final class WalletOpenOrOpenedPositionYearWithDividendsWithDividendsDecorate imp
 
         foreach ($positions as $position) {
             $stock = $position->getStock();
-            $stock->appendStockDividends(
+            $stock = $stock->appendStockDividends(
                 new ArrayCollection(
                     $this->stockDividendRepository->findAllExDateTimeWindow(
                         $stock->getId(),
@@ -55,6 +56,8 @@ final class WalletOpenOrOpenedPositionYearWithDividendsWithDividendsDecorate imp
                     )
                 )
             );
+
+            PropertySetter::setValueProperty($position, 'stock', $stock);
         }
 
         $wallet->setPositions($positions);

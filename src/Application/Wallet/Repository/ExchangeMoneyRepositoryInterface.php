@@ -9,5 +9,10 @@ interface ExchangeMoneyRepositoryInterface
 {
     public function findRate(Currency $fromCurrency, Currency $toCurrency): ?Rate;
 
+    /**
+     * @param Currency $toCurrency
+     *
+     * @return Rate[]
+     */
     public function findAllByToCurrency(Currency $toCurrency): array;
 }

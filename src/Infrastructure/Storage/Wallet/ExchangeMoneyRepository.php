@@ -34,8 +34,18 @@ final class ExchangeMoneyRepository implements ExchangeMoneyRepositoryInterface
         return new Rate($fromCurrency, $toCurrency, $rate->getRate());
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findAllByToCurrency(Currency $toCurrency): array
     {
-        return $this->projectionExchangeMoneyRepository->findAllByToCurrency($toCurrency->getCurrencyCode());
+        $rates = [];
+
+        $exchangeRates = $this->projectionExchangeMoneyRepository->findAllByToCurrency($toCurrency->getCurrencyCode());
+        foreach ($exchangeRates as $exchangeRate) {
+            $rates[] = new Rate($exchangeRate->getToCurrency(), $toCurrency, $exchangeRate->getRate());
+        }
+
+        return $rates;
     }
 }

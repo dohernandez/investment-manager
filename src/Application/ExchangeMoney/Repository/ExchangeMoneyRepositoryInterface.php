@@ -10,5 +10,10 @@ interface ExchangeMoneyRepositoryInterface
 
     public function findRateByPaarCurrency(string $paarCurrency): ?Rate;
 
+    /**
+     * @param string $toCurrency
+     *
+     * @return Rate[]
+     */
     public function findAllByToCurrency(string $toCurrency): array;
 }
