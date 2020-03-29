@@ -49,7 +49,7 @@ class StockDividendRepository extends ServiceEntityRepository  implements StockD
             ->getResult();
     }
 
-    public function findLastBeforeDateByStock(Stock $stock, DateTime $date): ?StockDividend
+    public function findLastBeforeExDateByStock(Stock $stock, DateTime $date): ?StockDividend
     {
         return $this->createQueryBuilder('sd')
             ->andWhere('sd.stock = :stock')
@@ -60,5 +60,20 @@ class StockDividendRepository extends ServiceEntityRepository  implements StockD
             ->getQuery()
             ->setMaxResults(1)
             ->getOneOrNullResult();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllExDateTimeWindow(Stock $stock, DateTime $dateFrom, ?DateTime $dateTo = null): array
+    {
+        return $this->createQueryBuilder('sd')
+            ->andWhere('sd.stock = :stock')
+            ->setParameter('stock', $stock)
+            ->andWhere('sd.exDate >= :dateFrom or sd.exDate <= :dateTo')
+            ->setParameter('dateFrom', $dateFrom)
+            ->setParameter('dateTo', $dateTo)
+            ->getQuery()
+            ->getResult();
     }
 }

@@ -22,5 +22,14 @@ interface StockDividendRepositoryInterface
      */
     public function findAllProjectedAndAnnouncedByStock(Stock $stock): ?array;
 
-    public function findLastBeforeDateByStock(Stock $stock, DateTime $date): ?StockDividend;
+    public function findLastBeforeExDateByStock(Stock $stock, DateTime $date): ?StockDividend;
+
+    /**
+     * @param Stock $stock
+     * @param DateTime $dateFrom
+     * @param DateTime|null $dateTo
+     *
+     * @return StockDividend[]
+     */
+    public function findAllExDateTimeWindow(Stock $stock, DateTime $dateFrom, ?DateTime $dateTo = null): array;
 }

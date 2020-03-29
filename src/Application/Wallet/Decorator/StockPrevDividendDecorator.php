@@ -20,7 +20,7 @@ final class StockPrevDividendDecorator implements StockPrevDividendDecoratorInte
 
     public function decorate(Stock &$stock, DateTime $date)
     {
-        $dividend = $this->stockDividendRepository->findLastBeforeDateByStock(
+        $dividend = $this->stockDividendRepository->findLastBeforeExDateByStock(
             $stock->getId(),
             $date
         );

@@ -11,7 +11,6 @@ use DateTime;
 
 final class StockDividendRepository implements StockDividendRepositoryInterface
 {
-
     /**
      * @var ProjectionStockDividendRepositoryInterface
      */
@@ -22,9 +21,9 @@ final class StockDividendRepository implements StockDividendRepositoryInterface
         $this->stockDividendRepository = $stockDividendRepository;
     }
 
-    public function findLastBeforeDateByStock(string $id, DateTime $date): ?StockDividend
+    public function findLastBeforeExDateByStock(string $id, DateTime $date): ?StockDividend
     {
-        $dividend = $this->stockDividendRepository->findLastBeforeDateByStock(
+        $dividend = $this->stockDividendRepository->findLastBeforeExDateByStock(
             new ProjectionStock($id),
             $date
         );
@@ -42,5 +41,21 @@ final class StockDividendRepository implements StockDividendRepositoryInterface
             $dividend->getExDate(),
             $dividend->getValue()
         );
+    }
+
+    public function findAllExDateTimeWindow(string $id, DateTime $dateFrom, ?DateTime $dateTo = null): array
+    {
+        $projectionDividends = $this->stockDividendRepository->findAllExDateTimeWindow(
+            new ProjectionStock($id),
+            $dateFrom,
+            $dateTo
+        );
+
+        $dividends = [];
+        foreach ($projectionDividends as $projectionDividend) {
+            $dividends[] = $this->hydrate($projectionDividend);
+        }
+
+        return $dividends;
     }
 }
