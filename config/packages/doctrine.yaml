@@ -51,3 +51,4 @@ doctrine:
         dql:
             datetime_functions:
                 date:  App\Infrastructure\Doctrine\DQL\Date
+                year:  App\Infrastructure\Doctrine\DQL\Year
