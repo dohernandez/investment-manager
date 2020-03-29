@@ -84,6 +84,13 @@ class SwalForm {
 
                 return this.preConfirm($modal, url, method);
             },
+            onClose: () => {
+                const $modal = $(swalForm.getContainer()).find('.swal2-modal');
+
+                if (swalOptions.onClose) {
+                    return swalOptions.onClose($modal);
+                }
+            },
         }).then((result) => {
             // Show popup with success message
             if (result.value) {
@@ -132,12 +139,16 @@ class SwalForm {
         console.log('onBeforeOpenEditView');
     }
 
-    preConfirm($wrapper, url, method) {
+    preConfirm($wrapper, url, method, excludes) {
         // Getting form data.
         const $form = $wrapper.find(this.selector);
         const formData = {};
 
         $.each($form.serializeArray(), (key, fieldData) => {
+            if ($.isArray(excludes) && !$.inArray(fieldData.name, excludes)) {
+                return;
+            }
+
             formData[fieldData.name] = fieldData.value
         });
 

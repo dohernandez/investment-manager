@@ -18,7 +18,9 @@ class AppExtension extends AbstractExtension
             new TwigFilter('compile_tmpl', [$this, 'compile'], ['is_safe' => ['html']]),
             new TwigFilter('compile_decimal_tmpl', [$this, 'compileDecimal'], ['is_safe' => ['html']]),
             new TwigFilter('compile_date_tmpl', [$this, 'compileDate'], ['is_safe' => ['html']]),
+            new TwigFilter('compile_time_tmpl', [$this, 'compileTime'], ['is_safe' => ['html']]),
             new TwigFilter('compile_money_tmpl', [$this, 'compileMoney'], ['is_safe' => ['html']]),
+            new TwigFilter('compile_money_decimal_tmpl', [$this, 'compileMoneyDecimal'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -29,7 +31,9 @@ class AppExtension extends AbstractExtension
             new TwigFunction('compile_tmpl', [$this, 'compile']),
             new TwigFunction('compile_decimal_tmpl', [$this, 'compileDecimal']),
             new TwigFunction('compile_date_tmpl', [$this, 'compileDate']),
+            new TwigFunction('compile_time_tmpl', [$this, 'compileTime']),
             new TwigFunction('compile_money_tmpl', [$this, 'compileMoney']),
+            new TwigFunction('compile_money_decimal_tmpl', [$this, 'compileMoneyDecimal']),
         ];
     }
 
@@ -67,6 +71,15 @@ class AppExtension extends AbstractExtension
         return $value;
     }
 
+    public function compileTime($value, $tmpl = false)
+    {
+        if ($tmpl) {
+            return "<% if ($value) { %><%= moment(new Date($value)).format('h:mm a') %><% } %>";
+        }
+
+        return $value;
+    }
+
     public function compileMoney($value, $tmpl = false)
     {
         if ($tmpl) {
@@ -77,7 +90,21 @@ class AppExtension extends AbstractExtension
                     <% } else { %>
                         &euro; <%= $value.preciseValue.toFixed(2).toString().replace(/\./g, \",\") %>
                     <% } %>
-                <% } %>";
+                <% } %>
+            ";
+        }
+
+        return $value;
+    }
+
+    public function compileMoneyDecimal($value, $tmpl = false)
+    {
+        if ($tmpl) {
+            return "
+                <% if ($value) { %>
+                    <%= $value.preciseValue %>
+                <% } %>
+            ";
         }
 
         return $value;

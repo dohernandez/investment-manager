@@ -26,7 +26,7 @@ class DeleteRowButton extends RowButton {
             form.delete(url(id), id, title)
                 .then((result) => {
                     if (result.value) {
-                        eventBus.emit('entity_deleted', null, id);
+                        eventBus.emit('entity_deleted', null, id, $row);
                     }
                 });
 

@@ -12,7 +12,7 @@ class Select2BrokerTemplate {
     /**
      * Define how will be render the item result.
      *
-     * @param {{loading: boolean, text: string, name: string, account: {accountNo: string}}} broker A broker object with text property.
+     * @param {{loading: boolean, text: string, title: string}} broker A broker object with text property.
      *
      * @return {*}
      */
@@ -22,9 +22,7 @@ class Select2BrokerTemplate {
         }
 
         let markup = "<div class='select2-result-broker clearfix'>" +
-            "<strong>" + broker.name + "</strong>" +
-            "<br />" +
-            "<small>" + broker.account.accountNo + "</small>" +
+            broker.title +
             "</div>";
 
         return markup;
@@ -34,7 +32,7 @@ class Select2BrokerTemplate {
     /**
      * Define how will be render the item selected.
      *
-     * @param {{text: string, name: string, account: {accountNo: string}}} broker A broker object with text property.
+     * @param {{text: string, title: string}} broker A broker object with text property.
      *
      * @return {string}
      */
@@ -43,7 +41,7 @@ class Select2BrokerTemplate {
             return broker.text;
         }
 
-        return broker.name + " - " + broker.account.accountNo;
+        return broker.title;
     }
 }
 

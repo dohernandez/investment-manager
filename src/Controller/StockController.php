@@ -24,7 +24,6 @@ class StockController extends AbstractController
     }
 
     /**
-     * @Route("/", name="stock_index", methods={"GET"})
      *
      * @return Response
      */

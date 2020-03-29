@@ -1,0 +1,233 @@
+<?php
+
+namespace App\Application\Market\Command;
+
+use App\Domain\Market\StockInfo;
+use App\Domain\Market\StockMarket;
+use App\Infrastructure\Money\Money;
+
+final class UpdateStockWithPrice
+{
+    /**
+     * @var string
+     */
+    private $id;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var string|null
+     */
+    private $yahooSymbol;
+
+    /**
+     * @var StockMarket
+     */
+    private $market;
+
+    /**
+     * @var Money|null
+     */
+    private $value;
+
+    /**
+     * @var string|null
+     */
+    private $description;
+
+    /**
+     * @var StockInfo|null
+     */
+    private $type;
+
+    /**
+     * @var StockInfo|null
+     */
+    private $sector;
+
+    /**
+     * @var StockInfo|null
+     */
+    private $industry;
+
+    /**
+     * @var Money|null
+     */
+    private $changePrice;
+
+    /**
+     * @var Money|null
+     */
+    private $preClose;
+
+    /**
+     * @var Money|null
+     */
+    private $open;
+
+    /**
+     * @var float|null
+     */
+    private $peRatio;
+
+    /**
+     * @var Money|null
+     */
+    private $dayLow;
+
+    /**
+     * @var Money|null
+     */
+    private $dayHigh;
+
+    /**
+     * @var Money|null
+     */
+    private $week52Low;
+
+    /**
+     * @var Money|null
+     */
+    private $week52High;
+
+    /**
+     * @var string|null
+     */
+    private $dividendFrequency;
+
+    public function __construct(
+        string $id,
+        string $name,
+        ?string $yahooSymbol,
+        StockMarket $market,
+        ?Money $value = null,
+        ?string $description = null,
+        ?StockInfo $type = null,
+        ?StockInfo $sector = null,
+        ?StockInfo $industry = null,
+        ?string $dividendFrequency = null,
+        ?Money $changePrice = null,
+        ?Money $preClose = null,
+        ?Money $open = null,
+        ?float $peRatio = null,
+        ?Money $dayLow = null,
+        ?Money $dayHigh = null,
+        ?Money $week52Low = null,
+        ?Money $week52High = null
+    ) {
+        $this->id = $id;
+        $this->name = $name;
+        $this->yahooSymbol = $yahooSymbol;
+        $this->market = $market;
+        $this->value = $value;
+        $this->description = $description;
+        $this->type = $type;
+        $this->sector = $sector;
+        $this->industry = $industry;
+        $this->changePrice = $changePrice;
+        $this->preClose = $preClose;
+        $this->open = $open;
+        $this->peRatio = $peRatio;
+        $this->dayLow = $dayLow;
+        $this->dayHigh = $dayHigh;
+        $this->week52Low = $week52Low;
+        $this->week52High = $week52High;
+        $this->dividendFrequency = $dividendFrequency;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getYahooSymbol(): ?string
+    {
+        return $this->yahooSymbol;
+    }
+
+    public function getMarket(): StockMarket
+    {
+        return $this->market;
+    }
+
+    public function getValue(): ?Money
+    {
+        return $this->value;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+
+    public function getType(): ?StockInfo
+    {
+        return $this->type;
+    }
+
+
+    public function getSector(): ?StockInfo
+    {
+        return $this->sector;
+    }
+
+
+    public function getIndustry(): ?StockInfo
+    {
+        return $this->industry;
+    }
+
+    public function getChangePrice(): ?Money
+    {
+        return $this->changePrice;
+    }
+
+    public function getPreClose(): ?Money
+    {
+        return $this->preClose;
+    }
+
+    public function getOpen(): ?Money
+    {
+        return $this->open;
+    }
+
+    public function getPeRatio(): ?float
+    {
+        return $this->peRatio;
+    }
+
+    public function getDayLow(): ?Money
+    {
+        return $this->dayLow;
+    }
+
+    public function getDayHigh(): ?Money
+    {
+        return $this->dayHigh;
+    }
+
+    public function getWeek52Low(): ?Money
+    {
+        return $this->week52Low;
+    }
+
+    public function getWeek52High(): ?Money
+    {
+        return $this->week52High;
+    }
+
+    public function getDividendFrequency(): ?string
+    {
+        return $this->dividendFrequency;
+    }
+}

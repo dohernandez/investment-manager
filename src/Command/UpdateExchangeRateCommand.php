@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class UpdateExchangeRateCommand extends Command
+class UpdateExchangeRateCommand
 {
     protected static $defaultName = 'app:update-exchange-rate';
 

@@ -91,7 +91,7 @@
                     <div class="box-footer no-border js-table-footer">
                         <div class="col-md-12">
                             <div class="pull-left col-sm-6">
-                        <span class="js-table-pagination-info" id="{{ entity_name|lower|replace({' ': '_'}) }}s-pagination-info" role="status" aria-live="polite"
+                        <span class="js-table-pagination-info pull-left" id="{{ entity_name|lower|replace({' ': '_'}) }}s-pagination-info" role="status" aria-live="polite"
                               data-text="{{ 'Showing :from to :to of :of'|trans }} {{ entity_name|lower|replace({'_': ' '}) }}s"></span>
                             </div>
                             <div class="pull-right col-sm-6">
@@ -121,7 +121,7 @@
 
 <!-- create table show per page template -->
 <script type="text/template" id="js-table-{{ entity_name|lower|replace({' ': '_'}) }}-show-per-page-template">
-    <label>{{ 'Show'|trans }}
+    <label class="pull-left">{{ 'Show'|trans }}
         <select id="show-{{ entity_name|lower|replace({' ': '_'}) }}s-per-page" name="table-per-page" aria-controls="per page"
                 class="form-control input-sm js-table-show-per-page"
                 style="width: 75px; display: inline-block;">
@@ -166,4 +166,6 @@
     </script>
 {% endif %}
 
-{% include 'Components/Form/swal-from-html.twig' %}
+{% if swalFrom is not defined or swalFrom == 1 %}
+    {% include 'Components/Form/swal-from-html.twig' %}
+{% endif %}

@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block page_title %}{{ 'Welcome Investment Manager'|trans|title }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {% include 'Components/Panel/panel-table-css.html.twig' %}
+{% endblock %}
+
+{% block page_content %}
+    <div class="row">
+    {% include 'homepage/partial/stock-markets.html.twig' %}
+    </div>
+    <!-- /.row -->
+    <div class="row">
+        <div class="col-md-6">
+            {% include 'homepage/partial/stock-movers.html.twig' %}
+        </div>
+        <!-- ./col -->
+        <div class="col-md-6">
+            {% include 'homepage/partial/stock-shakers.html.twig' %}
+        </div>
+        <!-- ./col -->
+    </div>
+    <!-- /.row -->
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('build/homepage.js') }}"></script>
+
+    {% include 'Components/Panel/panel-table-scripts.html.twig' %}
+    {% include 'homepage/partial/stock-movers-scripts.html.twig' %}
+    {% include 'homepage/partial/stock-shakers-scripts.html.twig' %}
+    {% include 'homepage/partial/stock-markets-scripts.html.twig' %}
+
+    <script>
+        $(document).ready(function() {
+            const stockMoversDailyPanelTable = createStockMoversDaily("{{ stock.movers.daily.entity_name|trans|lower }}");
+            const stockShakersDailyPanelTable = createStockShakersDaily("{{ stock.shakers.daily.entity_name|trans|lower }}");
+            const stockMarketsPanel = createStockMarkets("{{ market.entity_name|trans|lower }}");
+
+            const homepage = new Homepage(
+                stockMoversDailyPanelTable,
+                stockShakersDailyPanelTable,
+                stockMarketsPanel
+            );
+
+            homepage.render();
+            homepage.load();
+
+            // Tweak button toggle main menu to show/hide columns
+            $('.sidebar-toggle').on(
+                'click',
+                function(e) {
+                    let $button = $(e.currentTarget);
+
+                    if ($button.data('toggle') === 'push-menu') {
+                        homepage.toggle();
+                    }
+                }
+            );
+        });
+    </script>
+{% endblock %}

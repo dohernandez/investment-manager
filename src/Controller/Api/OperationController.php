@@ -57,7 +57,6 @@ class OperationController extends BaseController
     }
 
     /**
-     * @Route("/", name="wallet_operation_new", methods={"POST"}, options={"expose"=true})
      *
      * @param int $_id
      * @param EntityManagerInterface $em

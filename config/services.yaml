@@ -7,6 +7,9 @@ parameters:
     locale: en
     upload_note_dir: '%kernel.project_dir%/public/upload/notes/files'
     margin_rate: 0.475
+    jms_serializer.camel_case_naming_strategy.class: JMS\Serializer\Naming\IdenticalPropertyNamingStrategy
+    converter_api_key: '%env(CURRENCY_CONVERTER_API_KEY)%'
+    cloud_iexapis_api_key: '%env(CLOUD_IEXAPIS_API_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -18,22 +21,7 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,AppBundle}'
-
-    # makes classes in src/AppBundle available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
-    AppBundle\:
-        resource: '../src/AppBundle/*'
-        # you can exclude directories or files
-        # but if a service is unused, it's removed anyway
-        exclude: '../src/AppBundle/{Entity,Repository,Tests}'
-
-    # controllers are imported separately to make sure they're public
-    # and have a tag that allows actions to type-hint services
-    AppBundle\Controller\:
-        resource: '../src/AppBundle/Controller'
-        public: true
-        tags: ['controller.service_arguments']
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Infrastructure,Domain}'
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -61,11 +49,235 @@ services:
     Goutte\Client: ~
 
     # Interfaces
-    App\Client\DividendsClientInterface: '@dividends.client'
 
     # Client
     Symfony\Contracts\HttpClient\HttpClientInterface:
         factory: ['Symfony\Component\HttpClient\HttpClient', 'create']
 
-    dividends.client:
-        class: App\Client\NasdaqDividendsClient
+    ##### PRESENTATION LAYER START
+
+    # makes classes in src/Presentation available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\Presentation\:
+        resource: '../src/Presentation/*'
+        # you can exclude directories or files
+        # but if a service is unused, it's removed anyway
+        exclude: '../src/Presentation/{Controller,Console,Normalizer}'
+
+    # controllers are imported separately to make sure they're public
+    # and have a tag that allows actions to type-hint services
+    App\Presentation\Controller\:
+        resource: '../src/Presentation/Controller'
+        public: true
+        tags: ['controller.service_arguments']
+
+    # commands are imported separately to make sure they're public
+    # and have a tag that allows actions to type-hint services
+    App\Presentation\Console\:
+        resource: '../src/Presentation/Console'
+        public: true
+        tags: ['console.command']
+
+    ##### PRESENTATION LAYER END
+
+
+    ##### APPLICATION LAYER START
+
+    # Interfaces
+
+    # Account
+    App\Application\Account\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\AccountRepository'
+    App\Application\Account\Repository\ProjectionAccountRepositoryInterface: '@App\Infrastructure\Storage\ProjectionAccountRepository'
+
+    # Transfer
+    App\Application\Transfer\Repository\TransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\TransferRepository'
+    App\Application\Transfer\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\Transfer\AccountRepository'
+    App\Application\Transfer\Repository\ProjectionTransferRepositoryInterface: '@App\Infrastructure\Storage\Transfer\ProjectionTransferRepository'
+
+    # Broker
+    App\Application\Broker\Repository\BrokerRepositoryInterface: '@App\Infrastructure\Storage\Broker\BrokerRepository'
+    App\Application\Broker\Repository\ProjectionBrokerRepositoryInterface: '@App\Infrastructure\Storage\Broker\ProjectionBrokerRepository'
+
+    # Market
+    App\Application\Market\Repository\ProjectionStockInfoRepositoryInterface: '@App\Infrastructure\Storage\Market\ProjectionStockInfoRepository'
+    App\Application\Market\Repository\ProjectionStockMarketRepositoryInterface: '@App\Infrastructure\Storage\Market\ProjectionStockMarketRepository'
+    App\Application\Market\Repository\ProjectionStockRepositoryInterface: '@App\Infrastructure\Storage\Market\ProjectionStockRepository'
+    App\Application\Market\Repository\StockInfoRepositoryInterface: '@App\Infrastructure\Storage\Market\StockInfoRepository'
+    App\Application\Market\Repository\StockMarketRepositoryInterface: '@App\Infrastructure\Storage\Market\StockMarketRepository'
+    App\Application\Market\Repository\StockRepositoryInterface: '@App\Infrastructure\Storage\Market\StockRepository'
+    App\Application\Market\Repository\StockDividendRepositoryInterface: '@App\Infrastructure\Storage\Market\StockDividendRepository'
+
+    # Market\Service
+    App\Application\Market\Service\StockDividendsServiceInterface: '@App\Application\Market\Service\StockDividendsMediatorService'
+
+    # Market\Scraper
+    App\Application\Market\Scraper\StockScraperInterface: '@App\Application\Market\Scraper\YahooStockScraper'
+    App\Application\Market\Scraper\YahooStockScraper: ~
+    App\Application\Market\Scraper\StockMarketScraperInterface: '@App\Application\Market\Scraper\YahooStockMarketScraper'
+    App\Application\Market\Scraper\YahooStockMarketScraper: ~
+
+    # Wallet
+    App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ProjectionWalletRepository'
+    App\Application\Wallet\Repository\BrokerRepositoryInterface: '@App\Infrastructure\Storage\Wallet\BrokerRepository'
+    App\Application\Wallet\Repository\WalletRepositoryInterface: '@App\Infrastructure\Storage\Wallet\WalletRepository'
+    App\Application\Wallet\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\Wallet\AccountRepository'
+    App\Application\Wallet\Repository\StockRepositoryInterface: '@App\Infrastructure\Storage\Wallet\StockRepository'
+    App\Application\Wallet\Repository\OperationRepositoryInterface: '@App\Infrastructure\Storage\Wallet\OperationRepository'
+    App\Application\Wallet\Repository\ProjectionOperationRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ProjectionOperationRepository'
+    App\Application\Wallet\Repository\PositionRepositoryInterface: '@App\Infrastructure\Storage\Wallet\PositionRepository'
+    App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ProjectionPositionRepository'
+    App\Application\Wallet\Repository\ExchangeMoneyRepositoryInterface: '@App\Infrastructure\Storage\Wallet\ExchangeMoneyRepository'
+    App\Application\Wallet\Repository\StockDividendRepositoryInterface: '@App\Infrastructure\Storage\Wallet\StockDividendRepository'
+
+    # ExchangeMoney
+    App\Application\ExchangeMoney\Exchange\ExchangeMoneyInterface: '@App\Application\ExchangeMoney\Exchange\CurrencyConverter'
+    App\Application\ExchangeMoney\Repository\ExchangeMoneyRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\ExchangeMoneyRepository'
+    App\Application\ExchangeMoney\Repository\MarketRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\MarketRepository'
+    App\Application\ExchangeMoney\Repository\WalletRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\WalletRepository'
+
+    # Handlers
+    App\Application\Market\Handler\SyncStockDividendsHandler:
+        class: App\Application\Market\Handler\SyncStockDividendsHandler
+        arguments:
+            $stockDividendsDecorate: '@App\Application\Market\Decorator\StockDividendsDecorate'
+
+    App\Application\Wallet\Handler\ReCalculateWalletCapitalHandler:
+        class: App\Application\Wallet\Handler\ReCalculateWalletCapitalHandler
+        arguments:
+            $walletPositionDecorate: '@App\Application\Wallet\Decorator\WalletOpenPositionDecorate'
+
+    App\Application\Wallet\Handler\CalculateWalletYearDividendProjectionHandler:
+        class: App\Application\Wallet\Handler\CalculateWalletYearDividendProjectionHandler
+        arguments:
+            $openedPositionYearWithDividendsDecorate: '@App\Application\Wallet\Decorator\WalletOpenOrOpenedPositionYearWithDividendsWithDividendsDecorate'
+
+    # Decorators
+    App\Application\Market\Decorator\StockDividendsDecorate: ~
+
+    App\Application\Wallet\Decorator\StockPrevDividendDecorator: ~
+    App\Application\Wallet\Decorator\WalletOpenPositionDecorate: ~
+    App\Application\Wallet\Decorator\WalletOpenOrOpenedPositionYearWithDividendsWithDividendsDecorate: ~
+
+    # Subscribers
+    App\Application\Market\Subscriber\HouseKeeperSubscriber:
+        class: App\Application\Market\Subscriber\HouseKeeperSubscriber
+        arguments:
+            $houseKeeperStockDividendRepository: '@App\Infrastructure\Storage\Market\HouseKeeperStockDividendRepository'
+
+    App\Application\Wallet\Subscriber\DividendOperationRegisteredSubscriber:
+        class: App\Application\Wallet\Subscriber\DividendOperationRegisteredSubscriber
+        arguments:
+            $stockPrevDividendDecorator: '@App\Application\Wallet\Decorator\StockPrevDividendDecorator'
+
+    # Service
+    App\Application\Market\Service\StockDividendsMediatorService:
+        class: App\Application\Market\Service\StockDividendsMediatorService
+        arguments:
+            - '@service.stock.dividends.nasdaq'
+            - '@service.stock.dividends.cloudiexapis'
+
+    service.stock.dividends.nasdaq:
+        class: App\Application\Market\Service\StockDividendsService
+        arguments:
+            - '@App\Application\Market\Client\NasdaqDividendsClient'
+            - '@App\Application\Market\Parser\NasdaqDividendsParser'
+
+    service.stock.dividends.yahoo:
+        class: App\Application\Market\Service\StockDividendsService
+        arguments:
+            - '@App\Application\Market\Client\YahooDividendsClient'
+            - '@App\Application\Market\Parser\YahooDividendsParser'
+
+    service.stock.dividends.cloudiexapis:
+        class: App\Application\Market\Service\StockDividendsService
+        arguments:
+            - '@App\Application\Market\Client\CloudIExapisDividendsClient'
+            - '@App\Application\Market\Parser\CloudIExapisDividendsParser'
+
+    # Client
+    App\Application\Market\Client\NasdaqDividendsClient: ~
+    App\Application\Market\Client\YahooDividendsClient: ~
+    App\Application\Market\Client\CloudIExapisDividendsClient:
+        class: App\Application\Market\Client\CloudIExapisDividendsClient
+        arguments:
+            $token: '%cloud_iexapis_api_key%'
+
+    # Parser
+    App\Application\Market\Parser\NasdaqDividendsParser: ~
+    App\Application\Market\Parser\YahooDividendsParser: ~
+    App\Application\Market\Parser\CloudIExapisDividendsParser: ~
+
+    # Exchange
+    App\Application\ExchangeMoney\Exchange\CurrencyConverter:
+        class: App\Application\ExchangeMoney\Exchange\CurrencyConverter
+        arguments:
+            $apiKey: '%converter_api_key%'
+
+    ##### APPLICATION LAYER ENDsrc/Migrations/Version20200306090430.php
+
+
+    ##### INFRASTRUCTURE LAYER START
+
+    # makes classes in src/Infrastructure available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\Infrastructure\:
+        resource: '../src/Infrastructure/*'
+        # you can exclude directories or files
+        # but if a service is unused, it's removed anyway
+        exclude: '../src/Infrastructure/{Aggregator,Money}'
+
+    app.doctrine.entity_listener:
+        class: App\Infrastructure\EventSource\EventSourceListener
+        arguments: ['@event_dispatcher']
+        public: true
+
+    app.doctrine.entity_listener_resolver:
+        class: App\Infrastructure\Doctrine\EntityListenerResolver
+        arguments: [ '@service_container' ]
+        calls:
+            - [addMapping, ['App\Infrastructure\EventSource\EventSourceListener', 'app.doctrine.entity_listener']]
+
+    # Interface
+    App\Infrastructure\EventSource\EventSourceRepositoryInterface: '@App\Infrastructure\EventSource\EventSourceRepository'
+    App\Infrastructure\EventSource\SnapshotRepositoryInterface: '@App\Infrastructure\EventSource\DataBaseSnapshotRepository'
+
+    # Storage
+    App\Infrastructure\EventSource\EventSourceRepository: ~
+    App\Infrastructure\EventSource\DataBaseSnapshotRepository: ~
+
+    App\Infrastructure\Storage\ProjectionAccountRepository: ~
+    App\Infrastructure\Storage\AccountRepository: ~
+
+    App\Infrastructure\Storage\Transfer\TransferRepository: ~
+    App\Infrastructure\Storage\Transfer\AccountRepository: ~
+    App\Infrastructure\Storage\Transfer\ProjectionTransferRepository: ~
+
+    App\Infrastructure\Storage\Broker\BrokerRepository: ~
+    App\Infrastructure\Storage\Broker\ProjectionBrokerRepository: ~
+
+    App\Infrastructure\Storage\Market\ProjectionStockInfoRepository: ~
+    App\Infrastructure\Storage\Market\ProjectionStockMarketRepository: ~
+    App\Infrastructure\Storage\Market\ProjectionStockRepository: ~
+    App\Infrastructure\Storage\Market\StockInfoRepository: ~
+    App\Infrastructure\Storage\Market\StockMarketRepository: ~
+    App\Infrastructure\Storage\Market\StockRepository: ~
+    App\Infrastructure\Storage\Market\StockDividendRepository: ~
+    App\Infrastructure\Storage\Market\HouseKeeperStockDividendRepository: ~
+
+    App\Infrastructure\Storage\Wallet\ProjectionWalletRepository: ~
+    App\Infrastructure\Storage\Wallet\BrokerRepository: ~
+    App\Infrastructure\Storage\Wallet\WalletRepository: ~
+    App\Infrastructure\Storage\Wallet\AccountRepository: ~
+    App\Infrastructure\Storage\Wallet\StockRepository: ~
+    App\Infrastructure\Storage\Wallet\OperationRepository: ~
+    App\Infrastructure\Storage\Wallet\ProjectionOperationRepository: ~
+    App\Infrastructure\Storage\Wallet\PositionRepository: ~
+    App\Infrastructure\Storage\Wallet\ProjectionPositionRepository: ~
+    App\Infrastructure\Storage\Wallet\ExchangeMoneyRepository: ~
+    App\Infrastructure\Storage\Wallet\StockDividendRepository: ~
+
+    App\Infrastructure\Storage\ExchangeMoney\ExchangeMoneyRepository: ~
+    App\Infrastructure\Storage\ExchangeMoney\MarketRepository: ~
+    App\Infrastructure\Storage\ExchangeMoney\WalletRepository: ~
+
+    ##### INFRASTRUCTURE LAYER END

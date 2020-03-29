@@ -21,7 +21,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class StockController extends BaseController
 {
     /**
-     * @Route("/", name="stock_list", methods={"GET"}, options={"expose"=true})
      *
      * @param StockRepository $repo
      * @param Request $request
@@ -53,7 +52,6 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="stock_get", methods={"GET"}, options={"expose"=true}, requirements={"id":"\d+"})
      *
      * @param Entity\Stock $stock
      *
@@ -73,7 +71,6 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/", name="stock_new", methods={"POST"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request
@@ -132,7 +129,6 @@ class StockController extends BaseController
 
         /** @var Entity\Stock $stock */
         $stock = $form->getData();
-//        dump($stock);
 
         $em->persist($stock);
         $em->flush();
@@ -145,7 +141,7 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="stock_edit", methods={"PUT"}, options={"expose"=true})
+     *
      *
      * @param Entity\Stock $stock
      * @param EntityManagerInterface $em
@@ -161,7 +157,6 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="stock_delete", methods={"DELETE"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Entity\Stock $stock
@@ -181,7 +176,6 @@ class StockController extends BaseController
     }
 
     /**
-     * @Route("/quote", name="stock_yahoo_scraper", methods={"GET"}, options={"expose"=true})
      *
      * @param YahooStockScraper $scraper
      * @param Request $request

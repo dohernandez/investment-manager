@@ -20,7 +20,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class BrokerController extends BaseController
 {
     /**
-     * @Route("/", name="broker_list", methods={"GET"}, options={"expose"=true})
      *
      * @param BrokerRepository $repo
      * @param Request $request
@@ -52,7 +51,6 @@ class BrokerController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="broker_get", methods={"GET"}, options={"expose"=true})
      *
      * @param Entity\Broker $broker
      *
@@ -143,7 +141,6 @@ class BrokerController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="broker_edit", methods={"PUT"}, options={"expose"=true})
      *
      * @param Entity\Broker $broker
      * @param EntityManagerInterface $em

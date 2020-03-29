@@ -1,12 +1,13 @@
 'use strict';
 
 import Template from "./Template";
-import Form from "./Form";
 
 import _ from 'underscore';
 import $ from 'jquery';
 
 import 'twbs-pagination';
+
+const eventBus = require('js-event-bus')();
 
 class Table {
     constructor(options) {
@@ -25,6 +26,7 @@ class Table {
 
         // Start binding functions for $wrapper
         this.$wrapper = _options.wrapper;
+        this.entityType = _options.entityType;
 
         this.table = null;
         this.selectors = _options.selectors;
@@ -101,12 +103,18 @@ class Table {
     }
 
     setData(data) {
-        this.records = data.items;
-        this.totalRecords = data.items.length;
+        // this is because the server is serializing arrays sometimes like an array
+        // and another times like an object. We have to cast to array.
+        let items = data.items;
+        if (typeof items === 'object') {
+            items = Object.values(items);
+        }
+        this.records = items;
+        this.totalRecords = items.length;
 
         this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
-        this.refreshPagination();
+        this.refresh();
     }
 
     /**
@@ -121,13 +129,7 @@ class Table {
     /**
      * Create a row table with the entity value.
      *
-     * @param {{
-     *          id: int,
-     *          date: string,
-     *          beneficiaryParty: {name: string, accountNo: string},
-     *          debtorParty: {name: string, accountNo: string},
-     *          amount: float
-     *        }} entity
+     * @param {object} entity
      * @param {int} index
      */
     addRow(entity, index) {
@@ -180,7 +182,7 @@ class Table {
         this.totalRecords++;
         this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
 
-        this.refreshPagination();
+        this.refresh();
     }
 
     replaceRecord(record, id) {
@@ -191,6 +193,8 @@ class Table {
         }
 
         this.records[recordIndex] = record;
+
+        this.refresh();
     }
 
     removeRecord(id) {
@@ -214,7 +218,7 @@ class Table {
             this.totalPages = newTotalPages;
         }
 
-        this.refreshPagination();
+        this.refresh();
     }
 
     // Expanded section
@@ -308,6 +312,14 @@ class Table {
         let $paginationInfo = this.$wrapper.find(this.selectors.paginationInfo);
         $paginationInfo.parent().css('margin', '24px 0');
 
+        if (_options.page < 1 || _options.page > _options.totalPages) {
+            let displayRecords = _options.records;
+
+            this.recreateTableWithRecords(displayRecords, 0);
+
+            return;
+        }
+
         // init pagination object
         $paginator.twbsPagination({
             totalPages: _options.totalPages,
@@ -321,18 +333,20 @@ class Table {
                 this.recreateTableWithRecords(displayRecords, displayRecordsIndex);
 
                 // update pagination text
-                let pageInfo = $paginationInfo.data('text')
-                    .replace(/:from/g, displayRecordsIndex + 1)
-                    .replace(/:to/g, displayRecordsIndex + displayRecords.length)
-                    .replace(/:of/g, _options.totalRecords)
-                ;
+                if ($paginationInfo.data('text')) {
+                    let pageInfo = $paginationInfo.data('text')
+                        .replace(/:from/g, displayRecordsIndex + 1)
+                        .replace(/:to/g, displayRecordsIndex + displayRecords.length)
+                        .replace(/:of/g, _options.totalRecords)
+                    ;
 
-                $paginationInfo.html(pageInfo);
+                    $paginationInfo.html(pageInfo);
+                }
 
                 // to keep the current page
                 this.page = page
             }.bind(this),
-            startPage: _options.page
+            startPage: Math.min(_options.page, _options.totalPages),
         });
 
         if (_options.totalRecords <= _options.showPerPage) {
@@ -399,13 +413,10 @@ class Table {
                 (e) => {
                     e.preventDefault();
 
-                    const perPage = $(e.currentTarget).val();
-                    this.showPerPage = parseInt(perPage);
-                    this.page = 1;
+                    const perPage = parseInt($(e.currentTarget).val());
+                    this.refreshPerPage(perPage);
 
-                    this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
-
-                    this.refreshPagination();
+                    eventBus.emit(this.entityType + '_show_per_page_changed', null, perPage);
                 }
             );
 
@@ -542,6 +553,15 @@ class Table {
         }
 
         this.refreshPagination();
+    }
+
+    refreshPerPage(perPage) {
+        this.showPerPage = perPage;
+        this.page = 1;
+
+        this.totalPages = Math.ceil(this.totalRecords / this.showPerPage);
+
+        this.refresh();
     }
 }
 

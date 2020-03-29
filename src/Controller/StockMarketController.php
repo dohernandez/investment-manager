@@ -8,9 +8,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/stock_markets")
- */
 class StockMarketController extends AbstractController
 {
     /**
@@ -24,7 +21,6 @@ class StockMarketController extends AbstractController
     }
 
     /**
-     * @Route("/", name="stock_market_index", methods={"GET"})
      *
      * @param StockMarketRepository $repo
      *

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd"
+                  xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping">
+
+    <entity name="App\Domain\Wallet\Wallet" table="projection_wallet">
+
+        <unique-constraints>
+            <unique-constraint columns="name" name="name_idx" />
+        </unique-constraints>
+
+        <id name="id" type="guid" column="id"/>
+
+        <field name="name" column="name" type="string" />
+        <field name="slug" type="string" unique="true">
+            <gedmo:slug unique="true" style="camel" updatable="false" separator="_" fields="name" />
+        </field>
+        <field name="broker" column="broker" type="object" />
+        <field name="account" column="account" type="object" />
+        <one-to-one field="book" target-entity="App\Domain\Wallet\WalletBook">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove />
+            </cascade>
+        </one-to-one>
+        <field name="createdAt" column="created_at" type="datetime">
+            <gedmo:timestampable on="create"/>
+        </field>
+        <field name="updatedAt" column="updated_at" type="datetime">
+            <gedmo:timestampable on="update"/>
+        </field>
+        <field name="accountId" column="account_id" type="string" />
+
+        <one-to-many field="positions" target-entity="App\Domain\Wallet\Position" mapped-by="wallet" />
+        <one-to-many field="operations" target-entity="App\Domain\Wallet\Operation" mapped-by="wallet" />
+    </entity>
+
+</doctrine-mapping>

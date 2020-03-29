@@ -5,12 +5,15 @@ import Select2StockMarketTemplate from './Components/Select2StockMarketTemplate'
 import Select2StockInfoTemplate from './Components/Select2StockInfoTemplate';
 import Slider from 'bootstrap-slider';
 import Routing from './Components/Routing';
+import InvestmentManagerClient from "./Components/InvestmentManagerClient";
 import $ from 'jquery';
-
 import 'select2';
-
 import './../css/StockForm.scss';
 import './../css/StockView.scss';
+import OperationForm from "./OperationForm";
+import Template from "./Components/Template";
+import Swal from 'sweetalert2';
+import Select2WalletTemplate from "./Components/Select2WalletTemplate";
 
 const eventBus = require('js-event-bus')();
 
@@ -18,7 +21,13 @@ const eventBus = require('js-event-bus')();
  * Form manage how the stock form should be build when a crud manager invokes a create or an update action.
  */
 class StockForm extends SwalForm {
-    constructor(swalOptions, table, template = '#js-table-form-template', selector = '.js-entity-from') {
+    constructor(
+        swalOptions,
+        table,
+        template = '#js-table-form-template',
+        selector = '.js-entity-from',
+        templateView = '#js-view-template'
+    ) {
         super(swalOptions, template, selector);
 
         this.table = table;
@@ -33,6 +42,9 @@ class StockForm extends SwalForm {
         eventBus.on("entity_updated", this.onUpdated.bind(this));
         eventBus.on("entity_deleted", this.onDeleted.bind(this));
 
+        this.templateView = templateView;
+
+        this.operationForm = null;
     }
 
     /**
@@ -45,8 +57,12 @@ class StockForm extends SwalForm {
         // Form use to set data and to read symbol to load values from external sources.
         let $form = $wrapper.find(this.selector);
 
+        $form.find('#symbol').prop("disabled", false);
+
         // start set data to the form
         if (data) {
+            $form.find('#symbol').prop("disabled", true);
+
             // edition mode
             this._setData($form, data);
         }
@@ -174,8 +190,10 @@ class StockForm extends SwalForm {
                 $button.html('<i class="fas fa-circle-notch fa-spin"></i> Loading...');
 
                 let $symbol = $form.find('input[name="symbol"]');
+                let $yahooSymbol = $form.find('input[name="yahooSymbol"]');
                 let formData = {
-                    symbol: $symbol.val()
+                    symbol: $symbol.val(),
+                    yahooSymbol: $yahooSymbol.val(),
                 };
 
                 new Promise((resolve, reject) => {
@@ -247,9 +265,21 @@ class StockForm extends SwalForm {
                 continue;
             }
 
-            if (['value', 'lastChangePrice', 'preClose', 'open', 'dayLow', 'dayHigh', 'week52Low', 'week52High']
+            if (['value', 'preClose', 'open', 'dayLow', 'dayHigh', 'week52Low', 'week52High']
                 .indexOf(property) !== -1) {
                 let inputData = data[property];
+
+                if (inputData !== null) {
+                    $input.val(inputData.preciseValue);
+                }
+
+                continue;
+            }
+
+            if (property === 'change') {
+                let inputData = data[property];
+
+                $input = $form.find('#lastChangePrice');
 
                 if (inputData !== null) {
                     $input.val(inputData.preciseValue);
@@ -262,6 +292,22 @@ class StockForm extends SwalForm {
         }
     }
 
+    preview(title, data = null) {
+        console.log(data);
+        let html = Template.compile(this.templateView, data);
+
+        // Swal form modal
+        const swalView = Swal.mixin(this.swalOptions.previewView);
+        swalView.fire({
+            html,
+            title,
+            onBeforeOpen: () => {
+                const $modal = $(swalView.getContainer()).find('.swal2-modal');
+                this.onBeforeOpenPreview(data, $modal);
+            },
+        });
+    }
+
     /**
      * Callback function when data is preview
      *
@@ -269,31 +315,179 @@ class StockForm extends SwalForm {
      *
      * @param {Object} data
      */
-    onBeforeOpenPreview(data) {
+    onBeforeOpenPreview(data, $wrapper) {
         let sliderDay = new Slider('#low-high-day-price', {
             precision: 3
         });
         let sliderWeek = new Slider('#low-high-52-week-price', {
             precision: 3
         });
+
+        // console.log($wrapper.find('.stock-buttons-block'));
+        const swalOptionsOperation = {
+            options: this.operationForm.swalOptions.editView,
+            onBeforeOpen: this.operationForm.onBeforeOpenEditView.bind(this.operationForm),
+            confirmButtonText: this.operationForm.swalOptions.text.create.confirmButtonText,
+            titleText: this.operationForm.swalOptions.text.create.titleText,
+            confirmTitleText: this.operationForm.swalOptions.text.create.confirmTitleText,
+            onClose: function () {
+                const title = data.title;
+
+                this.preview(title, data);
+            }.bind(this)
+        };
+
+        $wrapper.on(
+            'click',
+            '.js-stock-buy',
+            function (e) {
+                e.preventDefault();
+
+                let entity = {
+                    stock: {
+                        id: data.id,
+                        title: data.title,
+                    },
+                    type: 'buy',
+                };
+                return this.operationForm.display(swalOptionsOperation, 'url', 'create', entity)
+                    .then((result) => {
+                        // console.log(result);
+                    });
+            }.bind(this)
+        );
+
+        $wrapper.on(
+            'click',
+            '.js-stock-sell',
+            function (e) {
+                e.preventDefault();
+                if (!this.operationForm) {
+                    console.log('click button sell');
+                    console.log(data.id, 'sell', data.title);
+
+                    return;
+                }
+
+                let entity = {
+                    stock: {
+                        id: data.id,
+                        title: data.title,
+                    },
+                    type: 'sell',
+                };
+
+                return this.operationForm.display(swalOptionsOperation, 'url', 'create', entity)
+                    .then((result) => {
+                        // console.log(result);
+                    });
+            }.bind(this)
+        );
     }
 
     onCreated(entity) {
         this.table.addRecord(entity);
     }
 
-    onUpdated(entity, $row) {
+    onUpdated(entity) {
         this.table.replaceRecord(entity, entity.id);
-
-        $row.fadeOut('normal', () => {
-            $row.replaceWith(this.table.createRow(entity));
-        });
     }
 
     onDeleted(id) {
-        this.table.removeRecord(id);
+        InvestmentManagerClient.sendRPC(
+            Routing.generate('stock_get', {id}),
+            'GET'
+        ).then((result) => {
+            let entity = result.item;
+
+            this.table.replaceRecord(entity, entity.id);
+        });
+    }
+
+    setOperationForm(form) {
+        this.operationForm = form;
+    }
+}
+
+class StockOperationForm extends OperationForm {
+    constructor(swalOptions, url, template = '#js-table-form-template', selector = '.js-entity-from') {
+        super(swalOptions, null, template, selector);
+
+        // function to get the url
+        this.url = url;
+        this.select2WalletTemplate = new Select2WalletTemplate();
+    }
+    /**
+     * @inheritDoc
+     */
+    onBeforeOpenEditView(data, $wrapper) {
+        super.onBeforeOpenEditView(data, $wrapper);
+
+        let $form = $wrapper.find(this.selector);
+
+        let $type = $form.find('#type');
+        $type.prop('disabled', true);
+
+        let $stock = $form.find('#stock');
+        $stock.prop('disabled', true);
+
+        let $autocomplete = $('.js-wallet-autocomplete');
+
+        $autocomplete.each((index, select) => {
+            const url = $(select).data('autocomplete-url');
+
+            $(select).select2({
+                dropdownParent: $wrapper,
+                ajax: {
+                    url,
+                    dataType: 'json',
+                    delay: 10,
+                    allowClear: true,
+                    data: (params) => {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: (data, params) => {
+                        // parse the results into the format expected by Select2
+                        // since we are using custom formatting functions we do not need to
+                        // alter the remote JSON data, except to indicate that infinite
+                        // scrolling can be used
+                        params.page = params.page || 1;
+
+                        return {
+                            results: data.items,
+                            pagination: {
+                                more: (params.page * 30) < data.total_count
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                placeholder: 'Search for an wallet',
+                escapeMarkup: (markup) => markup,
+                minimumInputLength: 1,
+                templateResult: this.select2WalletTemplate.templateResult,
+                templateSelection: this.select2WalletTemplate.templateSelection
+            });
+        });
+    }
+
+    preConfirm($wrapper, url, method) {
+        const $form = $wrapper.find(this.selector);
+
+        let $type = $form.find('#type');
+        $type.prop('disabled', false);
+
+        let $stock = $form.find('#stock');
+        $stock.prop('disabled', false);
+
+        let $wallet = $form.find('#wallet');
+        return super.preConfirm($wrapper, this.url($wallet.val()), method, ['wallet']);
     }
 }
 
 global.StockForm = StockForm;
+global.StockOperationForm = StockOperationForm;
 

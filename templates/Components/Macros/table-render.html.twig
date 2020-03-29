@@ -30,7 +30,9 @@
     <% if ({{ value }} && {{ value }}.value) { %>
         <% if ({{ value }}.currency.currencyCode == 'USD') { %>
             $ <%= {{ value }}.preciseValue.toFixed({{ value }}.precision).toString().replace(/\./g, ",") %>
-        <% } else { %>
+        <% } else if ({{ value }}.currency.currencyCode == 'CAD') { %>
+            <%= {{ value }}.preciseValue.toFixed({{ value }}.precision).toString().replace(/\./g, ",") %> C$
+    <% } else { %>
             &euro; <%= {{ value }}.preciseValue.toFixed({{ value }}.precision).toString().replace(/\./g, ",") %>
         <% } %>
     <% } %>
@@ -75,8 +77,9 @@
 
 {# quantity #}
 {% macro render_quantity(value, quantity) %}
-    <% if ({{ quantity }} !== null && {{ quantity }} !== 0) { %>
-        <% if ({{ quantity }} > 0) { %>
+    <% var quantity = {{ quantity }}; %>
+    <% if (quantity !== null && quantity !== 0) { %>
+        <% if (quantity > 0) { %>
             <span class="pull-right text-green"><i class="fa fa-angle-up"></i> <%= {{ value }} %></span>
         <% } else { %>
             <span class="pull-right text-red"><i class="fa fa-angle-down"></i> <%= {{ value }} %></span>

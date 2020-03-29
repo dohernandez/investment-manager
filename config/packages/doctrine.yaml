@@ -22,10 +22,12 @@ doctrine:
             currency: App\DBAL\CurrencyType
             wallet_metadata: App\DBAL\WalletMetadataType
             position_metadata: App\DBAL\PositionMetadataType
+            datetime: App\Infrastructure\Doctrine\DBAL\UTCDateTimeType
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
+        entity_listener_resolver: app.doctrine.entity_listener_resolver
         mappings:
             App:
                 is_bundle: false
@@ -33,3 +35,20 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+            Infrastructure:
+                is_bundle: false
+                type: xml
+                dir: '%kernel.project_dir%/src/Infrastructure/Resources/config/doctrine/infrastructure'
+                prefix: 'App\Infrastructure'
+                alias: Infrastructure
+            Domain:
+                is_bundle: false
+                type: xml
+                dir: '%kernel.project_dir%/src/Infrastructure/Resources/config/doctrine/domain'
+                prefix: 'App\Domain'
+                alias: Domain
+
+        dql:
+            datetime_functions:
+                date:  App\Infrastructure\Doctrine\DQL\Date
+                year:  App\Infrastructure\Doctrine\DQL\Year

@@ -59,9 +59,12 @@ module.exports = {
         broker_form: './assets/js/BrokerForm.js',
         wallet_form: './assets/js/WalletForm.js',
         wallet_dashboard: './assets/js/WalletDashboard.js',
+        wallet_dashboard_2: './assets/js/WalletDashboard2.js',
         broker_stock_form: './assets/js/BrokerStockForm.js',
         panel_table: './assets/js/PanelTable.js',
+        stock_panel_table: './assets/js/StockPanelTable.js',
         stock_note_form: './assets/js/StockNoteForm.js',
+        homepage: './assets/js/Homepage.js',
     },
     output: {
         path: path.resolve(__dirname, 'public', 'build'),

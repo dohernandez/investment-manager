@@ -19,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class TransferController extends BaseController
 {
     /**
-     * @Route("/", name="transfer_list", methods={"GET"}, options={"expose"=true})
      *
      * @param TransferRepository $repo
      *
@@ -64,7 +63,6 @@ class TransferController extends BaseController
     }
 
     /**
-     * @Route("/", name="transfer_new", methods={"POST"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request
@@ -135,7 +133,6 @@ class TransferController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="transfer_edit", methods={"PUT"}, options={"expose"=true})
      *
      * @param Entity\Transfer $transfer
      * @param EntityManagerInterface $em
@@ -151,7 +148,6 @@ class TransferController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="transfer_delete", methods={"DELETE"}, options={"expose"=true})
      *
      * @param EntityManagerInterface $em
      * @param Request $request

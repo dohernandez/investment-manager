@@ -8,9 +8,10 @@
     <!-- form panel template -->
     <script type="text/template" id="js-panel-{{ entity_name|lower|replace({' ': '_'}) }}-form-template">
         {% set _form_theme = form_theme|default('Components/Form/horizontal-theme-form.html.twig') %}
+        {% set _id = entity_name|lower|replace({' ': '_'}) ~ '-entity-form' %}
     {% form_theme form _form_theme %}
 
-    {{ form_start(form, {'attr': {'id': 'entity-form', 'class': 'form-horizontal js-entity-from' }}) }}
+    {{ form_start(form, {'attr': {'id': _id, 'class': 'form-horizontal js-entity-from' }}) }}
         <div class="box-body">
             {{ form_widget(form) }}
         </div>

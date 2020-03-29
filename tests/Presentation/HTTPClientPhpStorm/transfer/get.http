@@ -1,0 +1,16 @@
+### Successful test: check response status is 200 transfers
+GET http://localhost:8080/v1/transfers/
+Accept: application/json
+
+> {%
+    client.test("Response status", function() {
+        var status = response.status;
+        client.assert(status === 200, "Expected `200` but received '"+ status + "'");
+    });
+
+    client.test("Response mimeType", function() {
+        var type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+###

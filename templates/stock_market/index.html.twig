@@ -76,6 +76,18 @@
 
             panelTable.render();
             panelTable.loadRows();
+
+            // Tweak button toggle main menu to show/hide columns
+            $('.sidebar-toggle').on(
+                'click',
+                function(e) {
+                    let $button = $(e.currentTarget);
+
+                    if ($button.data('toggle') === 'push-menu') {
+                        panelTable.toggleExpanded();
+                    }
+                }
+            );
         });
     </script>
 {% endblock %}

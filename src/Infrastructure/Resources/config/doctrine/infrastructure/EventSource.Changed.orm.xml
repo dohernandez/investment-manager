@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Infrastructure\EventSource\Changed" table="event_source">
+
+        <unique-constraints>
+            <unique-constraint columns="event_id" name="event_idx" />
+        </unique-constraints>
+
+        <id name="no" type="bigint" column="no">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="eventId" column="event_id" type="guid" unique="true" />
+        <field name="eventName" column="event_name" type="string" />
+        <field name="payload" type="object" />
+        <field name="metadata" type="object" />
+        <field name="aggregateType" column="aggregate_type" type="string" />
+        <field name="aggregateId" column="aggregate_id" type="guid" />
+        <field name="aggregateVersion" column="aggregate_version" type="smallint" />
+        <field name="createdAt" column="created_at" type="datetime" />
+
+        <indexes>
+            <index name="type_id_version_idx" columns="aggregate_type,aggregate_id,aggregate_version"/>
+        </indexes>
+
+        <entity-listeners>
+            <entity-listener class="App\Infrastructure\EventSource\EventSourceListener">
+                <lifecycle-callback type="postPersist"  method="postPersistHandler"/>
+                <lifecycle-callback type="postUpdate"  method="postPersistHandler"/>
+            </entity-listener>
+        </entity-listeners>
+    </entity>
+
+</doctrine-mapping>

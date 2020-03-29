@@ -1,0 +1,15 @@
+<script>
+    function createStockMarkets(entityName) {
+        // Create stock movers daily panel instance
+        let $stockMarketsPanelBox = $('#js-stock-markets-panel');
+
+        // Create StockMarketPanel instance @see assets/js/Homepage.js
+        return new StockMarketPanel({
+            entityType: entityName,
+            wrapper: $stockMarketsPanelBox,
+            selectors: {
+                body: '.box-body',
+            },
+        });
+    }
+</script>

@@ -29,6 +29,8 @@ class CreateButton extends Button {
                 });
         });
 
+        this.form = form;
+        this.url = url;
         this.text = text;
     }
 
@@ -44,7 +46,17 @@ class CreateButton extends Button {
         $wrapper.find(this.container)
             .append($button);
 
+        this._$button = $button;
+
         this.register($wrapper);
+    }
+
+    getForm() {
+        return this.form;
+    }
+
+    getUrl() {
+        return this.url();
     }
 }
 

@@ -25,7 +25,6 @@ class WalletController extends AbstractController
     }
 
     /**
-     * @Route("/", name="wallet_index", methods={"GET"})
      *
      * @param WalletRepository $repo
      *

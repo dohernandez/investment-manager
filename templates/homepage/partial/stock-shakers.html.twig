@@ -1,0 +1,25 @@
+<div class="js-stock-shakers-daily-panel box box-success">
+    <div class="box-header with-border">
+        <h3 class="box-title">{{ 'Stock Shaker Daily'|trans }}</h3>
+
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+        </div>
+    </div>
+    <!-- /.box-header -->
+    <div class="box-body no-padding">
+        {% embed 'Components/Panel/panel-table.html.twig' with {
+            'entity_name': stock.shakers.daily.entity_name,
+            'fields': stock.shakers.fields,
+            'js_panel_class': 'js-stock-shakers-daily-panel-box',
+            'border': 0,
+            'panel_header': 0,
+            'header': 0,
+            'footer': 0,
+        }%}
+        {% endembed %}
+    </div>
+    <!-- /.box-body -->
+</div>

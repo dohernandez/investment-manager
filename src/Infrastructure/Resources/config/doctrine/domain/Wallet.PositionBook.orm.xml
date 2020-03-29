@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Domain\Wallet\PositionBook" table="projection_position_book">
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="currency" column="currency" type="object" />
+        <field name="buys" column="buys" type="object" />
+        <field name="sells" column="sells" type="object" />
+        <field name="averagePrice" column="average_price" type="object" />
+        <field name="nextDividend" column="next_dividend" type="object" nullable="true" />
+        <field name="nextDividendYield" column="next_dividend_yield" type="float" nullable="true" />
+        <field name="toPayDividend" column="to_pay_dividend" type="object" nullable="true" />
+        <field name="toPayDividendYield" column="to_pay_dividend_yield" type="float" nullable="true" />
+        <field name="benefits" column="benefits" type="object" />
+        <field name="percentageBenefits" column="percentage_benefits" type="float" />
+        <field name="changed" column="changed" type="object" nullable="true" />
+        <field name="preClosed" column="pre_closed" type="object" nullable="true" />
+        <field name="percentageChanged" column="percentage_changed" type="float" nullable="true" />
+
+        <one-to-one field="dividendPaid" target-entity="App\Domain\Wallet\BookEntry">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-one>
+
+        <one-to-one field="dividendRetention" target-entity="App\Domain\Wallet\BookEntry">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-one>
+
+        <field name="nextDividendAfterTaxes" column="next_dividend_after_taxes" type="object" nullable="true" />
+        <field name="nextDividendYieldAfterTaxes" column="next_dividend_yield_after_taxes" type="float" nullable="true" />
+        <field name="toPayDividendAfterTaxes" column="to_pay_dividend_after_taxes" type="object" nullable="true" />
+        <field name="toPayDividendYieldAfterTaxes" column="to_pay_dividend_yield_after_taxes" type="float" nullable="true" />
+    </entity>
+
+</doctrine-mapping>

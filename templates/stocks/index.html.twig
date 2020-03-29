@@ -17,7 +17,14 @@
 
     {% include 'Components/Panel/panel-table-scripts.html.twig' %}
 
+    {% include 'Components/Form/swal-from-html.twig' with {
+        'swalOptionsVariablePrefix': 'Operation',
+        'entity_name': 'Operation',
+        'form': operation.form,
+    }%}
+
     <script src="{{ asset('build/stock_form.js') }}"></script>
+    <script src="{{ asset('build/stock_panel_table.js') }}"></script>
 
     <script>
         $(document).ready(function() {
@@ -27,8 +34,8 @@
             let contentWrapper = $panelBox.closest('section');
             let entityType = $panelBox.data('entity-type');
 
-            // Create panelTable instance @see assets/js/PanelTable.js
-            let panelTable = new PanelTable({
+            // Create panelTable instance @see assets/js/StockPanelTable.js
+            let panelTable = new StockPanelTable({
                 entityType: entityType,
                 wrapper: contentWrapper,
                 pagination: true,
@@ -55,11 +62,32 @@
                     }
 
                     return null;
-                }
+                },
+                sort: function (aStock, bStock) {
+                    let a = aStock.delisted;
+                    let b = bStock.delisted;
+
+                    return b > a ? -1 : b < a ? 1 : 0;
+                },
             });
 
+            let swalOptions = window.swalOptions;
+            // preview swal option
+            swalOptions.previewView = {
+                customClass: {
+                    title: 'swal2-form-title',
+                    content: 'swal2-form-content',
+                },
+                showConfirmButton: false,
+                buttonsStyling: false,
+                width: 700,
+                allowEscapeKey: true,
+                allowOutsideClick: true,
+                showCloseButton: true,
+                position: 'top',
+            };
             const form = new StockForm(
-                window.swalOptions,
+                swalOptions,
                 panelTable,
                 '#js-panel-{{ entity_name|lower|replace({' ': '_'}) }}-form-template',
             );
@@ -93,37 +121,141 @@
             );
             panelTable.addRowButton(deleteRowButton);
 
-            let swalOptions = {
+            const viewRowButton = new ViewRowButton(
+                form,
+                '.js-entity-view',
+            );
+            panelTable.addRowButton(viewRowButton);
+
+            // Buy|Sell operation
+            const operationform = new StockOperationForm(
+                window.OperationswalOptions,
+                function (walletId) {
+                    return Routing.generate(
+                        'wallet_operation_new',
+                        {'walletId': walletId }
+                    )
+                },
+                '#js-panel-operation-form-template',
+            );
+            form.setOperationForm(operationform);
+
+            // Dividend dialog
+            const dividendAwalOptions = swalOptions = {
                 customClass: {
                     title: 'swal2-form-title',
                     content: 'swal2-form-content',
                 },
                 showConfirmButton: false,
                 buttonsStyling: false,
-                width: 700,
+                width: 1000,
                 allowEscapeKey: true,
-                allowOutsideClick: true,
+                allowOutsideClick: false,
                 showCloseButton: true,
                 position: 'top',
             };
 
-            const viewRowButton = new ViewRowButton(
-                form,
-                '.js-entity-view',
-                swalOptions,
-            );
-            panelTable.addRowButton(viewRowButton);
-
-
             const dividendRowButton = new RowButton(
-                '.js-entity-edit-dividend-yield',
+                '.js-entity-dividend-yield',
                 function (e) {
                     e.preventDefault();
 
                     const $row = $(e.currentTarget).closest('tr');
+
+                    const title = $row.data('title');
                     const id = $row.data('id');
 
-                    window.location = Routing.generate('stock_dividend_index', {'_id': id})
+                    let entity = this.table.getRecord(id);
+
+                    let dividends = entity.dividends;
+                    if (typeof dividends === 'undefined') {
+                        // load dividends
+                    }
+
+                    let html = this.compile('#js-entity-dividend-template', dividends);
+                    this.fireSwal(
+                        dividendAwalOptions,
+                        title,
+                        html,
+                        null,
+                        function () {
+                            // Create panelTable instance @see assets/js/PanelTable.js
+                            let $dividendPanelBox = $('.js-stock-dividend-panel-box');
+
+                            let dividendContentWrapper = $dividendPanelBox.closest('.js-stock-dividend-panel');
+                            let dividendEntityType = $dividendPanelBox.data('entity-type');
+
+                            let dividendsPanelTable = new PanelTable({
+                                entityType: dividendEntityType,
+                                wrapper: dividendContentWrapper,
+                                pagination: true,
+                                selectors: {
+                                    searchTemplate: '#js-table' + dividendEntityType + '-search-template',
+                                    showPerPageTemplate: '#js-table-' + dividendEntityType + '-show-per-page-template',
+                                    rowTemplate: '#js-table-' + dividendEntityType + '-row-template',
+                                },
+                                sort: function (aStockDividend, bStockDividend) {
+                                    let a = new Date(aStockDividend.exDate);
+                                    let b = new Date(bStockDividend.exDate);
+
+                                    return a > b ? -1 : a < b ? 1 : 0;
+                                },
+                            });
+
+                            const $url = function () {
+                                let param = {
+                                    'id': entity.id
+                                };
+
+                                return Routing.generate(dividendEntityType + '_list', param);
+                            };
+
+                            const syncButton = new Button(
+                                '.js-entity-sync',
+                                '#js-table-' + dividendEntityType + '-sync-button-template',
+                                '.js-panel-header-button-container',
+                                function (e) {
+                                    e.preventDefault();
+
+                                    // disable button
+                                    let $button = $(e.currentTarget);
+
+                                    $button.attr("disabled", true);
+                                    $button.find('i').addClass('fa-spin');
+
+                                    InvestmentManagerClient.sendRPC(
+                                        Routing.generate(dividendEntityType + '_sync', {'id': entity.id }),
+                                        'PUT'
+                                    ).then((result) => {
+                                        dividendsPanelTable.loadRows($url);
+
+                                        $button.attr("disabled", false);
+                                        $button.find('i').removeClass('fa-spin');
+
+                                        // refresh the entity (stock)
+                                        InvestmentManagerClient.sendRPC(
+                                            Routing.generate('{{ entity_name|lower|replace({' ': '_'}) }}_get', {'id': entity.id }),
+                                            'GET'
+                                        ).then((result) => {
+                                            console.log(result.item);
+                                            panelTable.replaceRecord(result.item, entity.id);
+                                        }).catch((errorsData) => {
+                                            console.log(errorsData);
+                                        });
+                                    }).catch((errorsData) => {
+                                        console.log(errorsData);
+
+                                        $button.attr("disabled", false);
+                                        $button.find('i').removeClass('fa-spin');
+                                    });
+                                },
+                            );
+                            dividendsPanelTable.addButton(syncButton);
+
+                            dividendsPanelTable.render();
+                            dividendsPanelTable.loadRows($url);
+                        }
+                    );
                 }
             );
             panelTable.addRowButton(dividendRowButton);
@@ -151,8 +283,21 @@
         <div class="small"><%= market.symbol %> - <%= market.name %></div>
     </script>
 
-    <!-- view manager template -->
+    <!-- view manager stock template -->
     <script type="text/template" id="js-view-template">
         {% include 'stocks/partial/view.html.twig' %}
+    </script>
+
+    <!-- view manager stock dividend template -->
+    <script type="text/template" id="js-entity-dividend-template">
+        {% include 'stocks/partial/stock-dividend.html.twig' %}
+    </script>
+
+    <!-- sync button table template -->
+    <script type="text/template" id="js-table-stock_dividend-sync-button-template">
+        <button class="js-entity-sync btn btn-warning pull-right" style="margin-right: 8px;">
+            <i class="fa-sync fas" aria-hidden="true"></i>
+            {{ 'Sync'|trans }} {{ 'dividends'|trans|lower }}
+        </button>
     </script>
 {% endblock %}

@@ -12,10 +12,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class UpdateStockDividendCommand extends Command
+class UpdateStockDividendCommand
 {
-    protected static $defaultName = 'app:update-stock-dividend';
-
     /**
      * @var EntityManagerInterface
      */

@@ -1,0 +1,56 @@
+<script>
+    const createOperationEventName = 'entity_operation_created';
+
+    function createOperationPanel(entityName, entityTitle, walletId, searchFuncPanel) {
+        let $operationPanelBox = $('.js-operation-panel-box');
+
+        let operationContentWrapper = $operationPanelBox.closest('.js-operation-panel');
+        let operationEntityType = $operationPanelBox.data('entity-type');
+
+        // Create panelTable instance @see assets/js/PanelTable.js
+        return new PanelTable({
+            entityType: operationEntityType,
+            wrapper: operationContentWrapper,
+            pagination: true,
+            selectors: {
+                searchTemplate: '#js-table-' + entityName + '-search-template',
+                showPerPageTemplate: '#js-table-' + entityName + '-show-per-page-template',
+                rowTemplate: '#js-table-' + entityName + '-row-template',
+            },
+            sort: function (aOperation, bOperation) {
+                let a = new Date(aOperation.dateAt);
+                let b = new Date(bOperation.dateAt);
+
+                return a > b ? -1 : a < b ? 1 : 0;
+            },
+            searchFunc: searchFuncPanel,
+            showSearchBox: false,
+        });
+    }
+
+    function createButtonCreatOperation(entityTitle, entityName, walletId, table) {
+        const OperationswalOptions = window.OperationswalOptions;
+        const urlCreate = Routing.generate(
+            'wallet_' + entityName + '_new',
+            {'walletId': walletId }
+        );
+
+        // create operation form
+        const form = new OperationForm(
+            OperationswalOptions,
+            table,
+            '#js-panel-' + entityName + '-form-template',
+        );
+
+        return new CreateButton(
+            '{{ 'Create new'|trans }} ' + entityTitle,
+            form,
+            function () {
+                return urlCreate;
+            },
+            '.js-entity-create',
+            '.js-panel-header-button-container',
+            createOperationEventName
+        );
+    }
+</script>
