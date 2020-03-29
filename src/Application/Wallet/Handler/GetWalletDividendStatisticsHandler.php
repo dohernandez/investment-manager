@@ -38,7 +38,7 @@ class GetWalletDividendStatisticsHandler implements MessageHandlerInterface
             );
         }
 
-        $now = new DateTime();
+        $now = $message->getDate() ?? new DateTime();
 
         $totalYearProjected = 0;
         $dividendYearMonthsProjected = [];

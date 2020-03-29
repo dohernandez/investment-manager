@@ -31,6 +31,67 @@
         </div>
     </div>
     <div class="col-md-4">
+        <div class="info-box bg-yellow-active">
+            <span class="info-box-icon"><i class="fas fa-donate"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text" style="margin-bottom: 12px;">{{ 'Dividend Projected'|trans }}</span>
+                <span class="info-box-number js-wallet-dividend-projected"><small>&euro;</small> 0.00</span>
+
+                <div class="progress">
+                    <div class="progress-bar js-wallet-dividend-increase-bar" style="width: 0%"></div>
+                </div>
+                <span class="progress-description">
+                    <span class="js-wallet-dividend-increase">0.00</span>% %s from last year
+                  </span>
+                <br>
+                <table class="table dividend-two-year">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th style="text-align: center;"><span class="info-box-tex js-wallet-dividend-year" data-year="{{ "now"|date("Y") }}">{{ "now"|date("Y") }}</span></th>
+                        <th style="text-align: center;"><span class="info-box-text js-wallet-dividend-previous-year" data-year="{{ "now"|date("Y") - 1 }}">{{ "now"|date("Y") - 1 }}</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <span class="info-box-text js-wallet-dividend-month" data-month="{{ "now"|date("n") }}">{{ "now"|date("M") }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="info-box-number js-wallet-dividend-year-month-1">-</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="info-box-number js-wallet-dividend-previous-month-1">-</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="info-box-text js-wallet-dividend-month" data-month="{{ "now"|date_modify("+1 month")|date("n") }}">{{ "now"|date_modify("+1 month")|date("M") }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="info-box-number js-wallet-dividend-year-month-2">-</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="info-box-number js-wallet-dividend-previous-month-2">-</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="info-box-text js-wallet-dividend-month" data-month="{{ "now"|date_modify("+2 months")|date("n") }}">{{ "now"|date_modify("+2 months")|date("M") }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="info-box-number js-wallet-dividend-year-month-3">-</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="info-box-number js-wallet-dividend-previous-month-3">-</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="box js-position-coming-dividend-panel">

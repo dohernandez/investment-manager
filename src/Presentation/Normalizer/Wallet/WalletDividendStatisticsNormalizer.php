@@ -58,10 +58,10 @@ final class WalletDividendStatisticsNormalizer implements SubscribingHandlerInte
             'yearPaid' => $walletDividendStatistics->getYearPaid() ?
                 $this->serializer->toArray($walletDividendStatistics->getYearPaid()) :
                 null,
-            'total_lastYearPaid' => $walletDividendStatistics->getMonthYearPaid() ?
+            'totalLastYearPaid' => $walletDividendStatistics->getMonthYearPaid() ?
                 $this->serializer->toArray($walletDividendStatistics->getMonthYearPaid()) :
                 null,
-            'total_lastYearMonthsPaid' => $walletDividendStatistics->getDividendLastYearMonthsPaid() ?
+            'totalLastYearMonthsPaid' => $walletDividendStatistics->getDividendLastYearMonthsPaid() ?
                 $this->serializer->toArray($walletDividendStatistics->getDividendLastYearMonthsPaid()) :
                 null,
         ];

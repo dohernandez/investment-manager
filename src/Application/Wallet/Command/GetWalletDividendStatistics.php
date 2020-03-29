@@ -2,6 +2,8 @@
 
 namespace App\Application\Wallet\Command;
 
+use DateTime;
+
 final class GetWalletDividendStatistics
 {
     /**
@@ -14,15 +16,26 @@ final class GetWalletDividendStatistics
      */
     private $limit;
 
-    public function __construct(string $id, int $limit = 3)
+    /**
+     * @var DateTime|null
+     */
+    private $date;
+
+    public function __construct(string $id, ?DateTime $date = null, int $limit = 3)
     {
         $this->id = $id;
         $this->limit = $limit;
+        $this->date = $date;
     }
 
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function getDate(): ?DateTime
+    {
+        return $this->date;
     }
 
     public function getLimit(): int
