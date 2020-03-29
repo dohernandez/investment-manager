@@ -26,13 +26,13 @@ class WalletTest extends TestCase
      *
      * @param int $year
      * @param array $positions
-     * @param Rate|null $exchangeMoneyRate
+     * @param Rate[] $exchangeMoneyRate
      * @param array $dividendProjectionResult
      */
     public function testCalculateYearDividendProjected(
         int $year,
         array $positions,
-        ?Rate $exchangeMoneyRate,
+        array $exchangeMoneyRate,
         array $dividendProjectionResult
     ) {
         $wallet = new Wallet(UUID\Generator::generate());
@@ -122,7 +122,9 @@ class WalletTest extends TestCase
 
     public function CalculateYearDividendProjectedDataProvider()
     {
-        $exchangeMoneyRate = new Rate(Currency::usd(), Currency::eur(), '1');
+        $exchangeMoneyRates = [
+            new Rate(Currency::usd(), Currency::eur(), '1'),
+        ];
 
         return [
             'calculate with one position without dividend retention' => [
@@ -166,7 +168,7 @@ class WalletTest extends TestCase
                         ],
                     ],
                 ],
-                $exchangeMoneyRate,
+                $exchangeMoneyRates,
                 [
                     'total' => 8,
                     'year'  => [
@@ -204,7 +206,7 @@ class WalletTest extends TestCase
                         ],
                     ],
                 ],
-                $exchangeMoneyRate,
+                $exchangeMoneyRates,
                 [
                     'total' => 8.32,
                     'year'  => [

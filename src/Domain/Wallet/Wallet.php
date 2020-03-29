@@ -414,7 +414,14 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return 100;
     }
 
-    public function calculateYearDividendProjected(int $year, ?Rate $exchangeMoneyRate = null, $toUpdateAt = 'now'): self
+    /**
+     * @param int $year
+     * @param Rate[]|null $exchangeMoneyRates
+     * @param string $toUpdateAt
+     *
+     * @return $this
+     */
+    public function calculateYearDividendProjected(int $year, array $exchangeMoneyRates = null, $toUpdateAt = 'now'): self
     {
         $toUpdateAt = new DateTime($toUpdateAt);
 
@@ -425,6 +432,18 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         $bookYearEntry->setTotal(new Money($this->getCurrency()));
 
         foreach ($this->positions as $position) {
+            $exchangeMoneyRate = null;
+
+            if (!empty($exchangeMoneyRates) && !$position->getStock()->getCurrency()->equals($this->getCurrency())) {
+                foreach ($exchangeMoneyRates as $rate) {
+                    if ($rate->getFromCurrency()->equals($position->getStock()->getCurrency())) {
+                        $exchangeMoneyRate = $rate;
+
+                        break;
+                    }
+                }
+            }
+
             $amount = $position->getAmount();
             $totalDividendRetention = $position->getBook()->getTotalDividendRetention() ?
                 $position->getBook()->getTotalDividendRetention()->multiply($amount) :
