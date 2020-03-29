@@ -13,12 +13,12 @@
             <!-- /.box-header -->
             <div class="box-body">
                 {% embed 'Components/Panel/panel-table.html.twig' with {
-                    'entity_name': wallet_operation_entity_name,
-                    'fields': wallet_operation_fields,
+                    'entity_name': operation.entity_name,
+                    'fields': operation.fields,
                     'js_panel_class': 'js-operation-panel-box',
                     'border': 0,
-                    'form': wallet_operation_form,
-                    'search_width': wallet_operation_search_width,
+                    'form': operation.form,
+                    'search_width': operation.search_width,
                     'swalOptionsVariablePrefix': 'Operation'
                 }%}
                 {% endembed %}

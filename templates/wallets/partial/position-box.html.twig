@@ -13,22 +13,22 @@
             <!-- /.box-header -->
             <div class="box-body">
                 {% embed 'Components/Panel/panel-table.html.twig' with {
-                    'entity_name': wallet_position_entity_name,
-                    'fields': wallet_position_fields,
+                    'entity_name': position.entity_name,
+                    'fields': position.fields,
                     'js_panel_class': 'js-position-panel-box',
                     'border': 0,
-                    'buttons': wallet_position_buttons,
-                    'search_width': wallet_position_search_width,
                     'footer': 0,
+                    'buttons': position.buttons,
+                    'search_width': position.search_width,
                 }%}
                 {% endembed %}
 
-                {% embed 'Components/Form/swal-from-html.twig' with {
-                    'entity_name': stock_note_entity_name,
-                    'form': stock_note_form,
-                    'swalOptionsVariablePrefix': 'StockNote'
-                }%}
-                {% endembed %}
+{#                {% embed 'Components/Form/swal-from-html.twig' with {#}
+{#                    'entity_name': position.stock_note.entity_name,#}
+{#                    'form': position.stock_note.form,#}
+{#                    'swalOptionsVariablePrefix': 'StockNote'#}
+{#                }%}#}
+{#                {% endembed %}#}
             </div>
             <!-- /.box-body -->
         </div>

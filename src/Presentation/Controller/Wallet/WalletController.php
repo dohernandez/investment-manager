@@ -48,6 +48,6 @@ final class WalletController extends AbstractController
      */
     public function dashboard(string $id): Response
     {
-        return $this->render('wallets/dashboard_2.html.twig', $this->dashboardView->index($id));
+        return $this->render('wallets/dashboard.html.twig', $this->dashboardView->index($id));
     }
 }
