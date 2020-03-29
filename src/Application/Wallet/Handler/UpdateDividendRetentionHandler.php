@@ -38,7 +38,7 @@ final class UpdateDividendRetentionHandler extends PositionDividendHandler
 
     public function __invoke(UpdateDividendRetention $message)
     {
-        $projectionPosition = $this->projectionPositionRepository->findByWalletStatus(
+        $projectionPosition = $this->projectionPositionRepository->findByWalletAndStatus(
             $message->getId(),
             $message->getWalletId(),
             Position::STATUS_OPEN

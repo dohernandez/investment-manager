@@ -33,7 +33,7 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
 
         return $this->findOneBy(
             [
-                'wallet'  => $walletId,
+                'wallet' => $walletId,
                 'stockId' => $stockId,
             ] + $whereStatus
         );
@@ -77,13 +77,15 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
             ->andWhere('p.wallet = :walletId AND p.stockId = :stockId')
             ->setParameter('walletId', $walletId)
             ->setParameter('stockId', $stockId)
-            ->andWhere('DATE(p.openedAt) <= DATE(:datedAt) AND (DATE(p.closedAt) >= DATE(:datedAt) OR p.closedAt is null)')
+            ->andWhere(
+                'DATE(p.openedAt) <= DATE(:datedAt) AND (DATE(p.closedAt) >= DATE(:datedAt) OR p.closedAt is null)'
+            )
             ->setParameter('datedAt', $datedAt)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
-    public function findByWalletStatus(string $id, string $walletId, string $status): ?Position
+    public function findByWalletAndStatus(string $id, string $walletId, string $status): ?Position
     {
         return $this->createQueryBuilder('p')
             ->andWhere('p.wallet = :walletId')
@@ -93,5 +95,6 @@ final class ProjectionPositionRepository extends ServiceEntityRepository impleme
             ->setParameter('id', $id)
             ->setParameter('status', $status)
             ->getQuery()
-            ->getOneOrNullResult();    }
+            ->getOneOrNullResult();
+    }
 }
