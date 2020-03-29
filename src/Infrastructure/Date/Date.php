@@ -15,4 +15,9 @@ final class Date
     {
         return $dateTime->format('Y');
     }
+
+    public static function getDateTimeBeginYear(int $year): DateTime
+    {
+        return new DateTime($year . '-01-01');
+    }
 }
