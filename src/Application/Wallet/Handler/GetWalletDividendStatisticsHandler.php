@@ -60,7 +60,7 @@ class GetWalletDividendStatisticsHandler implements MessageHandlerInterface
 
         $monthYearPaid = null;
         $yearPaid = null;
-        $totalLastYearPaid = 0;
+        $totalLastYearPaid = null;
         $dividendLastYearMonthsPaid = [];
 
         $bookDividendsPaid = $wallet->getBook()->getDividends();
