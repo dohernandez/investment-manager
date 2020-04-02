@@ -46,7 +46,7 @@ class WalletTest extends TestCase
 
         $wallet->calculateYearDividendProjected($year, $exchangeMoneyRate);
 
-        $bookDividendProjection = $wallet->getBook()->getDividendsProjection();
+        $bookDividendProjection = $wallet->getBook()->getDividendsProjected();
         $bookYear = $bookDividendProjection->getBookEntry($year);
         $this->assertEquals($dividendProjectionResult['total'], $bookYear->getTotal()->getPreciseValue());
         foreach ($dividendProjectionResult['year'] as $key => $result) {

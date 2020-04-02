@@ -4,6 +4,7 @@ namespace App\Domain\Wallet;
 
 use App\Domain\Wallet\Event\WalletBuyOperationUpdated;
 use App\Domain\Wallet\Event\WalletBuySellOperationUpdated;
+use App\Domain\Wallet\Event\WalletDividendProjectedUpdated;
 use App\Domain\Wallet\Event\WalletYearDividendProjectionCalculated;
 use App\Domain\Wallet\Event\WalletConnectivityUpdated;
 use App\Domain\Wallet\Event\WalletCreated;
@@ -22,6 +23,7 @@ use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
+use DateInterval;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -534,6 +536,77 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
+
+
+    /**
+     * @param int $year
+     * @param Rate[] $exchangeMoneyRates
+     * @param string $toUpdateAt
+     *
+     * @return $this
+     */
+    public function updateDividendProjected(array $exchangeMoneyRates, $toUpdateAt = 'now'): self
+    {
+        $toUpdateAt = new DateTime($toUpdateAt);
+
+        $bookDividendsProjected = BookEntry::copyBookFromDate(
+            (clone $toUpdateAt)->add(new DateInterval('P1M')),
+            $this->book->getDividendsProjected()
+        );
+
+        foreach ($bookDividendsProjected->getEntries() as $bookYearEntry) {
+            $yearTotal = $bookYearEntry->getTotal();
+
+            foreach ($bookYearEntry->getEntries() as $bookMonthEntry) {
+                $bookMonthMetadataEntry = $bookMonthEntry->getMetadata();
+                $monthTotal = $bookMonthEntry->getTotal();
+
+                foreach ($exchangeMoneyRates as $rate) {
+                    if ($rate->getFromCurrency()->equals($bookMonthMetadataEntry->getRate()->getFromCurrency())) {
+                        $yearTotal = $yearTotal->decrease($monthTotal);
+
+                        $monthTotal = $rate->exchange($bookMonthMetadataEntry->getMoneyOriginalCurrency());
+
+                        $bookMonthEntry->setTotal($monthTotal);
+                        $bookMonthEntry->setMetadata($bookMonthMetadataEntry->updateRate($rate));
+
+                        $yearTotal = $yearTotal->increase($monthTotal);
+
+                        break;
+                    }
+                }
+            }
+
+            $bookYearEntry->setTotal($yearTotal);
+        }
+
+        if ($changed = $this->findIfLastChangeHappenedIsName(WalletYearDividendProjectionCalculated::class)) {
+            // This is to avoid have too much update events.
+
+            $this->replaceChangedPayload(
+                $changed,
+                new WalletDividendProjectedUpdated(
+                    $this->id,
+                    $bookDividendsProjected,
+                    $toUpdateAt
+                ),
+                clone $toUpdateAt
+            );
+
+            return $this;
+        }
+
+        $this->recordChange(
+            new WalletDividendProjectedUpdated(
+                $this->id,
+                $bookDividendsProjected,
+                $toUpdateAt
+            )
+        );
+
+        return $this;
+    }
+
     protected function apply(Changed $changed)
     {
         $event = $changed->getPayload();
@@ -652,7 +725,20 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
             case WalletYearDividendProjectionCalculated::class:
                 /** @var WalletYearDividendProjectionCalculated $event */
 
-                $dividendsProjection = $this->book->getDividendsProjection();
+                $dividendsProjection = $this->book->getDividendsProjected();
+                if (!$dividendsProjection) {
+                    $dividendsProjection = $event->getYearDividendProjected();
+                } else {
+                    $dividendsProjection->merge($event->getYearDividendProjected());
+                }
+                $this->book->setDividendsProjection($dividendsProjection);
+
+                break;
+
+            case WalletDividendProjectedUpdated::class:
+                /** @var WalletDividendProjectedUpdated $event */
+
+                $dividendsProjection = $this->book->getDividendsProjected();
                 if (!$dividendsProjection) {
                     $dividendsProjection = $event->getYearDividendProjected();
                 } else {

@@ -113,6 +113,7 @@ final class MoneyRateUpdatedSubscriber implements EventSubscriberInterface
             }
 
             $wallet->increaseCapital($capital);
+            $wallet->updateDividendProjected($moneyExchangeRates);
             $this->walletRepository->save($wallet);
         }
     }

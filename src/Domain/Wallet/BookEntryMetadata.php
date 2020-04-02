@@ -31,4 +31,9 @@ final class BookEntryMetadata
     {
         return $this->rate;
     }
+
+    public function updateRate(?Rate $rate): self
+    {
+        return new static($rate, $this->moneyOriginalCurrency);
+    }
 }

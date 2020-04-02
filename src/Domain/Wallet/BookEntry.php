@@ -136,6 +136,9 @@ class BookEntry
         return $this;
     }
 
+    /**
+     * @return BookEntry[]|Collection
+     */
     public function getEntries(): Collection
     {
         return $this->entries;
@@ -150,13 +153,16 @@ class BookEntry
 
     public function getBookEntry(string $name): ?BookEntry
     {
-        $bookEntry = $this->entries->filter(function (BookEntry $entry) use($name) {
-            if ($entry->getName() === $name) {
-                return true;
-            }
+        $bookEntry = $this->entries->filter(
+            function (BookEntry $entry) use ($name) {
+                if ($entry->getName() === $name) {
+                    return true;
+                }
 
-            return false;
-        })->first();
+                return false;
+            }
+        )->first();
+
         return $bookEntry ? $bookEntry : null;
     }
 
@@ -171,6 +177,7 @@ class BookEntry
         }
 
         $this->setTotal($bookEntry->getTotal());
+        $this->setMetadata($bookEntry->getMetadata());
 
         /** @var BookEntry $bEntry */
         foreach ($bookEntry->getEntries() as $bEntry) {
@@ -200,12 +207,7 @@ class BookEntry
         ?BookEntry $book,
         ?string $copyBookName = null
     ): BookEntry {
-        if (!$copyBookName && $book) {
-            $copyBookName = $book->getName();
-        }
-        if (!$copyBookName) {
-            throw new InvalidArgumentException('Copy book name can not be empty');
-        }
+        $copyBookName = self::getCopyBookName($book, $copyBookName);
 
         $copyBook = BookEntry::createBookEntry($copyBookName);
 
@@ -222,12 +224,15 @@ class BookEntry
         // set current total, year and month value
         if ($book) {
             $copyBook->setTotal($book->getTotal());
+            $copyBook->setMetadata($book->getMetadata());
 
             if ($entry = $book->getBookEntry($year)) {
                 $copyBookYearEntry->setTotal($entry->getTotal());
+                $copyBookYearEntry->setMetadata($entry->getMetadata());
 
                 if ($entry = $entry->getBookEntry($month)) {
                     $copyBookMonthEntry->setTotal($entry->getTotal());
+                    $copyBookMonthEntry->setMetadata($entry->getMetadata());
                 }
             }
         }
@@ -235,6 +240,65 @@ class BookEntry
         $copyBook->increaseTotal($value);
         $copyBookYearEntry->increaseTotal($value);
         $copyBookMonthEntry->increaseTotal($value);
+
+        return $copyBook;
+    }
+
+    private static function getCopyBookName(?BookEntry $book, ?string $copyBookName = null): string
+    {
+        if (!$copyBookName && $book) {
+            $copyBookName = $book->getName();
+        }
+        if (!$copyBookName) {
+            throw new InvalidArgumentException('Copy book name can not be empty');
+        }
+
+        return $copyBookName;
+    }
+
+    public static function copyBookFromDate(
+        DateTime $date,
+        BookEntry $book,
+        ?string $copyBookName = null
+    ): BookEntry {
+        if ($book->getEntries()->isEmpty()) {
+            throw new InvalidArgumentException('Book to copy is empty');
+        }
+
+        $copyBookName = self::getCopyBookName($book, $copyBookName);
+
+        $copyBook = BookEntry::createBookEntry($copyBookName);
+        $copyBook->setTotal($book->getTotal());
+
+        // book entry year
+        $year = Date::getYear($date);
+        $month = Date::getMonth($date);
+        while (true) {
+            $bookYearEntry = $book->getBookEntry((string)$year);
+            if (!$bookYearEntry) {
+                break;
+            }
+
+            $copyBookYearEntry = BookEntry::createYearEntry($copyBook, $year);
+            $copyBook->getEntries()->add($copyBookYearEntry);
+            $copyBookYearEntry->setTotal($bookYearEntry->getTotal());
+            $copyBookYearEntry->setMetadata($bookYearEntry->getMetadata());
+
+            for ($m = $month; $m <= 12; $m++) {
+                $bookMonthEntry = $bookYearEntry->getBookEntry((string)$m);
+                if (!$bookMonthEntry) {
+                    continue;
+                }
+
+                $copyBookMonthEntry = BookEntry::createMonthEntry($copyBookYearEntry, $bookMonthEntry->getName());
+                $copyBookYearEntry->getEntries()->add($copyBookMonthEntry);
+                $copyBookMonthEntry->setTotal($bookMonthEntry->getTotal());
+                $copyBookMonthEntry->setMetadata($bookMonthEntry->getMetadata());
+            }
+
+            $year++;
+            $month = 1;
+        }
 
         return $copyBook;
     }

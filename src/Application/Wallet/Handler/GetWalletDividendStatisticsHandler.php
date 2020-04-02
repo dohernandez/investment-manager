@@ -43,7 +43,7 @@ class GetWalletDividendStatisticsHandler implements MessageHandlerInterface
         $totalYearProjected = 0;
         $dividendYearMonthsProjected = [];
 
-        $bookDividendsProjected = $wallet->getBook()->getDividendsProjection();
+        $bookDividendsProjected = $wallet->getBook()->getDividendsProjected();
         if ($bookDividendsProjected) {
             $yearBookDividendsProjected = $bookDividendsProjected->getBookEntry(Date::getYear($now));
             if ($yearBookDividendsProjected) {

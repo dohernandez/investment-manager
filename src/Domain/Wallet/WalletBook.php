@@ -154,7 +154,7 @@ class WalletBook
         return $this;
     }
 
-    public function getDividendsProjection(): ?BookEntry
+    public function getDividendsProjected(): ?BookEntry
     {
         return $this->dividendsProjection;
     }
