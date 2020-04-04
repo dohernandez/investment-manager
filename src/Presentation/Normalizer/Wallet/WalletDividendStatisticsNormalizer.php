@@ -44,34 +44,46 @@ final class WalletDividendStatisticsNormalizer implements SubscribingHandlerInte
 
     public function serializeWalletStatisticsToJson(JsonSerializationVisitor $visitor, WalletDividendStatistics $walletDividendStatistics, array $type, Context $context)
     {
-        $totalYearProjected = $walletDividendStatistics->getTotalYearProjected();
-        $totalLastYearPaid = $walletDividendStatistics->getTotalLastYearPaid();
-        $compareLastYear = 0;
-        if ($totalYearProjected && $totalLastYearPaid) {
-            $compareLastYear = $totalYearProjected->getValue() * 100 / $totalLastYearPaid->getValue() - 100;
+        $dividendLastYearPaid = $walletDividendStatistics->getDividendLastYearPaid();
+
+        $yearProjected = $walletDividendStatistics->getYearProjected();
+        $compareLastYearProjected = 0;
+        if ($yearProjected && $dividendLastYearPaid) {
+            $compareLastYearProjected = $yearProjected->getValue() * 100 / $dividendLastYearPaid->getValue() - 100;
+        }
+
+        $yearPaid = $walletDividendStatistics->getYearPaid();
+        $compareLastYearPaid = 0;
+        if ($yearPaid && $dividendLastYearPaid) {
+            $compareLastYearPaid = $yearPaid->getValue() * 100 / $dividendLastYearPaid->getValue() - 100;
         }
 
         return [
             'dividendYieldProjected' => $walletDividendStatistics->getDividendYieldProjected(),
-            'totalYearProjected' => $totalYearProjected ?
-                $this->serializer->toArray($totalYearProjected) :
+            'dividendYieldPaid' => $walletDividendStatistics->getDividendYieldPaid(),
+            'yearProjected' => $yearProjected ?
+                $this->serializer->toArray($yearProjected) :
                 null,
             'dividendYearMonthsProjected' => $walletDividendStatistics->getDividendYearMonthsProjected() ?
                 $this->serializer->toArray($walletDividendStatistics->getDividendYearMonthsProjected()) :
                 null,
-            'monthYearPaid' => $walletDividendStatistics->getMonthYearPaid() ?
-                $this->serializer->toArray($walletDividendStatistics->getMonthYearPaid()) :
+            'monthPaid' => $walletDividendStatistics->getMonthPaid() ?
+                $this->serializer->toArray($walletDividendStatistics->getMonthPaid()) :
                 null,
-            'yearPaid' => $walletDividendStatistics->getYearPaid() ?
-                $this->serializer->toArray($walletDividendStatistics->getYearPaid()) :
+            'yearPaid' => $yearPaid ?
+                $this->serializer->toArray($yearPaid) :
                 null,
-            'totalLastYearPaid' => $totalLastYearPaid ?
-                $this->serializer->toArray($totalLastYearPaid) :
+            'dividendYearMonthsPaid' => $walletDividendStatistics->getDividendYearMonthsPaid() ?
+                $this->serializer->toArray($walletDividendStatistics->getDividendYearMonthsPaid()) :
                 null,
-            'totalLastYearMonthsPaid' => $walletDividendStatistics->getDividendLastYearMonthsPaid() ?
+            'dividendLastYearMonthsPaid' => $walletDividendStatistics->getDividendLastYearMonthsPaid() ?
                 $this->serializer->toArray($walletDividendStatistics->getDividendLastYearMonthsPaid()) :
                 null,
-            'compareLastYear' => $compareLastYear,
+            'dividendLastYearPaid' => $dividendLastYearPaid ?
+                $this->serializer->toArray($dividendLastYearPaid) :
+                null,
+            'compareLastYearProjected' => $compareLastYearProjected,
+            'compareLastYearPaid' => $compareLastYearPaid,
         ];
     }
 }

@@ -402,46 +402,92 @@ class PositionDividendRowButton extends RowButton {
 
 class WalletDividendStatistics {
     setData(data) {
-        $('.js-wallet-dividend-projected').each(function (index, span) {
-            $(span).html('<small>' + data.totalYearProjected.displayValue + '</small>')
+        // dividend projected
+        $('.js-wallet-dividend-projected-value').each(function (index, span) {
+            $(span).html('<small>' + data.yearProjected.displayValue + '</small>')
         });
 
         $('.js-wallet-dividend-projected-yield').each(function (index, span) {
             $(span).html('<small>' + data.dividendYieldProjected.toFixed(2) + '</small>')
         });
 
-        $('.js-wallet-dividend-yield-compare-value').each(function (index, span) {
-            $(span).html('<small>' + data.compareLastYear.toFixed(2) + '</small>')
+        $('.js-wallet-dividend-projected-yield-compare-value').each(function (index, span) {
+            $(span).html('<small>' + data.compareLastYearProjected.toFixed(2) + '</small>')
         });
 
-        $('.js-wallet-dividend-yield-compare-bar').each(function (index, span) {
-            console.log($(span), $(span).val(), data.compareLastYear.toFixed(2));
-            $(span).css('width', data.compareLastYear.toFixed(2) + '%');
+        $('.js-wallet-dividend-projected-yield-compare-bar').each(function (index, span) {
+            $(span).css('width', data.compareLastYearProjected.toFixed(2) + '%');
         });
 
-        $('.js-wallet-dividend-yield-compare-text').each(function (index, span) {
+        $('.js-wallet-dividend-projected-yield-compare-text').each(function (index, span) {
             let text = 'Increase';
-            if (data.compareLastYear < 0) {
+            if (data.compareLastYearProjected < 0) {
                 text = 'Decrease';
             }
             $(span).html('<small>' + text + '</span>')
         });
 
-        $('.js-wallet-dividend-month').each(function (index, span) {
-            let month = $(span).data('month');
+        $('.js-wallet-dividend-projected-month').each(function (index, span) {
+            const $span = $(span);
+            const $row = $(span).parent().parent();
+            const month = $span.data('month');
 
             let mIdx = index + 1;
 
-            $('.js-wallet-dividend-year-month-' + mIdx).each(function (index, span) {
-                let dividend = data.dividendYearMonthsProjected[month];
-                $(span).html('<small>' + dividend.displayValue + '</span>')
-            });
+            let $spanProjected = $row.find('.js-wallet-dividend-projected-year-month-' + mIdx);
+            WalletDividendStatistics.setMoneyToSpanBasedOnData($spanProjected, data.dividendYearMonthsProjected, month);
 
-            $('.js-wallet-dividend-previous-month-' + mIdx).each(function (index, span) {
-                let dividend = data.totalLastYearMonthsPaid[month];
-                $(span).html('<small>' + dividend.displayValue + '</span>')
-            });
+            let $spanLastYearPaid = $row.find('.js-wallet-dividend-paid-previous-month-' + mIdx);
+            WalletDividendStatistics.setMoneyToSpanBasedOnData($spanLastYearPaid, data.dividendLastYearMonthsPaid, month);
         });
+
+        // dividend paid
+        $('.js-wallet-dividend-paid-value').each(function (index, span) {
+            $(span).html('<small>' + data.yearPaid.displayValue + '</small>')
+        });
+
+        $('.js-wallet-dividend-paid-yield').each(function (index, span) {
+            $(span).html('<small>' + data.dividendYieldPaid.toFixed(2) + '</small>')
+        });
+
+        $('.js-wallet-dividend-paid-yield-compare-value').each(function (index, span) {
+            $(span).html('<small>' + data.compareLastYearPaid.toFixed(2) + '</small>')
+        });
+
+        $('.js-wallet-dividend-paid-yield-compare-bar').each(function (index, span) {
+            $(span).css('width', data.compareLastYearPaid.toFixed(2) + '%');
+        });
+
+        $('.js-wallet-dividend-paid-yield-compare-text').each(function (index, span) {
+            let text = 'Increase';
+            if (data.compareLastYearPaid < 0) {
+                text = 'Decrease';
+            }
+            $(span).html('<small>' + text + '</span>')
+        });
+
+        $('.js-wallet-dividend-paid-month').each(function (index, span) {
+            const $span = $(span);
+            const $row = $(span).parent().parent();
+            const month = $span.data('month');
+
+            let mIdx = index + 1;
+
+            let $spanPaid = $row.find('.js-wallet-dividend-paid-year-month-' + mIdx);
+            WalletDividendStatistics.setMoneyToSpanBasedOnData($spanPaid, data.dividendYearMonthsPaid, month);
+
+            let $spanLastYearPaid = $row.find('.js-wallet-dividend-paid-previous-month-' + mIdx);
+            WalletDividendStatistics.setMoneyToSpanBasedOnData($spanLastYearPaid, data.dividendLastYearMonthsPaid, month);
+        });
+    }
+
+    static setMoneyToSpanBasedOnData($span, data, key) {
+        let money = data[key];
+        if (!money) {
+            return;
+        }
+
+        $span.html('<small>' + money.displayValue + '</span>');
     }
 }
 

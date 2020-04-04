@@ -7,9 +7,19 @@ use App\Infrastructure\Money\Money;
 final class WalletDividendStatistics
 {
     /**
+     * @var float
+     */
+    private $dividendYieldProjected;
+
+    /**
+     * @var float
+     */
+    private $dividendYieldPaid;
+
+    /**
      * @var Money|null
      */
-    private $totalYearProjected;
+    private $yearProjected;
 
     /**
      * @var array|null
@@ -19,7 +29,7 @@ final class WalletDividendStatistics
     /**
      * @var Money|null
      */
-    private $monthYearPaid;
+    private $monthPaid;
 
     /**
      * @var Money|null
@@ -27,36 +37,40 @@ final class WalletDividendStatistics
     private $yearPaid;
 
     /**
+     * @var array|null
+     */
+    private $dividendYearMonthsPaid;
+
+    /**
      * @var Money|null
      */
-    private $totalLastYearPaid;
+    private $dividendLastYearPaid;
 
     /**
      * @var array|null
      */
     private $dividendLastYearMonthsPaid;
 
-    /**
-     * @var float
-     */
-    private $dividendYieldProjected;
-
     public function __construct(
         float $dividendYieldProjected = 0,
-        ?Money $totalYearProjected = null,
+        float $dividendYieldPaid = 0,
+        ?Money $yearProjected = null,
         ?array $dividendYearMonthsProjected = [],
-        ?Money $monthYearPaid = null,
+        ?Money $monthPaid = null,
         ?Money $yearPaid = null,
-        ?Money $totalLastYearPaid = null,
+        ?array $dividendYearMonthsPaid = [],
+        ?Money $dividendLastYearPaid = null,
         ?array $dividendLastYearMonthsPaid = []
     ) {
-        $this->totalYearProjected = $totalYearProjected;
-        $this->dividendYearMonthsProjected = $dividendYearMonthsProjected;
-        $this->monthYearPaid = $monthYearPaid;
-        $this->yearPaid = $yearPaid;
-        $this->totalLastYearPaid = $totalLastYearPaid;
-        $this->dividendLastYearMonthsPaid = $dividendLastYearMonthsPaid;
         $this->dividendYieldProjected = $dividendYieldProjected;
+        $this->dividendYieldPaid = $dividendYieldPaid;
+        $this->yearProjected = $yearProjected;
+        $this->dividendYearMonthsProjected = $dividendYearMonthsProjected;
+        $this->monthPaid = $monthPaid;
+        $this->yearPaid = $yearPaid;
+        $this->dividendYearMonthsPaid = $dividendYearMonthsPaid;
+        $this->dividendLastYearPaid = $dividendLastYearPaid;
+        $this->dividendLastYearMonthsPaid = $dividendLastYearMonthsPaid;
     }
 
     public function getDividendYieldProjected(): float
@@ -64,9 +78,14 @@ final class WalletDividendStatistics
         return $this->dividendYieldProjected;
     }
 
-    public function getTotalYearProjected(): ?Money
+    public function getDividendYieldPaid(): float
     {
-        return $this->totalYearProjected;
+        return $this->dividendYieldPaid;
+    }
+
+    public function getYearProjected(): ?Money
+    {
+        return $this->yearProjected;
     }
 
     public function getDividendYearMonthsProjected(): ?array
@@ -74,9 +93,9 @@ final class WalletDividendStatistics
         return $this->dividendYearMonthsProjected;
     }
 
-    public function getMonthYearPaid(): ?Money
+    public function getMonthPaid(): ?Money
     {
-        return $this->monthYearPaid;
+        return $this->monthPaid;
     }
 
     public function getYearPaid(): ?Money
@@ -84,9 +103,14 @@ final class WalletDividendStatistics
         return $this->yearPaid;
     }
 
-    public function getTotalLastYearPaid(): ?Money
+    public function getDividendYearMonthsPaid(): ?array
     {
-        return $this->totalLastYearPaid;
+        return $this->dividendYearMonthsPaid;
+    }
+
+    public function getDividendLastYearPaid(): ?Money
+    {
+        return $this->dividendLastYearPaid;
     }
 
     public function getDividendLastYearMonthsPaid(): ?array
