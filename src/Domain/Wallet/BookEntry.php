@@ -256,7 +256,7 @@ class BookEntry
         return $copyBookName;
     }
 
-    public static function copyBookFromDate(
+    public static function copyBookFromDateOnwards(
         DateTime $date,
         BookEntry $book,
         ?string $copyBookName = null

@@ -549,7 +549,7 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
     {
         $toUpdateAt = new DateTime($toUpdateAt);
 
-        $bookDividendsProjected = BookEntry::copyBookFromDate(
+        $bookDividendsProjected = BookEntry::copyBookFromDateOnwards(
             (clone $toUpdateAt)->add(new DateInterval('P1M')),
             $this->book->getDividendsProjected()
         );
