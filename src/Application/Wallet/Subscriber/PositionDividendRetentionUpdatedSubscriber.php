@@ -47,7 +47,8 @@ final class PositionDividendRetentionUpdatedSubscriber implements EventSubscribe
 
     public function onPositionDividendRetentionUpdated(PositionDividendRetentionUpdated $event)
     {
-        $wallets = $this->projectionWalletRepository->findAllByStockOnOpenPosition($event->getId());
+        \dump($event->getId());
+        $wallets = $this->projectionWalletRepository->findAllByStockInOpenPosition($event->getId());
 
         \dump($wallets);
         foreach ($wallets as $wallet) {

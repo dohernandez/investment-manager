@@ -46,7 +46,7 @@ final class ProjectionWalletRepository extends ServiceEntityRepository implement
     /**
      * @inheritDoc
      */
-    public function findAllByStockOnOpenPosition(string $stockId): array
+    public function findAllByStockInOpenPosition(string $stockId): array
     {
         return $this->createQueryBuilder('w')
             ->distinct()

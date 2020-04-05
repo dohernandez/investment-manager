@@ -73,7 +73,7 @@ final class StockDividendSynchedSubscriber implements EventSubscriberInterface
 
     public function onStockDividendSynched(StockDividendSynched $event)
     {
-        $wallets = $this->projectionWalletRepository->findAllByStockOnOpenPosition($event->getId());
+        $wallets = $this->projectionWalletRepository->findAllByStockInOpenPosition($event->getId());
 
         foreach ($wallets as $wallet) {
             $wallet = $this->walletRepository->find($wallet->getId());

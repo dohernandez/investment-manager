@@ -30,7 +30,7 @@ interface ProjectionWalletRepositoryInterface
      *
      * @return Wallet[]
      */
-    public function findAllByStockOnOpenPosition(string $stockId): array;
+    public function findAllByStockInOpenPosition(string $stockId): array;
 
     /**
      * @param string $slug
