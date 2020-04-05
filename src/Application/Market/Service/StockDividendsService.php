@@ -46,30 +46,33 @@ final class StockDividendsService implements StockDividendsServiceInterface
             }
         }
 
-        if ($lastDividend !== null) {
-            if ($frequency = $stock->getMetadata()->getDividendFrequency()) {
-                // Adding projected dividend until the end of the year.
-                $now = new DateTime();
-                $year = (clone $now)->add(DateInterval::createFromDateString('1 year'));
+        if ($lastDividend === null) {
+            return $stockDividends;
+        }
 
-                if ($lastDividend->getExDate() > $now->sub(DateInterval::createFromDateString($frequency))) {
-                    $exDate = (clone $lastDividend->getExDate())
+        if ($frequency = $stock->getMetadata()->getDividendFrequency()) {
+            // Adding projected dividend until the end of the year.
+            $now = new DateTime();
+            $year = (clone $now)->add(DateInterval::createFromDateString('1 year'));
+
+            if ($lastDividend->getExDate() > $now->sub(DateInterval::createFromDateString($frequency))) {
+                $exDate = (clone $lastDividend->getExDate())
+                    ->add(DateInterval::createFromDateString($frequency));
+
+                while ($year >= $exDate) {
+                    $nextDividend = (new StockDividend())
+                        ->setStatus(StockDividend::STATUS_PROJECTED)
+                        ->setExDate($exDate)
+                        ->setValue(clone $lastDividend->getValue());
+
+                    $stockDividends[] = $nextDividend;
+
+                    $exDate = (clone $exDate)
                         ->add(DateInterval::createFromDateString($frequency));
-
-                    while ($year >= $exDate) {
-                        $nextDividend = (new StockDividend())
-                            ->setStatus(StockDividend::STATUS_PROJECTED)
-                            ->setExDate($exDate)
-                            ->setValue(clone $lastDividend->getValue());
-
-                        $stockDividends[] = $nextDividend;
-
-                        $exDate = (clone $exDate)
-                            ->add(DateInterval::createFromDateString($frequency));
-                    }
                 }
             }
         }
+
 
         return $stockDividends;
     }

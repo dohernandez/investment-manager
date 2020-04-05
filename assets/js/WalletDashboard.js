@@ -125,6 +125,7 @@ class WalletDashboard {
 
     onPositionDividendUpdated() {
         this._loadWalletPositionsDividends();
+        this._loadWalletDividendStatistics();
     }
 
     onPositionSearched(search) {

@@ -244,6 +244,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $nextDividendYield,
             $nextDividendAfterTaxes,
             $nextDividendYieldAfterTaxes,
+            $averagePrice,
+            $book->getTotalDividendRetention(),
             $exchangeMoneyRate
         );
 
@@ -299,17 +301,15 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
         ?float &$dividendYield,
         ?Money &$dividendAfterTaxes,
         ?float &$dividendYieldAfterTaxes,
+        ?Money $averagePrice,
+        ?Money $retention,
         ?Rate $exchangeMoneyRate = null
     ): self {
         $amount = $this->amount;
-        $book = $this->book;
-        $averagePrice = $book->getAveragePrice();
 
         $dividend = $dividend ? $dividend->multiply($amount) : null;
         $yearDividend = $yearDividend ? $yearDividend->multiply($amount) : null;
-        $totalDividendRetention = $book->getTotalDividendRetention() ?
-            $book->getTotalDividendRetention()->multiply($amount) :
-            null;
+        $totalDividendRetention = $retention ? $retention->multiply($amount) : null;
 
         // exchange capital, change and pre close to the position currency
         if ($exchangeMoneyRate) {
@@ -340,7 +340,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
                 $yearDividendAfterTaxes = $yearDividend;
             } else {
                 $dividendAfterTaxes = $dividend->decrease($totalDividendRetention);
-                $yearDividendAfterTaxes = $yearDividend->decrease($totalDividendRetention);
+                $yearDividendAfterTaxes = $yearDividend ? $yearDividend->decrease($totalDividendRetention): null;
             }
 
             if ($yearDividendAfterTaxes) {
@@ -448,6 +448,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $nextDividendYield,
             $nextDividendAfterTaxes,
             $nextDividendYieldAfterTaxes,
+            $averagePrice,
+            $book->getTotalDividendRetention(),
             $exchangeMoneyRate
         );
 
@@ -550,6 +552,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $nextDividendYield,
             $nextDividendAfterTaxes,
             $nextDividendYieldAfterTaxes,
+            $averagePrice,
+            $book->getTotalDividendRetention(),
             $exchangeMoneyRate
         );
 
@@ -627,6 +631,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $nextDividendYield,
             $nextDividendAfterTaxes,
             $nextDividendYieldAfterTaxes,
+            $book->getAveragePrice(),
+            $book->getTotalDividendRetention(),
             $exchangeMoneyRate
         );
 
@@ -680,7 +686,6 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
     public function updateDividendRetention(?Money $retention, ?Rate $exchangeMoneyRate, $toUpdateAt = 'now'): self
     {
         $toUpdateAt = new DateTime($toUpdateAt);
-
         $bookDividendRetention = $this->getCopyBookForDateWithIncreasedValue(
             $toUpdateAt,
             $retention,
@@ -688,6 +693,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             'dividends'
         );
 
+        $book = $this->book;
         $stock = $this->stock;
 
         $nextDividend = $stock->getNextDividend();
@@ -700,6 +706,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $nextDividendYield,
             $nextDividendAfterTaxes,
             $nextDividendYieldAfterTaxes,
+            $book->getAveragePrice(),
+            $retention,
             $exchangeMoneyRate
         );
 
@@ -713,6 +721,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $toPayDividendYield,
             $toPayDividendAfterTaxes,
             $toPayDividendYieldAfterTaxes,
+            $book->getAveragePrice(),
+            $retention,
             $exchangeMoneyRate
         );
 
@@ -754,6 +764,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
     public function updateStockDividend(Stock $stock, ?Rate $exchangeMoneyRate = null, $toUpdateAt = 'now'): self
     {
         $toUpdateAt = new DateTime($toUpdateAt);
+        $book = $this->book;
 
         $nextDividend = $stock->getNextDividend();
         $nextDividendYield = null;
@@ -765,6 +776,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $nextDividendYield,
             $nextDividendAfterTaxes,
             $nextDividendYieldAfterTaxes,
+            $book->getAveragePrice(),
+            $book->getTotalDividendRetention(),
             $exchangeMoneyRate
         );
 
@@ -778,6 +791,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
             $toPayDividendYield,
             $toPayDividendAfterTaxes,
             $toPayDividendYieldAfterTaxes,
+            $book->getAveragePrice(),
+            $book->getTotalDividendRetention(),
             $exchangeMoneyRate
         );
 

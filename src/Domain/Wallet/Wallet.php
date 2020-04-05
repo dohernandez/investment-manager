@@ -662,7 +662,7 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         $this->calculateDividendProjected($bookRecalculatedYearEntry, $year, Date::getMonth($fromDate), $exchangeMoneyRates);
 
         $bookYear = $book->getBookEntry($year);
-        for ($month = 1; $month < Date::getMonth($date); $month++) {
+        for ($month = 1; $month <= Date::getMonth($date); $month++) {
             $bookMonth = $bookYear->getBookEntry($month);
 
             if (!$bookMonth) {
