@@ -256,9 +256,10 @@ class BookEntry
         return $copyBookName;
     }
 
-    public static function copyBookFromDateOnwards(
-        DateTime $date,
+    public static function copyBookFromWindow(
         BookEntry $book,
+        DateTime $fromDate,
+        ?DateTime $toDate = null,
         ?string $copyBookName = null
     ): BookEntry {
         if ($book->getEntries()->isEmpty()) {
@@ -271,8 +272,11 @@ class BookEntry
         $copyBook->setTotal($book->getTotal());
 
         // book entry year
-        $year = Date::getYear($date);
-        $month = Date::getMonth($date);
+        $year = Date::getYear($fromDate);
+        $month = Date::getMonth($fromDate);
+
+        $toYear = $toDate ? Date::getYear($toDate) : null;
+        $toMonth = $toDate ? Date::getMonth($toDate) : null;
         while (true) {
             $bookYearEntry = $book->getBookEntry((string)$year);
             if (!$bookYearEntry) {
@@ -285,6 +289,10 @@ class BookEntry
             $copyBookYearEntry->setMetadata($bookYearEntry->getMetadata());
 
             for ($m = $month; $m <= 12; $m++) {
+                if ($toMonth && $year === $toYear && $m > $toMonth) {
+                    break;
+                }
+
                 $bookMonthEntry = $bookYearEntry->getBookEntry((string)$m);
                 if (!$bookMonthEntry) {
                     continue;
@@ -297,6 +305,10 @@ class BookEntry
             }
 
             $year++;
+            if ($toYear && $year > $toYear) {
+                break;
+            }
+
             $month = 1;
         }
 
