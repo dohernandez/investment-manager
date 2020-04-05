@@ -402,8 +402,12 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         }
 
         // sync next and to pay dividend
-        $nextDividend = $this->nextDividend;
-        $toPayDividend = $this->toPayDividend;
+        $nextDividend = ($this->nextDividend && $this->nextDividend->getExDate() > $toSyncAt) ?
+            $this->nextDividend :
+            null;
+        $toPayDividend = ($this->toPayDividend && $this->toPayDividend->getPaymentDate() > $toSyncAt) ?
+            $this->toPayDividend :
+            null;
 
         foreach ($dividends as $k => $dividend) {
             if ($this->dividends->exists(
@@ -428,17 +432,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
                     (
                         !$nextDividend ||
                         !$nextDividend->getStock() ||
-                        (
-
-                            $nextDividend->getExDate() > $dividend->getExDate() ||
-                            (
-                                $nextDividend->getExDate() === $dividend->getExDate() &&
-                                (
-                                    $nextDividend->getRecordDate() > $dividend->getRecordDate() ||
-                                    $nextDividend->getPaymentDate() > $dividend->getPaymentDate()
-                                )
-                            )
-                        )
+                        $dividend->isBefore($nextDividend)
                     )
                 )
             ) {

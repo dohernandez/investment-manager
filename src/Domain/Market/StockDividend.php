@@ -258,4 +258,16 @@ class StockDividend
     {
         return $this->getValue() . '(' . $this->getStatus() . ')';
     }
+
+    public function isBefore(StockDividend $dividend)
+    {
+        return $dividend->getExDate() > $this->getExDate() ||
+        (
+            $dividend->getExDate() === $this->getExDate() &&
+            (
+                $dividend->getRecordDate() > $this->getRecordDate() ||
+                $dividend->getPaymentDate() > $this->getPaymentDate()
+            )
+        );
+    }
 }

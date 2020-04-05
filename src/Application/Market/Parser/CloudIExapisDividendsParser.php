@@ -16,6 +16,10 @@ final class CloudIExapisDividendsParser implements DividendsParserInterface
         $stockDividends = [];
 
         foreach ($dividends as $dividend) {
+            if (empty($dividend)) {
+                continue;
+            }
+
             $stockDividend = new StockDividend();
             $stockDividend->setStatus(StockDividend::STATUS_ANNOUNCED);
 
