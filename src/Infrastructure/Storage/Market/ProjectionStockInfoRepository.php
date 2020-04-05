@@ -25,4 +25,30 @@ final class ProjectionStockInfoRepository extends ServiceEntityRepository implem
     {
         return $this->findOneBy(['name' => $name]);
     }
+
+    public function findAllTypeMatching(string $type, string $query, int $limit = 5): array
+    {
+        return $this->createQueryBuilder('si')
+            ->andWhere('si.type = :type')
+            ->andWhere('si.name LIKE :name')
+            ->setParameter('type', $type)
+            ->setParameter('name', '%'.$query.'%')
+            ->orderBy('si.id', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function findAllMatching(string $query, int $limit = 5): array
+    {
+        return $this->createQueryBuilder('si')
+            ->andWhere('si.name LIKE :name')
+            ->setParameter('name', '%'.$query.'%')
+            ->orderBy('si.id', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

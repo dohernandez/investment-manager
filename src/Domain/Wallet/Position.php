@@ -307,8 +307,8 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot
 
         $dividend = $dividend ? $dividend->multiply($amount) : null;
         $yearDividend = $yearDividend ? $yearDividend->multiply($amount) : null;
-        $totalDividendRetention = $this->book->getTotalDividendRetention() ?
-            $this->book->getTotalDividendRetention()->multiply($amount) :
+        $totalDividendRetention = $book->getTotalDividendRetention() ?
+            $book->getTotalDividendRetention()->multiply($amount) :
             null;
 
         // exchange capital, change and pre close to the position currency

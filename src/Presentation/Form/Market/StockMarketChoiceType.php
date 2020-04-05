@@ -3,7 +3,7 @@
 namespace App\Presentation\Form\Market;
 
 use App\Application\Market\Repository\ProjectionStockMarketRepositoryInterface;
-use App\Entity\StockMarket;
+use App\Domain\Market\StockMarket;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataTransformerInterface;
