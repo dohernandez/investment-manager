@@ -2,10 +2,13 @@
 
 namespace App\Application\Wallet\Subscriber;
 
+use App\Application\Wallet\Decorator\WalletPositionDecorateInterface;
 use App\Application\Wallet\Repository\ExchangeMoneyRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
 use App\Application\Wallet\Repository\WalletRepositoryInterface;
 use App\Domain\Wallet\Event\PositionDividendRetentionUpdated;
+use App\Infrastructure\Exception\NotFoundException;
+use DateTime;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final class PositionDividendRetentionUpdatedSubscriber implements EventSubscriberInterface
@@ -25,14 +28,21 @@ final class PositionDividendRetentionUpdatedSubscriber implements EventSubscribe
      */
     private $exchangeMoneyRepository;
 
+    /**
+     * @var WalletPositionDecorateInterface
+     */
+    private $positionDecorate;
+
     public function __construct(
         ProjectionWalletRepositoryInterface $projectionWalletRepository,
         WalletRepositoryInterface $walletRepository,
-        ExchangeMoneyRepositoryInterface $exchangeMoneyRepository
+        ExchangeMoneyRepositoryInterface $exchangeMoneyRepository,
+        WalletPositionDecorateInterface $positionDecorate
     ) {
         $this->projectionWalletRepository = $projectionWalletRepository;
         $this->walletRepository = $walletRepository;
         $this->exchangeMoneyRepository = $exchangeMoneyRepository;
+        $this->positionDecorate = $positionDecorate;
     }
 
     /**
@@ -47,16 +57,22 @@ final class PositionDividendRetentionUpdatedSubscriber implements EventSubscribe
 
     public function onPositionDividendRetentionUpdated(PositionDividendRetentionUpdated $event)
     {
-        \dump($event->getId());
-        $wallets = $this->projectionWalletRepository->findAllByStockInOpenPosition($event->getId());
-
-        \dump($wallets);
-        foreach ($wallets as $wallet) {
-            $wallet = $this->walletRepository->find($wallet->getId());
-            $exchangeMoneyRates = $this->exchangeMoneyRepository->findAllByToCurrency($wallet->getCurrency());
-
-            $wallet->updateDividendProjected($exchangeMoneyRates);
-            $this->walletRepository->save($wallet);
+        $wallet = $this->projectionWalletRepository->findByPosition($event->getId());
+        if ($wallet === null) {
+            throw new NotFoundException(
+                'Wallet not found',
+                [
+                    'position.id' => $event->getId(),
+                ]
+            );
         }
+
+        $wallet = $this->walletRepository->find($wallet->getId());
+        $this->positionDecorate->decorate($wallet);
+
+        $exchangeMoneyRates = $this->exchangeMoneyRepository->findAllByToCurrency($wallet->getCurrency());
+
+        $wallet->reCalculateDividendProjectedFromDate(new DateTime('now'), $exchangeMoneyRates);
+        $this->walletRepository->save($wallet);
     }
 }

@@ -94,4 +94,14 @@ final class ProjectionWalletRepository extends ServiceEntityRepository implement
            ->getQuery()
            ->getResult();
     }
+
+    public function findByPosition(string $positionId): Wallet
+    {
+        return $this->createQueryBuilder('w')
+            ->innerJoin('w.positions', 'p')
+            ->andWhere('p.id = :positionId')
+            ->setParameter('positionId', $positionId)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

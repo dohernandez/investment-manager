@@ -7,6 +7,15 @@ use DateTime;
 
 interface ProjectionPositionRepositoryInterface
 {
+    /**
+     * Finds an object by its primary key / identifier.
+     *
+     * @param string $id The identifier.
+     *
+     * @return Position|null The position.
+     */
+    public function find($id);
+
     public function findByWalletStock(string $walletId, string $stockId, ?string $status = null): ?Position;
 
     /**
