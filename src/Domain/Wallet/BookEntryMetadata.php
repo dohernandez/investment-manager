@@ -2,38 +2,50 @@
 
 namespace App\Domain\Wallet;
 
-use App\Infrastructure\Money\Money;
+use App\Infrastructure\Money\Currency;
+use Doctrine\Common\Collections\ArrayCollection;
 
-final class BookEntryMetadata
+class BookEntryMetadata
 {
     /**
-     * @var Money
+     * @var ArrayCollection|ExchangeTicket[]
      */
-    private $moneyOriginalCurrency;
+    private $exchangeTickets;
+
+    public function __construct()
+    {
+        $this->exchangeTickets = new ArrayCollection();
+    }
 
     /**
-     * @var Rate|null
+     * @return ArrayCollection|ExchangeTicket[]
      */
-    private $rate;
-
-    public function __construct(Rate $rate, ?Money $moneyOriginalCurrency = null)
+    public function getExchangeTickets(): ArrayCollection
     {
-        $this->moneyOriginalCurrency = $moneyOriginalCurrency;
-        $this->rate = $rate;
+        return $this->exchangeTickets;
     }
 
-    public function getMoneyOriginalCurrency(): Money
+    /**
+     * @param ArrayCollection|ExchangeTicket[] $exchangeTickets
+     *
+     * @return $this
+     */
+    public function setExchangeTickets(ArrayCollection $exchangeTickets): self
     {
-        return $this->moneyOriginalCurrency;
+        $this->exchangeTickets = $exchangeTickets;
+
+        return $this;
     }
 
-    public function getRate(): ?Rate
+    public function setExchangeTicket(Currency $currency, ExchangeTicket $exchangeTicket): self
     {
-        return $this->rate;
+        $this->exchangeTickets->set($currency->getCurrencyCode(), $exchangeTicket);
+
+        return $this;
     }
 
-    public function updateRate(?Rate $rate): self
+    public function getExchangeTicket(Currency $currency): ?ExchangeTicket
     {
-        return new static($rate, $this->moneyOriginalCurrency);
+        return $this->exchangeTickets->get($currency->getCurrencyCode());
     }
 }

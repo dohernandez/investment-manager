@@ -477,7 +477,9 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         array $exchangeMoneyRates = null
     ) {
         foreach ($this->positions as $position) {
-            $dividends = $position->getStock()->getDividends();
+            $stock = $position->getStock();
+
+            $dividends = $stock->getDividends();
             if (!$dividends || $dividends->isEmpty()) {
                 continue;
             }
@@ -493,9 +495,9 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 
             $exchangeMoneyRate = null;
 
-            if (!empty($exchangeMoneyRates) && !$position->getStock()->getCurrency()->equals($this->getCurrency())) {
+            if (!empty($exchangeMoneyRates) && !$stock->getCurrency()->equals($this->getCurrency())) {
                 foreach ($exchangeMoneyRates as $rate) {
-                    if ($rate->getFromCurrency()->equals($position->getStock()->getCurrency())) {
+                    if ($rate->getFromCurrency()->equals($stock->getCurrency())) {
                         $exchangeMoneyRate = $rate;
 
                         break;
@@ -522,6 +524,7 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 if (!$bookMonthEntry) {
                     $bookMonthEntry = BookEntry::createMonthEntry($bookYearEntry, $month);
                     $bookMonthEntry->setTotal(new Money($this->getCurrency()));
+                    $bookMonthEntry->setMetadata(new BookEntryMetadata());
                     $bookYearEntry->getEntries()->add($bookMonthEntry);
                 }
 
@@ -534,24 +537,23 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 $totalValueExchanged = $totalValueExchanged->decrease($totalDividendRetentionExchanged);
 
                 $bookMonthEntry->setTotal($bookMonthEntry->getTotal()->increase($totalValueExchanged));
-                $bookMonthEntry->setMetadata(
-                    new BookEntryMetadata(
+
+                $bookMonthEntryMetadata = $bookMonthEntry->getMetadata();
+                $exchangeMonthTicket = $bookMonthEntryMetadata->getExchangeTicket($stock->getCurrency());
+                $bookMonthEntryMetadata->setExchangeTicket(
+                    $stock->getCurrency(),
+                    new ExchangeTicket(
                         $exchangeMoneyRate,
-                        $bookMonthEntry->getMetadata() ?
-                            $bookMonthEntry->getMetadata()->getMoneyOriginalCurrency()->increase($totalValue) :
-                            $totalValue
+                        $exchangeMonthTicket ?
+                            $exchangeMonthTicket->getMoneyOriginalCurrency()->increase($totalValue) :
+                            $totalValue,
+                        $exchangeMonthTicket ?
+                            $exchangeMonthTicket->getMoney()->increase($totalValueExchanged) :
+                            $totalValueExchanged
                     )
                 );
 
                 $bookYearEntry->setTotal($bookYearEntry->getTotal()->increase($totalValueExchanged));
-                $bookYearEntry->setMetadata(
-                    new BookEntryMetadata(
-                        $exchangeMoneyRate,
-                        $bookYearEntry->getMetadata() ?
-                            $bookYearEntry->getMetadata()->getMoneyOriginalCurrency()->increase($totalValue) :
-                            $totalValue
-                    )
-                );
             }
         }
     }
@@ -576,23 +578,26 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
             $yearTotal = $bookYearEntry->getTotal();
 
             foreach ($bookYearEntry->getEntries() as $bookMonthEntry) {
-                $bookMonthMetadataEntry = $bookMonthEntry->getMetadata();
-                $monthTotal = $bookMonthEntry->getTotal();
+                $yearTotal = $yearTotal->decrease($bookMonthEntry->getTotal());
+                $bookMonthEntryMetadata = $bookMonthEntry->getMetadata();
 
                 foreach ($exchangeMoneyRates as $rate) {
-                    if ($rate->getFromCurrency()->equals($bookMonthMetadataEntry->getRate()->getFromCurrency())) {
-                        $yearTotal = $yearTotal->decrease($monthTotal);
+                    $toCurrency = $rate->getToCurrency();
 
-                        $monthTotal = $rate->exchange($bookMonthMetadataEntry->getMoneyOriginalCurrency());
-
-                        $bookMonthEntry->setTotal($monthTotal);
-                        $bookMonthEntry->setMetadata($bookMonthMetadataEntry->updateRate($rate));
-
-                        $yearTotal = $yearTotal->increase($monthTotal);
-
-                        break;
+                    if ($bookMonthTicket = $bookMonthEntryMetadata->getExchangeTicket($toCurrency)) {
+                        $bookMonthEntryMetadata->setExchangeTicket(
+                            $toCurrency,
+                            new ExchangeTicket(
+                                $rate,
+                                $bookMonthTicket->getMoneyOriginalCurrency(),
+                                $rate->exchange($bookMonthTicket->getMoneyOriginalCurrency())
+                            )
+                        );
                     }
                 }
+                $bookMonthEntry->reCalculateTotalFromMetadataTickets();
+
+                $yearTotal = $yearTotal->increase($bookMonthEntry->getTotal());
             }
 
             $bookYearEntry->setTotal($yearTotal);
@@ -659,7 +664,12 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         $bookRecalculated->getEntries()->add($bookRecalculatedYearEntry);
         $bookRecalculatedYearEntry->setTotal(new Money($this->getCurrency()));
 
-        $this->calculateDividendProjected($bookRecalculatedYearEntry, $year, Date::getMonth($fromDate), $exchangeMoneyRates);
+        $this->calculateDividendProjected(
+            $bookRecalculatedYearEntry,
+            $year,
+            Date::getMonth($fromDate),
+            $exchangeMoneyRates
+        );
 
         $bookYear = $book->getBookEntry($year);
         for ($month = 1; $month <= Date::getMonth($date); $month++) {
@@ -669,7 +679,9 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 continue;
             }
 
-            $bookRecalculatedYearEntry->setTotal($bookRecalculatedYearEntry->getTotal()->increase($bookMonth->getTotal()));
+            $bookRecalculatedYearEntry->setTotal(
+                $bookRecalculatedYearEntry->getTotal()->increase($bookMonth->getTotal())
+            );
         }
 
         if ($changed = $this->findIfLastChangeHappenedIsName(WalletYearDividendProjectionCalculated::class)) {

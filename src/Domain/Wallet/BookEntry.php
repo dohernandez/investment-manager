@@ -10,6 +10,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use InvalidArgumentException;
 
+use function next;
+use function reset;
+
 class BookEntry
 {
     public const TYPE_BOOK = 'book';
@@ -125,6 +128,29 @@ class BookEntry
     public function setTotal(?Money $total): self
     {
         $this->total = $total;
+
+        return $this;
+    }
+
+    public function reCalculateTotalFromMetadataTickets(): self
+    {
+        $bookEntryMetadata = $this->getMetadata();
+        if (!$bookEntryMetadata) {
+            return $this;
+        }
+
+        $tickets = $bookEntryMetadata->getExchangeTickets();
+        if ($tickets->isEmpty()) {
+            return $this;
+        }
+
+        $total = $tickets->first()->getMoney();
+
+        while ($ticket = $tickets->next()) {
+            $total = $total->increase($ticket->getMoney());
+        }
+
+        $this->setTotal($total);
 
         return $this;
     }
