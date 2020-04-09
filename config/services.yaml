@@ -130,14 +130,14 @@ services:
     App\Application\Wallet\Handler\CalculateWalletYearDividendProjectionHandler:
         class: App\Application\Wallet\Handler\CalculateWalletYearDividendProjectionHandler
         arguments:
-            $openedPositionYearWithDividendsDecorate: '@App\Application\Wallet\Decorator\WalletOpenOrOpenedPositionYearWithDividendsWithDividendsDecorate'
+            $openedPositionYearWithDividendsDecorate: '@App\Application\Wallet\Decorator\WalletOpenOrOpenedPositionYearWithDividendsDecorate'
 
     # Decorators
     App\Application\Market\Decorator\StockDividendsDecorate: ~
 
     App\Application\Wallet\Decorator\StockPrevDividendDecorator: ~
     App\Application\Wallet\Decorator\WalletOpenPositionDecorate: ~
-    App\Application\Wallet\Decorator\WalletOpenOrOpenedPositionYearWithDividendsWithDividendsDecorate: ~
+    App\Application\Wallet\Decorator\WalletOpenOrOpenedPositionYearWithDividendsDecorate: ~
 
     # Subscribers
     App\Application\Market\Subscriber\HouseKeeperSubscriber:

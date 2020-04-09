@@ -11,7 +11,7 @@ use App\Infrastructure\Reflection\PropertySetter;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 
-final class WalletOpenOrOpenedPositionYearWithDividendsWithDividendsDecorate implements
+final class WalletOpenOrOpenedPositionYearWithDividendsDecorate implements
     WalletOpenOrOpenedPositionYearWithDividendsDecorateInterface
 {
     /**
