@@ -1,0 +1,24 @@
+<div class="tab-content">
+    <!-- Exchange tab content -->
+    <div class="tab-pane active" id="control-sidebar-home-tab">
+        <h3 class="control-sidebar-heading">Exchange rate</h3>
+        <ul class="control-sidebar-menu">
+            {% for rate in rates %}
+                {% set bgColor = attribute(bgColors, rate.toCurrency.currencyCode) %}
+                <li>
+                    <a href="javascript:void(0)">
+                        <i class="menu-icon fa fa-file-code-o bg-{{ bgColor }}">{{ rate.toCurrency.symbol }}</i>
+                        <div class="menu-info">
+                            <h4 class="control-sidebar-subheading">{{ rate.rate }}</h4>
+
+                            <p><b>Last update:</b></p>
+                            <p> {{ rate.updatedAt is empty ? "" : rate.updatedAt|date("d/m/Y h:s") }}</p>
+                        </div>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+        <!-- /.control-sidebar-menu -->
+    </div>
+    <!-- /.tab-pane -->
+</div>

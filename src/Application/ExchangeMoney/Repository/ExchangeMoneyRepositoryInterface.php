@@ -16,4 +16,9 @@ interface ExchangeMoneyRepositoryInterface
      * @return Rate[]
      */
     public function findAllByToCurrency(string $toCurrency): array;
+
+    /**
+     * @return Rate[]
+     */
+    public function findAll();
 }

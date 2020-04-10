@@ -19,5 +19,10 @@ admin_lte:
 
     routes:
         adminlte_welcome: homepage
-        adminlte_login: login
-        adminlte_profile: profile
+#        adminlte_login: login
+#        adminlte_profile: profile
+
+    control_sidebar:
+        exchange:
+            icon: fab fa-gg-circle
+            controller: 'App\Presentation\Controller\ExchangeMoney\ExchangeMoneyController::index'
