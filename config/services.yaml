@@ -155,8 +155,8 @@ services:
         arguments:
             $positionDecorate: '@App\Application\Wallet\Decorator\WalletOpenPositionDecorate'
 
-    App\Application\Wallet\Subscriber\WalletBuyOperationUpdatedSubscriber:
-        class: App\Application\Wallet\Subscriber\WalletBuyOperationUpdatedSubscriber
+    App\Application\Wallet\Subscriber\WalletBuySellOperationUpdatedSubscriber:
+        class: App\Application\Wallet\Subscriber\WalletBuySellOperationUpdatedSubscriber
         arguments:
             $positionDecorate: '@App\Application\Wallet\Decorator\WalletOpenPositionDecorate'
 

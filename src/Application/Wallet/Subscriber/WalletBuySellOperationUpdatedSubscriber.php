@@ -2,19 +2,20 @@
 
 namespace App\Application\Wallet\Subscriber;
 
-use App\Application\Wallet\Calculator;
 use App\Application\Wallet\Decorator\WalletPositionDecorateInterface;
 use App\Application\Wallet\Repository\ExchangeMoneyRepositoryInterface;
 use App\Application\Wallet\Repository\WalletRepositoryInterface;
 use App\Domain\Wallet\Event\WalletBuyOperationUpdated;
+use App\Domain\Wallet\Event\WalletSellOperationUpdated;
 use App\Infrastructure\Context\Context;
 use App\Infrastructure\Context\Logger;
 use App\Infrastructure\Exception\NotFoundException;
 use DateTime;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-final class WalletBuyOperationUpdatedSubscriber implements EventSubscriberInterface
+final class WalletBuySellOperationUpdatedSubscriber implements EventSubscriberInterface
 {
     /**
      * @var WalletRepositoryInterface
@@ -54,23 +55,30 @@ final class WalletBuyOperationUpdatedSubscriber implements EventSubscriberInterf
     public static function getSubscribedEvents()
     {
         return [
-            WalletBuyOperationUpdated::class => ['onWalletBuyOperationUpdated', 100],
+            WalletBuyOperationUpdated::class => ['onWalletBuySellOperationUpdated', 100],
+            WalletSellOperationUpdated::class => ['onWalletBuySellOperationUpdated', 100],
         ];
     }
 
-    public function onWalletBuyOperationUpdated(WalletBuyOperationUpdated $event)
+    /**
+     * @param WalletBuyOperationUpdated|WalletSellOperationUpdated $event
+     */
+    public function onWalletBuySellOperationUpdated($event)
     {
+        if (!$event instanceof WalletBuyOperationUpdated && !$event instanceof WalletSellOperationUpdated) {
+            throw new InvalidArgumentException('event not supported');
+        }
+
         $wallet = $this->walletRepository->find($event->getId());
         if ($wallet === null) {
             throw new NotFoundException(
                 'Wallet not found',
                 [
-                    'position.id' => $event->getId(),
+                    'id' => $event->getId(),
                 ]
             );
         }
 
-        $wallet = $this->walletRepository->find($wallet->getId());
         $this->positionDecorate->decorate($wallet);
 
         $exchangeMoneyRates = $this->exchangeMoneyRepository->findAllByToCurrency($wallet->getCurrency());
