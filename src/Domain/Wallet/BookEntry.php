@@ -343,7 +343,9 @@ class BookEntry
 
     public function getMetadata(): ?BookEntryMetadata
     {
-        return $this->metadata;
+        // This is added to avoid exception in backward compatibility
+        // when the entity manager hydrate the object
+        return $this->metadata instanceof BookEntryMetadata ? $this->metadata : null;
     }
 
     public function setMetadata(?BookEntryMetadata $metadata): self
