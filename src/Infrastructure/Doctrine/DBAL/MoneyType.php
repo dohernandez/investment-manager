@@ -1,15 +1,15 @@
 <?php
 
-namespace App\DBAL;
+namespace App\Infrastructure\Doctrine\DBAL;
 
-use App\VO\Money;
+use App\Infrastructure\Money\Money;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 
 class MoneyType extends Type
 {
-    const MONEY_TYPE = Type::JSON;
+    public const MONEY_TYPE = Type::JSON;
 
     /**
      * {@inheritDoc}

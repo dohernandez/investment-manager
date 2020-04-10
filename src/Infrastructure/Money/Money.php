@@ -9,6 +9,9 @@ final class Money
     public const DECIMAL_SYSTEM_UNITS = 'System of Units';
     public const DECIMAL_EUROPE = 'Europe';
     public const DECIMAL_UK = 'UK';
+    const ARRAY_KEY_PRECISION = 'precision';
+    const ARRAY_KEY_VALUE = 'value';
+    const ARRAY_KEY_CURRENCY = 'currency';
 
     public function __construct(Currency $currency, int $value = 0, int $precision = 2)
     {
@@ -199,7 +202,7 @@ final class Money
 
                 break;
             case self::DECIMAL_SYSTEM_UNITS:
-                    $price = str_replace(',', '.', $price);
+                $price = str_replace(',', '.', $price);
                 break;
             default:
                 throw new \BadMethodCallException('decimal system not supported');
@@ -215,5 +218,23 @@ final class Money
         }
 
         return $this->getPreciseValue() === $money->getPreciseValue();
+    }
+
+    public static function fromArray(array $array): self
+    {
+        return new Money(
+            Currency::fromCode($array[self::ARRAY_KEY_CURRENCY]),
+            $array[self::ARRAY_KEY_VALUE],
+            $array[self::ARRAY_KEY_PRECISION]
+        );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            self::ARRAY_KEY_CURRENCY  => $this->getCurrency()->getCurrencyCode(),
+            self::ARRAY_KEY_VALUE     => $this->getValue(),
+            self::ARRAY_KEY_PRECISION => $this->getPrecision(),
+        ];
     }
 }

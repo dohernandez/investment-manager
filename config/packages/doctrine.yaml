@@ -18,7 +18,7 @@ doctrine:
         url: '%env(resolve:DATABASE_URL)%'
 
         types:
-            money: App\DBAL\MoneyType
+            money: App\Infrastructure\Doctrine\DBAL\MoneyType
             currency: App\DBAL\CurrencyType
             wallet_metadata: App\DBAL\WalletMetadataType
             position_metadata: App\DBAL\PositionMetadataType

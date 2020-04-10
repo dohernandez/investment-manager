@@ -2,7 +2,8 @@
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
-                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd"
+                  xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping">
 
     <entity name="App\Domain\Market\Stock" table="projection_stock">
 
@@ -39,12 +40,18 @@
         <one-to-one field="nextDividend" target-entity="App\Domain\Market\StockDividend"/>
         <one-to-one field="toPayDividend" target-entity="App\Domain\Market\StockDividend"/>
 
-        <field name="createdAt" column="created_at" type="datetime"/>
-        <field name="updatedAt" column="updated_at" type="datetime"/>
+        <field name="createdAt" column="created_at" type="datetime">
+            <gedmo:timestampable on="create"/>
+        </field>
+        <field name="updatedAt" column="updated_at" type="datetime">
+            <gedmo:timestampable on="update"/>
+        </field>
         <field name="dividendsSyncAt" column="dividends_sync_at" type="datetime" nullable="true"/>
 
         <field name="delisted" column="delisted" type="boolean"/>
         <field name="delistedAt" column="delisted_at" type="datetime" nullable="true"/>
+
+        <field name="historicalUpdatedAt" column="historical_updated_at" type="datetime" nullable="true"/>
 
         <unique-constraints>
             <unique-constraint columns="symbol,market_id" name="stock_market_idx"/>

@@ -236,6 +236,16 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         );
     }
 
+    /**
+     * @var DateTime
+     */
+    private $historicalUpdatedAt;
+
+    public function getHistoricalUpdatedAt(): ?DateTime
+    {
+        return $this->historicalUpdatedAt;
+    }
+
     public static function add(
         string $name,
         string $symbol,
