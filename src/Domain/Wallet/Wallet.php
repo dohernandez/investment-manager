@@ -15,17 +15,21 @@ use App\Domain\Wallet\Event\WalletInvestmentIncreased;
 use App\Domain\Wallet\Event\WalletInvestmentIncreasedDecreased;
 use App\Domain\Wallet\Event\WalletSellOperationUpdated;
 use App\Domain\Wallet\Event\WalletYearDividendProjectionCalculated;
+use App\Infrastructure\Context\Context;
 use App\Infrastructure\Date\Date;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
+use App\Infrastructure\Logger\Logger;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateInterval;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+
+use function count;
 
 class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
 {
@@ -441,7 +445,7 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
         $book->getEntries()->add($bookYearEntry);
         $bookYearEntry->setTotal(new Money($this->getCurrency()));
 
-        $this->calculateDividendProjected($bookYearEntry, $year, 1, $exchangeMoneyRates);
+        $this->calculateDividendProjected(Context::TODO(), $bookYearEntry, $year, 1, $exchangeMoneyRates);
 
         if ($changed = $this->findIfLastChangeHappenedIsName(WalletYearDividendProjectionCalculated::class)) {
             // This is to avoid have too much update events.
@@ -471,16 +475,42 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     private function calculateDividendProjected(
+        Context $context,
         BookEntry $bookYearEntry,
         int $year,
         int $fromMonth = 1,
         array $exchangeMoneyRates = null
     ) {
-        foreach ($this->positions as $position) {
+        $context = $context->addKeysAndValues(
+            [
+                'func'      => 'Wallet.calculateDividendProjected',
+                'year'      => $year,
+                'fromMonth' => $fromMonth,
+                'positions' => count($this->positions),
+            ]
+        );
+
+        foreach ($this->positions as $i => $position) {
             $stock = $position->getStock();
+
+            $context = $context->addKeysAndValues(
+                [
+                    'i'     => $i,
+                    'stock' => (string)$stock,
+                ]
+            );
 
             $dividends = $stock->getDividends();
             if (!$dividends || $dividends->isEmpty()) {
+                Logger::debug(
+                    $context->addKeysAndValues(
+                        [
+                            'dividends' => $dividends,
+                        ]
+                    ),
+                    'skip position, does not pay dividend'
+                );
+
                 continue;
             }
 
@@ -516,8 +546,18 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 $totalDividendRetentionExchanged = $exchangeMoneyRate->exchange($totalDividendRetention);
             }
 
+            $context = $context->addKeysAndValues(
+                [
+                    'dividends'                       => count($dividends),
+                    'exchangeMoneyRate'               => (string)$exchangeMoneyRate,
+                    'amount'                          => $amount,
+                    'totalDividendRetention'          => (string)$totalDividendRetention,
+                    'totalDividendRetentionExchanged' => (string)$totalDividendRetentionExchanged,
+                ]
+            );
+
             /** @var StockDividend $dividend */
-            foreach ($dividends as $dividend) {
+            foreach ($dividends as $j => $dividend) {
                 // book entry month
                 $month = (string)Date::getMonth($dividend->getExDate());
                 $bookMonthEntry = $bookYearEntry->getBookEntry($month);
@@ -533,8 +573,36 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     $totalValueExchanged = $exchangeMoneyRate->exchange($totalValue);
                 }
 
+                $context = $context->addKeysAndValues(
+                    [
+                        'j'                   => $j,
+                        'exDate'              => $dividend->getExDate()->format(Date::FORMAT_SPANISH),
+                        'month'               => $month,
+                        'bookMonthEntryTotal' => (string)$bookMonthEntry->getTotal(),
+                    ]
+                );
+                Logger::debug(
+                    $context->addKeysAndValues(
+                        [
+                            'totalValue'          => (string)$totalValue,
+                            'totalValueExchanged' => (string)$totalValueExchanged,
+                        ]
+                    ),
+                    'before calculate dividend projected'
+                );
+
                 $totalValue = $totalValue->decrease($totalDividendRetention);
                 $totalValueExchanged = $totalValueExchanged->decrease($totalDividendRetentionExchanged);
+
+                Logger::debug(
+                    $context->addKeysAndValues(
+                        [
+                            'totalValue'          => (string)$totalValue,
+                            'totalValueExchanged' => (string)$totalValueExchanged,
+                        ]
+                    ),
+                    'after calculate dividend projected'
+                );
 
                 $bookMonthEntry->setTotal($bookMonthEntry->getTotal()->increase($totalValueExchanged));
 
@@ -553,7 +621,23 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                     )
                 );
 
+                $context = $context->addKeysAndValues(
+                    [
+                        'bookMonthEntryTotal' => (string)$bookMonthEntry->getTotal(),
+                    ]
+                );
+                Logger::debug($context, 'book month entry updated');
+
                 $bookYearEntry->setTotal($bookYearEntry->getTotal()->increase($totalValueExchanged));
+
+                Logger::debug(
+                    $context->addKeysAndValues(
+                        [
+                            'bookYearEntryTotal' => (string)$bookYearEntry->getTotal(),
+                        ]
+                    ),
+                    'book year entry updated'
+                );
             }
         }
     }
@@ -631,6 +715,7 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
+     * @param Context $context
      * @param DateTime $date
      * @param Rate[]|null $exchangeMoneyRates
      * @param string $toUpdateAt
@@ -638,37 +723,99 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
      * @return $this
      */
     public function reCalculateDividendProjectedFromDate(
+        Context $context,
         DateTime $date,
         array $exchangeMoneyRates = null,
         $toUpdateAt = 'now'
     ): self {
+        $context = $context->addKeysAndValues(
+            [
+                'func' => 'Wallet.reCalculateDividendProjectedFromDate',
+                'date' => $date->format(Date::FORMAT_SPANISH),
+            ]
+        );
+
         $toUpdateAt = new DateTime($toUpdateAt);
 
         $year = Date::getYear($date);
+        $beggingYear = Date::getDateTimeBeginYear($year);
 
-        $fromDate = (clone $date)->add(new DateInterval('P1M'));
-        if (Date::getYear($fromDate) != $year) {
-            return $this;
-        }
+        $context = $context->addKeysAndValues(
+            [
+                'year'        => $year,
+                'beggingYear' => $beggingYear->format(Date::FORMAT_SPANISH),
+            ]
+        );
 
         $book = BookEntry::copyBookFromWindow(
             $this->book->getDividendsProjected(),
-            Date::getDateTimeBeginYear($year),
+            $beggingYear,
             $date
         );
 
+        Logger::debug(
+            $context->addKeysAndValues(
+                [
+                    'copiedBook' => $book,
+                ]
+            ),
+            'created copy book from window'
+        );
+
         // book entry year
+        $context = $context->addKeysAndValues(
+            [
+                'bookName' => $book->getName(),
+                'currency' => (string)$this->getCurrency(),
+            ]
+        );
+
         $bookRecalculated = BookEntry::createBookEntry($book->getName());
         // book entry year
         $bookRecalculatedYearEntry = BookEntry::createYearEntry($bookRecalculated, $year);
         $bookRecalculated->getEntries()->add($bookRecalculatedYearEntry);
         $bookRecalculatedYearEntry->setTotal(new Money($this->getCurrency()));
 
+        Logger::debug(
+            $context->addKeysAndValues(
+                [
+                    'bookRecalculated' => $bookRecalculated,
+                ]
+            ),
+            'created book recalculated'
+        );
+
+        $fromDate = (clone $date)->add(new DateInterval('P1M'));
+        if (Date::getYear($fromDate) != $year) {
+            return $this;
+        }
+
+        $context = $context->addKeysAndValues(
+            [
+                'fromDate' => $fromDate->format('c'),
+            ]
+        );
+
         $this->calculateDividendProjected(
+            $context,
             $bookRecalculatedYearEntry,
             $year,
             Date::getMonth($fromDate),
             $exchangeMoneyRates
+        );
+
+        Logger::debug(
+            $context->addKeysAndValues(
+                [
+                    'bookRecalculatedYearEntry' => [
+                        'total' => (string)$bookRecalculatedYearEntry->getTotal(),
+                        $year   => $bookRecalculatedYearEntry->getEntries()->map(function (BookEntry $bookEntry) {
+                            return $bookEntry->getName() . ' - ' . (string)$bookEntry->getTotal();
+                        })->toArray(),
+                    ],
+                ]
+            ),
+            'dividend projected calculated'
         );
 
         $bookYear = $book->getBookEntry($year);
@@ -683,6 +830,17 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 $bookRecalculatedYearEntry->getTotal()->increase($bookMonth->getTotal())
             );
         }
+
+        Logger::debug(
+            $context->addKeysAndValues(
+                [
+                    'bookRecalculatedYearEntry' => [
+                        'total' => (string)$bookRecalculatedYearEntry->getTotal(),
+                    ],
+                ]
+            ),
+            'updated total dividend projected calculated'
+        );
 
         if ($changed = $this->findIfLastChangeHappenedIsName(WalletYearDividendProjectionCalculated::class)) {
             // This is to avoid have too much update events.

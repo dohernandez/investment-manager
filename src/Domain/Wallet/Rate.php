@@ -5,6 +5,8 @@ namespace App\Domain\Wallet;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 
+use function sprintf;
+
 final class Rate
 {
     /**
@@ -39,7 +41,7 @@ final class Rate
         return $this->toCurrency;
     }
 
-    public function getRate()
+    public function getRate(): float
     {
         return $this->rate;
     }
@@ -54,6 +56,16 @@ final class Rate
             $this->getToCurrency(),
             $this->getRate(),
             $money->getPrecision()
+        );
+    }
+
+    public function __toString(): string
+    {
+        return sprintf(
+            '%s_%s: %s',
+            $this->getFromCurrency(),
+            $this->getToCurrency(),
+            $this->getRate()
         );
     }
 }

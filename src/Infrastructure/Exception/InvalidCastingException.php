@@ -1,8 +1,8 @@
 <?php
 
-namespace Gedmo\Exception;
+namespace App\Infrastructure\Exception;
 
-use Gedmo\Exception;
+use InvalidArgumentException;
 
 /**
  * InvalidCastingException
@@ -11,8 +11,6 @@ use Gedmo\Exception;
  * valid type or incomplete.
  *
  */
-class InvalidCastingException
-    extends InvalidArgumentException
-    implements Exception
+class InvalidCastingException extends InvalidArgumentException
 {
 }

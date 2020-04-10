@@ -6,7 +6,7 @@ use App\Infrastructure\Context;
 
 final class Logger
 {
-    public function emergency(Context\Context $context, string $message)
+    public static function emergency(Context\Context $context, string $message)
     {
         $logger = Context\Logger::fromContext($context);
 
@@ -17,7 +17,7 @@ final class Logger
         $logger->emergency($message, $context->getKeysAndValues());
     }
 
-    public function alert(Context\Context $context, string $message)
+    public static function alert(Context\Context $context, string $message)
     {
         $logger = Context\Logger::fromContext($context);
 
@@ -28,7 +28,7 @@ final class Logger
         $logger->alert($message, $context->getKeysAndValues());
     }
 
-    public function critical(Context\Context $context, string $message)
+    public static function critical(Context\Context $context, string $message)
     {
         $logger = Context\Logger::fromContext($context);
 
@@ -39,7 +39,7 @@ final class Logger
         $logger->critical($message, $context->getKeysAndValues());
     }
 
-    public function error(Context\Context $context, string $message)
+    public static function error(Context\Context $context, string $message)
     {
         $logger = Context\Logger::fromContext($context);
 
@@ -50,7 +50,7 @@ final class Logger
         $logger->error($message, $context->getKeysAndValues());
     }
 
-    public function warning(Context\Context $context, string $message)
+    public static function warning(Context\Context $context, string $message)
     {
         $logger = Context\Logger::fromContext($context);
 
@@ -61,7 +61,7 @@ final class Logger
         $logger->warning($message, $context->getKeysAndValues());
     }
 
-    public function notice(Context\Context $context, string $message)
+    public static function notice(Context\Context $context, string $message)
     {
         $logger = Context\Logger::fromContext($context);
 
@@ -72,7 +72,7 @@ final class Logger
         $logger->notice($message, $context->getKeysAndValues());
     }
 
-    public function info(Context\Context $context, string $message)
+    public static function info(Context\Context $context, string $message)
     {
         $logger = Context\Logger::fromContext($context);
 
@@ -83,7 +83,7 @@ final class Logger
         $logger->info($message, $context->getKeysAndValues());
     }
 
-    public function debug(Context\Context $context, string $message)
+    public static function debug(Context\Context $context, string $message)
     {
         $logger = Context\Logger::fromContext($context);
 
@@ -94,7 +94,7 @@ final class Logger
         $logger->debug($message, $context->getKeysAndValues());
     }
 
-    public function log(Context\Context $context, string $level, string $message)
+    public static function log(Context\Context $context, string $level, string $message)
     {
         $logger = Context\Logger::fromContext($context);
 

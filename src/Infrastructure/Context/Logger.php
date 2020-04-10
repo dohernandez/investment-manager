@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure\Context;
 
-use Gedmo\Exception\InvalidCastingException;
+use App\Infrastructure\Exception\InvalidCastingException;
 use Psr\Log\LoggerInterface;
 
 final class Logger

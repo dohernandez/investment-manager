@@ -57,11 +57,11 @@ final class Context
      *
      * @return self
      */
-    public function AddKeysAndValues(array $keysAndValues): self
+    public function addKeysAndValues(array $keysAndValues): self
     {
         $values = new ArrayCollection($this->values->toArray());
 
-        $keysValues = $values->get(self::CONTEXT_KEYS_VALUES);
+        $keysValues = $values->get(self::CONTEXT_KEYS_VALUES) ?? [];
         $keysAndValues = array_merge($keysValues, $keysAndValues);
 
         $values->set(self::CONTEXT_KEYS_VALUES, $keysAndValues);

@@ -103,4 +103,10 @@ final class Currency
     {
         return $this->getCurrencyCode() . '_' . $currency->getCurrencyCode();
     }
+
+    public function __toString(): string
+    {
+        return $this->getCurrencyCode();
+    }
+
 }
