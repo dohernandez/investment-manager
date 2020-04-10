@@ -35,7 +35,8 @@ final class StockDividendsService implements StockDividendsServiceInterface
     public function getStockDividends(Stock $stock): array
     {
         $dividends = $this->client->getDividends($stock->getSymbol());
-        $stockDividends = $this->parser->parser($dividends);
+
+        $stockDividends = $this->parser->parser($stock->getCurrency(), $dividends);
 
         /** @var StockDividend $lastDividend */
         $lastDividend = null;

@@ -8,6 +8,7 @@ use App\Application\Wallet\Repository\PositionRepositoryInterface;
 use App\Application\Wallet\Repository\ProjectionPositionRepositoryInterface;
 use App\Domain\Wallet\Position;
 use App\Infrastructure\Exception\NotFoundException;
+use App\Infrastructure\Money\Money;
 
 final class UpdateDividendRetentionHandler extends PositionDividendHandler
 {
@@ -56,12 +57,21 @@ final class UpdateDividendRetentionHandler extends PositionDividendHandler
 
         $position = $this->positionRepository->find($projectionPosition->getId());
 
+        // Set the stock currency. There is no need to exchange the money since this is due to an issue
+        // in PositionDividendRetentionType. The value is always USD no matter the market.
+        // This set solve this issue
+        $retention = new Money(
+            $position->getStock()->getCurrency(),
+            $message->getRetention()->getValue(),
+            $message->getRetention()->getPrecision()
+        );
+
         $exchangeMoneyRate = $this->exchangeMoneyRepository->findRate(
             $position->getStock()->getCurrency(),
             $position->getBook()->getCurrency()
         );
 
-        $position->updateDividendRetention($message->getRetention(), $exchangeMoneyRate);
+        $position->updateDividendRetention($retention, $exchangeMoneyRate);
         $this->positionRepository->save($position);
 
         return $this->createPositionDividend($position);

@@ -3,6 +3,7 @@
 namespace App\Application\Market\Parser;
 
 use App\Domain\Market\StockDividend;
+use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
@@ -11,7 +12,7 @@ final class CloudIExapisDividendsParser implements DividendsParserInterface
     /**
      * @inheritDoc
      */
-    public function parser(array $dividends): array
+    public function parser(Currency $currency, array $dividends): array
     {
         $stockDividends = [];
 
@@ -27,7 +28,7 @@ final class CloudIExapisDividendsParser implements DividendsParserInterface
             $stockDividend->setExDate(new DateTime($dividend['exDate']));
 
             // Cash Amount
-            $stockDividend->setValue(Money::fromUSDValue(Money::parser($dividend['amount'])));
+            $stockDividend->setValue(new Money($currency, Money::parser($dividend['amount'])));
 
             // Record Date
             try {
