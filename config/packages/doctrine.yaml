@@ -20,9 +20,9 @@ doctrine:
         types:
             money: App\Infrastructure\Doctrine\DBAL\MoneyType
             currency: App\Infrastructure\Doctrine\DBAL\CurrencyType
-            wallet_metadata: App\DBAL\WalletMetadataType
-            position_metadata: App\DBAL\PositionMetadataType
             datetime: App\Infrastructure\Doctrine\DBAL\UTCDateTimeType
+            week: App\Infrastructure\Doctrine\DBAL\WeekType
+            domain: App\Infrastructure\Doctrine\DBAL\DomainType
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore
