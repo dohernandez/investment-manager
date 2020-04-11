@@ -2,7 +2,7 @@
 
 namespace App\Tests\Domain\Market;
 
-use App\Domain\Market\StockPrice;
+use App\Domain\Market\MarketPrice;
 use App\Infrastructure\Money\Money;
 
 final class StockPriceProvider
@@ -18,8 +18,8 @@ final class StockPriceProvider
         ?Money $week52Low = null,
         ?Money $week52High = null,
         ?int $id = null
-    ): StockPrice {
-        $price = (new StockPrice())
+    ): MarketPrice {
+        $price = (new MarketPrice())
             ->setPrice($value)
             ->setChangePrice($changePrice)
             ->setPeRatio($peRatio)
@@ -31,7 +31,7 @@ final class StockPriceProvider
             ->setWeek52High($week52High);
 
         if (!$id) {
-            $reflectionClass = new \ReflectionClass(StockPrice::class);
+            $reflectionClass = new \ReflectionClass(MarketPrice::class);
             $reflectionProperty = $reflectionClass->getProperty('id');
             $reflectionProperty->setAccessible(true);
             $reflectionProperty->setValue($price, $id);

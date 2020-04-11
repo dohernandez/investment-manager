@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd"
+                  xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping">
+
+    <entity name="App\Domain\Market\MarketData" table="projection_market_data">
+
+        <id name="id" type="integer" column="id">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="open" column="open" type="money"/>
+        <field name="close" column="close" type="money" nullable="true"/>
+        <field name="dayLow" column="day_low" type="money"/>
+        <field name="dayHigh" column="day_high" type="money"/>
+        <field name="weekLow" column="week_low" type="money" nullable="true"/>
+        <field name="weekHigh" column="week_high" type="money" nullable="true"/>
+        <field name="currency" column="currency" type="currency" nullable="true" length="3"/>
+        <field name="dateAt" column="date_at" type="datetime"/>
+
+        <many-to-one field="stock" target-entity="App\Domain\Market\Stock" inversed-by="historicalData"/>
+
+        <field name="updatedAt" column="updated_at" type="datetime">
+            <gedmo:timestampable on="update"/>
+        </field>
+
+    </entity>
+
+</doctrine-mapping>

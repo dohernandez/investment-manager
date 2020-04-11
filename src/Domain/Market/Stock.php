@@ -27,6 +27,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         parent::__construct($id);
 
         $this->dividends = new ArrayCollection();
+        $this->historicalData = new ArrayCollection();
     }
 
     /**
@@ -117,6 +118,28 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
+     * @var ArrayCollection|MarketData[]
+     */
+    private $historicalData;
+
+    public function getHistoricalData(): ArrayCollection
+    {
+        return $this->historicalData;
+    }
+
+    /**
+     * @param ArrayCollection|MarketData[] $historicalData
+     *
+     * @return $this
+     */
+    public function setHistoricalData(ArrayCollection $historicalData): self
+    {
+        $this->historicalData = $historicalData;
+
+        return $this;
+    }
+
+    /**
      * @var string
      */
     private $notes;
@@ -152,11 +175,11 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
-     * @var StockPrice
+     * @var MarketPrice
      */
     private $price;
 
-    public function getPrice(): ?StockPrice
+    public function getPrice(): ?MarketPrice
     {
         return $this->price;
     }
@@ -305,29 +328,29 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
-    public function updatePrice(StockPrice $price, $toUpdateAt = 'now'): self
+    public function updatePrice(MarketPrice $price, $toUpdateAt = 'now'): self
     {
         $toUpdateAt = new DateTime($toUpdateAt);
 
         $dividendYield = $this->calculateNewDividendYield($price, $this->nextDividend);
 
         if ($changed = $this->findIfLastChangeHappenedIsName(StockPriceUpdated::class)) {
-            // This is to avoid have too much update events.
-            $this->price->setPrice($price->getPrice());
-            $this->price->setChangePrice($price->getChangePrice());
-            $this->price->setPeRatio($price->getPeRatio());
-            $this->price->setPreClose($price->getPreClose());
-            $this->price->setOpen($price->getOpen());
-            $this->price->setDayLow($price->getDayLow());
-            $this->price->setDayHigh($price->getDayHigh());
-            $this->price->setWeek52Low($price->getWeek52Low());
-            $this->price->setWeek52High($price->getWeek52High());
+            // This is to avoid to have too many update events.
+            $myPrice = $this->price;
+
+            $myPrice->setPrice($price->getPrice());
+            $myPrice->setChangePrice($price->getChangePrice());
+            $myPrice->setPeRatio($price->getPeRatio());
+            $myPrice->setPreClose($price->getPreClose());
+            $myPrice->setData($price->getData());
+            $myPrice->setWeek52Low($price->getWeek52Low());
+            $myPrice->setWeek52High($price->getWeek52High());
 
             $this->replaceChangedPayload(
                 $changed,
                 new StockPriceUpdated(
                     $this->getId(),
-                    $this->price,
+                    $myPrice,
                     $toUpdateAt,
                     $dividendYield
                 ),
@@ -336,6 +359,8 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 
             return $this;
         }
+
+        $price->setStock($this);
 
         $this->recordChange(
             new StockPriceUpdated(
@@ -349,7 +374,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
-    private function calculateNewDividendYield(?StockPrice $price, ?StockDividend $dividend): ?float
+    private function calculateNewDividendYield(?MarketPrice $price, ?StockDividend $dividend): ?float
     {
         $yearDividend = $this->calculateYearDividend($dividend);
 

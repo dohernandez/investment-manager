@@ -4,7 +4,9 @@ namespace App\Application\Market\Scraper;
 
 use App\Application\Market\Repository\ProjectionStockInfoRepositoryInterface;
 use App\Application\Market\Repository\ProjectionStockMarketRepositoryInterface;
+use App\Domain\Market\MarketData;
 use App\Domain\Market\StockInfo;
+use App\Infrastructure\Date\Date;
 use App\Infrastructure\Exception\NotFoundException;
 use App\Infrastructure\Money\Money;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -71,6 +73,9 @@ final class YahooStockScraper implements StockScraperInterface
     public function scrap(string $symbol, ?string $yahooSymbol = null): StockCrawled
     {
         $stockCrawled = new StockCrawled($symbol, $yahooSymbol);
+        $stockCrawled->setData(
+            (new MarketData())->setDateAt(Date::now())
+        );
 
         $this->updateFromQuote($stockCrawled)
             ->updateFromProfile($stockCrawled);
@@ -152,10 +157,11 @@ final class YahooStockScraper implements StockScraperInterface
 
                             if (!$market) {
                                 throw new NotFoundException(
-                                    'Market not found', [
-                                                          'stock_symbol' => $stockCrawled->getSymbol(),
-                                                          'stock_market' => $matches[1],
-                                                      ]
+                                    'Market not found',
+                                    [
+                                        'stock_symbol' => $stockCrawled->getSymbol(),
+                                        'stock_market' => $matches[1],
+                                    ]
                                 );
                             }
 
@@ -190,7 +196,7 @@ final class YahooStockScraper implements StockScraperInterface
 
                     $reactId = $node->extract('data-reactid')[0];
                     if ($reactId == '14') {
-                        $stockCrawled->setValue(new Money($currency, Money::parser($node->extract('_text')[0])));
+                        $stockCrawled->setPrice(new Money($currency, Money::parser($node->extract('_text')[0])));
                     }
 
                     if ($reactId == '16') {
@@ -231,7 +237,7 @@ final class YahooStockScraper implements StockScraperInterface
                     }
 
                     if ($tdNodes->eq(0)->extract('_text')[0] == 'Open') {
-                        $stockCrawled->setOpen(
+                        $stockCrawled->getData()->setOpen(
                             new Money($currency, Money::parser($tdNodes->eq(1)->extract('_text')[0]))
                         );
                     }
@@ -242,8 +248,8 @@ final class YahooStockScraper implements StockScraperInterface
 
                     if ($tdNodes->eq(0)->extract('_text')[0] == 'Day\'s Range') {
                         if (preg_match('/^(.*) - (.*)$/', $tdNodes->eq(1)->extract('_text')[0], $matches) !== false) {
-                            $stockCrawled->setDayLow(new Money($currency, Money::parser($matches[1])));
-                            $stockCrawled->setDayHigh(new Money($currency, Money::parser($matches[2])));
+                            $stockCrawled->getData()->setDayLow(new Money($currency, Money::parser($matches[1])));
+                            $stockCrawled->getData()->setDayHigh(new Money($currency, Money::parser($matches[2])));
                         }
                     }
 

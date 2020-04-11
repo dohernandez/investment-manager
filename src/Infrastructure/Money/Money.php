@@ -9,6 +9,7 @@ final class Money
     public const DECIMAL_SYSTEM_UNITS = 'System of Units';
     public const DECIMAL_EUROPE = 'Europe';
     public const DECIMAL_UK = 'UK';
+
     const ARRAY_KEY_PRECISION = 'precision';
     const ARRAY_KEY_VALUE = 'value';
     const ARRAY_KEY_CURRENCY = 'currency';

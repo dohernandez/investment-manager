@@ -2,6 +2,7 @@
 
 namespace App\Infrastructure\Storage\Console;
 
+use App\Domain\Wallet\Position;
 use App\Domain\Wallet\Wallet;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -58,5 +59,34 @@ final class ConsoleWalletRepository
         return [
             'id' => $wallet->getId(),
         ];
+    }
+
+
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllStocksInWalletOnOpenPositionBySlug(string $slug): array
+    {
+        return array_map(
+            function ($stock) {
+                if (is_array($stock)) {
+                    $stock = reset($stock);
+                }
+
+                return [
+                    'id' => $stock->getId(),
+                    'symbol' => $stock->getSymbol(),
+                ];
+            },
+            $this->em
+                ->createQuery(sprintf(
+                    'SELECT DISTINCT PARTIAL p.{stockId} FROM %s w INNER JOIN w.positions p WHERE w.slug = :slug AND p.status = :status',
+                    Wallet::class)
+                )
+                ->setParameter('slug', $slug)
+                ->setParameter('status', Position::STATUS_OPEN)
+                ->getResult()
+        );
     }
 }

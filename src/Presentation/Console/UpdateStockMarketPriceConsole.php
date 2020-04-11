@@ -92,10 +92,10 @@ class UpdateStockMarketPriceConsole extends Console
                         $this->handle(
                             new UpdateStockMarketPrice(
                                 $stockMarket['id'],
-                                $crawled->getValue(),
+                                $crawled->getPrice(),
                                 $crawled->getChangePrice(),
                                 $crawled->getPreClose(),
-                                $crawled->getOpen(),
+                                $crawled->getData(),
                                 $crawled->getDayLow(),
                                 $crawled->getDayHigh(),
                                 $crawled->getWeek52Low(),

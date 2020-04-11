@@ -2,7 +2,7 @@
 
 namespace App\Tests\Domain\Market;
 
-use App\Domain\Market\StockPrice;
+use App\Domain\Market\MarketPrice;
 use App\Infrastructure\Money\Money;
 use PHPUnit\Framework\TestCase;
 

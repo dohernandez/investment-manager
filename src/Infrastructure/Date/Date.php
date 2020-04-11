@@ -7,6 +7,7 @@ use DateTimeInterface;
 
 final class Date
 {
+    public const FORMAT_ENGLISH = 'Y-m-d';
     public const FORMAT_SPANISH = 'd/m/Y';
 
     public static function getMonth(DateTimeInterface $dateTime): int
@@ -26,5 +27,12 @@ final class Date
         }
 
         return new DateTime($year . '-01-01');
+    }
+
+    public static function now(): DateTime
+    {
+        $now = new DateTime('now');
+
+        return new DateTime($now->format(self::FORMAT_ENGLISH));
     }
 }

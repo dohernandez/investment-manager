@@ -23,7 +23,7 @@
         <field name="notes" column="notes" type="text" nullable="true"/>
         <field name="metadata" column="metadata" type="object"/>
 
-        <one-to-one field="price" target-entity="App\Domain\Market\StockPrice">
+        <one-to-one field="price" target-entity="App\Domain\Market\MarketPrice">
             <cascade>
                 <cascade-persist/>
                 <cascade-remove />
@@ -52,6 +52,13 @@
         <field name="delistedAt" column="delisted_at" type="datetime" nullable="true"/>
 
         <field name="historicalUpdatedAt" column="historical_updated_at" type="datetime" nullable="true"/>
+
+        <one-to-many field="historicalData" target-entity="App\Domain\Market\MarketData" mapped-by="stock">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove />
+            </cascade>
+        </one-to-many>
 
         <unique-constraints>
             <unique-constraint columns="symbol,market_id" name="stock_market_idx"/>

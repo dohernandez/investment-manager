@@ -2,7 +2,7 @@
 
 namespace App\Domain\Market\Event;
 
-use App\Domain\Market\StockPrice;
+use App\Domain\Market\MarketPrice;
 use DateTime;
 
 final class StockPriceUpdated
@@ -13,7 +13,7 @@ final class StockPriceUpdated
     private $id;
 
     /**
-     * @var StockPrice
+     * @var MarketPrice
      */
     private $price;
 
@@ -29,7 +29,7 @@ final class StockPriceUpdated
 
     public function __construct(
         string $id,
-        StockPrice $price,
+        MarketPrice $price,
         DateTime $updatedAt,
         ?float $dividendYield = null
     ) {
@@ -44,7 +44,7 @@ final class StockPriceUpdated
         return $this->id;
     }
 
-    public function getPrice(): StockPrice
+    public function getPrice(): MarketPrice
     {
         return $this->price;
     }

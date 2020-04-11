@@ -2,6 +2,7 @@
 
 namespace App\Application\Market\Command;
 
+use App\Domain\Market\MarketData;
 use App\Infrastructure\Money\Money;
 
 final class UpdateStockPrice
@@ -14,7 +15,7 @@ final class UpdateStockPrice
     /**
      * @var Money
      */
-    private $value;
+    private $price;
 
     /**
      * @var Money|null
@@ -27,24 +28,14 @@ final class UpdateStockPrice
     private $preClose;
 
     /**
-     * @var Money|null
+     * @var MarketData|null
      */
-    private $open;
+    private $data;
 
     /**
      * @var float|null
      */
     private $peRatio;
-
-    /**
-     * @var Money|null
-     */
-    private $dayLow;
-
-    /**
-     * @var Money|null
-     */
-    private $dayHigh;
 
     /**
      * @var Money|null
@@ -58,24 +49,20 @@ final class UpdateStockPrice
 
     public function __construct(
         string $id,
-        Money $value,
+        Money $price,
         ?Money $changePrice = null,
         ?Money $preClose = null,
-        ?Money $open = null,
+        ?MarketData $data = null,
         ?float $peRatio = null,
-        ?Money $dayLow = null,
-        ?Money $dayHigh = null,
         ?Money $week52Low = null,
         ?Money $week52High = null
     ) {
         $this->id = $id;
-        $this->value = $value;
+        $this->price = $price;
         $this->changePrice = $changePrice;
         $this->preClose = $preClose;
-        $this->open = $open;
+        $this->data = $data;
         $this->peRatio = $peRatio;
-        $this->dayLow = $dayLow;
-        $this->dayHigh = $dayHigh;
         $this->week52Low = $week52Low;
         $this->week52High = $week52High;
     }
@@ -85,9 +72,9 @@ final class UpdateStockPrice
         return $this->id;
     }
 
-    public function getValue(): Money
+    public function getPrice(): Money
     {
-        return $this->value;
+        return $this->price;
     }
 
     public function getChangePrice(): ?Money
@@ -100,24 +87,14 @@ final class UpdateStockPrice
         return $this->preClose;
     }
 
-    public function getOpen(): ?Money
+    public function getData(): ?MarketData
     {
-        return $this->open;
+        return $this->data;
     }
 
     public function getPeRatio(): ?float
     {
         return $this->peRatio;
-    }
-
-    public function getDayLow(): ?Money
-    {
-        return $this->dayLow;
-    }
-
-    public function getDayHigh(): ?Money
-    {
-        return $this->dayHigh;
     }
 
     public function getWeek52Low(): ?Money

@@ -1,22 +1,22 @@
 <?php
 
-namespace App\DBAL;
+namespace App\Infrastructure\Doctrine\DBAL;
 
-use App\VO\Currency;
+use App\Infrastructure\Money\Currency;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 
 class CurrencyType extends Type
 {
-    const CURRENCY_TYPE = Type::JSON;
+    public const CURRENCY_TYPE = Type::STRING;
+    private const DEFAULT_LENGTH = 3;
 
     /**
      * {@inheritDoc}
      */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return $platform->getJsonTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
     }
 
     /**
@@ -32,13 +32,7 @@ class CurrencyType extends Type
             $value = stream_get_contents($value);
         }
 
-        $val = json_decode($value, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw ConversionException::conversionFailed($value, $this->getName());
-        }
-
-        return Currency::fromArray($val);
+        return Currency::fromCode($value);
     }
 
     /**
@@ -54,13 +48,7 @@ class CurrencyType extends Type
             return null;
         }
 
-        $encoded = json_encode($value->toArray());
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw ConversionException::conversionFailedSerialization($value, 'json', json_last_error_msg());
-        }
-
-        return $encoded;
+        return $value->getCurrencyCode();
     }
 
     /**
@@ -69,6 +57,14 @@ class CurrencyType extends Type
     public function getName()
     {
         return self::CURRENCY_TYPE;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultLength(AbstractPlatform $platform)
+    {
+        return self::DEFAULT_LENGTH;
     }
 
     /**

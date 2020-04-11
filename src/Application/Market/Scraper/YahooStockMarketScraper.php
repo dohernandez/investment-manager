@@ -92,7 +92,7 @@ final class YahooStockMarketScraper implements StockMarketScraperInterface
 
                     $reactId = $node->extract('data-reactid')[0];
                     if ($reactId == '14') {
-                        $stockCrawled->setValue(new Money($currency, Money::parser($node->extract('_text')[0])));
+                        $stockCrawled->setPrice(new Money($currency, Money::parser($node->extract('_text')[0])));
                     }
 
                     if ($reactId == '16') {
@@ -133,7 +133,7 @@ final class YahooStockMarketScraper implements StockMarketScraperInterface
                     }
 
                     if ($tdNodes->eq(0)->extract('_text')[0] == 'Open') {
-                        $stockCrawled->setOpen(
+                        $stockCrawled->setData(
                             new Money($currency, Money::parser($tdNodes->eq(1)->extract('_text')[0]))
                         );
                     }

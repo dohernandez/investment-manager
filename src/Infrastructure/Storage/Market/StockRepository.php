@@ -7,7 +7,7 @@ use App\Domain\Market\Stock;
 use App\Domain\Market\StockDividend;
 use App\Domain\Market\StockInfo;
 use App\Domain\Market\StockMarket;
-use App\Domain\Market\StockPrice;
+use App\Domain\Market\MarketPrice;
 use App\Infrastructure\Storage\Repository;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -23,7 +23,7 @@ final class StockRepository extends Repository implements StockRepositoryInterfa
         'type'          => StockInfo::class,
         'sector'        => StockInfo::class,
         'industry'      => StockInfo::class,
-        'price'         => StockPrice::class,
+        'price'         => MarketPrice::class,
         'nextDividend'  => StockDividend::class,
         'toPayDividend' => StockDividend::class,
     ];
@@ -36,7 +36,7 @@ final class StockRepository extends Repository implements StockRepositoryInterfa
         'type'          => StockInfo::class,
         'sector'        => StockInfo::class,
         'industry'      => StockInfo::class,
-        'price'         => StockPrice::class,
+        'price'         => MarketPrice::class,
         'nextDividend'  => StockDividend::class,
         'toPayDividend' => StockDividend::class,
         'dividends' => ArrayCollection::class,

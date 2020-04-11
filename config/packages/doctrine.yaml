@@ -19,7 +19,7 @@ doctrine:
 
         types:
             money: App\Infrastructure\Doctrine\DBAL\MoneyType
-            currency: App\DBAL\CurrencyType
+            currency: App\Infrastructure\Doctrine\DBAL\CurrencyType
             wallet_metadata: App\DBAL\WalletMetadataType
             position_metadata: App\DBAL\PositionMetadataType
             datetime: App\Infrastructure\Doctrine\DBAL\UTCDateTimeType

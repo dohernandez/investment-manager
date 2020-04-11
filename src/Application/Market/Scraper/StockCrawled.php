@@ -2,6 +2,7 @@
 
 namespace App\Application\Market\Scraper;
 
+use App\Domain\Market\MarketData;
 use App\Domain\Market\StockInfo;
 use App\Domain\Market\StockMarket;
 use App\Infrastructure\Money\Currency;
@@ -37,7 +38,7 @@ class StockCrawled
     /**
      * @var Money|null
      */
-    private $value;
+    private $price;
 
     /**
      * @var Money|null
@@ -50,24 +51,14 @@ class StockCrawled
     private $preClose;
 
     /**
-     * @var Money|null
+     * @var MarketData|null
      */
-    private $open;
+    private $data;
 
     /**
      * @var float|null
      */
     private $peRatio;
-
-    /**
-     * @var Money|null
-     */
-    private $dayLow;
-
-    /**
-     * @var Money|null
-     */
-    private $dayHigh;
 
     /**
      * @var Money|null
@@ -152,6 +143,9 @@ class StockCrawled
 
         if ($market !== null) {
             $this->setCurrency($market->getCurrency());
+            if($data = $this->getData()) {
+                $data->setCurrency($market->getCurrency());
+            }
         }
 
         return $this;
@@ -169,14 +163,14 @@ class StockCrawled
         return $this;
     }
 
-    public function getValue(): ?Money
+    public function getPrice(): ?Money
     {
-        return $this->value;
+        return $this->price;
     }
 
-    public function setValue(?Money $value): self
+    public function setPrice(?Money $price): self
     {
-        $this->value = $value;
+        $this->price = $price;
 
         return $this;
     }
@@ -205,14 +199,14 @@ class StockCrawled
         return $this;
     }
 
-    public function getOpen(): ?Money
+    public function getData(): ?MarketData
     {
-        return $this->open;
+        return $this->data;
     }
 
-    public function setOpen(?Money $open): self
+    public function setData(?MarketData $data): self
     {
-        $this->open = $open;
+        $this->data = $data;
 
         return $this;
     }
@@ -225,30 +219,6 @@ class StockCrawled
     public function setPeRatio(?float $peRatio): self
     {
         $this->peRatio = $peRatio;
-
-        return $this;
-    }
-
-    public function getDayLow(): ?Money
-    {
-        return $this->dayLow;
-    }
-
-    public function setDayLow(?Money $dayLow): self
-    {
-        $this->dayLow = $dayLow;
-
-        return $this;
-    }
-
-    public function getDayHigh(): ?Money
-    {
-        return $this->dayHigh;
-    }
-
-    public function setDayHigh(?Money $dayHigh): self
-    {
-        $this->dayHigh = $dayHigh;
 
         return $this;
     }

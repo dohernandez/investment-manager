@@ -80,6 +80,8 @@ final class StockNormalizer implements SubscribingHandlerInterface
             $price->getChangePercentage()
         ) : null;
 
+        $data = $price ? $price->getData() : null;
+
         return [
             'id'                   => $stock->getId(),
             'name'                 => $stock->getName(),
@@ -94,9 +96,18 @@ final class StockNormalizer implements SubscribingHandlerInterface
             'toPayDate'            => $toPayDate ? $toPayDate->format('c') : null,
             'peRatio'              => $price ? $price->getPeRatio() : null,
             'preClose'             => $price ? $this->serializer->toArray($price->getPreClose()) : null,
-            'open'                 => $price ? $this->serializer->toArray($price->getOpen()) : null,
-            'dayLow'               => $price ? $this->serializer->toArray($price->getDayLow()) : null,
-            'dayHigh'              => $price ? $this->serializer->toArray($price->getDayHigh()) : null,
+            'open'                 => $data ? $this->serializer->toArray($data->getOpen()) : null,
+            'close'                => $data && $data->getClose() ? $this->serializer->toArray($data->getClose()) : null,
+            'dayLow'               => $data ? $this->serializer->toArray($data->getDayLow()) : null,
+            'dayHigh'              => $data ? $this->serializer->toArray($data->getDayHigh()) : null,
+            'weekLow'              => $data && $data->getWeekLow() ?
+                $this->serializer->toArray($data->getWeekLow()) :
+                null,
+            'weekHigh'             => $data && $data->getWeekHigh() ?
+                $this->serializer->toArray(
+                    $data->getWeekHigh()
+                ) :
+                null,
             'week52Low'            => $price ? $this->serializer->toArray($price->getWeek52Low()) : null,
             'week52High'           => $price ? $this->serializer->toArray($price->getWeek52High()) : null,
             'change'               => $price ? $this->serializer->toArray($price->getChangePrice()) : null,

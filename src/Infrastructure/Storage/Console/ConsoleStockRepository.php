@@ -25,18 +25,19 @@ final class ConsoleStockRepository
     }
 
     /**
-     * @return array List of stock listed. [id: ...]
+     * @return array List of stock listed. [id: ..., symbol:...]
      */
     public function findAllListed(): array
     {
         $allListed = $this->em
-            ->createQuery(sprintf('SELECT PARTIAL s.{id} FROM %s s WHERE s.delisted = 0', Stock::class))
+            ->createQuery(sprintf('SELECT PARTIAL s.{id,symbol} FROM %s s WHERE s.delisted = 0', Stock::class))
             ->getResult();
 
         return array_map(
             function (Stock $stock) {
                 return [
                     'id' => $stock->getId(),
+                    'symbol' => $stock->getSymbol(),
                 ];
             },
             $allListed
@@ -46,13 +47,13 @@ final class ConsoleStockRepository
     /**
      * @param string $symbol
      *
-     * @return array The stock. [id: ...]
+     * @return array The stock. [id: ..., symbol:...]
      */
     public function findBySymbol(string $symbol): array
     {
         if (
             !$stock = $this->em
-                ->createQuery(sprintf('SELECT PARTIAL s.{id} FROM %s s WHERE s.symbol = :symbol', Stock::class))
+                ->createQuery(sprintf('SELECT PARTIAL s.{id,symbol} FROM %s s WHERE s.symbol = :symbol', Stock::class))
                 ->setParameter('symbol', $symbol)
                 ->getOneOrNullResult()
         ) {
@@ -62,6 +63,7 @@ final class ConsoleStockRepository
         /** @var Stock $stock */
         return [
             'id' => $stock->getId(),
+            'symbol' => $stock->getSymbol(),
         ];
     }
 }

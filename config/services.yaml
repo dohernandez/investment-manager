@@ -176,7 +176,7 @@ services:
     service.stock.dividends.yahoo:
         class: App\Application\Market\Service\StockDividendsService
         arguments:
-            - '@App\Application\Market\Client\YahooDividendsClient'
+            - '@App\Application\Market\Client\YahooClient'
             - '@App\Application\Market\Parser\YahooDividendsParser'
 
     service.stock.dividends.cloudiexapis:
@@ -187,7 +187,7 @@ services:
 
     # Client
     App\Application\Market\Client\NasdaqDividendsClient: ~
-    App\Application\Market\Client\YahooDividendsClient: ~
+    App\Application\Market\Client\YahooClient: ~
     App\Application\Market\Client\CloudIExapisDividendsClient:
         class: App\Application\Market\Client\CloudIExapisDividendsClient
         arguments:

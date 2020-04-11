@@ -6,12 +6,22 @@ use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-class StockPrice
+class MarketPrice
 {
     /**
      * @var int|null
      */
     private $id;
+
+    /**
+     * @var Stock|null
+     */
+    private $stock;
+
+    /**
+     * @var MarketData|null
+     */
+    private $data;
 
     /**
      * @var Money|null
@@ -41,21 +51,6 @@ class StockPrice
     /**
      * @var Money|null
      */
-    private $open;
-
-    /**
-     * @var Money|null
-     */
-    private $dayLow;
-
-    /**
-     * @var Money|null
-     */
-    private $dayHigh;
-
-    /**
-     * @var Money|null
-     */
     private $week52Low;
 
     /**
@@ -76,6 +71,22 @@ class StockPrice
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getStock(): ?Stock
+    {
+        return $this->stock;
+    }
+
+    public function setStock(?Stock $stock): self
+    {
+        $this->stock = $stock;
+
+        if ($this->data) {
+            $this->data->setStock($stock);
+        }
+
+        return $this;
     }
 
     public function getPrice(): ?Money
@@ -147,38 +158,14 @@ class StockPrice
         return $this;
     }
 
-    public function getOpen(): Money
+    public function getData(): ?MarketData
     {
-        return $this->open;
+        return $this->data;
     }
 
-    public function setOpen(?Money $open): self
+    public function setData(?MarketData $data): self
     {
-        $this->open = $open;
-
-        return $this;
-    }
-
-    public function getDayLow(): Money
-    {
-        return $this->dayLow;
-    }
-
-    public function setDayLow(?Money $dayLow): self
-    {
-        $this->dayLow = $dayLow;
-
-        return $this;
-    }
-
-    public function getDayHigh(): Money
-    {
-        return $this->dayHigh;
-    }
-
-    public function setDayHigh(?Money $dayHigh): self
-    {
-        $this->dayHigh = $dayHigh;
+        $this->data = $data;
 
         return $this;
     }
@@ -219,15 +206,17 @@ class StockPrice
         return $this;
     }
 
-    public function equals(StockPrice $price): bool
+    public function equals(MarketPrice $price): bool
     {
+        if (!$this->price) {
+             return false;
+        }
+
         return $this->price->equals($price->getPrice()) &&
             $this->changePrice->equals($price->getChangePrice()) &&
             $this->peRatio == $price->getPeRatio() &&
             $this->preClose->equals($price->getPreClose()) &&
-            $this->open->equals($price->getOpen()) &&
-            $this->dayLow->equals($price->getDayLow()) &&
-            $this->dayHigh->equals($price->getDayHigh()) &&
+            $this->data->equals($price->getData()) &&
             $this->week52Low->equals($price->getWeek52Low()) &&
             $this->week52High->equals($price->getWeek52High());
     }

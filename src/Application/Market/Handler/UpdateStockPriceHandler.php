@@ -4,10 +4,10 @@ namespace App\Application\Market\Handler;
 
 use App\Application\Market\Command\UpdateStockPrice;
 use App\Application\Market\Repository\StockRepositoryInterface;
-use App\Domain\Market\StockPrice;
+use App\Domain\Market\MarketPrice;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-final class UpdatePriceStockHandler implements MessageHandlerInterface
+final class UpdateStockPriceHandler implements MessageHandlerInterface
 {
     /**
      * @var StockRepositoryInterface
@@ -24,14 +24,12 @@ final class UpdatePriceStockHandler implements MessageHandlerInterface
     {
         $stock = $this->stockRepository->find($message->getId());
 
-        $price = (new StockPrice())
-            ->setPrice($message->getValue())
+        $price = (new MarketPrice())
+            ->setPrice($message->getPrice())
             ->setChangePrice($message->getChangePrice())
             ->setPeRatio($message->getPeRatio())
             ->setPreClose($message->getPreClose())
-            ->setOpen($message->getOpen())
-            ->setDayLow($message->getDayLow())
-            ->setDayHigh($message->getDayHigh())
+            ->setData($message->getData())
             ->setWeek52Low($message->getWeek52Low())
             ->setWeek52High($message->getWeek52High());
 
