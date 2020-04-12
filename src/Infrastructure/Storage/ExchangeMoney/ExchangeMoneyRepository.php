@@ -4,8 +4,13 @@ namespace App\Infrastructure\Storage\ExchangeMoney;
 
 use App\Application\ExchangeMoney\Repository\ExchangeMoneyRepositoryInterface;
 use App\Domain\ExchangeMoney\Rate;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+
+use function array_map;
+use function sprintf;
 
 /**
  * @method Rate|null find($id, $lockMode = null, $lockVersion = null)
@@ -45,6 +50,49 @@ final class ExchangeMoneyRepository extends ServiceEntityRepository implements E
             ->andWhere('ec.paarCurrency LIKE :toCurrency')
             ->setParameter('toCurrency', $toCurrency . '_%' )
             ->getQuery()
+            ->getResult();
+    }
+
+    public function findRateByPaarCurrencyDateAt(string $paarCurrency, DateTime $date): ?Rate
+    {
+        return $this->findOneBy(
+            [
+                'paarCurrency' => $paarCurrency,
+                'dateAt' => $date,
+            ]
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllLatest()
+    {
+        $em = $this->getEntityManager();
+
+        $classMetadata = $this->getEntityManager()->getClassMetadata(Rate::class);
+
+        $rsm = new ResultSetMapping();
+        $alias = 'er0';
+        $rsm->addEntityResult(Rate::class, '' . $alias . '');
+
+        foreach ($classMetadata->getFieldNames() as $fieldName) {
+            $rsm->addFieldResult($alias, $classMetadata->getColumnName($fieldName), $fieldName);
+        }
+
+        return $em->createNativeQuery(
+            sprintf(
+                'SELECT er0.*
+                 FROM %1$s er0
+                 WHERE (er0.paar_currency, er0.date_at) IN (
+                   SELECT DISTINCT er1.paar_currency, MAX(er1.date_at)
+                   FROM %1$s er1
+                   GROUP BY 1
+                )',
+                $classMetadata->getTableName()
+            ),
+            $rsm
+        )
             ->getResult();
     }
 }

@@ -5,9 +5,12 @@ namespace App\Domain\ExchangeMoney;
 
 use App\Infrastructure\Money\Currency;
 use DateTime;
+use Gedmo\Timestampable\Traits\Timestampable;
 
 class Rate
 {
+    use Timestampable;
+
     /**
      * @var int
      */
@@ -36,22 +39,7 @@ class Rate
     /**
      * @var DateTime
      */
-    private $createdAt;
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * @var DateTime
-     */
-    private $updatedAt;
-
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
-    }
+    private $dateAt;
 
     public function getId(): ?int
     {
@@ -102,6 +90,18 @@ class Rate
     public function setPaarCurrency(string $paarCurrency): self
     {
         $this->paarCurrency = $paarCurrency;
+
+        return $this;
+    }
+
+    public function getDateAt(): DateTime
+    {
+        return $this->dateAt;
+    }
+
+    public function setDateAt(DateTime $dateAt): self
+    {
+        $this->dateAt = $dateAt;
 
         return $this;
     }

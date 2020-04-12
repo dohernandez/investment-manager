@@ -3,6 +3,7 @@
 namespace App\Application\ExchangeMoney\Repository;
 
 use App\Domain\ExchangeMoney\Rate;
+use DateTime;
 
 interface ExchangeMoneyRepositoryInterface
 {
@@ -20,5 +21,7 @@ interface ExchangeMoneyRepositoryInterface
     /**
      * @return Rate[]
      */
-    public function findAll();
+    public function findAllLatest();
+
+    public function findRateByPaarCurrencyDateAt(string $paarCurrency, DateTime $date): ?Rate;
 }

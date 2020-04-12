@@ -14,13 +14,20 @@
         <field name="fromCurrency" column="from_currency" type="object" />
         <field name="toCurrency" column="to_currency" type="object" />
         <field name="rate" column="rate" type="float" />
-        <field name="paarCurrency" column="paar_currency" type="string" unique="true"/>
+        <field name="paarCurrency" column="paar_currency" type="string"/>
+        <field name="dateAt" column="date_at" type="datetime">
+            <gedmo:timestampable on="create"/>
+        </field>
         <field name="createdAt" column="created_at" type="datetime">
-            <gedmo:timestampable on="update"/>
+            <gedmo:timestampable on="create"/>
         </field>
         <field name="updatedAt" column="updated_at" type="datetime">
             <gedmo:timestampable on="update"/>
         </field>
+
+        <unique-constraints>
+            <unique-constraint columns="paar_currency,date_at" name="paar_currency_date_at_idx" />
+        </unique-constraints>
     </entity>
 
 </doctrine-mapping>

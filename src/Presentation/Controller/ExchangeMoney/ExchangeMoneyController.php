@@ -21,6 +21,6 @@ final class ExchangeMoneyController extends AbstractController
 
     public function index(ExchangeMoneyRepositoryInterface $repo): Response
     {
-        return $this->render('control-sidebar/exchange.html.twig', $this->indexView->index($repo->findAll()));
+        return $this->render('control-sidebar/exchange.html.twig', $this->indexView->index($repo->findAllLatest()));
     }
 }
