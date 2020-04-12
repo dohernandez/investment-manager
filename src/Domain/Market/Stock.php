@@ -334,6 +334,8 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 
         $dividendYield = $this->calculateNewDividendYield($price, $this->nextDividend);
 
+        $price->setStock($this);
+
         if ($changed = $this->findIfLastChangeHappenedIsName(StockPriceUpdated::class)) {
             // This is to avoid to have too many update events.
             $myPrice = $this->price;
@@ -359,8 +361,6 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 
             return $this;
         }
-
-        $price->setStock($this);
 
         $this->recordChange(
             new StockPriceUpdated(
