@@ -82,10 +82,6 @@ class MarketPrice
     {
         $this->stock = $stock;
 
-        if ($this->data) {
-            $this->data->setStock($stock);
-        }
-
         return $this;
     }
 
@@ -212,11 +208,18 @@ class MarketPrice
              return false;
         }
 
+        if (
+            ($this->data === null && $price->getData() !== null) ||
+            ($this->data !== null && $price->getData() === null)
+        ) {
+            return false;
+        }
+
         return $this->price->equals($price->getPrice()) &&
             $this->changePrice->equals($price->getChangePrice()) &&
             $this->peRatio == $price->getPeRatio() &&
             $this->preClose->equals($price->getPreClose()) &&
-            $this->data->equals($price->getData()) &&
+            ($this->data === $price->getData() || $this->data->equals($price->getData())) &&
             $this->week52Low->equals($price->getWeek52Low()) &&
             $this->week52High->equals($price->getWeek52High());
     }

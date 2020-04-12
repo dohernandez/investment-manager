@@ -2,7 +2,9 @@
 
 namespace App\Infrastructure\Money;
 
-final class Currency
+use App\Infrastructure\Doctrine\DBAL\DomainInterface;
+
+final class Currency implements DomainInterface
 {
     public const CURRENCY_CODE_USD = 'USD';
     public const CURRENCY_SYMBOL_USD = '$';
@@ -107,5 +109,21 @@ final class Currency
     public function __toString(): string
     {
         return $this->getCurrencyCode();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function marshalDBAL()
+    {
+        return $this->currencyCode;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function unMarshalDBAL($value)
+    {
+        return self::fromCode($value);
     }
 }

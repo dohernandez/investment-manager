@@ -44,7 +44,7 @@ final class StockPriceUpdated
         return $this->id;
     }
 
-    public function getPrice(): MarketPrice
+    public function getPrice(): ?MarketPrice
     {
         return $this->price;
     }

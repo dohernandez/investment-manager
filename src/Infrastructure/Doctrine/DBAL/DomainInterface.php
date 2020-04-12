@@ -4,7 +4,13 @@ namespace App\Infrastructure\Doctrine\DBAL;
 
 interface DomainInterface
 {
-    public function marshalDBAL(): array;
+    /**
+     * @return mixed
+     */
+    public function marshalDBAL();
 
-    public static function unMarshalDBAL(array $value);
+    /**
+     * @param mixed $value
+     */
+    public static function unMarshalDBAL($value);
 }

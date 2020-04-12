@@ -2,17 +2,18 @@
 
 namespace App\Infrastructure\Money;
 
+use App\Infrastructure\Doctrine\DBAL\DomainInterface;
 use LogicException;
 
-final class Money
+final class Money implements DomainInterface
 {
     public const DECIMAL_SYSTEM_UNITS = 'System of Units';
     public const DECIMAL_EUROPE = 'Europe';
     public const DECIMAL_UK = 'UK';
 
-    const ARRAY_KEY_PRECISION = 'precision';
-    const ARRAY_KEY_VALUE = 'value';
-    const ARRAY_KEY_CURRENCY = 'currency';
+    private const DBAL_KEY_PRECISION = 'precision';
+    private const DBAL_KEY_VALUE = 'value';
+    private const DBAL_KEY_CURRENCY = 'currency';
 
     public function __construct(Currency $currency, int $value = 0, int $precision = 2)
     {
@@ -221,21 +222,24 @@ final class Money
         return $this->getPreciseValue() === $money->getPreciseValue();
     }
 
-    public static function fromArray(array $array): self
+    /**
+     * @inheritDoc
+     */
+    public static function unMarshalDBAL($array): self
     {
         return new Money(
-            Currency::fromCode($array[self::ARRAY_KEY_CURRENCY]),
-            $array[self::ARRAY_KEY_VALUE],
-            $array[self::ARRAY_KEY_PRECISION]
+            Currency::unMarshalDBAL($array[self::DBAL_KEY_CURRENCY]),
+            $array[self::DBAL_KEY_VALUE],
+            $array[self::DBAL_KEY_PRECISION]
         );
     }
 
-    public function toArray(): array
+    public function marshalDBAL()
     {
         return [
-            self::ARRAY_KEY_CURRENCY  => $this->getCurrency()->getCurrencyCode(),
-            self::ARRAY_KEY_VALUE     => $this->getValue(),
-            self::ARRAY_KEY_PRECISION => $this->getPrecision(),
+            self::DBAL_KEY_CURRENCY  => $this->getCurrency()->marshalDBAL(),
+            self::DBAL_KEY_VALUE     => $this->getValue(),
+            self::DBAL_KEY_PRECISION => $this->getPrecision(),
         ];
     }
 }

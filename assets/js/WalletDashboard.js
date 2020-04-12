@@ -120,7 +120,7 @@ class WalletDashboard {
     onOperationCreated() {
         this._loadWalletStatistics();
         this._loadWalletPositions();
-        this._loadWalletPositionsDividends();
+        this.onPositionDividendUpdated();
     }
 
     onPositionDividendUpdated() {

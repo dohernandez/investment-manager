@@ -59,14 +59,19 @@ class MarketData
     private $updatedAt;
 
     /**
-     * @var Stock
+     * @var Stock|null
      */
     private $stock;
 
     /**
-     * @var StockMarket
+     * @var StockMarket|null
      */
     private $market;
+
+    /**
+     * @var MarketPrice|null
+     */
+    private $price;
 
     public function __construct(?int $id = null)
     {
@@ -237,6 +242,18 @@ class MarketData
     public function setMarket(StockMarket $market): self
     {
         $this->market = $market;
+
+        return $this;
+    }
+
+    public function getPrice(): MarketPrice
+    {
+        return $this->price;
+    }
+
+    public function setPrice(MarketPrice $price): self
+    {
+        $this->price = $price;
 
         return $this;
     }

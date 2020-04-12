@@ -38,7 +38,7 @@ class MoneyType extends Type
             throw ConversionException::conversionFailed($value, $this->getName());
         }
 
-        return Money::fromArray($val);
+        return Money::unMarshalDBAL($val);
     }
 
     /**
@@ -54,7 +54,7 @@ class MoneyType extends Type
             return null;
         }
 
-        $encoded = json_encode($value->toArray());
+        $encoded = json_encode($value->marshalDBAL());
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw ConversionException::conversionFailedSerialization($value, 'json', json_last_error_msg());

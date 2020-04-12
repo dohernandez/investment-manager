@@ -334,25 +334,37 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
 
         $dividendYield = $this->calculateNewDividendYield($price, $this->nextDividend);
 
-        $price->setStock($this);
+        if ($this->price) {
+            // This is to avoid to have too many update events.
+            $priceUpdated = $this->price;
+
+            $myData = $priceUpdated->getData();
+            $data = $price->getData();
+
+            $myData->setOpen($data->getOpen());
+            $myData->setDayLow($data->getDayLow());
+            $myData->setDayHigh($data->getDayHigh());
+
+            $priceUpdated->setPrice($price->getPrice());
+            $priceUpdated->setChangePrice($price->getChangePrice());
+            $priceUpdated->setPeRatio($price->getPeRatio());
+            $priceUpdated->setPreClose($price->getPreClose());
+            $priceUpdated->setData($myData);
+            $priceUpdated->setWeek52Low($price->getWeek52Low());
+            $priceUpdated->setWeek52High($price->getWeek52High());
+        } else {
+            $priceUpdated = $price;
+
+            $priceUpdated->setStock($this);
+            $priceUpdated->getData()->setPrice($priceUpdated);
+        }
 
         if ($changed = $this->findIfLastChangeHappenedIsName(StockPriceUpdated::class)) {
-            // This is to avoid to have too many update events.
-            $myPrice = $this->price;
-
-            $myPrice->setPrice($price->getPrice());
-            $myPrice->setChangePrice($price->getChangePrice());
-            $myPrice->setPeRatio($price->getPeRatio());
-            $myPrice->setPreClose($price->getPreClose());
-            $myPrice->setData($price->getData());
-            $myPrice->setWeek52Low($price->getWeek52Low());
-            $myPrice->setWeek52High($price->getWeek52High());
-
             $this->replaceChangedPayload(
                 $changed,
                 new StockPriceUpdated(
                     $this->getId(),
-                    $myPrice,
+                    $priceUpdated,
                     $toUpdateAt,
                     $dividendYield
                 ),
@@ -365,7 +377,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         $this->recordChange(
             new StockPriceUpdated(
                 $this->getId(),
-                $price,
+                $priceUpdated,
                 $toUpdateAt,
                 $dividendYield
             )

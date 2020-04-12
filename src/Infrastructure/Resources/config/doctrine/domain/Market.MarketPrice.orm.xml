@@ -17,7 +17,7 @@
         <field name="peRatio" column="pe_ratio" type="float"/>
         <field name="preClose" column="pre_close" type="money"/>
 
-        <one-to-one field="data" target-entity="App\Domain\Market\MarketData">
+        <one-to-one field="data" target-entity="App\Domain\Market\MarketData" mapped-by="price">
             <cascade>
                 <cascade-persist/>
                 <cascade-remove />

@@ -21,6 +21,7 @@
         <field name="dateAt" column="date_at" type="datetime"/>
 
         <many-to-one field="stock" target-entity="App\Domain\Market\Stock" inversed-by="historicalData"/>
+        <many-to-one field="price" target-entity="App\Domain\Market\MarketPrice" inversed-by="data"/>
 
         <field name="updatedAt" column="updated_at" type="datetime">
             <gedmo:timestampable on="update"/>
