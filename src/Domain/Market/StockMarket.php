@@ -109,11 +109,11 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
     }
 
     /**
-     * @var StockMarketPrice|null
+     * @var MarketPrice|null
      */
     private $price;
 
-    public function getPrice(): ?StockMarketPrice
+    public function getPrice(): ?MarketPrice
     {
         return $this->price;
     }
@@ -159,9 +159,15 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
         return $this;
     }
 
-    public function updatePrice(StockMarketPrice $price, $toUpdateAt = 'now'): self
+    public function updatePrice(MarketPrice $price, $toUpdateAt = 'now'): self
     {
         $toUpdateAt = new DateTime($toUpdateAt);
+
+        if ($this->price) {
+            $price = $this->price->update($price);
+        } else {
+            $price->setStock($this);
+        }
 
         if ($changed = $this->findIfLastChangeHappenedIsName(StockMarketPriceUpdated::class)) {
             // This is to avoid have too much update events.

@@ -161,6 +161,10 @@ class MarketPrice
 
     public function setData(?MarketData $data): self
     {
+        if ($data) {
+            $data->setPrice($this);
+        }
+
         $this->data = $data;
 
         return $this;
@@ -227,5 +231,24 @@ class MarketPrice
     public function getCurrency(): ?Currency
     {
         return $this->price ? $this->price->getCurrency() : null;
+    }
+
+    public function update(MarketPrice $price): self
+    {
+        $myData = $this->getData();
+        $data = $price->getData();
+
+        $myData->setOpen($data->getOpen());
+        $myData->setDayLow($data->getDayLow());
+        $myData->setDayHigh($data->getDayHigh());
+
+        $this->setPrice($price->getPrice());
+        $this->setChangePrice($price->getChangePrice());
+        $this->setPeRatio($price->getPeRatio());
+        $this->setPreClose($price->getPreClose());
+        $this->setWeek52Low($price->getWeek52Low());
+        $this->setWeek52High($price->getWeek52High());
+
+        return $this;
     }
 }

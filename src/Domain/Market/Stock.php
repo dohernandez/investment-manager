@@ -335,36 +335,18 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         $dividendYield = $this->calculateNewDividendYield($price, $this->nextDividend);
 
         if ($this->price) {
-            // This is to avoid to have too many update events.
-            $priceUpdated = $this->price;
-
-            $myData = $priceUpdated->getData();
-            $data = $price->getData();
-
-            $myData->setOpen($data->getOpen());
-            $myData->setDayLow($data->getDayLow());
-            $myData->setDayHigh($data->getDayHigh());
-
-            $priceUpdated->setPrice($price->getPrice());
-            $priceUpdated->setChangePrice($price->getChangePrice());
-            $priceUpdated->setPeRatio($price->getPeRatio());
-            $priceUpdated->setPreClose($price->getPreClose());
-            $priceUpdated->setData($myData);
-            $priceUpdated->setWeek52Low($price->getWeek52Low());
-            $priceUpdated->setWeek52High($price->getWeek52High());
+            $price = $this->price->update($price);
         } else {
-            $priceUpdated = $price;
-
-            $priceUpdated->setStock($this);
-            $priceUpdated->getData()->setPrice($priceUpdated);
+            $price->setStock($this);
         }
 
         if ($changed = $this->findIfLastChangeHappenedIsName(StockPriceUpdated::class)) {
+            // This is to avoid to have too many update events.
             $this->replaceChangedPayload(
                 $changed,
                 new StockPriceUpdated(
                     $this->getId(),
-                    $priceUpdated,
+                    $price,
                     $toUpdateAt,
                     $dividendYield
                 ),
@@ -377,7 +359,7 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot
         $this->recordChange(
             new StockPriceUpdated(
                 $this->getId(),
-                $priceUpdated,
+                $price,
                 $toUpdateAt,
                 $dividendYield
             )

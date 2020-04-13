@@ -73,7 +73,6 @@ abstract class Repository
      *
      * @return mixed object
      * @throws ReflectionException
-     * @throws \Doctrine\ORM\ORMException
      */
     protected function load(string $type, string $id)
     {
@@ -236,8 +235,7 @@ abstract class Repository
             $this->em->flush();
 
             $this->unburdenChangesDependencies($changes);
-            $this->eventSource->saveEvents($changes);
-            $this->em->flush();
+            $this->eventSource->saveEvents($changes, true);
 
             if (!($object->getVersion() % 5)) {
                 $this->snapshot->save(
@@ -264,18 +262,6 @@ abstract class Repository
 //        $this->em->persist($projection);
 //        $this->em->flush();
 //    }
-
-    protected function unburdenChangesDependencies(ArrayCollection $changes): self
-    {
-        /** @var Changed $change */
-        foreach ($changes as $change) {
-            $payload = $change->getPayload();
-
-            $this->unburdenDependencies($payload, $this->dependencies);
-        }
-
-        return $this;
-    }
 
     /**
      * @param $object
@@ -329,11 +315,47 @@ abstract class Repository
     {
         $serialize = clone $object;
 
+        if ($serialize instanceof Proxy) {
+            $serialize = $this->extractObjectFromProxy($serialize);
+        }
+
         $this->unburdenDependencies(
             $serialize,
             array_merge($this->serializeDependencies, ['changes' => ArrayCollection::class])
         );
 
         return $serialize;
+    }
+
+    private function extractObjectFromProxy(AggregateRoot $proxyObject): AggregateRoot
+    {
+        $reflect = new ReflectionClass(get_class($proxyObject));
+        $reflect = $reflect->getParentClass();
+
+        $class = $reflect->getName();
+        $object = new $class($proxyObject->getId());
+
+        foreach ($reflect->getProperties() as $property) {
+            if ($property->getName() === 'id') {
+                continue;
+            }
+
+            $reflectionProperty = $reflect->getProperty($property->getName());
+            $reflectionProperty->setAccessible(true);
+            $reflectionProperty->setValue($object, $reflectionProperty->getValue($proxyObject));
+        }
+
+        return $object;
+    }
+
+    protected function unburdenChangesDependencies(ArrayCollection $changes): self
+    {
+        /** @var Changed $change */
+        foreach ($changes as $change) {
+            $payload = $change->getPayload();
+            $this->unburdenDependencies($payload, $this->dependencies);
+        }
+
+        return $this;
     }
 }

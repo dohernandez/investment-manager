@@ -8,6 +8,7 @@ use App\Application\Market\Command\UpdateStockPrice;
 use App\Application\Market\Repository\ProjectionStockRepositoryInterface;
 use App\Application\Market\Scraper\StockCrawled;
 use App\Application\Wallet\Repository\ProjectionWalletRepositoryInterface;
+use App\Infrastructure\Process\WaitGroup;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,9 +16,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Process\Process;
 
-use function explode;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+
 use function sprintf;
 
 class UpdateStockPriceConsole extends Console
@@ -61,6 +62,8 @@ class UpdateStockPriceConsole extends Console
 
     protected function configure()
     {
+        parent::configure();
+
         $this
             ->setDescription('Update all stocks price value based on the yahoo website.')
             ->addOption('symbol', 's', InputOption::VALUE_OPTIONAL, 'Stock symbol')
@@ -78,15 +81,6 @@ class UpdateStockPriceConsole extends Console
                 InputOption::VALUE_OPTIONAL,
                 'Update historical data instead',
                 false
-            )
-            ->addOption(
-                'stock',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Stock in a format id:symbol:yahoo_symbol:market:symbol.
-                This option is mainly use by re-triggering the  command to avoid memory leak. Nevertheless it can
-                be use by user with advance knowledge.
-                For example: -stock 5e5ee0d4a3981:IRBT:NASDAQ'
             );
     }
 
@@ -94,7 +88,12 @@ class UpdateStockPriceConsole extends Console
     {
         $io = new SymfonyStyle($input, $output);
 
-        $singleStock = false;
+        if (parent::execute($input, $output)) {
+            return;
+        }
+
+        $threads = $input->getOption('threads');
+
         $stocks = [];
         if ($symbol = $input->getOption('symbol')) {
             if ($stock = $this->stockRepository->findBySymbol($symbol)) {
@@ -105,18 +104,6 @@ class UpdateStockPriceConsole extends Console
                     'market_symbol' => $stock->getMarket()->getSymbol(),
                 ];
             }
-
-            $singleStock = true;
-        } elseif ($stock = $input->getOption('stock')) {
-            list($stockId, $symbol, $yahooSymbol, $marketSymbol) = explode(':', $stock);
-            $stocks[] = [
-                'id'            => $stockId,
-                'symbol'        => $symbol,
-                'yahoo_symbol'  => $yahooSymbol,
-                'market_symbol' => $marketSymbol,
-            ];
-
-            $singleStock = true;
         } elseif ($wallet = $input->getOption('wallet')) {
             $wStocks = $this->walletRepository->findAllStocksInWalletOnOpenPositionBySlug($wallet);
             foreach ($wStocks as $stock) {
@@ -148,103 +135,101 @@ class UpdateStockPriceConsole extends Console
         }
 
         $io->progressStart(count($stocks));
+        $wg = new WaitGroup();
+        $r = 0;
 
         foreach ($stocks as $stock) {
-            try {
-                $this->logger->debug(
-                    'Crawling stock',
-                    [
-                        'stock_symbol'        => $stock['symbol'],
-                        'stock_market_symbol' => $stock['market_symbol'],
-                    ]
-                );
+            $this->logger->debug(
+                'Crawling stock',
+                [
+                    'stock_symbol'        => $stock['symbol'],
+                    'stock_market_symbol' => $stock['market_symbol'],
+                ]
+            );
 
-                if (!$this->isHistorical($input)) {
-                    /** @var StockCrawled $crawled */
-                    $crawled = $this->handle(
-                        new LoadYahooQuote(
-                            $stock['symbol'],
-                            $stock['yahoo_symbol']
-                        )
-                    );
+            $operation = 'processUpdateStockPrice';
+            if ($this->isHistorical($input)) {
+                $operation = 'processUpdateHistoricalStockPrice';
+            }
 
-                    $this->em->transactional(
-                        function () use ($stock, $crawled) {
-                            $this->handle(
-                                new UpdateStockPrice(
-                                    $stock['id'],
-                                    $crawled->getPrice(),
-                                    $crawled->getChangePrice(),
-                                    $crawled->getPreClose(),
-                                    $crawled->getData(),
-                                    $crawled->getPeRatio(),
-                                    $crawled->getWeek52Low(),
-                                    $crawled->getWeek52High()
-                                )
-                            );
-                        }
-                    );
-                } elseif ($singleStock) {
-                    $this->em->transactional(
-                        function () use ($stock) {
-                            $this->handle(
-                                new UpdateHistoricalStockPrice(
-                                    $stock['id']
-                                )
-                            );
-                        }
-                    );
-                } else {
-                    // triggering in a separate threat by running shell command line
-                    // to avoid memory leak due to exceeds allocated memory.
-                    $process = new Process(
-                        [
-                            'php',
-                            'bin/console',
-                            'app:update-stock-price',
-                            '-e',
-                            'dev',
-                            '--stock',
-                            sprintf(
-                                '%s:%s:%s:%s',
-                                $stock['id'],
-                                $stock['symbol'],
-                                $stock['yahoo_symbol'],
-                                $stock['market_symbol']
-                            ),
-                            '--historical',
-                        ]
-                    );
-                    $process->start();
+            $this->process(
+                self::$defaultName,
+                $operation,
+                [
+                    $stock['id'],
+                    $stock['symbol'],
+                    $stock['yahoo_symbol'],
+                    $stock['market_symbol'],
+                ],
+                $wg
+            );
 
-                    $err = null;
-                    $process->wait(
-                        function ($type, $buffer) {
-                            if (Process::ERR === $type) {
-                                $err = $buffer;
-                            }
-                        }
-                    );
+            $io->progressAdvance();
 
-                    if ($err !== null) {
-                        throw new \Exception($err);
-                    }
-                }
-            } catch (\Exception $e) {
-                $io->error(
-                    sprintf(
-                        'failed scraper update stock %s, error: %s',
-                        $stock['symbol'],
-                        $e->getMessage()
-                    )
-                );
-            } finally {
-                $io->progressAdvance();
+            $r++;
+            if ($r === $threads) {
+                $r = $wg->wait(1);
             }
         }
 
+        $wg->wait();
+        foreach ($wg->getFailed() as $error) {
+            $io->error(
+                sprintf(
+                    'failed scraper update stock, error: %s',
+                    (new ProcessFailedException($error))->getMessage()
+                )
+            );
+        }
         $io->progressFinish();
 
         $io->success('Price updated successfully.');
+    }
+
+    /**
+     * @param array $stock [0:id => ..., 1:symbol, 2:yahoo_symbol, 3:market_symbol]
+     */
+    protected function processUpdateStockPrice(array $stock): void
+    {
+        /** @var StockCrawled $crawled */
+        $crawled = $this->handle(
+            new LoadYahooQuote(
+                $stock[1],
+                $stock[2]
+            )
+        );
+
+        $this->em->transactional(
+            function () use ($stock, $crawled) {
+                $this->handle(
+                    new UpdateStockPrice(
+                        $stock[0],
+                        $crawled->getPrice(),
+                        $crawled->getChangePrice(),
+                        $crawled->getPreClose(),
+                        $crawled->getData(),
+                        $crawled->getPeRatio(),
+                        $crawled->getWeek52Low(),
+                        $crawled->getWeek52High()
+                    )
+                );
+            }
+        );
+    }
+
+    /**
+     * @param array $stock [0:id => ..., 1:symbol, 2:yahoo_symbol, 3:market_symbol]
+     */
+    protected function processUpdateHistoricalStockPrice(array $stock): void
+    {
+        $this->em->transactional(
+            function () use ($stock) {
+                $this->handle(
+                    new UpdateHistoricalStockPrice(
+                        $stock[0]
+                    )
+                );
+            }
+        );
     }
 }

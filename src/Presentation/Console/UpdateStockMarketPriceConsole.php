@@ -96,8 +96,6 @@ class UpdateStockMarketPriceConsole extends Console
                                 $crawled->getChangePrice(),
                                 $crawled->getPreClose(),
                                 $crawled->getData(),
-                                $crawled->getDayLow(),
-                                $crawled->getDayHigh(),
                                 $crawled->getWeek52Low(),
                                 $crawled->getWeek52High()
                             )

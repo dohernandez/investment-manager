@@ -2,6 +2,7 @@
 
 namespace App\Application\Market\Command;
 
+use App\Domain\Market\MarketData;
 use App\Infrastructure\Money\Money;
 
 final class UpdateStockMarketPrice
@@ -14,7 +15,7 @@ final class UpdateStockMarketPrice
     /**
      * @var Money
      */
-    private $value;
+    private $price;
 
     /**
      * @var Money|null
@@ -27,19 +28,9 @@ final class UpdateStockMarketPrice
     private $preClose;
 
     /**
-     * @var Money|null
+     * @var MarketData|null
      */
-    private $open;
-
-    /**
-     * @var Money|null
-     */
-    private $dayLow;
-
-    /**
-     * @var Money|null
-     */
-    private $dayHigh;
+    private $data;
 
     /**
      * @var Money|null
@@ -56,19 +47,15 @@ final class UpdateStockMarketPrice
         Money $value,
         ?Money $changePrice = null,
         ?Money $preClose = null,
-        ?Money $open = null,
-        ?Money $dayLow = null,
-        ?Money $dayHigh = null,
+        ?MarketData $data = null,
         ?Money $week52Low = null,
         ?Money $week52High = null
     ) {
         $this->id = $id;
-        $this->value = $value;
+        $this->price = $value;
         $this->changePrice = $changePrice;
         $this->preClose = $preClose;
-        $this->open = $open;
-        $this->dayLow = $dayLow;
-        $this->dayHigh = $dayHigh;
+        $this->data = $data;
         $this->week52Low = $week52Low;
         $this->week52High = $week52High;
     }
@@ -78,9 +65,9 @@ final class UpdateStockMarketPrice
         return $this->id;
     }
 
-    public function getValue(): Money
+    public function getPrice(): Money
     {
-        return $this->value;
+        return $this->price;
     }
 
     public function getChangePrice(): ?Money
@@ -93,19 +80,9 @@ final class UpdateStockMarketPrice
         return $this->preClose;
     }
 
-    public function getOpen(): ?Money
+    public function getData(): ?MarketData
     {
-        return $this->open;
-    }
-
-    public function getDayLow(): ?Money
-    {
-        return $this->dayLow;
-    }
-
-    public function getDayHigh(): ?Money
-    {
-        return $this->dayHigh;
+        return $this->data;
     }
 
     public function getWeek52Low(): ?Money

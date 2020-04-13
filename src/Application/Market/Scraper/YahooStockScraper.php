@@ -97,7 +97,7 @@ final class YahooStockScraper implements StockScraperInterface
             sprintf(
                 '%1$s/%2$s?p=%2$s',
                 self::YAHOO_FINANCE_QUOTE_URI,
-                $stockCrawled->getYahooSymbol() ?? $stockCrawled->getSymbol()
+                $stockCrawled->getYahooSymbol() ? $stockCrawled->getYahooSymbol() : $stockCrawled->getSymbol()
             )
         );
 
@@ -280,7 +280,7 @@ final class YahooStockScraper implements StockScraperInterface
             sprintf(
                 '%1$s/%2$s/profile?p=%2$s',
                 self::YAHOO_FINANCE_QUOTE_URI,
-                $stockCrawled->getYahooSymbol() ?? $stockCrawled->getSymbol()
+                $stockCrawled->getYahooSymbol() ? $stockCrawled->getYahooSymbol() : $stockCrawled->getSymbol()
             )
         );
 
