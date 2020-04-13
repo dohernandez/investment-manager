@@ -66,7 +66,10 @@ final class Report implements DomainInterface
         return new static($wallet, $walletStocks, $moverStocks, $shakerStocks);
     }
 
-    public function marshalDBAL(): array
+    /**
+     * @inheritDoc
+     */
+    public function marshalDBAL()
     {
         return [
             self::DBAL_KEY_WALLET => $this->wallet->marshalDBAL(),
@@ -94,7 +97,10 @@ final class Report implements DomainInterface
         ];
     }
 
-    public static function unMarshalDBAL(array $value)
+    /**
+     * @inheritDoc
+     */
+    public static function unMarshalDBAL($value)
     {
         return new static(
             Wallet::unMarshalDBAL($value[self::DBAL_KEY_WALLET]),

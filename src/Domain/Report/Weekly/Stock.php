@@ -66,7 +66,10 @@ final class Stock implements DomainInterface
         return $this->yearReturn;
     }
 
-    public function marshalDBAL(): array
+    /**
+     * @inheritDoc
+     */
+    public function marshalDBAL()
     {
         return [
             'name'         => $this->name,
@@ -77,7 +80,10 @@ final class Stock implements DomainInterface
         ];
     }
 
-    public static function unMarshalDBAL(array $value)
+    /**
+     * @inheritDoc
+     */
+    public static function unMarshalDBAL($value)
     {
         return new static(
             $value['name'],

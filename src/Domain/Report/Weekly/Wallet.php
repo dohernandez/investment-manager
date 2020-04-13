@@ -7,6 +7,12 @@ use App\Infrastructure\Money\Money;
 
 final class Wallet implements DomainInterface
 {
+    const DBAL_KEY_NAME = 'name';
+    const DBAL_KEY_SLUG = 'slug';
+    const DBAL_KEY_CAPITAL = 'capital';
+    const DBAL_KEY_WEEKLY_RETURN = 'weeklyReturn';
+    const DBAL_KEY_YEAR_RETURN = 'yearReturn';
+
     /**
      * @var string
      */
@@ -66,25 +72,31 @@ final class Wallet implements DomainInterface
         return $this->yearReturn;
     }
 
-    public function marshalDBAL(): array
+    /**
+     * @inheritDoc
+     */
+    public function marshalDBAL()
     {
         return [
-            'name'         => $this->name,
-            'slug'         => $this->slug,
-            'capital'      => $this->capital,
-            'weeklyReturn' => $this->weeklyReturn,
-            'yearReturn'   => $this->yearReturn,
+            self::DBAL_KEY_NAME          => $this->name,
+            self::DBAL_KEY_SLUG          => $this->slug,
+            self::DBAL_KEY_CAPITAL       => $this->capital,
+            self::DBAL_KEY_WEEKLY_RETURN => $this->weeklyReturn,
+            self::DBAL_KEY_YEAR_RETURN   => $this->yearReturn,
         ];
     }
 
-    public static function unMarshalDBAL(array $value)
+    /**
+     * @inheritDoc
+     */
+    public static function unMarshalDBAL($value)
     {
         return new static(
-            $value['name'],
-            $value['slug'],
-            $value['capital'],
-            $value['weeklyReturn'],
-            $value['yearReturn']
+            $value[self::DBAL_KEY_NAME],
+            $value[self::DBAL_KEY_SLUG],
+            $value[self::DBAL_KEY_CAPITAL],
+            $value[self::DBAL_KEY_WEEKLY_RETURN],
+            $value[self::DBAL_KEY_YEAR_RETURN]
         );
     }
 }

@@ -88,15 +88,4 @@ final class UpdateExchangeMoneyConsole extends Console
 
         $io->success('exchange money rates updated successfully.');
     }
-
-    private function isHistorical(InputInterface $input): bool
-    {
-        $historical = $input->getOption('historical');
-
-        if ($historical === false) {
-            return false;
-        }
-
-        return true;
-    }
 }

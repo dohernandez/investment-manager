@@ -7,6 +7,7 @@ use App\Infrastructure\Money\Money as MoneyEventSource;
 use App\VO\Currency;
 use App\VO\Money;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 
@@ -58,5 +59,16 @@ abstract class Console extends Command
         $handledStamp = $envelope->last(HandledStamp::class);
 
         return $handledStamp->getResult();
+    }
+
+    protected function isHistorical(InputInterface $input): bool
+    {
+        $historical = $input->getOption('historical');
+
+        if ($historical === false) {
+            return false;
+        }
+
+        return true;
     }
 }

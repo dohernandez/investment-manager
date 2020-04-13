@@ -4,6 +4,7 @@ namespace App\Application\Market\Handler;
 
 use App\Application\Market\Client\PricesClientInterface;
 use App\Application\Market\Command\UpdateHistoricalStockPrice;
+use App\Application\Market\Repository\StockHistoricalPriceRepositoryInterface;
 use App\Application\Market\Repository\StockRepositoryInterface;
 use App\Domain\Market\MarketData;
 use App\Infrastructure\Context\Context;
@@ -26,6 +27,11 @@ final class UpdateHistoricalStockPriceHandler implements MessageHandlerInterface
     private $stockRepository;
 
     /**
+     * @var StockHistoricalPriceRepositoryInterface
+     */
+    private $stockHistoricalPriceRepository;
+
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -33,10 +39,12 @@ final class UpdateHistoricalStockPriceHandler implements MessageHandlerInterface
     public function __construct(
         PricesClientInterface $pricesClient,
         StockRepositoryInterface $stockRepository,
+        StockHistoricalPriceRepositoryInterface $stockHistoricalPriceRepository,
         LoggerInterface $logger
     ) {
         $this->pricesClient = $pricesClient;
         $this->stockRepository = $stockRepository;
+        $this->stockHistoricalPriceRepository = $stockHistoricalPriceRepository;
         $this->logger = $logger;
     }
 
@@ -52,6 +60,13 @@ final class UpdateHistoricalStockPriceHandler implements MessageHandlerInterface
             );
         }
 
+        $historicalData = $this->stockHistoricalPriceRepository->findAllByStock($stock);
+        if (!empty($historicalData)) {
+            return;
+        }
+
+        $historicalData = new ArrayCollection();
+
         $context = Logger::toContext(Context::TODO(), $this->logger);
 
         $data = $this->pricesClient->getHistoricalData(
@@ -62,8 +77,6 @@ final class UpdateHistoricalStockPriceHandler implements MessageHandlerInterface
                 $stock->getSymbol(),
             $stock->getHistoricalUpdatedAt()
         );
-
-        $historicalData = new ArrayCollection();
 
         /** @var MarketData $datum */
         foreach ($data as $datum) {
