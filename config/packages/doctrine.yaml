@@ -22,7 +22,7 @@ doctrine:
             currency: App\Infrastructure\Doctrine\DBAL\CurrencyType
             datetime: App\Infrastructure\Doctrine\DBAL\UTCDateTimeType
             week: App\Infrastructure\Doctrine\DBAL\WeekType
-            domain: App\Infrastructure\Doctrine\DBAL\DomainType
+            data: App\Infrastructure\Doctrine\DBAL\DataType
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore

@@ -2,11 +2,11 @@
 
 namespace App\Domain\Report\Wallet\Section;
 
-use App\Infrastructure\Doctrine\DBAL\DomainInterface;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-final class Positions implements DomainInterface
+final class Positions implements DataInterface
 {
     private const DBAL_KEY_DATE_ADDED = 'dateAdded';
     private const DBAL_KEY_NAME = 'name';
@@ -88,7 +88,7 @@ final class Positions implements DomainInterface
     /**
      * @inheritDoc
      */
-    public function marshalDBAL()
+    public function marshalData()
     {
         return [
             self::DBAL_KEY_DATE_ADDED => $this->dateAdded,
@@ -106,7 +106,7 @@ final class Positions implements DomainInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalDBAL($value)
+    public static function unMarshalData($value)
     {
         return new static(
             $value[self::DBAL_KEY_DATE_ADDED],

@@ -2,10 +2,10 @@
 
 namespace App\Domain\Report\Wallet\Section;
 
-use App\Infrastructure\Doctrine\DBAL\DomainInterface;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 
-final class Statistics implements DomainInterface
+final class Statistics implements DataInterface
 {
     private const DBAL_KEY_INVESTED = 'invested';
     private const DBAL_KEY_CAPITAL = 'capital';
@@ -145,18 +145,18 @@ final class Statistics implements DomainInterface
     /**
      * @inheritDoc
      */
-    public function marshalDBAL()
+    public function marshalData()
     {
         return [
-            self::DBAL_KEY_INVESTED            => $this->invested->marshalDBAL(),
-            self::DBAL_KEY_CAPITAL             => $this->capital->marshalDBAL(),
-            self::DBAL_KEY_NET_CAPITAL         => $this->netCapital->marshalDBAL(),
-            self::DBAL_KEY_FUNDS               => $this->funds->marshalDBAL(),
-            self::DBAL_KEY_DIVIDENDS           => $this->dividends->marshalDBAL(),
-            self::DBAL_KEY_COMMISSIONS         => $this->commissions->marshalDBAL(),
-            self::DBAL_KEY_CONNECTION          => $this->connection->marshalDBAL(),
-            self::DBAL_KEY_INTEREST            => $this->interest->marshalDBAL(),
-            self::DBAL_KEY_BENEFITS            => $this->benefits->marshalDBAL(),
+            self::DBAL_KEY_INVESTED            => $this->invested->marshalData(),
+            self::DBAL_KEY_CAPITAL             => $this->capital->marshalData(),
+            self::DBAL_KEY_NET_CAPITAL         => $this->netCapital->marshalData(),
+            self::DBAL_KEY_FUNDS               => $this->funds->marshalData(),
+            self::DBAL_KEY_DIVIDENDS           => $this->dividends->marshalData(),
+            self::DBAL_KEY_COMMISSIONS         => $this->commissions->marshalData(),
+            self::DBAL_KEY_CONNECTION          => $this->connection->marshalData(),
+            self::DBAL_KEY_INTEREST            => $this->interest->marshalData(),
+            self::DBAL_KEY_BENEFITS            => $this->benefits->marshalData(),
             self::DBAL_KEY_PERCENTAGE_BENEFITS => $this->percentageBenefits,
         ];
     }
@@ -164,7 +164,7 @@ final class Statistics implements DomainInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalDBAL($value)
+    public static function unMarshalData($value)
     {
         return new static(
             $value[self::DBAL_KEY_INVESTED],

@@ -2,9 +2,9 @@
 
 namespace App\Domain\Report\Wallet\Section;
 
-use App\Infrastructure\Doctrine\DBAL\DomainInterface;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 
-final class UpDown implements DomainInterface
+final class UpDown implements DataInterface
 {
     public const DIRECTION_UP = 'up';
     public const DIRECTION_DOWN = 'down';
@@ -41,7 +41,7 @@ final class UpDown implements DomainInterface
     /**
      * @inheritDoc
      */
-    public function marshalDBAL()
+    public function marshalData()
     {
         return [
             self::DBAL_KEY_DIRECTION => $this->direction,
@@ -52,7 +52,7 @@ final class UpDown implements DomainInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalDBAL($value)
+    public static function unMarshalData($value)
     {
         return new static($value[self::DBAL_KEY_VALUE], $value[self::DBAL_KEY_DIRECTION]);
     }

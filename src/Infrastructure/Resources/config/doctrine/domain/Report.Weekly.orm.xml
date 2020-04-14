@@ -11,7 +11,7 @@
         </id>
 
         <field name="week" column="week" type="week" unique="true" />
-        <field name="report" column="report" type="domain" />
+        <field name="report" column="report" type="data" />
         <field name="createdAt" column="created_at" type="datetime">
             <gedmo:timestampable on="create"/>
         </field>

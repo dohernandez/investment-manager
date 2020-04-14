@@ -79,6 +79,14 @@ class Changed
      */
     private $payload;
 
+    /**
+     * Represent a copy of the domain event. This attribute is used to migrate the payload
+     * serialization in order to don't loose any event payload.
+     *
+     * @var mixed
+     */
+    private $payloadData;
+
     public function getPayload()
     {
         return $this->payload;

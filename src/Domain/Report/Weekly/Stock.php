@@ -2,10 +2,10 @@
 
 namespace App\Domain\Report\Weekly;
 
-use App\Infrastructure\Doctrine\DBAL\DomainInterface;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 
-final class Stock implements DomainInterface
+final class Stock implements DataInterface
 {
     /**
      * @var string
@@ -69,7 +69,7 @@ final class Stock implements DomainInterface
     /**
      * @inheritDoc
      */
-    public function marshalDBAL()
+    public function marshalData()
     {
         return [
             'name'         => $this->name,
@@ -83,7 +83,7 @@ final class Stock implements DomainInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalDBAL($value)
+    public static function unMarshalData($value)
     {
         return new static(
             $value['name'],

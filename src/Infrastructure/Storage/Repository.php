@@ -26,7 +26,7 @@ abstract class Repository
      * AggregateRoot already loaded to avoid doctrine load from query cache the wrong version.
      * @var ArrayCollection|AggregateRoot[]
      */
-    private $loaded;
+    protected $loaded;
 
     /**
      * Properties have to be unburden before store them in the event source table.
@@ -55,7 +55,7 @@ abstract class Repository
     /**
      * @var SnapshotRepositoryInterface
      */
-    private $snapshot;
+    protected $snapshot;
 
     public function __construct(
         EntityManagerInterface $em,

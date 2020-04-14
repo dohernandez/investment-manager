@@ -14,9 +14,9 @@ use function json_encode;
 use function json_last_error;
 use function stream_get_contents;
 
-class DomainType extends Type
+class DataType extends Type
 {
-    public const DOMAIN_TYPE = 'domain';
+    public const DATA_TYPE = 'data';
 
     private const KEY_CLASS = 'class';
     private const KEY_DATA = 'data';
@@ -48,7 +48,7 @@ class DomainType extends Type
             throw ConversionException::conversionFailed($value, $this->getName());
         }
 
-        return call_user_func_array([$val[self::KEY_CLASS], 'unMarshalDBAL'], [$val[self::KEY_DATA]]);
+        return call_user_func_array([$val[self::KEY_CLASS], 'unMarshalData'], [$val[self::KEY_DATA]]);
     }
 
     /**
@@ -60,14 +60,14 @@ class DomainType extends Type
             return null;
         }
 
-        if (!$value instanceof DomainInterface) {
+        if (!$value instanceof DataInterface) {
             return null;
         }
 
         $encoded = json_encode(
             [
                 self::KEY_CLASS => get_class($value),
-                self::KEY_DATA => $value->marshalDBAL(),
+                self::KEY_DATA => $value->marshalData(),
             ]
         );
 
@@ -83,7 +83,7 @@ class DomainType extends Type
      */
     public function getName()
     {
-        return self::DOMAIN_TYPE;
+        return self::DATA_TYPE;
     }
 
     /**

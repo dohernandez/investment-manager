@@ -2,11 +2,11 @@
 
 namespace App\Domain\Report\Weekly;
 
-use App\Infrastructure\Doctrine\DBAL\DomainInterface;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 
 use function array_map;
 
-final class Report implements DomainInterface
+final class Report implements DataInterface
 {
     private const DBAL_KEY_WALLET = 'wallet';
     private const DBAL_KEY_WALLET_STOCKS = 'wallet_stocks';
@@ -69,28 +69,28 @@ final class Report implements DomainInterface
     /**
      * @inheritDoc
      */
-    public function marshalDBAL()
+    public function marshalData()
     {
         return [
-            self::DBAL_KEY_WALLET => $this->wallet->marshalDBAL(),
+            self::DBAL_KEY_WALLET => $this->wallet->marshalData(),
 
             self::DBAL_KEY_WALLET_STOCKS => array_map(
                 function (Stock $stock) {
-                    return $stock->marshalDBAL();
+                    return $stock->marshalData();
                 },
                 $this->getWalletStocks()
             ),
 
             self::DBAL_KEY_MOVERS_STOCKS => array_map(
                 function (Stock $stock) {
-                    return $stock->marshalDBAL();
+                    return $stock->marshalData();
                 },
                 $this->getMoverStocks()
             ),
 
             self::DBAL_KEY_SHAKER_STOCKS => array_map(
                 function (Stock $stock) {
-                    return $stock->marshalDBAL();
+                    return $stock->marshalData();
                 },
                 $this->getShakerStocks()
             ),
@@ -100,25 +100,25 @@ final class Report implements DomainInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalDBAL($value)
+    public static function unMarshalData($value)
     {
         return new static(
-            Wallet::unMarshalDBAL($value[self::DBAL_KEY_WALLET]),
+            Wallet::unMarshalData($value[self::DBAL_KEY_WALLET]),
             array_map(
                 function (Stock $stock) {
-                    return $stock->marshalDBAL();
+                    return $stock->marshalData();
                 },
                 $value[self::DBAL_KEY_WALLET_STOCKS]
             ),
             array_map(
                 function (Stock $stock) {
-                    return $stock->marshalDBAL();
+                    return $stock->marshalData();
                 },
                 $value[self::DBAL_KEY_MOVERS_STOCKS]
             ),
             array_map(
                 function (Stock $stock) {
-                    return $stock->marshalDBAL();
+                    return $stock->marshalData();
                 },
                 $value[self::DBAL_KEY_SHAKER_STOCKS]
             )

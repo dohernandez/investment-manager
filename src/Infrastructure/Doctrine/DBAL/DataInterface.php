@@ -2,15 +2,15 @@
 
 namespace App\Infrastructure\Doctrine\DBAL;
 
-interface DomainInterface
+interface DataInterface
 {
     /**
      * @return mixed
      */
-    public function marshalDBAL();
+    public function marshalData();
 
     /**
      * @param mixed $value
      */
-    public static function unMarshalDBAL($value);
+    public static function unMarshalData($value);
 }

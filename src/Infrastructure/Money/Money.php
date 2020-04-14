@@ -2,10 +2,10 @@
 
 namespace App\Infrastructure\Money;
 
-use App\Infrastructure\Doctrine\DBAL\DomainInterface;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use LogicException;
 
-final class Money implements DomainInterface
+final class Money implements DataInterface
 {
     public const DECIMAL_SYSTEM_UNITS = 'System of Units';
     public const DECIMAL_EUROPE = 'Europe';
@@ -225,19 +225,19 @@ final class Money implements DomainInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalDBAL($array): self
+    public static function unMarshalData($array): self
     {
         return new Money(
-            Currency::unMarshalDBAL($array[self::DBAL_KEY_CURRENCY]),
+            Currency::unMarshalData($array[self::DBAL_KEY_CURRENCY]),
             $array[self::DBAL_KEY_VALUE],
             $array[self::DBAL_KEY_PRECISION]
         );
     }
 
-    public function marshalDBAL()
+    public function marshalData()
     {
         return [
-            self::DBAL_KEY_CURRENCY  => $this->getCurrency()->marshalDBAL(),
+            self::DBAL_KEY_CURRENCY  => $this->getCurrency()->marshalData(),
             self::DBAL_KEY_VALUE     => $this->getValue(),
             self::DBAL_KEY_PRECISION => $this->getPrecision(),
         ];

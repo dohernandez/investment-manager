@@ -2,10 +2,10 @@
 
 namespace App\Domain\Report\Weekly;
 
-use App\Infrastructure\Doctrine\DBAL\DomainInterface;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 
-final class Wallet implements DomainInterface
+final class Wallet implements DataInterface
 {
     const DBAL_KEY_NAME = 'name';
     const DBAL_KEY_SLUG = 'slug';
@@ -75,7 +75,7 @@ final class Wallet implements DomainInterface
     /**
      * @inheritDoc
      */
-    public function marshalDBAL()
+    public function marshalData()
     {
         return [
             self::DBAL_KEY_NAME          => $this->name,
@@ -89,7 +89,7 @@ final class Wallet implements DomainInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalDBAL($value)
+    public static function unMarshalData($value)
     {
         return new static(
             $value[self::DBAL_KEY_NAME],
