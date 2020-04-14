@@ -34,7 +34,7 @@ class DataType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value === '') {
+        if ($value === null || $value === '' || $value === 'null') {
             return null;
         }
 
@@ -56,12 +56,12 @@ class DataType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value === '') {
+        if ($value === null || $value === '' || $value === 'null') {
             return null;
         }
 
         if (!$value instanceof DataInterface) {
-            return null;
+            return 'null';
         }
 
         $encoded = json_encode(

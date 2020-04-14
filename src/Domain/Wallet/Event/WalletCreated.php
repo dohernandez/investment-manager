@@ -5,9 +5,13 @@ namespace App\Domain\Wallet\Event;
 use App\Domain\Wallet\Account;
 use App\Domain\Wallet\Broker;
 use App\Domain\Wallet\WalletBook;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 
-final class WalletCreated
+final class WalletCreated implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

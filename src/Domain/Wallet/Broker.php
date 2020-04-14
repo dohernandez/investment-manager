@@ -2,10 +2,14 @@
 
 namespace App\Domain\Wallet;
 
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Currency;
 
-final class Broker
+final class Broker implements DataInterface
 {
+    use Data;
+
     public function __construct(string $id, string $name, Currency $currency)
     {
         $this->id = $id;

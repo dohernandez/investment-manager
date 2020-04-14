@@ -3,10 +3,14 @@
 namespace App\Domain\Wallet\Event;
 
 use App\Domain\Wallet\BookEntry;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 
-final class PositionDividendCredited
+final class PositionDividendCredited implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

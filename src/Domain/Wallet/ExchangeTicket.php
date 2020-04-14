@@ -2,10 +2,14 @@
 
 namespace App\Domain\Wallet;
 
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 
-final class ExchangeTicket
+final class ExchangeTicket implements DataInterface
 {
+    use Data;
+
     /**
      * @var Money
      */

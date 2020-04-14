@@ -2,8 +2,13 @@
 
 namespace App\Domain\Market\Event;
 
-final class StockInfoAdded
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
+
+final class StockInfoAdded implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

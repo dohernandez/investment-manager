@@ -4,11 +4,15 @@ namespace App\Domain\Wallet\Event;
 
 use App\Domain\Wallet\Stock;
 use App\Domain\Wallet\Wallet;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-final class DividendOperationRegistered
+final class DividendOperationRegistered implements DataInterface
 {
+    use Data;
+
     /**
      * @var Wallet
      */

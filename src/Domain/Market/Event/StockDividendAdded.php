@@ -4,11 +4,15 @@ namespace App\Domain\Market\Event;
 
 use App\Domain\Market\Stock;
 use App\Domain\Market\StockDividend;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-final class StockDividendAdded
+final class StockDividendAdded implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

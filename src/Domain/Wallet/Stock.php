@@ -2,13 +2,17 @@
 
 namespace App\Domain\Wallet;
 
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 
-final class Stock
+final class Stock implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

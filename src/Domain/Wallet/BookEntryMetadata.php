@@ -2,11 +2,15 @@
 
 namespace App\Domain\Wallet;
 
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Currency;
 use Doctrine\Common\Collections\ArrayCollection;
 
-class BookEntryMetadata
+class BookEntryMetadata implements DataInterface
 {
+    use Data;
+
     /**
      * @var ArrayCollection|ExchangeTicket[]
      */

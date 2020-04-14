@@ -3,10 +3,14 @@
 namespace App\Domain\Market\Event;
 
 use App\Domain\Market\MarketPrice;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use DateTime;
 
-final class StockMarketPriceUpdated
+final class StockMarketPriceUpdated implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

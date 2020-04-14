@@ -37,6 +37,7 @@ class Changed
         $this->aggregateId = $aggregateId;
         $this->aggregateVersion = $aggregateVersion;
         $this->createdAt = $createdAt ?? new DateTime();
+        $this->payloadData = $payload;
     }
 
     /**
@@ -79,14 +80,6 @@ class Changed
      */
     private $payload;
 
-    /**
-     * Represent a copy of the domain event. This attribute is used to migrate the payload
-     * serialization in order to don't loose any event payload.
-     *
-     * @var mixed
-     */
-    private $payloadData;
-
     public function getPayload()
     {
         return $this->payload;
@@ -95,6 +88,26 @@ class Changed
     public function setPayload($payload): self
     {
         $this->payload = $payload;
+
+        return $this;
+    }
+
+    /**
+     * Represent a copy of the domain event. This attribute is used to migrate the payload
+     * serialization in order to don't loose any event payload.
+     *
+     * @var mixed
+     */
+    private $payloadData;
+
+    public function getPayloadData()
+    {
+        return $this->payloadData;
+    }
+
+    public function setPayloadData($payloadData): self
+    {
+        $this->payloadData = $payloadData;
 
         return $this;
     }

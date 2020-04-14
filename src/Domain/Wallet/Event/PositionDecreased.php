@@ -3,10 +3,14 @@
 namespace App\Domain\Wallet\Event;
 
 use App\Domain\Wallet\Operation;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 
-final class PositionDecreased
+final class PositionDecreased implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

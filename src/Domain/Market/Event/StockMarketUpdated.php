@@ -3,10 +3,14 @@
 namespace App\Domain\Market\Event;
 
 use App\Domain\Market\StockMarketMetadata;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Currency;
 
-final class StockMarketUpdated
+final class StockMarketUpdated implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

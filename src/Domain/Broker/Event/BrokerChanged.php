@@ -2,10 +2,14 @@
 
 namespace App\Domain\Broker\Event;
 
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Currency;
 
-class BrokerChanged
+class BrokerChanged implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

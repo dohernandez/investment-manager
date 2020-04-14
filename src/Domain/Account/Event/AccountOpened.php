@@ -2,10 +2,14 @@
 
 namespace App\Domain\Account\Event;
 
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Currency;
 
-final class AccountOpened
+final class AccountOpened implements DataInterface
 {
+    use Data;
+
     public function __construct(string $id, string $name, string $type, string $accountNo, Currency $currency)
     {
         $this->id = $id;

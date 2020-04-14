@@ -18,6 +18,6 @@ final class EventSourceListener
     }
     public function postPersistHandler(Changed $changed, LifecycleEventArgs $event)
     {
-        $this->dispatcher->dispatch($changed->getPayload());
+        $this->dispatcher->dispatch($changed->getPayloadData());
     }
 }

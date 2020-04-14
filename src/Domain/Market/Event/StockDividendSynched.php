@@ -3,10 +3,14 @@
 namespace App\Domain\Market\Event;
 
 use App\Domain\Market\StockDividend;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use DateTime;
 
-final class StockDividendSynched
+final class StockDividendSynched implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */
@@ -36,11 +40,11 @@ final class StockDividendSynched
         string $id,
         ?StockDividend $nextDividend,
         ?StockDividend $toPayDividend,
-        DateTime $updatedAt,
+        ?DateTime $synchedAt,
         ?float $dividendYield = null
     ) {
         $this->id = $id;
-        $this->synchedAt = $updatedAt;
+        $this->synchedAt = $synchedAt;
         $this->nextDividend = $nextDividend;
         $this->toPayDividend = $toPayDividend;
         $this->dividendYield = $dividendYield;

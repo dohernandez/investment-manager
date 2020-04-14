@@ -2,12 +2,15 @@
 
 namespace App\Domain\Wallet;
 
-use App\Infrastructure\Money\Currency;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-final class StockDividend
+final class StockDividend implements DataInterface
 {
+    use Data;
+
     /**
      * @var DateTime|null
      */

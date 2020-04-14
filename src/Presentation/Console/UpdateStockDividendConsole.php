@@ -66,7 +66,7 @@ class UpdateStockDividendConsole extends Console
             return;
         }
 
-        $threads = $input->getOption('threads');
+        $threads = (int)$input->getOption('threads');
 
         $stocks = [];
         if ($symbol = $input->getOption('symbol')) {

@@ -3,11 +3,15 @@
 namespace App\Domain\Wallet\Event;
 
 use App\Domain\Wallet\BookEntry;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-final class WalletConnectivityUpdated
+final class WalletConnectivityUpdated implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */
@@ -44,14 +48,14 @@ final class WalletConnectivityUpdated
         Money $funds,
         Money $benefits,
         float $percentageBenefits,
-        BookEntry $commissions
+        BookEntry $connectivity
     ) {
         $this->id = $id;
         $this->dateAt = $dateAt;
         $this->funds = $funds;
         $this->benefits = $benefits;
         $this->percentageBenefits = $percentageBenefits;
-        $this->connectivity = $commissions;
+        $this->connectivity = $connectivity;
     }
 
     public function getId(): string

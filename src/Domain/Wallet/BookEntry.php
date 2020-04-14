@@ -4,23 +4,32 @@ namespace App\Domain\Wallet;
 
 use App\Domain\Wallet\Exception\BookEntryNotEqualsException;
 use App\Infrastructure\Date\Date;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Persistence\Proxy;
 use InvalidArgumentException;
+
+use ReflectionClass;
 
 use function next;
 use function reset;
 
-class BookEntry
+class BookEntry implements DataInterface
 {
+    use Data {
+        marshalData as public parentMarshalData;
+    }
+
     public const TYPE_BOOK = 'book';
     public const TYPE_YEAR = 'year';
     public const TYPE_MONTH = 'month';
 
     /**
-     * @var int
+     * @var int|null
      */
     private $id;
 
@@ -93,7 +102,7 @@ class BookEntry
         return $self;
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -353,5 +362,41 @@ class BookEntry
         $this->metadata = $metadata;
 
         return $this;
+    }
+
+    /**
+     * Overwritten to avoid infinitive loop in parents
+     *
+     * @return array|mixed
+     */
+    public function marshalData()
+    {
+        $data = [];
+
+        $reflect = new ReflectionClass(get_class($this));
+        // This is for those entities that were already decorate by doctrine with the Proxy wrapper.
+        if ($this instanceof Proxy) {
+            $reflect = $reflect->getParentClass();
+        }
+
+        foreach ($reflect->getProperties() as $property) {
+            $property->setAccessible(true);
+            $value = $property->getValue($this);
+
+            if ($property->getName() === 'parent') {
+                $data[$property->getName()] = $value ?
+                [
+                    'class' => $reflect->getName(),
+                    'id' => serialize($value->getId()),
+                ] :
+                null;
+
+                continue;
+            }
+
+            $data[$property->getName()] = $this->marshalValue($value);
+        }
+
+        return $data;
     }
 }

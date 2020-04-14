@@ -3,10 +3,14 @@
 namespace App\Domain\Transfer\Event;
 
 use App\Domain\Transfer\Account;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 
-final class TransferRemoved
+final class TransferRemoved implements DataInterface
 {
+    use Data;
+
     public function __construct(
         string $id,
         Account $beneficiary,

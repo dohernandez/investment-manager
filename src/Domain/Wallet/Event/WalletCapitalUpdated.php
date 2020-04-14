@@ -2,11 +2,15 @@
 
 namespace App\Domain\Wallet\Event;
 
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-class WalletCapitalUpdated
+class WalletCapitalUpdated implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

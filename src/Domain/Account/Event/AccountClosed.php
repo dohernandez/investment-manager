@@ -2,8 +2,13 @@
 
 namespace App\Domain\Account\Event;
 
-final class AccountClosed
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
+
+final class AccountClosed implements DataInterface
 {
+    use Data;
+
     public function __construct(string $id)
     {
         $this->id = $id;

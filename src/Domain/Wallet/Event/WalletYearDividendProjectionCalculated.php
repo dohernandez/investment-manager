@@ -3,10 +3,14 @@
 namespace App\Domain\Wallet\Event;
 
 use App\Domain\Wallet\BookEntry;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use DateTime;
 
-final class WalletYearDividendProjectionCalculated
+final class WalletYearDividendProjectionCalculated implements DataInterface
 {
+    use Data;
+
     /**
      * @var string
      */

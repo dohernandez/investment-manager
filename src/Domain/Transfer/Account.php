@@ -2,8 +2,13 @@
 
 namespace App\Domain\Transfer;
 
-final class Account
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
+
+final class Account implements DataInterface
 {
+    use Data;
+
     public function __construct(string $id, string $name, string $accountNo)
     {
         $this->id = $id;
