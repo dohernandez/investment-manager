@@ -83,14 +83,14 @@ final class Stock implements DataInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalData($value)
+    public static function unMarshalData($data)
     {
         return new static(
-            $value['name'],
-            $value['symbol'],
-            $value['price'],
-            $value['weeklyReturn'],
-            $value['yearReturn']
+            $data['name'],
+            $data['symbol'],
+            $data['price'],
+            $data['weeklyReturn'],
+            $data['yearReturn']
         );
     }
 }

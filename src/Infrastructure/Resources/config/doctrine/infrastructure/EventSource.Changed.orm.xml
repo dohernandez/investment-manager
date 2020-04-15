@@ -16,8 +16,7 @@
 
         <field name="eventId" column="event_id" type="guid" unique="true" />
         <field name="eventName" column="event_name" type="string" />
-        <field name="payload" type="object" />
-        <field name="payloadData" column="payload_data" type="data" />
+        <field name="payload" column="payload" type="data" />
         <field name="metadata" type="object" />
         <field name="aggregateType" column="aggregate_type" type="string" />
         <field name="aggregateId" column="aggregate_id" type="guid" />

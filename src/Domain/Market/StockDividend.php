@@ -2,18 +2,15 @@
 
 namespace App\Domain\Market;
 
-use App\Domain\Market\Event\StockDividendAdded;
-use App\Infrastructure\EventSource\AggregateRoot;
-use App\Infrastructure\EventSource\Changed;
-use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
+use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\Money\Money;
-use App\Infrastructure\UUID;
 use DateTime;
 use InvalidArgumentException;
 
 use function sprintf;
 
-class StockDividend
+class StockDividend implements DataReferenceInterface
 {
     public const STATUS_PROJECTED = 'projected';
     public const STATUS_ANNOUNCED = 'announced';
@@ -28,6 +25,8 @@ class StockDividend
     public const FREQUENCY_MONTHlY = '1 months';
     public const FREQUENCY_QUARTERLY = '3 months';
     public const FREQUENCY_YEARLY = '1 year';
+
+    use DataReference;
 
     public function __construct(?int $id = null)
     {
@@ -262,12 +261,12 @@ class StockDividend
     public function isBefore(StockDividend $dividend)
     {
         return $dividend->getExDate() > $this->getExDate() ||
-        (
-            $dividend->getExDate() === $this->getExDate() &&
             (
-                $dividend->getRecordDate() > $this->getRecordDate() ||
-                $dividend->getPaymentDate() > $this->getPaymentDate()
-            )
-        );
+                $dividend->getExDate() === $this->getExDate() &&
+                (
+                    $dividend->getRecordDate() > $this->getRecordDate() ||
+                    $dividend->getPaymentDate() > $this->getPaymentDate()
+                )
+            );
     }
 }

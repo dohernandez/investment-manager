@@ -122,8 +122,8 @@ final class Currency implements DataInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalData($value)
+    public static function unMarshalData($data)
     {
-        return self::fromCode($value);
+        return self::fromCode($data);
     }
 }

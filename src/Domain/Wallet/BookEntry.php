@@ -17,12 +17,11 @@ use ReflectionClass;
 
 use function next;
 use function reset;
+use function unserialize;
 
 class BookEntry implements DataInterface
 {
-    use Data {
-        marshalData as public parentMarshalData;
-    }
+    use Data;
 
     public const TYPE_BOOK = 'book';
     public const TYPE_YEAR = 'year';
@@ -386,7 +385,7 @@ class BookEntry implements DataInterface
             if ($property->getName() === 'parent') {
                 $data[$property->getName()] = $value ?
                 [
-                    'class' => $reflect->getName(),
+                    'class' => static::class,
                     'id' => serialize($value->getId()),
                 ] :
                 null;
@@ -398,5 +397,32 @@ class BookEntry implements DataInterface
         }
 
         return $data;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function unMarshalData($data)
+    {
+        $self = new static();
+
+        $reflect = new ReflectionClass(static::class);
+
+        foreach ($reflect->getProperties() as $property) {
+            $property->setAccessible(true);
+
+            if (!isset($data[$property->getName()])) {
+                continue;
+            }
+
+            $value = $data[$property->getName()];
+            if ($property->getName() === 'parent') {
+                $property->setValue($self, new static(unserialize($value['id'])));
+                continue;
+            }
+
+            $value = static::unMarshalValue($value);
+            $property->setValue($self, $value);
+        }
     }
 }

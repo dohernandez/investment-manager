@@ -89,14 +89,14 @@ final class Wallet implements DataInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalData($value)
+    public static function unMarshalData($data)
     {
         return new static(
-            $value[self::DBAL_KEY_NAME],
-            $value[self::DBAL_KEY_SLUG],
-            $value[self::DBAL_KEY_CAPITAL],
-            $value[self::DBAL_KEY_WEEKLY_RETURN],
-            $value[self::DBAL_KEY_YEAR_RETURN]
+            $data[self::DBAL_KEY_NAME],
+            $data[self::DBAL_KEY_SLUG],
+            $data[self::DBAL_KEY_CAPITAL],
+            $data[self::DBAL_KEY_WEEKLY_RETURN],
+            $data[self::DBAL_KEY_YEAR_RETURN]
         );
     }
 }

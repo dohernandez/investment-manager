@@ -72,10 +72,10 @@ final class YahooStockScraper implements StockScraperInterface
 
     public function scrap(string $symbol, ?string $yahooSymbol = null): StockCrawled
     {
-        $stockCrawled = new StockCrawled($symbol, $yahooSymbol);
-        $stockCrawled->setData(
-            (new MarketData())->setDateAt(Date::now())
-        );
+        $stockCrawled = (new StockCrawled($symbol, $yahooSymbol))
+            ->setData(
+                (new MarketData())->setDateAt(Date::now())
+            );
 
         $this->updateFromQuote($stockCrawled)
             ->updateFromProfile($stockCrawled);

@@ -106,18 +106,18 @@ final class Positions implements DataInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalData($value)
+    public static function unMarshalData($data)
     {
         return new static(
-            $value[self::DBAL_KEY_DATE_ADDED],
-            $value[self::DBAL_KEY_NAME],
-            $value[self::DBAL_KEY_SYMBOL],
-            $value[self::DBAL_KEY_PRICE],
-            $value[self::DBAL_KEY_AMOUNT],
-            $value[self::DBAL_KEY_CAPITAL],
-            $value[self::DBAL_KEY_DIVIDENDS],
-            $value[self::DBAL_KEY_BENEFITS],
-            $value[self::DBAL_KEY_CHANGES]
+            $data[self::DBAL_KEY_DATE_ADDED],
+            $data[self::DBAL_KEY_NAME],
+            $data[self::DBAL_KEY_SYMBOL],
+            $data[self::DBAL_KEY_PRICE],
+            $data[self::DBAL_KEY_AMOUNT],
+            $data[self::DBAL_KEY_CAPITAL],
+            $data[self::DBAL_KEY_DIVIDENDS],
+            $data[self::DBAL_KEY_BENEFITS],
+            $data[self::DBAL_KEY_CHANGES]
         );
     }
 }

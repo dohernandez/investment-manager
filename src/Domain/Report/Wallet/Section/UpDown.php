@@ -52,8 +52,8 @@ final class UpDown implements DataInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalData($value)
+    public static function unMarshalData($data)
     {
-        return new static($value[self::DBAL_KEY_VALUE], $value[self::DBAL_KEY_DIRECTION]);
+        return new static($data[self::DBAL_KEY_VALUE], $data[self::DBAL_KEY_DIRECTION]);
     }
 }

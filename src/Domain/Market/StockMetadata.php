@@ -2,8 +2,13 @@
 
 namespace App\Domain\Market;
 
-final class StockMetadata
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
+
+final class StockMetadata implements DataInterface
 {
+    use Data;
+
     /**
      * @var string|null
      */

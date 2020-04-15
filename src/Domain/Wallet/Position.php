@@ -12,6 +12,8 @@ use App\Domain\Wallet\Event\PositionSplitReversed;
 use App\Domain\Wallet\Event\PositionStockDividendUpdated;
 use App\Domain\Wallet\Event\PositionStockPriceUpdated;
 use App\Infrastructure\Date\Date;
+use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
@@ -24,12 +26,13 @@ use InvalidArgumentException;
 
 use function max;
 
-class Position extends AggregateRoot implements EventSourcedAggregateRoot
+class Position extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
 {
     public const STATUS_OPEN = 'open';
     public const STATUS_CLOSE = 'close';
 
     use AggregateRootTypeTrait;
+    use DataReference;
 
     public function __construct(string $id)
     {

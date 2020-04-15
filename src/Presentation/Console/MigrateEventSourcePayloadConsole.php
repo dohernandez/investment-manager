@@ -41,14 +41,17 @@ class MigrateEventSourcePayloadConsole extends Console
         $this
             ->setDescription('Migrate event source payload.')
             ->addOption('no', null, InputOption::VALUE_OPTIONAL, 'No event source.')
-            ->addOption('skip', 's', InputOption::VALUE_OPTIONAL, 'Skip.', 0);
+            ->addOption('skip', 's', InputOption::VALUE_OPTIONAL, 'Skip.', 0)
+            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, 'Limit.', 0);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        ini_set('memory_limit', '512M');
-
         $io = new SymfonyStyle($input, $output);
+        $io->success('History dividend updated successfully.');
+        return;
+
+        ini_set('memory_limit', '1024M');
 
         if ($no = (int)$input->getOption('no')) {
             $event = $this->eventSourceRepository->find($no);
@@ -62,18 +65,20 @@ class MigrateEventSourcePayloadConsole extends Console
         }
 
         $skip = (int)$input->getOption('skip');
-        $count = $this->eventSourceRepository->count([]);
+        $limit = (int)$input->getOption('limit');
+        $count = $limit ? $limit : $this->eventSourceRepository->count([]);
+        $step = \min($count, 10);
 
         $io->progressStart($count);
         $io->progressAdvance($skip);
 
-        for ($i = $skip; $i < $count; $i += 10) {
-            $events = $this->eventSourceRepository->findBy([], null, 10, $i);
+        for ($i = $skip; $i < $count; $i += $step) {
+            $events = $this->eventSourceRepository->findBy([], null, $step, $i);
 
             /** @var Changed $event */
             foreach ($events as $event) {
 //                $io->text($event->getNo());
-                $event->setPayloadData($event->getPayload());
+                $event->setPayload($event->getPayloadData());
                 $this->em->persist($event);
 
                 $io->progressAdvance();

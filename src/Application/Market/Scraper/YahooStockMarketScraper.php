@@ -5,7 +5,9 @@ namespace App\Application\Market\Scraper;
 use App\Application\Market\Repository\ProjectionStockInfoRepositoryInterface;
 use App\Application\Market\Repository\ProjectionStockMarketRepositoryInterface;
 use App\Application\Market\Repository\StockMarketRepositoryInterface;
+use App\Domain\Market\MarketData;
 use App\Domain\Market\StockInfo;
+use App\Infrastructure\Date\Date;
 use App\Infrastructure\Exception\NotFoundException;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
@@ -34,7 +36,10 @@ final class YahooStockMarketScraper implements StockMarketScraperInterface
     public function scrap(Currency $currency, string $symbol): StockCrawled
     {
         $stockCrawled = (new StockCrawled($symbol))
-            ->setCurrency($currency);
+            ->setCurrency($currency)
+            ->setData(
+                (new MarketData())->setDateAt(Date::now())
+            );
 
         $this->updateFromQuote($stockCrawled);
 
@@ -133,15 +138,15 @@ final class YahooStockMarketScraper implements StockMarketScraperInterface
                     }
 
                     if ($tdNodes->eq(0)->extract('_text')[0] == 'Open') {
-                        $stockCrawled->setData(
+                        $stockCrawled->getData()->setOpen(
                             new Money($currency, Money::parser($tdNodes->eq(1)->extract('_text')[0]))
                         );
                     }
 
                     if ($tdNodes->eq(0)->extract('_text')[0] == 'Day\'s Range') {
                         if (preg_match('/^(.*) - (.*)$/', $tdNodes->eq(1)->extract('_text')[0], $matches) !== false) {
-                            $stockCrawled->setDayLow(new Money($currency, Money::parser($matches[1])));
-                            $stockCrawled->setDayHigh(new Money($currency, Money::parser($matches[2])));
+                            $stockCrawled->getData()->setDayLow(new Money($currency, Money::parser($matches[1])));
+                            $stockCrawled->getData()->setDayHigh(new Money($currency, Money::parser($matches[2])));
                         }
                     }
 

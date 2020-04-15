@@ -100,27 +100,27 @@ final class Report implements DataInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalData($value)
+    public static function unMarshalData($data)
     {
         return new static(
-            Wallet::unMarshalData($value[self::DBAL_KEY_WALLET]),
+            Wallet::unMarshalData($data[self::DBAL_KEY_WALLET]),
             array_map(
                 function (Stock $stock) {
                     return $stock->marshalData();
                 },
-                $value[self::DBAL_KEY_WALLET_STOCKS]
+                $data[self::DBAL_KEY_WALLET_STOCKS]
             ),
             array_map(
                 function (Stock $stock) {
                     return $stock->marshalData();
                 },
-                $value[self::DBAL_KEY_MOVERS_STOCKS]
+                $data[self::DBAL_KEY_MOVERS_STOCKS]
             ),
             array_map(
                 function (Stock $stock) {
                     return $stock->marshalData();
                 },
-                $value[self::DBAL_KEY_SHAKER_STOCKS]
+                $data[self::DBAL_KEY_SHAKER_STOCKS]
             )
         );
     }

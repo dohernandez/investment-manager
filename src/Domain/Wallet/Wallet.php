@@ -17,6 +17,8 @@ use App\Domain\Wallet\Event\WalletSellOperationUpdated;
 use App\Domain\Wallet\Event\WalletYearDividendProjectionCalculated;
 use App\Infrastructure\Context\Context;
 use App\Infrastructure\Date\Date;
+use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
@@ -31,9 +33,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 use function count;
 
-class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
+class Wallet extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
 {
     use AggregateRootTypeTrait;
+    use DataReference;
 
     public function __construct(string $id)
     {
@@ -809,9 +812,11 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot
                 [
                     'bookRecalculatedYearEntry' => [
                         'total' => (string)$bookRecalculatedYearEntry->getTotal(),
-                        $year   => $bookRecalculatedYearEntry->getEntries()->map(function (BookEntry $bookEntry) {
-                            return $bookEntry->getName() . ' - ' . (string)$bookEntry->getTotal();
-                        })->toArray(),
+                        $year   => $bookRecalculatedYearEntry->getEntries()->map(
+                            function (BookEntry $bookEntry) {
+                                return $bookEntry->getName() . ' - ' . (string)$bookEntry->getTotal();
+                            }
+                        )->toArray(),
                     ],
                 ]
             ),

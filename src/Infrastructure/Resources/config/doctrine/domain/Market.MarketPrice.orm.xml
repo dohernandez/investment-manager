@@ -14,7 +14,7 @@
         <field name="price" column="price" type="money"/>
         <field name="changePrice" column="change_price" type="money"/>
         <field name="changePercentage" column="change_percentage" type="float"/>
-        <field name="peRatio" column="pe_ratio" type="float"/>
+        <field name="peRatio" column="pe_ratio" type="float" nullable="true"/>
         <field name="preClose" column="pre_close" type="money"/>
 
         <one-to-one field="data" target-entity="App\Domain\Market\MarketData" mapped-by="price">

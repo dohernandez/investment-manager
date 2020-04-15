@@ -2,13 +2,15 @@
 
 namespace App\Domain\Wallet;
 
+use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 
-use function max;
-
-class PositionBook
+class PositionBook implements DataReferenceInterface
 {
+    use DataReference;
+
     /**
      * @var int
      */

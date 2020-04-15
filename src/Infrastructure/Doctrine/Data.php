@@ -3,12 +3,15 @@
 namespace App\Infrastructure\Doctrine;
 
 use App\Infrastructure\Doctrine\DBAL\DataInterface;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use ArrayAccess;
 use DateTimeInterface;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\Proxy;
 use ReflectionClass;
 
 use function get_class;
+use function get_parent_class;
 use function is_array;
 use function serialize;
 use function unserialize;
@@ -32,7 +35,6 @@ trait Data
             $property->setAccessible(true);
             $value = $property->getValue($this);
 
-//            \dump(get_class($this), $property, $value);
             $data[$property->getName()] = $this->marshalValue($value);
         }
 
@@ -44,7 +46,7 @@ trait Data
         if ($value instanceof DateTimeInterface) {
             return [
                 'class' => get_class($value),
-                'date' => $value->format('c'),
+                'date'  => $value->format('c'),
             ];
         }
 
@@ -55,33 +57,18 @@ trait Data
             ];
         }
 
-        // TODO this has to be replace by the used of interface
-        if ($value && method_exists($value, 'getId')) {
-            return [
-                'class' => get_class($value),
-                'id' => serialize($value->getId()),
-            ];
-        }
-
-        if ($value instanceof ArrayAccess) {
+        if ($value instanceof Collection || $value instanceof ArrayAccess || is_array($value)) {
             $result = [];
 
             foreach ($value as $k => $item) {
-//                \dump('calling marshalValue again');
                 $result[$k] = static::marshalValue($item);
             }
 
-            return [
-                'class' => get_class($value),
-                'items' => $result,
-            ];
-        }
-
-        if (is_array($value)) {
-            $result = [];
-
-            foreach ($value as $k => $item) {
-                $result[$k] = $this->marshalValue($item);
+            if ($value instanceof Collection) {
+                return [
+                    'class' => get_class($value),
+                    'items' => $result,
+                ];
             }
 
             return $result;
@@ -93,23 +80,27 @@ trait Data
     /**
      * @inheritDoc
      */
-    public static function unMarshalData($value)
+    public static function unMarshalData($data)
     {
         $reflect = new ReflectionClass(static::class);
         $args = [];
 
-        $parameters = $reflect->getConstructor()->getParameters();
+        $constructor = $reflect->getConstructor();
+        if (!$constructor) {
+            return new static();
+        }
+
+        $parameters = $constructor->getParameters();
         foreach ($parameters as $parameter) {
             $property = $parameter->getName();
 
-            if (!isset($value[$property])) {
+            if (!isset($data[$property])) {
                 $args[] = null;
 
                 continue;
             }
 
-//            \dump(static::class, $property);
-            $args[] = static::unMarshalValue($value[$property]);
+            $args[] = static::unMarshalValue($data[$property]);
         }
 
         return new static(...$args);
@@ -117,32 +108,32 @@ trait Data
 
     protected static function unMarshalValue($value)
     {
-        if ($value instanceof ArrayAccess) {
-            if (isset($value['class']) && isset($value['items'])) {
-                $result = [];
-
-                foreach ($value['items'] as $k => $item) {
-                    $result[$k] = static::unMarshalValue($item);
-                }
-
-                return new $value['class']($result);
-            }
-        }
-
         if (!is_array($value)) {
             return unserialize($value);
         }
 
-        if (isset($value['class']) && isset($value['date'])) {
-            return new $value['class']($value['date']);
-        }
+        if (isset($value['class'])) {
+            if (isset($value['date'])) {
+                return new $value['class']($value['date']);
+            }
 
-        if (isset($value['class']) && isset($value['data'])) {
-            return call_user_func_array([$value['class'], 'unMarshalData'], [$value['data']]);
-        }
+            if (isset($value['data'])) {
+                return call_user_func_array([$value['class'], 'unMarshalData'], [$value['data']]);
+            }
 
-        if (isset($value['class']) && isset($value['id'])) {
-            return new $value['class'](unserialize($value['id']));
+            if (isset($value['reference'])) {
+                return call_user_func_array([$value['class'], 'unMarshalDataReference'], [$value['reference']]);
+            }
+
+            if (isset($value['items'])) {
+                $result = [];
+
+                foreach ($value['items'] as $k => $item) {
+                    $result[$k] = self::unMarshalValue($item);
+                }
+
+                return new $value['class']($result);
+            }
         }
 
         $result = [];

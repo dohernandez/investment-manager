@@ -164,19 +164,19 @@ final class Statistics implements DataInterface
     /**
      * @inheritDoc
      */
-    public static function unMarshalData($value)
+    public static function unMarshalData($data)
     {
         return new static(
-            $value[self::DBAL_KEY_INVESTED],
-            $value[self::DBAL_KEY_CAPITAL],
-            $value[self::DBAL_KEY_NET_CAPITAL],
-            $value[self::DBAL_KEY_FUNDS],
-            $value[self::DBAL_KEY_DIVIDENDS],
-            $value[self::DBAL_KEY_COMMISSIONS],
-            $value[self::DBAL_KEY_CONNECTION],
-            $value[self::DBAL_KEY_INTEREST],
-            $value[self::DBAL_KEY_BENEFITS],
-            $value[self::DBAL_KEY_PERCENTAGE_BENEFITS]
+            $data[self::DBAL_KEY_INVESTED],
+            $data[self::DBAL_KEY_CAPITAL],
+            $data[self::DBAL_KEY_NET_CAPITAL],
+            $data[self::DBAL_KEY_FUNDS],
+            $data[self::DBAL_KEY_DIVIDENDS],
+            $data[self::DBAL_KEY_COMMISSIONS],
+            $data[self::DBAL_KEY_CONNECTION],
+            $data[self::DBAL_KEY_INTEREST],
+            $data[self::DBAL_KEY_BENEFITS],
+            $data[self::DBAL_KEY_PERCENTAGE_BENEFITS]
         );
     }
 }

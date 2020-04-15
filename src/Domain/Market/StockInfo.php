@@ -3,6 +3,8 @@
 namespace App\Domain\Market;
 
 use App\Domain\Market\Event\StockInfoAdded;
+use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
@@ -10,13 +12,14 @@ use App\Infrastructure\EventSource\EventSourcedAggregateRoot;
 use App\Infrastructure\UUID;
 use DateTime;
 
-class StockInfo extends AggregateRoot implements EventSourcedAggregateRoot
+class StockInfo extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
 {
     public const TYPE = 'type';
     public const SECTOR = 'sector';
     public const INDUSTRY = 'industry';
 
     use AggregateRootTypeTrait;
+    use DataReference;
 
     /**
      * @var string

@@ -2,12 +2,17 @@
 
 namespace App\Infrastructure\Storage;
 
+use App\Domain\Wallet\Event\WalletDividendProjectedUpdated;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\Changed;
 use App\Infrastructure\EventSource\EventSourceRepositoryInterface;
 use App\Infrastructure\EventSource\Snapshot;
 use App\Infrastructure\EventSource\SnapshotRepositoryInterface;
+use ArrayAccess;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\Proxy;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMInvalidArgumentException;
@@ -172,7 +177,61 @@ abstract class Repository
         foreach ($changes as $change) {
             $payload = $change->getPayload();
 
-            $this->overloadDependencies($payload, $this->dependencies);
+            $this->overloadReferences($payload);
+        }
+
+        return $this;
+    }
+
+    private function overloadReferences($object): self
+    {
+        $reflect = new ReflectionClass(get_class($object));
+        // This gets the real object, the one that the Doctrine\Common\Persistence\Proxy extends
+        if ($object instanceof Proxy) {
+            $reflect = $reflect->getParentClass();
+        }
+
+        foreach ($reflect->getProperties() as $property) {
+            $property->setAccessible(true);
+            $value = $property->getValue($object);
+            $this->bindReferences($value);
+            $property->setValue($object, $value);
+        }
+
+        return $this;
+    }
+
+    private function bindReferences(&$value): self
+    {
+        if ($value instanceof DataReferenceInterface) {
+            $class = get_class($value);
+            if ($value instanceof Proxy) {
+                $class = get_parent_class($value);
+            }
+
+            $value = $this->em->find($class, $value->getId());
+
+            return $this;
+        }
+
+        if ($value instanceof Collection) {
+            foreach ($value as $k => $item) {
+                static::bindReferences($item);
+
+                $value->set($k, $item);
+            }
+
+            return $this;
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $k => $item) {
+                static::bindReferences($item);
+
+                $value[$k] = $item;
+            }
+
+            return $this;
         }
 
         return $this;
@@ -234,7 +293,6 @@ abstract class Repository
             $this->em->persist($object);
             $this->em->flush();
 
-            $this->unburdenChangesDependencies($changes);
             $this->eventSource->saveEvents($changes, true);
 
             if (!($object->getVersion() % 5)) {
@@ -249,19 +307,6 @@ abstract class Repository
 
         $this->loaded[$object->getId()] = $object;
     }
-
-//    protected function persistProjection(AggregateRoot $object)
-//    {
-//        $projection = $this->em->find($object->getAggregateType(), $object->getId());
-//        if (!$projection) {
-//            $projection = clone $object;
-//        } else {
-//
-//        }
-//
-//        $this->em->persist($projection);
-//        $this->em->flush();
-//    }
 
     /**
      * @param $object

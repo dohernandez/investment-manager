@@ -17,7 +17,7 @@ final class WalletDividendProjectedUpdated implements DataInterface
     private $id;
 
     /**
-     * @var BookEntry
+     * @var BookEntry|null
      */
     private $yearDividendProjected;
 
@@ -26,7 +26,7 @@ final class WalletDividendProjectedUpdated implements DataInterface
      */
     private $updatedAt;
 
-    public function __construct(string $id, BookEntry $yearDividendProjected, ?DateTime $updatedAt = null)
+    public function __construct(string $id, ?BookEntry $yearDividendProjected, ?DateTime $updatedAt = null)
     {
         $this->id = $id;
         $this->yearDividendProjected = $yearDividendProjected;
@@ -38,7 +38,7 @@ final class WalletDividendProjectedUpdated implements DataInterface
         return $this->id;
     }
 
-    public function getYearDividendProjected(): BookEntry
+    public function getYearDividendProjected(): ?BookEntry
     {
         return $this->yearDividendProjected;
     }

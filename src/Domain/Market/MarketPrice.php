@@ -2,12 +2,16 @@
 
 namespace App\Domain\Market;
 
+use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-class MarketPrice
+class MarketPrice implements DataReferenceInterface
 {
+    use DataReference;
+
     /**
      * @var int|null
      */
@@ -17,6 +21,11 @@ class MarketPrice
      * @var Stock|null
      */
     private $stock;
+
+    /**
+     * @var StockMarket|null
+     */
+    private $market;
 
     /**
      * @var MarketData|null
@@ -81,6 +90,18 @@ class MarketPrice
     public function setStock(?Stock $stock): self
     {
         $this->stock = $stock;
+
+        return $this;
+    }
+
+    public function getMarket(): ?StockMarket
+    {
+        return $this->market;
+    }
+
+    public function setMarket(?StockMarket $market): self
+    {
+        $this->market = $market;
 
         return $this;
     }

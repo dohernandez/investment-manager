@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200414161044 extends AbstractMigration
+final class Version20200415204057 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,7 +22,7 @@ final class Version20200414161044 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE event_source ADD payload_data JSON NOT NULL COMMENT \'(DC2Type:data)\' AFTER event_name');
+        $this->addSql('ALTER TABLE event_source DROP payload_old');
     }
 
     public function down(Schema $schema) : void
@@ -30,6 +30,6 @@ final class Version20200414161044 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE event_source DROP payload_data');
+        $this->addSql('ALTER TABLE event_source ADD payload_old LONGTEXT CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci` COMMENT \'(DC2Type:object)\'');
     }
 }

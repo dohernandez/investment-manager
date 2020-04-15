@@ -93,26 +93,6 @@ class Changed
     }
 
     /**
-     * Represent a copy of the domain event. This attribute is used to migrate the payload
-     * serialization in order to don't loose any event payload.
-     *
-     * @var mixed
-     */
-    private $payloadData;
-
-    public function getPayloadData()
-    {
-        return $this->payloadData;
-    }
-
-    public function setPayloadData($payloadData): self
-    {
-        $this->payloadData = $payloadData;
-
-        return $this;
-    }
-
-    /**
      * @var Metadata
      */
     private $metadata;

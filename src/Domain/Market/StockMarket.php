@@ -5,6 +5,8 @@ namespace App\Domain\Market;
 use App\Domain\Market\Event\StockMarketPriceUpdated;
 use App\Domain\Market\Event\StockMarketRegistered;
 use App\Domain\Market\Event\StockMarketUpdated;
+use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
@@ -14,9 +16,10 @@ use App\Infrastructure\UUID;
 use DateTime;
 use Symfony\Component\Intl\Countries;
 
-class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
+class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
 {
     use AggregateRootTypeTrait;
+    use DataReference;
 
     /**
      * @var string
@@ -166,25 +169,16 @@ class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot
         if ($this->price) {
             $price = $this->price->update($price);
         } else {
-            $price->setStock($this);
+            $price->setMarket($this);
         }
 
         if ($changed = $this->findIfLastChangeHappenedIsName(StockMarketPriceUpdated::class)) {
             // This is to avoid have too much update events.
-            $this->price->setPrice($price->getPrice());
-            $this->price->setChangePrice($price->getChangePrice());
-            $this->price->setPreClose($price->getPreClose());
-            $this->price->setOpen($price->getOpen());
-            $this->price->setDayLow($price->getDayLow());
-            $this->price->setDayHigh($price->getDayHigh());
-            $this->price->setWeek52Low($price->getWeek52Low());
-            $this->price->setWeek52High($price->getWeek52High());
-
             $this->replaceChangedPayload(
                 $changed,
                 new StockMarketPriceUpdated(
                     $this->getId(),
-                    $this->price,
+                    $price,
                     $toUpdateAt
                 ),
                 clone $toUpdateAt

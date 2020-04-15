@@ -2,11 +2,15 @@
 
 namespace App\Domain\Wallet;
 
+use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 
-class WalletBook
+class WalletBook implements DataReferenceInterface
 {
+    use DataReference;
+
     /**
      * @var int
      */

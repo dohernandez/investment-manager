@@ -10,7 +10,7 @@ interface DataInterface
     public function marshalData();
 
     /**
-     * @param mixed $value
+     * @param mixed $data
      */
-    public static function unMarshalData($value);
+    public static function unMarshalData($data);
 }

@@ -7,6 +7,8 @@ use App\Domain\Market\Event\StockDelisted;
 use App\Domain\Market\Event\StockDividendSynched;
 use App\Domain\Market\Event\StockPriceUpdated;
 use App\Domain\Market\Event\StockUpdated;
+use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
@@ -18,9 +20,10 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use InvalidArgumentException;
 
-class Stock extends AggregateRoot implements EventSourcedAggregateRoot
+class Stock extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
 {
     use AggregateRootTypeTrait;
+    use DataReference;
 
     public function __construct(string $id)
     {

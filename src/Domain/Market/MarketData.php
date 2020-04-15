@@ -2,12 +2,16 @@
 
 namespace App\Domain\Market;
 
+use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\Money\Currency;
 use App\Infrastructure\Money\Money;
 use DateTime;
 
-class MarketData
+class MarketData implements DataReferenceInterface
 {
+    use DataReference;
+
     /**
      * @var int|null
      */
