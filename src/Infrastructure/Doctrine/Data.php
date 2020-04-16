@@ -6,6 +6,7 @@ use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use ArrayAccess;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\Proxy;
 use ReflectionClass;
@@ -103,7 +104,21 @@ trait Data
             $args[] = static::unMarshalValue($data[$property]);
         }
 
-        return new static(...$args);
+        $instance = new static(...$args);
+
+        if ($reflect->implementsInterface(DataReferenceInterface::class)) {
+            foreach ($reflect->getProperties() as $property) {
+                $name = $property->getName();
+                if (!isset($data[$name])) {
+                    continue;
+                }
+
+                $property->setAccessible(true);
+                $property->setValue($instance, static::unMarshalValue($data[$name]));
+            }
+        }
+
+        return $instance;
     }
 
     protected static function unMarshalValue($value)
@@ -132,7 +147,7 @@ trait Data
                     $result[$k] = self::unMarshalValue($item);
                 }
 
-                return new $value['class']($result);
+                return new ArrayCollection($result);
             }
         }
 

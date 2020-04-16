@@ -7,7 +7,9 @@ use App\Domain\Market\Event\StockDelisted;
 use App\Domain\Market\Event\StockDividendSynched;
 use App\Domain\Market\Event\StockPriceUpdated;
 use App\Domain\Market\Event\StockUpdated;
+use App\Infrastructure\Doctrine\Data;
 use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
@@ -20,10 +22,13 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use InvalidArgumentException;
 
-class Stock extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
+class Stock extends AggregateRoot implements EventSourcedAggregateRoot, DataInterface, DataReferenceInterface
 {
     use AggregateRootTypeTrait;
     use DataReference;
+    use Data {
+        marshalData as protected marshal;
+    }
 
     public function __construct(string $id)
     {
@@ -614,5 +619,21 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot, DataRefe
 
                 break;
         }
+    }
+
+    public function marshalData()
+    {
+        $dividends = $this->dividends;
+        $historicalData = $this->historicalData;
+
+        $this->dividends = null;
+        $this->historicalData = null;
+
+        $marshal = $this->marshal();
+
+        $this->dividends = $dividends;
+        $this->historicalData = $historicalData;
+
+        return $marshal;
     }
 }

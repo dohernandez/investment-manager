@@ -10,7 +10,7 @@
         <id name="id" type="guid" column="id"/>
 
         <field name="type" column="type" type="string"/>
-        <field name="data" type="object"/>
+        <field name="data" column="data" type="data"/>
         <field name="version" column="version" type="smallint"/>
         <field name="createdAt" column="created_at" type="datetime">
             <gedmo:timestampable on="create"/>

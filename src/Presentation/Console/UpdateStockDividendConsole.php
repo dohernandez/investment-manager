@@ -98,8 +98,12 @@ class UpdateStockDividendConsole extends Console
         }
 
         $io->progressStart(count($stocks));
+
         $wg = new WaitGroup();
         $r = 0;
+        $progressAdvance = function () use ($io) {
+            $io->progressAdvance();
+        };
 
         foreach ($stocks as $stock) {
             $this->process(
@@ -113,13 +117,11 @@ class UpdateStockDividendConsole extends Console
 
             $r++;
             if ($r === $threads) {
-                $r = $wg->wait(1);
+                $r = $wg->wait(1, $progressAdvance);
             }
-
-            $io->progressAdvance();
         }
 
-        $wg->wait();
+        $wg->wait(null, $progressAdvance);
         foreach ($wg->getFailed() as $error) {
             $io->error(
                 sprintf(

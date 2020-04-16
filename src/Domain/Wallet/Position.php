@@ -11,8 +11,9 @@ use App\Domain\Wallet\Event\PositionOpened;
 use App\Domain\Wallet\Event\PositionSplitReversed;
 use App\Domain\Wallet\Event\PositionStockDividendUpdated;
 use App\Domain\Wallet\Event\PositionStockPriceUpdated;
-use App\Infrastructure\Date\Date;
+use App\Infrastructure\Doctrine\Data;
 use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
@@ -22,17 +23,19 @@ use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
-use InvalidArgumentException;
 
 use function max;
 
-class Position extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
+class Position extends AggregateRoot implements EventSourcedAggregateRoot, DataInterface, DataReferenceInterface
 {
     public const STATUS_OPEN = 'open';
     public const STATUS_CLOSE = 'close';
 
     use AggregateRootTypeTrait;
     use DataReference;
+    use Data {
+        marshalData as protected marshal;
+    }
 
     public function __construct(string $id)
     {
@@ -343,7 +346,7 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot, DataR
                 $yearDividendAfterTaxes = $yearDividend;
             } else {
                 $dividendAfterTaxes = $dividend->decrease($totalDividendRetention);
-                $yearDividendAfterTaxes = $yearDividend ? $yearDividend->decrease($totalDividendRetention): null;
+                $yearDividendAfterTaxes = $yearDividend ? $yearDividend->decrease($totalDividendRetention) : null;
             }
 
             if ($yearDividendAfterTaxes) {
@@ -1037,5 +1040,18 @@ class Position extends AggregateRoot implements EventSourcedAggregateRoot, DataR
 
                 break;
         }
+    }
+
+    public function marshalData()
+    {
+        $operations = $this->operations;
+
+        $this->operations = null;
+
+        $marshal = $this->marshal();
+
+        $this->operations = $operations;
+
+        return $marshal;
     }
 }

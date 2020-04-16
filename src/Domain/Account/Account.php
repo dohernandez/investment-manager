@@ -7,6 +7,8 @@ use App\Domain\Account\Event\AccountCredited;
 use App\Domain\Account\Event\AccountDebited;
 use App\Domain\Account\Event\AccountOpened;
 use App\Domain\Account\Exception\AccountClosedException;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
@@ -15,9 +17,10 @@ use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
 
-class Account extends AggregateRoot
+class Account extends AggregateRoot implements DataInterface
 {
     use AggregateRootTypeTrait;
+    use Data;
 
     /**
      * @var string

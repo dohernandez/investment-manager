@@ -5,7 +5,9 @@ namespace App\Domain\Market;
 use App\Domain\Market\Event\StockMarketPriceUpdated;
 use App\Domain\Market\Event\StockMarketRegistered;
 use App\Domain\Market\Event\StockMarketUpdated;
+use App\Infrastructure\Doctrine\Data;
 use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
@@ -16,10 +18,11 @@ use App\Infrastructure\UUID;
 use DateTime;
 use Symfony\Component\Intl\Countries;
 
-class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
+class StockMarket extends AggregateRoot implements EventSourcedAggregateRoot, DataInterface, DataReferenceInterface
 {
     use AggregateRootTypeTrait;
     use DataReference;
+    use Data;
 
     /**
      * @var string

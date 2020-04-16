@@ -2,12 +2,14 @@
 
 namespace App\Infrastructure\Doctrine\DBAL;
 
+use Doctrine\Common\Persistence\Proxy;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 
 use function call_user_func_array;
 use function get_class;
+use function get_parent_class;
 use function is_resource;
 use function json_decode;
 use function json_encode;
@@ -64,9 +66,14 @@ class DataType extends Type
             return 'null';
         }
 
+        $class = get_class($value);
+        if ($value instanceof Proxy) {
+            $class = get_parent_class($value);
+        }
+
         $encoded = json_encode(
             [
-                self::KEY_CLASS => get_class($value),
+                self::KEY_CLASS => $class,
                 self::KEY_DATA => $value->marshalData(),
             ]
         );

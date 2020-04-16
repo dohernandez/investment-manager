@@ -135,8 +135,12 @@ class UpdateStockPriceConsole extends Console
         }
 
         $io->progressStart(count($stocks));
+
         $wg = new WaitGroup();
         $r = 0;
+        $progressAdvance = function () use ($io) {
+            $io->progressAdvance();
+        };
 
         foreach ($stocks as $stock) {
             $this->logger->debug(
@@ -164,15 +168,13 @@ class UpdateStockPriceConsole extends Console
                 $wg
             );
 
-            $io->progressAdvance();
-
             $r++;
             if ($r === $threads) {
-                $r = $wg->wait(1);
+                $r = $wg->wait(1, $progressAdvance);
             }
         }
 
-        $wg->wait();
+        $wg->wait(null, $progressAdvance);
         foreach ($wg->getFailed() as $error) {
             $io->error(
                 sprintf(

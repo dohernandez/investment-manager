@@ -10,7 +10,9 @@ use App\Domain\Wallet\Event\InterestOperationRegistered;
 use App\Domain\Wallet\Event\OperationPriceFixed;
 use App\Domain\Wallet\Event\SellOperationRegistered;
 use App\Domain\Wallet\Event\SplitReverseOperationRegistered;
+use App\Infrastructure\Doctrine\Data;
 use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
@@ -20,7 +22,7 @@ use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
 
-class Operation extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
+class Operation extends AggregateRoot implements EventSourcedAggregateRoot, DataInterface, DataReferenceInterface
 {
     public const TYPE_BUY = 'buy';
     public const TYPE_SELL = 'sell';
@@ -53,6 +55,7 @@ class Operation extends AggregateRoot implements EventSourcedAggregateRoot, Data
 
     use AggregateRootTypeTrait;
     use DataReference;
+    use Data;
 
     /**
      * @var Stock|null

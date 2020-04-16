@@ -4,6 +4,8 @@ namespace App\Domain\Broker;
 
 use App\Domain\Broker\Event\BrokerChanged;
 use App\Domain\Broker\Event\BrokerRegistered;
+use App\Infrastructure\Doctrine\Data;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
 use App\Infrastructure\EventSource\Changed;
@@ -12,9 +14,10 @@ use App\Infrastructure\Money\Currency;
 use App\Infrastructure\UUID;
 use DateTime;
 
-class Broker extends AggregateRoot implements EventSourcedAggregateRoot
+class Broker extends AggregateRoot implements EventSourcedAggregateRoot, DataInterface
 {
     use AggregateRootTypeTrait;
+    use Data;
 
     /**
      * @var string

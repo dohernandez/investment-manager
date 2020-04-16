@@ -6,7 +6,9 @@ use App\Domain\Transfer\Event\TransferChanged;
 use App\Domain\Transfer\Event\TransferRegistered;
 use App\Domain\Transfer\Event\TransferRemoved;
 use App\Domain\Transfer\Exception\TransferRemovedException;
+use App\Infrastructure\Doctrine\Data;
 use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
@@ -16,10 +18,11 @@ use App\Infrastructure\Money\Money;
 use App\Infrastructure\UUID;
 use DateTime;
 
-final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
+final class Transfer extends AggregateRoot implements EventSourcedAggregateRoot, DataInterface, DataReferenceInterface
 {
     use AggregateRootTypeTrait;
     use DataReference;
+    use Data;
 
     /**
      * @var Account

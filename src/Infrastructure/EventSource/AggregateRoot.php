@@ -16,7 +16,6 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
     {
         $this->id = $id;
         $this->changes = new ArrayCollection();
-        $this->version = 0;
     }
 
     /**
@@ -32,7 +31,7 @@ abstract class AggregateRoot implements EventSourcedAggregateRoot
     /**
      * @var int
      */
-    private $version;
+    private $version = 0;
 
     public function getVersion(): int
     {

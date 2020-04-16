@@ -17,7 +17,9 @@ use App\Domain\Wallet\Event\WalletSellOperationUpdated;
 use App\Domain\Wallet\Event\WalletYearDividendProjectionCalculated;
 use App\Infrastructure\Context\Context;
 use App\Infrastructure\Date\Date;
+use App\Infrastructure\Doctrine\Data;
 use App\Infrastructure\Doctrine\DataReference;
+use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Doctrine\DBAL\DataReferenceInterface;
 use App\Infrastructure\EventSource\AggregateRoot;
 use App\Infrastructure\EventSource\AggregateRootTypeTrait;
@@ -33,10 +35,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 use function count;
 
-class Wallet extends AggregateRoot implements EventSourcedAggregateRoot, DataReferenceInterface
+class Wallet extends AggregateRoot implements EventSourcedAggregateRoot, DataInterface, DataReferenceInterface
 {
     use AggregateRootTypeTrait;
     use DataReference;
+    use Data {
+        marshalData as protected marshal;
+    }
 
     public function __construct(string $id)
     {
@@ -1015,5 +1020,21 @@ class Wallet extends AggregateRoot implements EventSourcedAggregateRoot, DataRef
 
                 break;
         }
+    }
+
+    public function marshalData()
+    {
+        $positions = $this->positions;
+        $operations = $this->operations;
+
+        $this->operations = null;
+        $this->positions = null;
+
+        $marshal = $this->marshal();
+
+        $this->operations = $operations;
+        $this->positions = $positions;
+
+        return $marshal;
     }
 }

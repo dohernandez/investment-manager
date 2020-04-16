@@ -3,6 +3,7 @@
 namespace App\Infrastructure\Process;
 
 use App\Infrastructure\Context\Context;
+use Closure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -42,11 +43,18 @@ class WaitGroup
     }
 
     /**
-     * @param int|null $wait Allow to wait only for part of the group. Default wait for all.
+     * Waits for the process to terminate.
+     *
+     * The callback receives the process that has terminated as a first parameter.
+     * The callback function allows to have feedback from the independent process after execution,
+     * once the process has terminated.
+     *
+     * @param int|null $wait Amount of process to wait terminate for. Default wait for all processes to terminate.
+     * @param Closure $callback A valid PHP callback
      *
      * @return int Process still running
      */
-    public function wait(?int $wait = null): int
+    public function wait(?int $wait = null, ?Closure $callback = null): int
     {
         $wait = $wait ?? $this->running->count();
 //        \dump('wait for '. $wait . ' process(es)');
@@ -67,6 +75,10 @@ class WaitGroup
                     }
 
                     $wait--;
+
+                    if ($callback) {
+                        $callback($process);
+                    }
                 }
             }
         }

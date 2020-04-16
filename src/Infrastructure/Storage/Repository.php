@@ -88,9 +88,12 @@ abstract class Repository
         $snapshot = $this->snapshot->load($id, $type);
 
         if ($snapshot) {
-            $object = $this->getReference($type, $id, $this->deserializeFromSnapshot($snapshot->getData()));
+            $data = $snapshot->getData();
+            $this->overloadReferences($data);
+
+            $object = $this->getAggregateReference($type, $id, $data, $snapshot->getVersion());
         } else {
-            $object = $this->getReference($type, $id, new $type($id));
+            $object = $this->getAggregateReference($type, $id);
         }
 
         $changes = $this->eventSource->findEvents($id, $type, $object->getVersion());
@@ -102,19 +105,20 @@ abstract class Repository
         return $object;
     }
 
-    protected function deserializeFromSnapshot($object)
-    {
-        $serialize = clone $object;
-
-        $this->overloadDependencies($serialize, $this->serializeDependencies);
-
-        return $serialize;
-    }
-
-    protected function getReference(string $type, string $id, AggregateRoot $data): AggregateRoot
+    protected function getAggregateReference(string $type, string $id, ?AggregateRoot $data = null, int $version = 0): AggregateRoot
     {
         $object = $this->em->getReference($type, $id);
         $this->em->refresh($object);
+
+        $reflect = $this->getAggregateRootReflect($object);
+
+        $versionProperty = $reflect->getParentClass()->getProperty('version');
+        $versionProperty->setAccessible(true);
+        $versionProperty->setValue($object, $version);
+
+        if (!$data) {
+            return $object;
+        }
 
         if (get_class($object) !== get_class($data) && (!$object instanceof Proxy || get_parent_class($object) !== get_class($data))) {
             throw new InvalidArgumentException(
@@ -126,22 +130,13 @@ abstract class Repository
             );
         }
 
-        $reflect = $this->getAggregateRootReflect($object);
+        // Updating aggregate root properties
         $dataReflect = $this->getAggregateRootReflect($data);
 
         /** @var  $property */
         foreach ($dataReflect->getProperties() as $property) {
             if ($reflect->hasProperty($property->getName())) {
                 $reflectionProperty = $reflect->getProperty($property->getName());
-                $property->setAccessible(true);
-                $reflectionProperty->setAccessible(true);
-                $reflectionProperty->setValue($object, $property->getValue($data));
-            }
-        }
-
-        foreach ($dataReflect->getParentClass()->getProperties() as $property) {
-            if ($property->getName() !== 'id' && $reflect->getParentClass()->hasProperty($property->getName())) {
-                $reflectionProperty = $reflect->getParentClass()->getProperty($property->getName());
                 $property->setAccessible(true);
                 $reflectionProperty->setAccessible(true);
                 $reflectionProperty->setValue($object, $property->getValue($data));
@@ -203,6 +198,10 @@ abstract class Repository
 
     private function bindReferences(&$value): self
     {
+        if (!$value) {
+            return $this;
+        }
+
         if ($value instanceof DataReferenceInterface) {
             $class = get_class($value);
             if ($value instanceof Proxy) {
@@ -237,55 +236,6 @@ abstract class Repository
         return $this;
     }
 
-    /**
-     * @param $object
-     * @param array $dependencies [property => class]
-     *
-     * @return $this
-     * @throws ReflectionException
-     */
-    private function overloadDependencies($object, array $dependencies): self
-    {
-        if (empty($dependencies)) {
-            return $this;
-        }
-
-        $reflect = new ReflectionClass(get_class($object));
-        // This gets the real object, the one that the Doctrine\Common\Persistence\Proxy extends
-        if ($object instanceof Proxy) {
-            $reflect = $reflect->getParentClass();
-        }
-
-        foreach ($dependencies as $property => $class) {
-            if ($class === ArrayCollection::class) {
-                continue;
-            }
-
-            $reflectionProperty = null;
-            if ($reflect->hasProperty($property)) {
-                $reflectionProperty = $reflect->getProperty($property);
-            } elseif ($reflect->getParentClass() && $reflect->getParentClass()->hasProperty($property)) {
-                $reflectionProperty = $reflect->getParentClass()->getProperty($property);
-            }
-
-            if($reflectionProperty) {
-                $reflectionProperty->setAccessible(true);
-
-                $value = $reflectionProperty->getValue($object);
-                if ($value) {
-                    try {
-                        $value = $this->em->find($class, $value);
-                        $reflectionProperty->setValue($object, $value);
-                    } catch (ORMInvalidArgumentException $e) {
-                        continue;
-                    }
-                }
-            }
-        }
-
-        return $this;
-    }
-
     protected function store(AggregateRoot $object)
     {
         $changes = $object->getChanges();
@@ -300,107 +250,11 @@ abstract class Repository
                     (new Snapshot($object->getId()))
                         ->setType($object->getAggregateType())
                         ->setVersion($object->getVersion())
-                        ->setData($this->serializeToSnapshot($object))
+                        ->setData($object)
                 );
             }
         }
 
         $this->loaded[$object->getId()] = $object;
-    }
-
-    /**
-     * @param $object
-     * @param array $dependencies [property => class]
-     *
-     * @return $this
-     * @throws ReflectionException
-     */
-    private function unburdenDependencies($object, array $dependencies): self
-    {
-        if (empty($dependencies)) {
-            return $this;
-        }
-
-        $reflect = new ReflectionClass(get_class($object));
-        // This gets the real object, the one that the Proxy extends
-        if ($object instanceof Proxy) {
-            $reflect = $reflect->getParentClass();
-        }
-
-        foreach ($dependencies as $property => $class) {
-            $reflectionProperty = null;
-            if ($reflect->hasProperty($property)) {
-                $reflectionProperty = $reflect->getProperty($property);
-            } elseif ($reflect->getParentClass() && $reflect->getParentClass()->hasProperty($property)) {
-                $reflectionProperty = $reflect->getParentClass()->getProperty($property);
-            }
-
-            if($reflectionProperty) {
-                $reflectionProperty->setAccessible(true);
-
-                if ($class === ArrayCollection::class) {
-                    $value = new $class();
-                    $reflectionProperty->setValue($object, $value);
-
-                    continue;
-                }
-
-                $value = $reflectionProperty->getValue($object);
-                if ($value && method_exists($value, 'getId')) {
-                    $value = new $class($value->getId());
-                    $reflectionProperty->setValue($object, $value);
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    protected function serializeToSnapshot($object)
-    {
-        $serialize = clone $object;
-
-        if ($serialize instanceof Proxy) {
-            $serialize = $this->extractObjectFromProxy($serialize);
-        }
-
-        $this->unburdenDependencies(
-            $serialize,
-            array_merge($this->serializeDependencies, ['changes' => ArrayCollection::class])
-        );
-
-        return $serialize;
-    }
-
-    private function extractObjectFromProxy(AggregateRoot $proxyObject): AggregateRoot
-    {
-        $reflect = new ReflectionClass(get_class($proxyObject));
-        $reflect = $reflect->getParentClass();
-
-        $class = $reflect->getName();
-        $object = new $class($proxyObject->getId());
-
-        foreach ($reflect->getProperties() as $property) {
-            if ($property->getName() === 'id') {
-                continue;
-            }
-
-            $reflectionProperty = $reflect->getProperty($property->getName());
-            $reflectionProperty->setAccessible(true);
-            $reflectionProperty->setValue($object, $reflectionProperty->getValue($proxyObject));
-        }
-
-        return $object;
-    }
-
-    protected function unburdenChangesDependencies(ArrayCollection $changes): self
-    {
-        /** @var Changed $change */
-        foreach ($changes as $change) {
-            $payload = $change->getPayload();
-            $this->unburdenDependencies($payload, $this->dependencies);
-        }
-
-        return $this;
     }
 }
