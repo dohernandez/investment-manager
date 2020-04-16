@@ -59,9 +59,12 @@ final class ConsoleOperationRepository
             ->setParameter('value', serialize($value))
             ->setParameter('commission', serialize($commission))
             ->getOneOrNullResult()
+
         ) {
             return null;
         }
+
+        $this->em->clear();
 
         /** @var Operation $operation */
         return [

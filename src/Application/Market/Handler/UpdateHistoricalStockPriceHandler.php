@@ -10,6 +10,7 @@ use App\Domain\Market\MarketData;
 use App\Infrastructure\Context\Context;
 use App\Infrastructure\Context\Logger;
 use App\Infrastructure\Exception\NotFoundException;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
@@ -85,6 +86,7 @@ final class UpdateHistoricalStockPriceHandler implements MessageHandlerInterface
         }
 
         $stock->setHistoricalData($historicalData);
+        $stock->setHistoricalUpdatedAt(new DateTime());
         $this->stockRepository->save($stock);
     }
 }

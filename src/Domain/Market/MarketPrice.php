@@ -149,7 +149,7 @@ class MarketPrice implements DataReferenceInterface
         return $this->changePercentage;
     }
 
-    public function getPeRatio(): float
+    public function getPeRatio(): ?float
     {
         return $this->peRatio;
     }

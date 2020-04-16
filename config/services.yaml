@@ -64,7 +64,7 @@ services:
 
     ##### APPLICATION LAYER START
 
-    # Interfaces
+    ## Interfaces
 
     # Account
     App\Application\Account\Repository\AccountRepositoryInterface: '@App\Infrastructure\Storage\AccountRepository'
@@ -117,7 +117,11 @@ services:
     App\Application\ExchangeMoney\Repository\MarketRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\MarketRepository'
     App\Application\ExchangeMoney\Repository\WalletRepositoryInterface: '@App\Infrastructure\Storage\ExchangeMoney\WalletRepository'
 
-    # Handlers
+    # Report
+    App\Application\Report\Repository\WalletReportRepositoryInterface: '@App\Infrastructure\Storage\Report\WalletReportRepository'
+
+    ## Handlers
+
     App\Application\Market\Handler\SyncStockDividendsHandler:
         class: App\Application\Market\Handler\SyncStockDividendsHandler
         arguments:
@@ -132,6 +136,12 @@ services:
         class: App\Application\Wallet\Handler\CalculateWalletYearDividendProjectionHandler
         arguments:
             $openedPositionYearWithDividendsDecorate: '@App\Application\Wallet\Decorator\WalletOpenOrOpenedPositionYearWithDividendsDecorate'
+
+    App\Application\Report\Handler\GenerateDailyWalletReportHandler:
+        class: App\Application\Report\Handler\GenerateDailyWalletReportHandler
+        arguments:
+            $walletRepository: '@repository.report.wallet.wallet'
+            $positionRepository: '@repository.report.wallet.position'
 
     # Decorators
     App\Application\Market\Decorator\StockDividendsDecorate: ~
@@ -272,5 +282,33 @@ services:
     App\Infrastructure\Storage\ExchangeMoney\ExchangeMoneyRepository: ~
     App\Infrastructure\Storage\ExchangeMoney\MarketRepository: ~
     App\Infrastructure\Storage\ExchangeMoney\WalletRepository: ~
+
+    App\Infrastructure\Storage\Report\WalletReportRepository: ~
+
+    repository.report.wallet.wallet:
+        class: App\Infrastructure\Storage\Report\WalletRepository
+        arguments:
+            $walletHydrate: '@hydrate.wallet.wallet'
+
+    repository.report.wallet.position:
+        class: App\Infrastructure\Storage\Report\PositionRepository
+        arguments:
+            $positionHydrate: '@hydrate.wallet.position'
+
+    hydrate.wallet.wallet:
+        class: App\Infrastructure\Storage\Report\Hydrate\Wallet\WalletHydrate
+
+    hydrate.wallet.position:
+        class: App\Infrastructure\Storage\Report\Hydrate\Wallet\PositionHydrate
+        arguments:
+            $stockHydrate: '@hydrate.wallet.stock'
+            $dividendHydrate: '@hydrate.wallet.dividend'
+
+    hydrate.wallet.stock:
+        class: App\Infrastructure\Storage\Report\Hydrate\Wallet\StockHydrate
+
+    hydrate.wallet.dividend:
+        class: App\Infrastructure\Storage\Report\Hydrate\Wallet\DividendHydrate
+
 
     ##### INFRASTRUCTURE LAYER END

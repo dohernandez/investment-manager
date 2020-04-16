@@ -2,16 +2,14 @@
 
 namespace App\Domain\Report\Weekly;
 
+use App\Infrastructure\Doctrine\Data;
 use App\Infrastructure\Doctrine\DBAL\DataInterface;
 
 use function array_map;
 
 final class Report implements DataInterface
 {
-    private const DBAL_KEY_WALLET = 'wallet';
-    private const DBAL_KEY_WALLET_STOCKS = 'wallet_stocks';
-    private const DBAL_KEY_MOVERS_STOCKS = 'movers_stocks';
-    private const DBAL_KEY_SHAKER_STOCKS = 'shaker_stocks';
+    use Data;
 
     /**
      * @var Wallet
@@ -64,64 +62,5 @@ final class Report implements DataInterface
     public static function createReport(Wallet $wallet, array $walletStocks, array $moverStocks, array $shakerStocks)
     {
         return new static($wallet, $walletStocks, $moverStocks, $shakerStocks);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function marshalData()
-    {
-        return [
-            self::DBAL_KEY_WALLET => $this->wallet->marshalData(),
-
-            self::DBAL_KEY_WALLET_STOCKS => array_map(
-                function (Stock $stock) {
-                    return $stock->marshalData();
-                },
-                $this->getWalletStocks()
-            ),
-
-            self::DBAL_KEY_MOVERS_STOCKS => array_map(
-                function (Stock $stock) {
-                    return $stock->marshalData();
-                },
-                $this->getMoverStocks()
-            ),
-
-            self::DBAL_KEY_SHAKER_STOCKS => array_map(
-                function (Stock $stock) {
-                    return $stock->marshalData();
-                },
-                $this->getShakerStocks()
-            ),
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function unMarshalData($data)
-    {
-        return new static(
-            Wallet::unMarshalData($data[self::DBAL_KEY_WALLET]),
-            array_map(
-                function (Stock $stock) {
-                    return $stock->marshalData();
-                },
-                $data[self::DBAL_KEY_WALLET_STOCKS]
-            ),
-            array_map(
-                function (Stock $stock) {
-                    return $stock->marshalData();
-                },
-                $data[self::DBAL_KEY_MOVERS_STOCKS]
-            ),
-            array_map(
-                function (Stock $stock) {
-                    return $stock->marshalData();
-                },
-                $data[self::DBAL_KEY_SHAKER_STOCKS]
-            )
-        );
     }
 }

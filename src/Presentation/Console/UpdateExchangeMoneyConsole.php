@@ -56,8 +56,12 @@ final class UpdateExchangeMoneyConsole extends Console
     {
         $io = new SymfonyStyle($input, $output);
 
+        $io->progressStart(3);
+
         $wallets = $this->walletRepository->findAll();
         $markets = $this->marketRepository->findAll();
+
+        $io->progressAdvance();
 
         $paarCurrencies = [];
         foreach ($wallets as $wallet) {
@@ -72,6 +76,8 @@ final class UpdateExchangeMoneyConsole extends Console
             }
         }
 
+        $io->progressAdvance();
+
         if (!$this->isHistorical($input)) {
             $this->bus->dispatch(
                 new UpdateMoneyRates(
@@ -85,6 +91,8 @@ final class UpdateExchangeMoneyConsole extends Console
                 )
             );
         }
+
+        $io->progressFinish();
 
         $io->success('exchange money rates updated successfully.');
     }

@@ -33,6 +33,8 @@ final class ConsoleStockRepository
             ->createQuery(sprintf('SELECT PARTIAL s.{id,symbol} FROM %s s WHERE s.delisted = 0', Stock::class))
             ->getResult();
 
+        $this->em->clear();
+
         return array_map(
             function (Stock $stock) {
                 return [
@@ -59,6 +61,8 @@ final class ConsoleStockRepository
         ) {
             return null;
         }
+
+        $this->em->clear();
 
         /** @var Stock $stock */
         return [

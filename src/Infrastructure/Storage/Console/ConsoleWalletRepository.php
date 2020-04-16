@@ -29,6 +29,8 @@ final class ConsoleWalletRepository
             ->createQuery(sprintf('SELECT PARTIAL w.{id} FROM %s w', Wallet::class))
             ->getResult();
 
+        $this->em->clear();
+
         return array_map(
             function (Wallet $wallet) {
                 return [
@@ -55,20 +57,20 @@ final class ConsoleWalletRepository
             return null;
         }
 
+        $this->em->clear();
+
         /** @var Wallet $wallet */
         return [
             'id' => $wallet->getId(),
         ];
     }
 
-
-
     /**
      * @inheritDoc
      */
     public function findAllStocksInWalletOnOpenPositionBySlug(string $slug): array
     {
-        return array_map(
+        $stocks = array_map(
             function ($stock) {
                 if (is_array($stock)) {
                     $stock = reset($stock);
@@ -88,5 +90,9 @@ final class ConsoleWalletRepository
                 ->setParameter('status', Position::STATUS_OPEN)
                 ->getResult()
         );
+
+        $this->em->clear();
+
+        return $stocks;
     }
 }

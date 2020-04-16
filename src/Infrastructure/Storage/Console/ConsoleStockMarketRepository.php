@@ -30,6 +30,8 @@ final class ConsoleStockMarketRepository
             ->createQuery(sprintf('SELECT PARTIAL sm.{id,symbol,currency,yahooSymbol} FROM %s sm', StockMarket::class))
             ->getResult();
 
+        $this->em->clear();
+
         return array_map(
             function (StockMarket $stockMarket) {
                 return [
@@ -58,6 +60,8 @@ final class ConsoleStockMarketRepository
         ) {
             return null;
         }
+
+        $this->em->clear();
 
         /** @var StockMarket $stockMarket */
         return [

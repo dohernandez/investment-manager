@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Domain\Report\Wallet\Section;
+namespace App\Domain\Report\Wallet;
 
+use App\Infrastructure\Doctrine\Data;
 use App\Infrastructure\Doctrine\DBAL\DataInterface;
 
 final class UpDown implements DataInterface
 {
     public const DIRECTION_UP = 'up';
     public const DIRECTION_DOWN = 'down';
+    public const DIRECTION_LEFT = 'left';
 
-    private const DBAL_KEY_DIRECTION = 'direction';
-    private const DBAL_KEY_VALUE = 'value';
+    use Data;
 
     /**
      * @var string
@@ -36,24 +37,5 @@ final class UpDown implements DataInterface
     public function getDirection(): string
     {
         return $this->direction;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function marshalData()
-    {
-        return [
-            self::DBAL_KEY_DIRECTION => $this->direction,
-            self::DBAL_KEY_VALUE     => $this->value,
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function unMarshalData($data)
-    {
-        return new static($data[self::DBAL_KEY_VALUE], $data[self::DBAL_KEY_DIRECTION]);
     }
 }

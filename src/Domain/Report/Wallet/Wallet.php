@@ -1,22 +1,29 @@
 <?php
 
-namespace App\Domain\Report\Wallet\Section;
+namespace App\Domain\Report\Wallet;
 
+use App\Infrastructure\Doctrine\Data;
 use App\Infrastructure\Doctrine\DBAL\DataInterface;
 use App\Infrastructure\Money\Money;
 
-final class Statistics implements DataInterface
+final class Wallet implements DataInterface
 {
-    private const DBAL_KEY_INVESTED = 'invested';
-    private const DBAL_KEY_CAPITAL = 'capital';
-    private const DBAL_KEY_NET_CAPITAL = 'netCapital';
-    private const DBAL_KEY_FUNDS = 'funds';
-    private const DBAL_KEY_DIVIDENDS = 'dividends';
-    private const DBAL_KEY_COMMISSIONS = 'commissions';
-    private const DBAL_KEY_CONNECTION = 'connection';
-    private const DBAL_KEY_INTEREST = 'interest';
-    private const DBAL_KEY_BENEFITS = 'benefits';
-    private const DBAL_KEY_PERCENTAGE_BENEFITS = 'percentageBenefits';
+    use Data;
+
+    /**
+     * @var string
+     */
+    private $id;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var string
+     */
+    private $slug;
 
     /**
      * @var Money
@@ -69,6 +76,9 @@ final class Statistics implements DataInterface
     private $percentageBenefits;
 
     public function __construct(
+        string $id,
+        string $name,
+        string $slug,
         Money $invested,
         Money $capital,
         Money $netCapital,
@@ -80,6 +90,9 @@ final class Statistics implements DataInterface
         ?Money $benefits,
         ?float $percentageBenefits
     ) {
+        $this->id = $id;
+        $this->name = $name;
+        $this->slug = $slug;
         $this->invested = $invested;
         $this->capital = $capital;
         $this->netCapital = $netCapital;
@@ -90,6 +103,21 @@ final class Statistics implements DataInterface
         $this->interest = $interest;
         $this->benefits = $benefits;
         $this->percentageBenefits = $percentageBenefits;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getSlug(): string
+    {
+        return $this->slug;
     }
 
     public function getInvested(): Money
@@ -140,43 +168,5 @@ final class Statistics implements DataInterface
     public function getPercentageBenefits(): ?float
     {
         return $this->percentageBenefits;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function marshalData()
-    {
-        return [
-            self::DBAL_KEY_INVESTED            => $this->invested->marshalData(),
-            self::DBAL_KEY_CAPITAL             => $this->capital->marshalData(),
-            self::DBAL_KEY_NET_CAPITAL         => $this->netCapital->marshalData(),
-            self::DBAL_KEY_FUNDS               => $this->funds->marshalData(),
-            self::DBAL_KEY_DIVIDENDS           => $this->dividends->marshalData(),
-            self::DBAL_KEY_COMMISSIONS         => $this->commissions->marshalData(),
-            self::DBAL_KEY_CONNECTION          => $this->connection->marshalData(),
-            self::DBAL_KEY_INTEREST            => $this->interest->marshalData(),
-            self::DBAL_KEY_BENEFITS            => $this->benefits->marshalData(),
-            self::DBAL_KEY_PERCENTAGE_BENEFITS => $this->percentageBenefits,
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function unMarshalData($data)
-    {
-        return new static(
-            $data[self::DBAL_KEY_INVESTED],
-            $data[self::DBAL_KEY_CAPITAL],
-            $data[self::DBAL_KEY_NET_CAPITAL],
-            $data[self::DBAL_KEY_FUNDS],
-            $data[self::DBAL_KEY_DIVIDENDS],
-            $data[self::DBAL_KEY_COMMISSIONS],
-            $data[self::DBAL_KEY_CONNECTION],
-            $data[self::DBAL_KEY_INTEREST],
-            $data[self::DBAL_KEY_BENEFITS],
-            $data[self::DBAL_KEY_PERCENTAGE_BENEFITS]
-        );
     }
 }

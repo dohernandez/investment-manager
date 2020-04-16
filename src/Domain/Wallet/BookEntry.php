@@ -424,5 +424,7 @@ class BookEntry implements DataInterface
             $value = static::unMarshalValue($value);
             $property->setValue($self, $value);
         }
+
+        return $self;
     }
 }

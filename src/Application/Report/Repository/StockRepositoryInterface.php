@@ -3,9 +3,9 @@
 namespace App\Application\Report\Repository;
 
 
-use App\Domain\Report\Weekly\Stock;
+use App\Domain\Report\Object\Stock;
 
-interface WeeklyStockRepositoryInterface
+interface StockRepositoryInterface
 {
     /**
      * @param int $limit

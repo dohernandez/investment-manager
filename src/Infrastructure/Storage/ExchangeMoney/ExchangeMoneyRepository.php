@@ -5,11 +5,12 @@ namespace App\Infrastructure\Storage\ExchangeMoney;
 use App\Application\ExchangeMoney\Repository\ExchangeMoneyRepositoryInterface;
 use App\Domain\ExchangeMoney\Rate;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-use function array_map;
 use function sprintf;
 
 /**
@@ -48,7 +49,7 @@ final class ExchangeMoneyRepository extends ServiceEntityRepository implements E
     {
         return $this->createQueryBuilder('ec')
             ->andWhere('ec.paarCurrency LIKE :toCurrency')
-            ->setParameter('toCurrency', $toCurrency . '_%' )
+            ->setParameter('toCurrency', $toCurrency . '_%')
             ->getQuery()
             ->getResult();
     }
@@ -58,7 +59,7 @@ final class ExchangeMoneyRepository extends ServiceEntityRepository implements E
         return $this->findOneBy(
             [
                 'paarCurrency' => $paarCurrency,
-                'dateAt' => $date,
+                'dateAt'       => $date,
             ]
         );
     }
@@ -72,13 +73,7 @@ final class ExchangeMoneyRepository extends ServiceEntityRepository implements E
 
         $classMetadata = $this->getEntityManager()->getClassMetadata(Rate::class);
 
-        $rsm = new ResultSetMapping();
-        $alias = 'er0';
-        $rsm->addEntityResult(Rate::class, '' . $alias . '');
-
-        foreach ($classMetadata->getFieldNames() as $fieldName) {
-            $rsm->addFieldResult($alias, $classMetadata->getColumnName($fieldName), $fieldName);
-        }
+        $rsm = $this->createResultSetMapping($classMetadata);
 
         return $em->createNativeQuery(
             sprintf(
@@ -95,4 +90,23 @@ final class ExchangeMoneyRepository extends ServiceEntityRepository implements E
         )
             ->getResult();
     }
+
+    /**
+     * @param ClassMetadata $classMetadata
+     *
+     * @return ResultSetMapping
+     */
+    private function createResultSetMapping(ClassMetadata $classMetadata): ResultSetMapping
+    {
+        $rsm = new ResultSetMapping();
+        $alias = 'er0';
+        $rsm->addEntityResult(Rate::class, '' . $alias . '');
+
+        foreach ($classMetadata->getFieldNames() as $fieldName) {
+            $rsm->addFieldResult($alias, $classMetadata->getColumnName($fieldName), $fieldName);
+        }
+
+        return $rsm;
+    }
+
 }

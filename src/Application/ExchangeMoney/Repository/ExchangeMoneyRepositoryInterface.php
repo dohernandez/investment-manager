@@ -4,6 +4,7 @@ namespace App\Application\ExchangeMoney\Repository;
 
 use App\Domain\ExchangeMoney\Rate;
 use DateTime;
+use DateTimeInterface;
 
 interface ExchangeMoneyRepositoryInterface
 {

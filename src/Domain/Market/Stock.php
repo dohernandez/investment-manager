@@ -277,6 +277,13 @@ class Stock extends AggregateRoot implements EventSourcedAggregateRoot, DataInte
         return $this->historicalUpdatedAt;
     }
 
+    public function setHistoricalUpdatedAt(DateTime $historicalUpdatedAt): self
+    {
+        $this->historicalUpdatedAt = $historicalUpdatedAt;
+
+        return $this;
+    }
+
     public static function add(
         string $name,
         string $symbol,

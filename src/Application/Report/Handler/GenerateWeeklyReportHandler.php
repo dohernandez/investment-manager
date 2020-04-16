@@ -3,7 +3,7 @@
 namespace App\Application\Report\Handler;
 
 use App\Application\Report\Command\GenerateWeeklyReport;
-use App\Application\Report\Repository\WeeklyStockRepositoryInterface;
+use App\Application\Report\Repository\StockRepositoryInterface;
 use App\Application\Report\Repository\WeeklyWalletRepositoryInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
@@ -15,13 +15,13 @@ final class GenerateWeeklyReportHandler
     private $walletRepository;
 
     /**
-     * @var WeeklyStockRepositoryInterface
+     * @var StockRepositoryInterface
      */
     private $stockRepository;
 
     public function __construct(
         WeeklyWalletRepositoryInterface $walletRepository,
-        WeeklyStockRepositoryInterface $stockRepository
+        StockRepositoryInterface $stockRepository
     ) {
         $this->walletRepository = $walletRepository;
         $this->stockRepository = $stockRepository;

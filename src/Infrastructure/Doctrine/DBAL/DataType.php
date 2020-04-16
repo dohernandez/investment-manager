@@ -45,7 +45,6 @@ class DataType extends Type
         }
 
         $val = json_decode($value, true);
-
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw ConversionException::conversionFailed($value, $this->getName());
         }
