@@ -39,7 +39,7 @@
     "style-loader": "^0.23.1",
     "sweetalert2": "^8.10.6",
     "twbs-pagination": "^1.4.1",
-    "underscore": "^1.9.1",
+    "underscore": "^1.12.1",
     "webpack": "^4.31.0",
     "webpack-chunk-hash": "^0.6.0",
     "webpack-cli": "^3.3.2",
