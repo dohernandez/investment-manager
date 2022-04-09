@@ -31,7 +31,7 @@
     "jquery": "^3.4.1",
     "js-event-bus": "^1.0.0",
     "mini-css-extract-plugin": "^0.6.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "node-sass": "^4.12.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "sass-loader": "^7.1.0",
